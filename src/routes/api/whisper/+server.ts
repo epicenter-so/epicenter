@@ -1,6 +1,6 @@
 import { error, text } from '@sveltejs/kit';
 import type { RequestHandler } from '../../whisper/$types';
-import { getTranscriptionFromWhisperAPI } from '../../../lib/whisperTranscription';
+import { getTranscriptionFromWhisperAPI } from '$lib/whisperTranscription';
 
 export const POST = (async ({ request }) => {
 	try {
@@ -8,7 +8,14 @@ export const POST = (async ({ request }) => {
 		if (!WHISPER_API_KEY) throw error(400, 'Missing WHISPER_API_KEY');
 		const wavBlob = new Blob([new Uint8Array(await request.arrayBuffer())]);
 		const whisperText = await getTranscriptionFromWhisperAPI(wavBlob, WHISPER_API_KEY);
-		return text(whisperText);
+		return text(whisperText, {
+			headers: {
+				'access-control-allow-origin': '*',
+				'access-control-allow-methods': 'POST, OPTIONS',
+				'access-control-allow-headers': '*',
+				'access-control-max-age': '86400'
+			}
+		});
 	} catch (err) {
 		if (err instanceof Error) throw error(500, `Error processing audio: ${err.message}`);
 	}
