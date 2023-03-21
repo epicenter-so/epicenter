@@ -2,6 +2,17 @@ import { error, text } from '@sveltejs/kit';
 import type { RequestHandler } from '../../whisper/$types';
 import { getTranscriptionFromWhisperAPI } from '$lib/whisperTranscription';
 
+export const OPTIONS = (async () => {
+	return text('', {
+		headers: {
+			'access-control-allow-origin': '*',
+			'access-control-allow-methods': 'POST, OPTIONS',
+			'access-control-allow-headers': '*',
+			'access-control-max-age': '86400'
+		}
+	});
+}) satisfies RequestHandler;
+
 export const POST = (async ({ request }) => {
 	try {
 		const WHISPER_API_KEY = request.headers.get('x-whisper-api-key');
