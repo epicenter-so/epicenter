@@ -2,9 +2,8 @@ export async function getTranscriptionFromWhisperAPI(
 	audioBlob: Blob,
 	WHISPER_API_KEY: string
 ): Promise<string> {
-	const wavFile = new File([audioBlob], 'recording.wav', {
-		type: 'audio/wav'
-	});
+	const fileName = 'recording.wav';
+	const wavFile = new File([audioBlob], fileName);
 	const formData = new FormData();
 	formData.append('file', wavFile);
 	formData.append('model', 'whisper-1');
@@ -18,8 +17,7 @@ export async function getTranscriptionFromWhisperAPI(
 	const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
 		method: 'POST',
 		headers: {
-			Authorization: `Bearer ${WHISPER_API_KEY}`,
-			ContentType: 'multipart/form-data'
+			Authorization: `Bearer ${WHISPER_API_KEY}`
 		},
 		body: formData
 	});
