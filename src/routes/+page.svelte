@@ -3,7 +3,7 @@
 	import { apiKey } from '$lib/stores/apiKey';
 	import PleaseEnterAPIKeyToast from '$lib/toasts/PleaseEnterAPIKeyToast.svelte';
 	import SomethingWentWrongToast from '$lib/toasts/SomethingWentWrongToast.svelte';
-	import { getTranscriptionFromWhisperAPI } from '$lib/getTranscriptionFromWhisperAPI';
+	import { getTranscriptionFromWhisperAPI } from '$lib/whisperTranscription';
 	import { onDestroy, onMount } from 'svelte';
 	import toast from 'svelte-french-toast';
 
