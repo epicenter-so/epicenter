@@ -5,10 +5,10 @@ import { getTranscriptionFromWhisperAPI } from '$lib/whisperTranscription';
 export const OPTIONS = (async () => {
 	return text('', {
 		headers: {
-			'access-control-allow-origin': '*',
-			'access-control-allow-methods': 'POST, OPTIONS',
-			'access-control-allow-headers': '*',
-			'access-control-max-age': '86400'
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'POST, OPTIONS',
+			'Access-Control-Allow-Headers': '*',
+			'Access-Control-Max-Age': '86400'
 		}
 	});
 }) satisfies RequestHandler;
@@ -21,10 +21,10 @@ export const POST = (async ({ request }) => {
 		const whisperText = await getTranscriptionFromWhisperAPI(wavBlob, WHISPER_API_KEY);
 		return text(whisperText, {
 			headers: {
-				'access-control-allow-origin': '*',
-				'access-control-allow-methods': 'POST, OPTIONS',
-				'access-control-allow-headers': '*',
-				'access-control-max-age': '86400'
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'POST, OPTIONS',
+				'Access-Control-Allow-Headers': '*',
+				'Access-Control-Max-Age': '86400'
 			}
 		});
 	} catch (err) {
