@@ -1,8 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::ptr;
-
+mod accessibility;
+use accessibility::is_macos_accessibility_enabled;
 use tauri::{CustomMenuItem, Manager};
 use tauri::{SystemTray, SystemTrayEvent, SystemTrayMenu};
 
@@ -32,7 +32,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             write_text,
             set_tray_icon,
-            is_accessibility_enabled
+            is_macos_accessibility_enabled
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -59,41 +59,4 @@ async fn set_tray_icon(recorder_state: String, app_handle: tauri::AppHandle) -> 
         .set_icon(tauri::Icon::Raw(icon))
         .unwrap();
     Ok(())
-}
-
-use accessibility_sys::{kAXTrustedCheckOptionPrompt, AXIsProcessTrustedWithOptions};
-use core_foundation_sys::base::{CFRelease, TCFTypeRef};
-use core_foundation_sys::dictionary::{
-    CFDictionaryAddValue, CFDictionaryCreateMutable, __CFDictionary,
-};
-use core_foundation_sys::number::kCFBooleanFalse;
-
-#[tauri::command]
-fn is_accessibility_enabled() -> bool {
-    create_options_dictionary().map_or(false, |options| {
-        let is_allowed = unsafe { AXIsProcessTrustedWithOptions(options) };
-        release_options_dictionary(options);
-        is_allowed
-    })
-}
-
-fn create_options_dictionary() -> Result<*mut __CFDictionary, &'static str> {
-    unsafe {
-        let options = CFDictionaryCreateMutable(ptr::null_mut(), 0, ptr::null(), ptr::null());
-        if options.is_null() {
-            return Err("Failed to create options dictionary");
-        }
-        CFDictionaryAddValue(
-            options,
-            kAXTrustedCheckOptionPrompt.as_void_ptr(),
-            kCFBooleanFalse.as_void_ptr(),
-        );
-        Ok(options)
-    }
-}
-
-fn release_options_dictionary(options: *mut __CFDictionary) {
-    unsafe {
-        CFRelease(options as *const _);
-    }
 }
