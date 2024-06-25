@@ -8,7 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"tauri": "BUILD_TARGET=native tauri"
+		"tauri": "cross-env BUILD_TARGET=native tauri"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "3.0.1",
@@ -38,6 +38,7 @@
 		"audio-recorder-polyfill": "^0.4.1",
 		"bits-ui": "^0.21.10",
 		"clsx": "^2.1.1",
+		"cross-env": "^7.0.3",
 		"effect": "^3.3.2",
 		"hotkeys-js": "^3.13.7",
 		"idb": "^8.0.0",
