@@ -3,73 +3,22 @@ import { useStorage } from '@plasmohq/storage/hook';
 import { WhisperingError, recorderStateToIcons, type RecorderState } from '@repo/shared';
 import cssText from 'data-text:~/style.css';
 import { Effect } from 'effect';
-import type {
-	PlasmoCSConfig,
-	PlasmoGetInlineAnchorList,
-	PlasmoGetStyle,
-	PlasmoMountShadowHost,
-} from 'plasmo';
+import type { PlasmoCSConfig, PlasmoGetInlineAnchor, PlasmoGetStyle } from 'plasmo';
 import { renderErrorAsNotification } from '~lib/errors';
 import { NotificationServiceContentLive } from '~lib/services/NotificationServiceContentLive';
 import { STORAGE_KEYS } from '~lib/services/extension-storage';
 import type * as ToggleRecording from '../background/messages/contents/toggleRecording';
 
-export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
-	const allEditableElements = document.querySelectorAll(
-		[
-			// "input[type='text']",
-			// "input[type='search']",
-			// "input[type='email']",
-			// "input[type='url']",
-			// "input[type='tel']",
-			// "input[type='password']",
-			// "input[type='number']",
-			// 'input:not([type])',
-			'textarea',
-			'[contenteditable="true"]',
-			'[contenteditable=""]',
-		].join(', '),
-	) as NodeListOf<HTMLElement>;
-
-	const editableElements = Array.from(allEditableElements).filter((element) => {
-		const style = window.getComputedStyle(element);
-		return (
-			style.display !== 'none' &&
-			style.visibility !== 'hidden' &&
-			!element.disabled &&
-			!element.readOnly &&
-			element.offsetParent !== null &&
-			element.getAttribute('aria-readonly') !== 'true' &&
-			element.getAttribute('aria-disabled') !== 'true'
-		);
-	});
-
-	return editableElements.map((element) => ({
+export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
+	const element = document.querySelector('#prompt-textarea')?.closest('div');
+	return {
 		element,
 		insertPosition: 'afterend',
-	}));
-};
-
-export const mountShadowHost: PlasmoMountShadowHost = ({ shadowHost, anchor, mountState }) => {
-	if (!anchor?.element) return;
-	const editableElement = anchor.element as HTMLElement;
-
-	const wrapper = document.createElement('div');
-	wrapper.style.display = 'flex';
-	wrapper.style.alignItems = 'center';
-
-	wrapper.style.width = '100%';
-	editableElement.style.width = '100%';
-
-	editableElement.parentNode?.insertBefore(wrapper, editableElement);
-	wrapper.appendChild(editableElement);
-	wrapper.appendChild(shadowHost);
-
-	// mountState?.observer?.disconnect(); // OPTIONAL DEMO: stop the observer as needed
+	};
 };
 
 export const config: PlasmoCSConfig = {
-	matches: ['https://claude.ai/*'],
+	matches: ['https://chatgpt.com/*'],
 	all_frames: true,
 };
 
