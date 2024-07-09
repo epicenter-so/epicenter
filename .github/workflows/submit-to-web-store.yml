@@ -11,6 +11,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup sparse checkout to exclude "images" folder
+        run: |
+          git sparse-checkout init --cone
+          git sparse-checkout set --no-cone /* !images
+          git checkout
       - name: setup node
         uses: actions/setup-node@v4
         with:

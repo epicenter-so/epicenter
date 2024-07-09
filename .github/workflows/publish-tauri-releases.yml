@@ -6,8 +6,6 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-# This workflow will trigger on each push of a tag matching the "v1.0.0" format to create or update a GitHub release, build your app, and upload the artifacts to the release.
-
 jobs:
   publish-tauri:
     permissions:
@@ -28,6 +26,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup sparse checkout to exclude "images" folder
+        run: |
+          git sparse-checkout init --cone
+          git sparse-checkout set --no-cone /* !images
+          git checkout
 
       - name: setup node
         uses: actions/setup-node@v4
