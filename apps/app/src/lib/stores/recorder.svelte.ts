@@ -142,5 +142,40 @@ export const recorder = Effect.gen(function* () {
 					yield* setAlwaysOnTop(false);
 				}
 			}).pipe(Effect.runPromise),
+		
+		uploadRecording: (file: File) =>
+			Effect.gen(function* () {
+				  if (!file.type.startsWith('audio/')) {
+					if (settings.value.isPlaySoundEnabled) {
+						if (!document.hidden) {
+							cancelSound.play();
+						} else {
+							yield* sendMessageToExtension({
+								name: 'whispering-extension/playSound',
+								body: { sound: 'cancel' },
+							});
+						}
+					}
+					yield* Effect.logInfo('Please upload a valid audio file.');
+					recorderState.value = 'IDLE';
+				  }
+		  
+				  const arrayBuffer = yield* Effect.tryPromise(() => file.arrayBuffer());
+				  const audioBlob = new Blob([arrayBuffer], { type: file.type });
+		  
+				  const newRecording: Recording = {
+					id: nanoid(),
+					title: file.name,
+					subtitle: '',
+					timestamp: new Date().toISOString(),
+					transcribedText: '',
+					blob: audioBlob,
+					transcriptionStatus: 'UNPROCESSED',
+				  };
+		  
+				  yield* recordings.addRecording(newRecording);
+				  yield* recordings.transcribeRecording(newRecording.id);
+				}),
+			
 	};
 }).pipe(Effect.provide(MainLive), Effect.runSync);
