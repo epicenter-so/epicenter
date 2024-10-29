@@ -75,7 +75,7 @@ function handleFileUpload(event: Event) {
 	{/if}
 	<input
     type="file"
-    accept="audio/*"
+    accept="audio/*, video/*"
     onchange={handleFileUpload}
     bind:this={fileInput}
     style="display: none;"

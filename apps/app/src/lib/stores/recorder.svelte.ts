@@ -15,6 +15,7 @@ import type { Recording } from '../services/RecordingDbService';
 import stopSoundSrc from './assets/sound_ex_machina_Button_Blip.mp3';
 import startSoundSrc from './assets/zapsplat_household_alarm_clock_button_press_12967.mp3';
 import cancelSoundSrc from './assets/zapsplat_multimedia_click_button_short_sharp_73510.mp3';
+import { toast } from '$lib/services/ToastService';
 
 const startSound = new Audio(startSoundSrc);
 const stopSound = new Audio(stopSoundSrc);
@@ -145,7 +146,7 @@ export const recorder = Effect.gen(function* () {
 		
 		uploadRecording: (file: File) =>
 			Effect.gen(function* () {
-				  if (!file.type.startsWith('audio/')) {
+				  if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) {
 					if (settings.value.isPlaySoundEnabled) {
 						if (!document.hidden) {
 							cancelSound.play();
@@ -156,8 +157,13 @@ export const recorder = Effect.gen(function* () {
 							});
 						}
 					}
-					yield* Effect.logInfo('Please upload a valid audio file.');
+					yield* toast({
+						variant: 'error',
+						title: 'Invalid file type',
+						description: 'Please upload an audio file.',
+					});
 					recorderState.value = 'IDLE';
+					return;
 				  }
 		  
 				  const arrayBuffer = yield* Effect.tryPromise(() => file.arrayBuffer());
