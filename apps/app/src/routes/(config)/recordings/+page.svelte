@@ -271,7 +271,7 @@ let text = $derived.by(() => {
 		<div class="flex flex-col items-center gap-2 overflow-auto sm:flex-row">
 			<form
 				class="flex w-full max-w-sm gap-2"
-				on:submit={(e) => {
+				onsubmit={(e) => {
 					e.preventDefault();
 					table.getColumn('transcribedText')?.setFilterValue(filterQuery);
 				}}

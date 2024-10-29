@@ -22,16 +22,6 @@ export const TranscriptionServiceFasterWhisperServerLive = Layer.succeed(
 					fasterWhisperServerModel,
 				} = settings.value;
 
-				const blobSizeInMb = audioBlob.size / (1024 * 1024);
-				if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-					return yield* new WhisperingError({
-						title: `The file size (${blobSizeInMb}MB) is too large`,
-						description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-						action: {
-							type: 'none',
-						},
-					});
-				}
 				const formDataFile = new File(
 					[audioBlob],
 					`recording.${getExtensionFromAudioBlob(audioBlob)}`,
