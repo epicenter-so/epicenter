@@ -143,8 +143,6 @@ export const recordings = Effect.gen(function* () {
 					// postprocess if replacements are defined
 					const replacementMap = settings.value.replacementMap;
 					let processedText = transcribedText;
-					console.log('processed Text: ', processedText);
-					console.log('replacementMap: ', replacementMap);
 					if (replacementMap) {
 						const pattern = new RegExp(
 							'\\b(' +

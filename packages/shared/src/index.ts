@@ -118,7 +118,7 @@ export const effectToResult = <T>(
 	effect: Effect.Effect<T, WhisperingError>,
 ): Effect.Effect<Result<T>> =>
 	effect.pipe(
-		Effect.map((data) => ({ isSuccess: true, data } as const)),
+		Effect.map((data) => ({ isSuccess: true, data }) as const),
 		Effect.catchAll((error) =>
 			Effect.succeed({ isSuccess: false, error } as const),
 		),
