@@ -5,13 +5,11 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
-	import {
-		getRegisterShortcutsFromContext,
-		settings,
-	} from '$lib/stores/settings.svelte';
+	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	const recorder = getRecorderFromContext();
-	const registerShortcuts = getRegisterShortcutsFromContext();
+	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
 
 <svelte:head>
@@ -37,7 +35,7 @@
 				...settings.value,
 				'shortcuts.currentLocalShortcut': value,
 			};
-			registerShortcuts.registerLocalShortcut({
+			shortcutsRegister.registerLocalShortcut({
 				shortcut: value,
 				callback: () => recorder.toggleRecording(),
 			});
@@ -55,7 +53,7 @@
 					...settings.value,
 					'shortcuts.currentGlobalShortcut': value,
 				};
-				registerShortcuts.registerGlobalShortcut({
+				shortcutsRegister.registerGlobalShortcut({
 					shortcut: value,
 					callback: () => recorder.toggleRecording(),
 				});
