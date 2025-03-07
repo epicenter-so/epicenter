@@ -6,9 +6,9 @@ import {
 	GROQ_MODELS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
-} from './constants.js';
+} from '../constants.js';
 
-export const getDefaultSettings = () =>
+export const getDefaultSettingsV1 = () =>
 	({
 		'sound.playOn.start': true,
 		'sound.playOn.stop': true,
@@ -51,7 +51,7 @@ export const getDefaultSettings = () =>
 		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
 	}) satisfies SettingsV1;
 
-export const settingsSchema = z.object({
+export const settingsV1Schema = z.object({
 	'sound.playOn.start': z.boolean(),
 	'sound.playOn.stop': z.boolean(),
 	'sound.playOn.cancel': z.boolean(),
@@ -101,4 +101,4 @@ export const settingsSchema = z.object({
 	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type SettingsV1 = z.infer<typeof settingsSchema>;
+export type SettingsV1 = z.infer<typeof settingsV1Schema>;

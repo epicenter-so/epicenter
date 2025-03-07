@@ -3,18 +3,26 @@ import { toast } from '$lib/services/toast';
 import { createJobQueue } from '$lib/utils/createJobQueue';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 import { tryAsync, trySync } from '@epicenterhq/result';
+import { WhisperingErr } from '@repo/shared';
 import {
-	WhisperingErr,
-	getDefaultSettings,
-	settingsSchema,
-} from '@repo/shared';
+	getDefaultSettingsV1,
+	getDefaultSettingsV2,
+	settingsV1Schema,
+	settingsV2Schema,
+} from '@repo/shared/settings';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 
+const settingsV1 = createPersistedState({
+	key: 'whispering-settings',
+	schema: settingsV1Schema,
+	defaultValue: getDefaultSettingsV1(),
+});
+
 export const settings = createPersistedState({
 	key: 'whispering-settings',
-	schema: settingsSchema,
-	defaultValue: getDefaultSettings(),
+	schema: settingsV2Schema,
+	defaultValue: getDefaultSettingsV2(),
 });
 
 type RegisterShortcutJob = Promise<void>;

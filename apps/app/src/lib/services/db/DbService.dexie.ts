@@ -2,7 +2,6 @@ import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { useDownloadIndexedDbBlobWithToast } from '$lib/query/download/mutations';
 import { toast } from '$lib/services/toast';
 import { Ok, tryAsync } from '@epicenterhq/result';
-import type { Settings } from '@repo/shared';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type {

@@ -7,13 +7,16 @@ import {
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
-} from './constants.js';
+} from '../constants.js';
 
-export const getDefaultSettings = () =>
+export const getDefaultSettingsV2 = () =>
 	({
-		'sound.playOn.start': true,
-		'sound.playOn.stop': true,
-		'sound.playOn.cancel': true,
+		'sound.playOn.start-manual': true,
+		'sound.playOn.stop-manual': true,
+		'sound.playOn.cancel-manual': true,
+		'sound.playOn.start-vad': true,
+		'sound.playOn.capture-vad': true,
+		'sound.playOn.stop-vad': true,
 		'sound.playOn.transcriptionComplete': true,
 		'sound.playOn.transformationComplete': true,
 		'transcription.clipboard.copyOnSuccess': true,
@@ -50,9 +53,9 @@ export const getDefaultSettings = () =>
 
 		'shortcuts.currentLocalShortcut': 'space',
 		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
-	}) satisfies Settings;
+	}) satisfies SettingsV2;
 
-export const settingsSchema = z.object({
+export const settingsV2Schema = z.object({
 	...({
 		'sound.playOn.start-manual': z.boolean(),
 		'sound.playOn.stop-manual': z.boolean(),
@@ -109,4 +112,4 @@ export const settingsSchema = z.object({
 	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type SettingsV2 = z.infer<typeof settingsSchema>;
+export type SettingsV2 = z.infer<typeof settingsV2Schema>;
