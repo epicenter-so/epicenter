@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import { getCommandsFromContext } from '$lib/query/singletons/commands';
-import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';

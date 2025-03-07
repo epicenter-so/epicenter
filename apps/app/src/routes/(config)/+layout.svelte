@@ -2,10 +2,12 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import RecordingControls from '$lib/components/RecordingControls.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+	import { getCommandsFromContext } from '$lib/query/singletons/commands';
+	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { cn } from '$lib/utils.js';
 
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
+	const commands = getCommandsFromContext();
 
 	let { children } = $props();
 </script>
@@ -30,12 +32,12 @@
 	<RecordingControls class="hidden sm:flex" />
 	<WhisperingButton
 		tooltipContent="Toggle recording"
-		onclick={recorder.toggleRecording}
+		onclick={commands.toggleManualRecording}
 		variant="ghost"
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if recorder.recorderState === 'SESSION+RECORDING'}
+		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 			⏹️
 		{:else}
 			🎙️

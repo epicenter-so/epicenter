@@ -1,11 +1,11 @@
 import type { CommandName } from '@repo/shared/settings';
 import { getContext, setContext } from 'svelte';
-import type { Recorder } from './recorder';
+import type { ManualRecorder } from './manualRecorder';
 import type { Transcriber } from './transcriber';
 import type { Transformer } from './transformer';
 import type { VadRecorder } from './vadRecorder';
 
-type Commands = ReturnType<typeof createCommands>;
+export type Commands = ReturnType<typeof createCommands>;
 
 export const initCommandsInContext = ({
 	recorder,
@@ -13,13 +13,13 @@ export const initCommandsInContext = ({
 	transcriber,
 	transformer,
 }: {
-	recorder: Recorder;
+	recorder: ManualRecorder;
 	vadRecorder: VadRecorder;
 	transcriber: Transcriber;
 	transformer: Transformer;
 }) => {
 	const commands = createCommands({
-		recorder,
+		manualRecorder: recorder,
 		vadRecorder,
 		transcriber,
 		transformer,
@@ -33,21 +33,21 @@ export const getCommandsFromContext = () => {
 };
 
 function createCommands({
-	recorder,
+	manualRecorder,
 	vadRecorder,
 	transcriber,
 	transformer,
 }: {
-	recorder: Recorder;
+	manualRecorder: ManualRecorder;
 	vadRecorder: VadRecorder;
 	transcriber: Transcriber;
 	transformer: Transformer;
 }) {
 	return {
-		toggleManualRecording: () => recorder.toggleRecording(),
-		cancelManualRecording: () => recorder.cancelRecorderWithToast(),
+		toggleManualRecording: () => manualRecorder.toggleRecording(),
+		cancelManualRecording: () => manualRecorder.cancelRecorderWithToast(),
 		closeManualRecordingSession: () =>
-			recorder.closeRecordingSessionWithToast(),
+			manualRecorder.closeRecordingSessionWithToast(),
 		toggleVadRecording: () => vadRecorder.toggleVad(),
 		pushToTalk: () => {},
 	} satisfies Record<CommandName, () => void>;

@@ -8,7 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { useLatestRecording } from '$lib/query/recordings/queries';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -19,7 +19,7 @@
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
 	const { latestRecordingQuery } = useLatestRecording();
@@ -98,7 +98,7 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={recorder.recorderState === 'SESSION+RECORDING'
+				tooltipContent={manualRecorder.recorderState === 'SESSION+RECORDING'
 					? 'Stop recording'
 					: 'Start recording'}
 				onclick={commands.toggleManualRecording}
@@ -109,7 +109,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if recorder.recorderState === 'SESSION+RECORDING'}
+					{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 						⏹️
 					{:else}
 						🎙️
@@ -138,7 +138,7 @@
 			</WhisperingButton>
 		{/if}
 		<div class="flex-1 flex-justify-center mb-2">
-			{#if recorder.recorderState === 'SESSION+RECORDING'}
+			{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
 					onclick={commands.cancelManualRecording}
@@ -148,7 +148,7 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if recorder.recorderState === 'SESSION'}
+			{:else if manualRecorder.recorderState === 'SESSION'}
 				<WhisperingButton
 					onclick={commands.closeManualRecordingSession}
 					variant="ghost"

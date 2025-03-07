@@ -4,7 +4,9 @@
 	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+	import { getCommandsFromContext } from '$lib/query/singletons/commands';
+	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
+	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import { DbRecordingsService } from '$lib/services';
 	import { extension } from '@repo/extension';
 	import { ModeWatcher, mode } from 'mode-watcher';
@@ -14,7 +16,9 @@
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
+	const vadRecorder = getVadRecorderFromContext();
+	const commands = getCommandsFromContext();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
@@ -23,12 +27,13 @@
 	}
 
 	$effect(() => {
-		recorder.recorderState;
+		manualRecorder.recorderState;
+		vadRecorder.vadState;
 		void DbRecordingsService.cleanupExpiredRecordings();
 	});
 
 	onMount(async () => {
-		window.recorder = recorder;
+		window.commands = commands;
 		window.goto = goto;
 		if (!window.__TAURI_INTERNALS__) {
 			const _notifyWhisperingTabReadyResult =
@@ -48,13 +53,13 @@
 
 <button
 	class="xxs:hidden hover:bg-accent hover:text-accent-foreground h-screen w-screen transform duration-300 ease-in-out"
-	onclick={recorder.toggleRecording}
+	onclick={commands.toggleManualRecording}
 >
 	<span
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"
 		class="text-[48px] leading-none"
 	>
-		{#if recorder.recorderState === 'SESSION+RECORDING'}
+		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 			⏹️
 		{:else}
 			🎙️

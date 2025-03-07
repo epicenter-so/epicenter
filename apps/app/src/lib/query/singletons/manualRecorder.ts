@@ -14,30 +14,30 @@ import { queryClient } from '..';
 import type { Transcriber } from './transcriber';
 import type { Transformer } from './transformer';
 
-export type Recorder = ReturnType<typeof createRecorder>;
+export type ManualRecorder = ReturnType<typeof createManualRecorder>;
 
-export const initRecorderInContext = ({
+export const initManualRecorderInContext = ({
 	transcriber,
 	transformer,
 }: {
 	transcriber: Transcriber;
 	transformer: Transformer;
 }) => {
-	const recorder = createRecorder({ transcriber, transformer });
-	setContext('recorder', recorder);
-	return recorder;
+	const manualRecorder = createManualRecorder({ transcriber, transformer });
+	setContext('manualRecorder', manualRecorder);
+	return manualRecorder;
 };
 
-export const getRecorderFromContext = () => {
-	return getContext<Recorder>('recorder');
+export const getManualRecorderFromContext = () => {
+	return getContext<ManualRecorder>('manualRecorder');
 };
 
-const recorderKeys = {
-	all: ['recorder'] as const,
-	state: ['recorder', 'state'] as const,
+const manualRecorderKeys = {
+	all: ['manualRecorder'] as const,
+	state: ['manualRecorder', 'state'] as const,
 };
 
-function createRecorder({
+function createManualRecorder({
 	transcriber,
 	transformer,
 }: {
@@ -45,12 +45,12 @@ function createRecorder({
 	transformer: Transformer;
 }) {
 	const invalidateRecorderState = () =>
-		queryClient.invalidateQueries({ queryKey: recorderKeys.state });
+		queryClient.invalidateQueries({ queryKey: manualRecorderKeys.state });
 
 	const { createRecording } = useCreateRecording();
 
 	const recorderState = createResultQuery(() => ({
-		queryKey: recorderKeys.state,
+		queryKey: manualRecorderKeys.state,
 		queryFn: async () => {
 			const recorderStateResult =
 				await userConfiguredServices.recorder.getRecorderState();

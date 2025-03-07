@@ -1,4 +1,4 @@
-import type { Recorder } from '$lib/query/singletons/recorder';
+import type { ManualRecorder } from '$lib/query/singletons/manualRecorder';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { createJobQueue } from '$lib/utils/createJobQueue';
@@ -6,15 +6,16 @@ import { tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingErr } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
+import type { Commands } from './commands';
 
 type RegisterShortcutJob = Promise<void>;
 
 export const initShortcutsRegisterInContext = ({
-	recorder,
+	commands,
 }: {
-	recorder: Recorder;
+	commands: Commands;
 }) => {
-	setContext('shortcutsRegister', createShortcutsRegister({ recorder }));
+	setContext('shortcutsRegister', createShortcutsRegister({ commands }));
 };
 
 export const getShortcutsRegisterFromContext = () => {
@@ -23,19 +24,19 @@ export const getShortcutsRegisterFromContext = () => {
 	);
 };
 
-function createShortcutsRegister({ recorder }: { recorder: Recorder }) {
+function createShortcutsRegister({ commands }: { commands: Commands }) {
 	const jobQueue = createJobQueue<RegisterShortcutJob>();
 
 	const initialSilentJob = async () => {
 		unregisterAllLocalShortcuts();
 		await unregisterAllGlobalShortcuts();
 		registerLocalShortcut({
-			shortcut: settings.value['shortcuts.currentLocalShortcut'],
-			callback: recorder.toggleRecording,
+			shortcut: settings.value['shortcuts.local.toggleManualRecording'],
+			callback: commands.toggleManualRecording,
 		});
 		await registerGlobalShortcut({
-			shortcut: settings.value['shortcuts.currentGlobalShortcut'],
-			callback: recorder.toggleRecording,
+			shortcut: settings.value['shortcuts.global.toggleManualRecording'],
+			callback: commands.toggleManualRecording,
 		});
 	};
 

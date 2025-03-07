@@ -1,10 +1,10 @@
-import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 import { SetTrayIconService } from '$lib/services';
 
 export function syncIconWithRecorderState() {
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
 
 	$effect(() => {
-		SetTrayIconService.setTrayIcon(recorder.recorderState);
+		SetTrayIconService.setTrayIcon(manualRecorder.recorderState);
 	});
 }

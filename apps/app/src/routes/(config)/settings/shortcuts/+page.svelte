@@ -5,12 +5,10 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { settings } from '$lib/stores/settings.svelte';
 
 	const commands = getCommandsFromContext();
-	const recorder = getRecorderFromContext();
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
 

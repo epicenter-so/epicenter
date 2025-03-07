@@ -1,14 +1,14 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
 	import { useGetMediaDevices } from '$lib/query/audio/queries';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './SelectRecordingDeviceCombobox.svelte';
 
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
 	const { getMediaDevicesQuery } = useGetMediaDevices();
 
 	$effect(() => {
@@ -36,7 +36,7 @@
 				<Command.Item
 					value={device.label}
 					onSelect={() => {
-						recorder.closeRecordingSessionSilent();
+						manualRecorder.closeRecordingSessionSilent();
 						settings.value = {
 							...settings.value,
 							'recording.selectedAudioInputDeviceId':
