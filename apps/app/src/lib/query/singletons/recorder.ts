@@ -289,7 +289,7 @@ function createRecorder({
 								description:
 									'Recording cancelled and session closed successfully',
 							});
-							void playSoundIfEnabled('cancel');
+							void playSoundIfEnabled('cancel-manual');
 							console.info('Recording cancelled');
 						},
 						onError: (error) => {

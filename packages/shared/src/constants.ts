@@ -282,10 +282,11 @@ export const GOOGLE_INFERENCE_MODEL_OPTIONS = GOOGLE_INFERENCE_MODELS.map(
 );
 
 export type WhisperingSoundNames =
-	| 'start-vad'
 	| 'start-manual'
 	| 'stop-manual'
-	| 'on-stopped-voice-activated-session'
-	| 'cancel'
+	| 'cancel-manual'
+	| 'start-vad'
+	| 'capture-vad'
+	| 'stop-vad'
 	| 'transcriptionComplete'
 	| 'transformationComplete';
