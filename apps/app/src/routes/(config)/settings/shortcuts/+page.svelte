@@ -32,7 +32,7 @@
 			label="Local Shortcut for {command.description}"
 			placeholder="Local Shortcut for {command.description}"
 			value={settings.value[`shortcuts.local.${command.id}`]}
-			onchange={({ currentTarget: { value } }) => {
+			oninput={({ currentTarget: { value } }) => {
 				settings.value = {
 					...settings.value,
 					[`shortcuts.local.${command.id}`]: value,
@@ -51,7 +51,7 @@
 			label="Global Shortcut"
 			placeholder="Global Shortcut to toggle recording"
 			value={settings.value['shortcuts.global.toggleManualRecording']}
-			onchange={({ currentTarget: { value } }) => {
+			oninput={({ currentTarget: { value } }) => {
 				settings.value = {
 					...settings.value,
 					'shortcuts.global.toggleManualRecording': value,
