@@ -1,6 +1,4 @@
-import { toast } from '$lib/services/toast';
 import { parseJson } from '@repo/shared';
-import { nanoid } from 'nanoid/non-secure';
 import type { z } from 'zod';
 
 const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
@@ -15,13 +13,6 @@ const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 	schema: TSchema;
 	error: z.ZodError;
 }): z.infer<TSchema> => {
-	const updatingLocalStorageToastId = nanoid();
-	toast.loading({
-		id: updatingLocalStorageToastId,
-		title: `Updating "${key}" in local storage...`,
-		description: 'Please wait...',
-	});
-
 	// Attempt to merge the default value with the value from storage if possible
 	const defaultValueMergedOldValues = {
 		...defaultValue,
@@ -29,21 +20,9 @@ const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 	};
 
 	const parseMergedValuesResult = schema.safeParse(defaultValueMergedOldValues);
-	if (!parseMergedValuesResult.success) {
-		toast.error({
-			id: updatingLocalStorageToastId,
-			title: `Error updating "${key}" in local storage`,
-			description: 'Reverting to default value.',
-		});
-		return defaultValue;
-	}
+	if (!parseMergedValuesResult.success) return defaultValue;
 
 	const updatedValue = parseMergedValuesResult.data;
-	toast.success({
-		id: updatingLocalStorageToastId,
-		title: `Successfully updated "${key}" in local storage`,
-		description: 'The value has been updated.',
-	});
 	return updatedValue;
 };
 
