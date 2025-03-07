@@ -10,12 +10,15 @@ import {
 } from '../constants.js';
 import type { SettingsV3 } from './settingsV3.js';
 
-export type CommandName =
-	| 'toggleManualRecording'
-	| 'cancelManualRecording'
-	| 'closeManualRecordingSession'
-	| 'pushToTalk'
-	| 'toggleVadRecording';
+export const commandNames = [
+	'toggleManualRecording',
+	'cancelManualRecording',
+	'closeManualRecordingSession',
+	'pushToTalk',
+	'toggleVadRecording',
+] as const;
+
+export type CommandName = (typeof commandNames)[number];
 
 export const settingsV4Schema = z.object({
 	...({

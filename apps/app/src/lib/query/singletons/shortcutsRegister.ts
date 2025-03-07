@@ -6,6 +6,7 @@ import { WhisperingErr } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { Commands } from './commands';
+import { commandNames } from '@repo/shared/settings';
 
 type RegisterShortcutJob = Promise<void>;
 
@@ -29,14 +30,17 @@ function createShortcutsRegister({ commands }: { commands: Commands }) {
 	const initialSilentJob = async () => {
 		unregisterAllLocalShortcuts();
 		await unregisterAllGlobalShortcuts();
-		registerLocalShortcut({
-			shortcut: settings.value['shortcuts.local.toggleManualRecording'],
-			callback: commands.toggleManualRecording,
-		});
-		await registerGlobalShortcut({
-			shortcut: settings.value['shortcuts.global.toggleManualRecording'],
-			callback: commands.toggleManualRecording,
-		});
+
+		for (const commandName of commandNames) {
+			registerLocalShortcut({
+				shortcut: settings.value[`shortcuts.local.${commandName}`],
+				callback: commands[commandName],
+			});
+			await registerGlobalShortcut({
+				shortcut: settings.value[`shortcuts.global.${commandName}`],
+				callback: commands[commandName],
+			});
+		}
 	};
 
 	jobQueue.addJobToQueue(initialSilentJob());
