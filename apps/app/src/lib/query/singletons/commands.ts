@@ -8,18 +8,18 @@ import type { VadRecorder } from './vadRecorder';
 export type Commands = ReturnType<typeof createCommands>;
 
 export const initCommandsInContext = ({
-	recorder,
+	manualRecorder,
 	vadRecorder,
 	transcriber,
 	transformer,
 }: {
-	recorder: ManualRecorder;
+	manualRecorder: ManualRecorder;
 	vadRecorder: VadRecorder;
 	transcriber: Transcriber;
 	transformer: Transformer;
 }) => {
 	const commands = createCommands({
-		manualRecorder: recorder,
+		manualRecorder,
 		vadRecorder,
 		transcriber,
 		transformer,

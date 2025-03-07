@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { initCommandsInContext } from '$lib/query/singletons/commands';
 	import { initManualRecorderInContext } from '$lib/query/singletons/manualRecorder';
 	import { initShortcutsRegisterInContext } from '$lib/query/singletons/shortcutsRegister';
 	import { initTranscriberInContext } from '$lib/query/singletons/transcriber';
@@ -12,7 +13,13 @@
 		transformer,
 	});
 	const vadRecorder = initVadRecorderInContext({ transcriber, transformer });
-	const shortcutsRegister = initShortcutsRegisterInContext({ manualRecorder });
+	const commands = initCommandsInContext({
+		manualRecorder,
+		vadRecorder,
+		transcriber,
+		transformer,
+	});
+	const shortcutsRegister = initShortcutsRegisterInContext({ commands });
 
 	let { children } = $props();
 </script>
