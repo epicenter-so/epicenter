@@ -33,7 +33,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	key,
 	schema,
 	defaultValue,
-	disableLocalStorage = false,
+	isBrowser = true,
 	resolveParseErrorStrategy = attemptMergeStrategy,
 	onUpdateSuccess,
 	onUpdateError,
@@ -52,8 +52,8 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	 * */
 	defaultValue: z.infer<TSchema>;
 	/**
-	 * If true, disables the use of local storage. In SvelteKit, you set
-	 * this to `!browser` because local storage doesn't exist in the server
+	 * If false, disables the use of local storage. In SvelteKit, you set
+	 * this to `browser` because local storage doesn't exist in the server
 	 * context.
 	 *
 	 * @example
@@ -65,7 +65,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	 * ...
 	 * ```
 	 * */
-	disableLocalStorage?: boolean;
+	isBrowser?: boolean;
 	/**
 	 * Handler for when the value from storage fails schema validation.
 	 * Return a valid value to use it and save to storage.
@@ -101,7 +101,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 }) {
 	let value = $state(defaultValue);
 
-	if (!disableLocalStorage) {
+	if (isBrowser) {
 		const parseValueFromStorage = (
 			valueFromStorageUnparsed: string | null,
 		): z.infer<TSchema> => {
@@ -142,7 +142,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		},
 		set value(newValue: z.infer<TSchema>) {
 			value = newValue;
-			if (disableLocalStorage) return;
+			if (!isBrowser) return;
 			try {
 				localStorage.setItem(key, JSON.stringify(newValue));
 				onUpdateSuccess?.(newValue);
