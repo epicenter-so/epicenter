@@ -19,38 +19,58 @@
 	<Separator />
 
 	<LabeledSwitch
-		id="play-sound-start"
-		label="Play sound when recording starts"
+		id="sound.playOn.start-manual"
+		label="Play sound when starting manual recording"
 		checked={settings.value['sound.playOn.start-manual']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'sound.playOn.start-manual': v,
-			};
+			settings.value = { ...settings.value, 'sound.playOn.start-manual': v };
 		}}
 	/>
 
 	<LabeledSwitch
-		id="play-sound-stop"
-		label="Play sound when recording stops"
+		id="sound.playOn.start-manual"
+		label="Play sound when stopping manual recording"
 		checked={settings.value['sound.playOn.stop-manual']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'sound.playOn.stop-manual': v,
-			};
+			settings.value = { ...settings.value, 'sound.playOn.stop-manual': v };
 		}}
 	/>
 
 	<LabeledSwitch
-		id="play-sound-cancel"
-		label="Play sound when recording cancels"
+		id="sound.playOn.start-manual"
+		label="Play sound when canceling manual recording"
 		checked={settings.value['sound.playOn.cancel-manual']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'sound.playOn.cancel-manual': v,
-			};
+			settings.value = { ...settings.value, 'sound.playOn.cancel-manual': v };
+		}}
+	/>
+
+	<Separator />
+
+	<LabeledSwitch
+		id="sound.playOn.start-vad"
+		label="Play sound when starting vad recording session"
+		checked={settings.value['sound.playOn.start-vad']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.start-vad': v };
+		}}
+	/>
+
+	<LabeledSwitch
+		id="sound.playOn.start-vad"
+		label="Play sound vad capture"
+		checked={settings.value['sound.playOn.capture-vad']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.capture-vad': v };
+		}}
+	/>
+
+	<LabeledSwitch
+		id="sound.playOn.start-vad"
+		label="Play sound when stopping vad recording session"
+		checked={settings.value['sound.playOn.stop-vad']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.stop-vad': v };
 		}}
 	/>
 
