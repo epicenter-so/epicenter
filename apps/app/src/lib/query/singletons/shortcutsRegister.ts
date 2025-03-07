@@ -1,4 +1,3 @@
-import type { ManualRecorder } from '$lib/query/singletons/manualRecorder';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { createJobQueue } from '$lib/utils/createJobQueue';
