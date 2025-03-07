@@ -39,7 +39,7 @@
 				};
 				shortcutsRegister.registerLocalShortcut({
 					shortcut: value,
-					callback: () => commandCallbacks[command.id],
+					callback: commandCallbacks[command.id],
 				});
 			}}
 		/>
