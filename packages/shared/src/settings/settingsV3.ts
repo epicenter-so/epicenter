@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { type ZodBoolean, z } from 'zod';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -6,29 +6,34 @@ import {
 	GROQ_MODELS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
+	type WhisperingSoundNames,
 } from '../constants.js';
 import type { SettingsV1 } from './settingsV1.js';
 
-export const migrateV1ToV2 = (settings: SettingsV1) =>
+export const migrateV2ToV3 = (settings: SettingsV1) =>
 	({
 		...settings,
-		'sound.playOn.start-manual': true,
-		'sound.playOn.stop-manual': true,
-		'sound.playOn.cancel-manual': true,
-		'sound.playOn.start-vad': true,
-		'sound.playOn.capture-vad': true,
-		'sound.playOn.stop-vad': true,
-	}) satisfies SettingsV2;
+		'sound.playOn.manual-start': true,
+		'sound.playOn.manual-stop': true,
+		'sound.playOn.manual-cancel': true,
+		'sound.playOn.vad-start': true,
+		'sound.playOn.vad-capture': true,
+		'sound.playOn.vad-stop': true,
+	}) satisfies SettingsV3;
 
-export const settingsV2Schema = z.object({
-	'sound.playOn.start-manual': z.boolean(),
-	'sound.playOn.stop-manual': z.boolean(),
-	'sound.playOn.cancel-manual': z.boolean(),
-	'sound.playOn.start-vad': z.boolean(),
-	'sound.playOn.capture-vad': z.boolean(),
-	'sound.playOn.stop-vad': z.boolean(),
-	'sound.playOn.transcriptionComplete': z.boolean(),
-	'sound.playOn.transformationComplete': z.boolean(),
+export const settingsV3Schema = z.object({
+	...({
+		'sound.playOn.manual-start': z.boolean(),
+		'sound.playOn.manual-stop': z.boolean(),
+		'sound.playOn.manual-cancel': z.boolean(),
+		'sound.playOn.vad-start': z.boolean(),
+		'sound.playOn.vad-capture': z.boolean(),
+		'sound.playOn.vad-stop': z.boolean(),
+		'sound.playOn.transcriptionComplete': z.boolean(),
+		'sound.playOn.transformationComplete': z.boolean(),
+	} satisfies {
+		[K in WhisperingSoundNames as `sound.playOn.${K}`]: ZodBoolean;
+	}),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -73,4 +78,4 @@ export const settingsV2Schema = z.object({
 	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type SettingsV2 = z.infer<typeof settingsV2Schema>;
+export type SettingsV3 = z.infer<typeof settingsV3Schema>;

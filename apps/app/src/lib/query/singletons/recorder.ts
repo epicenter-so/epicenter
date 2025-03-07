@@ -85,7 +85,7 @@ function createRecorder({
 				description: 'Speak now and stop recording when done',
 			});
 			console.info('Recording started');
-			void playSoundIfEnabled('start-manual');
+			void playSoundIfEnabled('manual-start');
 		},
 		onSettled: invalidateRecorderState,
 	}));
@@ -114,7 +114,7 @@ function createRecorder({
 				description: 'Your recording has been saved',
 			});
 			console.info('Recording stopped');
-			void playSoundIfEnabled('stop-manual');
+			void playSoundIfEnabled('manual-stop');
 
 			const now = new Date().toISOString();
 			const newRecordingId = nanoid();
@@ -289,7 +289,7 @@ function createRecorder({
 								description:
 									'Recording cancelled and session closed successfully',
 							});
-							void playSoundIfEnabled('cancel-manual');
+							void playSoundIfEnabled('manual-cancel');
 							console.info('Recording cancelled');
 						},
 						onError: (error) => {

@@ -7,8 +7,10 @@ import { WhisperingErr } from '@repo/shared';
 import {
 	getDefaultSettingsV1,
 	migrateV1ToV2,
+	migrateV2ToV3,
 	settingsV1Schema,
 	settingsV2Schema,
+	settingsV3Schema,
 } from '@repo/shared/settings';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
@@ -19,10 +21,16 @@ const settingsV1 = createPersistedState({
 	defaultValue: getDefaultSettingsV1(),
 });
 
-export const settings = createPersistedState({
-	key: 'whispering-settings-v2',
+export const settingsV2 = createPersistedState({
+	key: 'whispering-settings',
 	schema: settingsV2Schema,
 	defaultValue: migrateV1ToV2(settingsV1.value),
+});
+
+export const settings = createPersistedState({
+	key: 'whispering-settings',
+	schema: settingsV3Schema,
+	defaultValue: migrateV2ToV3(settingsV1.value),
 });
 
 type RegisterShortcutJob = Promise<void>;
