@@ -150,7 +150,7 @@
 				</WhisperingButton>
 			{:else if recorder.recorderState === 'SESSION'}
 				<WhisperingButton
-					onclick={commands.closeRecordingSession}
+					onclick={commands.closeManualRecordingSession}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: end-session-icon;"

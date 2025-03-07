@@ -46,7 +46,8 @@ function createCommands({
 	return {
 		toggleManualRecording: () => recorder.toggleRecording(),
 		cancelManualRecording: () => recorder.cancelRecorderWithToast(),
-		closeRecordingSession: () => recorder.closeRecordingSessionWithToast(),
+		closeManualRecordingSession: () =>
+			recorder.closeRecordingSessionWithToast(),
 		toggleVadRecording: () => vadRecorder.toggleVad(),
 		pushToTalk: () => {},
 	} satisfies Record<CommandName, () => void>;

@@ -1,4 +1,4 @@
-import { type ZodBoolean, z } from 'zod';
+import { type ZodBoolean, type ZodString, z } from 'zod';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -10,6 +10,13 @@ import {
 } from '../constants.js';
 import type { SettingsV3 } from './settingsV3.js';
 
+export type CommandName =
+	| 'toggleManualRecording'
+	| 'cancelManualRecording'
+	| 'closeManualRecordingSession'
+	| 'pushToTalk'
+	| 'toggleVadRecording';
+
 export const settingsV4Schema = z.object({
 	...({
 		'sound.playOn.manual-start': z.boolean(),
@@ -20,9 +27,7 @@ export const settingsV4Schema = z.object({
 		'sound.playOn.vad-stop': z.boolean(),
 		'sound.playOn.transcriptionComplete': z.boolean(),
 		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies {
-		[K in WhisperingSoundNames as `sound.playOn.${K}`]: ZodBoolean;
-	}),
+	} satisfies Record<`sound.playOn.${WhisperingSoundNames}`, ZodBoolean>),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -63,17 +68,21 @@ export const settingsV4Schema = z.object({
 	'apiKeys.groq': z.string(),
 	'apiKeys.google': z.string(),
 
-	'shortcuts.local.toggleManualRecording': z.string(),
-	'shortcuts.local.cancelManualRecording': z.string(),
-	'shortcuts.local.startVad': z.string(),
-	'shortcuts.local.stopVad': z.string(),
-	'shortcuts.local.pushToTalk': z.string(),
+	...({
+		'shortcuts.local.toggleManualRecording': z.string(),
+		'shortcuts.local.cancelManualRecording': z.string(),
+		'shortcuts.local.closeManualRecordingSession': z.string(),
+		'shortcuts.local.toggleVadRecording': z.string(),
+		'shortcuts.local.pushToTalk': z.string(),
+	} satisfies Record<`shortcuts.local.${CommandName}`, ZodString>),
 
-	'shortcuts.global.toggleManualRecording': z.string(),
-	'shortcuts.global.cancelManualRecording': z.string(),
-	'shortcuts.global.startVad': z.string(),
-	'shortcuts.global.stopVad': z.string(),
-	'shortcuts.global.pushToTalk': z.string(),
+	...({
+		'shortcuts.global.toggleManualRecording': z.string(),
+		'shortcuts.global.cancelManualRecording': z.string(),
+		'shortcuts.global.closeManualRecordingSession': z.string(),
+		'shortcuts.global.toggleVadRecording': z.string(),
+		'shortcuts.global.pushToTalk': z.string(),
+	} satisfies Record<`shortcuts.global.${CommandName}`, ZodString>),
 });
 
 export type SettingsV4 = z.infer<typeof settingsV4Schema>;
