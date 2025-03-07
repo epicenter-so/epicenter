@@ -8,51 +8,17 @@ import {
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
 } from '../constants.js';
+import type { SettingsV1 } from './settingsV1.js';
 
-export const getDefaultSettingsV2 = () =>
+export const migrateV1ToV2 = (settings: SettingsV1) =>
 	({
+		...settings,
 		'sound.playOn.start-manual': true,
 		'sound.playOn.stop-manual': true,
 		'sound.playOn.cancel-manual': true,
 		'sound.playOn.start-vad': true,
 		'sound.playOn.capture-vad': true,
 		'sound.playOn.stop-vad': true,
-		'sound.playOn.transcriptionComplete': true,
-		'sound.playOn.transformationComplete': true,
-		'transcription.clipboard.copyOnSuccess': true,
-		'transcription.clipboard.pasteOnSuccess': true,
-		'transformation.clipboard.copyOnSuccess': true,
-		'transformation.clipboard.pasteOnSuccess': true,
-		'recording.isFasterRerecordEnabled': false,
-		'system.closeToTray': false,
-		'system.alwaysOnTop': 'Never',
-
-		// Recording retention defaults
-		'database.recordingRetentionStrategy': 'keep-forever',
-		'database.maxRecordingCount': '5',
-
-		'recording.selectedAudioInputDeviceId': 'default',
-		'recording.bitrateKbps': DEFAULT_BITRATE_KBPS,
-
-		'transcription.selectedTranscriptionService': 'OpenAI',
-		'transcription.groq.model': 'whisper-large-v3',
-		'transcription.outputLanguage': 'auto',
-		'transcription.prompt': '',
-		'transcription.temperature': '0',
-
-		'transcription.fasterWhisperServer.serverUrl': 'http://localhost:8000',
-		'transcription.fasterWhisperServer.serverModel':
-			'Systran/faster-whisper-medium.en',
-
-		'transformations.selectedTransformationId': null,
-
-		'apiKeys.openai': '',
-		'apiKeys.anthropic': '',
-		'apiKeys.groq': '',
-		'apiKeys.google': '',
-
-		'shortcuts.currentLocalShortcut': 'space',
-		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
 	}) satisfies SettingsV2;
 
 export const settingsV2Schema = z.object({

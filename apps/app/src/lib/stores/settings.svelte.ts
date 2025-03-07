@@ -6,7 +6,7 @@ import { tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingErr } from '@repo/shared';
 import {
 	getDefaultSettingsV1,
-	getDefaultSettingsV2,
+	migrateV1ToV2,
 	settingsV1Schema,
 	settingsV2Schema,
 } from '@repo/shared/settings';
@@ -20,9 +20,9 @@ const settingsV1 = createPersistedState({
 });
 
 export const settings = createPersistedState({
-	key: 'whispering-settings',
+	key: 'whispering-settings-v2',
 	schema: settingsV2Schema,
-	defaultValue: getDefaultSettingsV2(),
+	defaultValue: migrateV1ToV2(settingsV1.value),
 });
 
 type RegisterShortcutJob = Promise<void>;
