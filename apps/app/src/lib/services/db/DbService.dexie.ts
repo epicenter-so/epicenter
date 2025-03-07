@@ -21,6 +21,7 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './DbServiceTypes';
+import { settings } from '$lib/stores/settings.svelte';
 
 const DB_NAME = 'RecordingDB';
 
@@ -166,9 +167,9 @@ class RecordingsDatabase extends Dexie {
 						const blobs = oldRecordings.map(({ id, blob }) => ({ id, blob }));
 
 						await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.bulkAdd(metadata);
 						await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -191,9 +192,9 @@ class RecordingsDatabase extends Dexie {
 					upgrade: async (tx) => {
 						// Get data from both tables
 						const metadata = await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.toArray();
 						const blobs = await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -480,10 +481,10 @@ export function createDbRecordingsServiceDexie() {
 			return Ok(undefined);
 		},
 
-		async cleanupExpiredRecordings({
-			'database.recordingRetentionStrategy': recordingRetentionStrategy,
-			'database.maxRecordingCount': maxRecordingCount,
-		}: Settings) {
+		async cleanupExpiredRecordings() {
+			const recordingRetentionStrategy =
+				settings.value['database.recordingRetentionStrategy'];
+			const maxRecordingCount = settings.value['database.maxRecordingCount'];
 			switch (recordingRetentionStrategy) {
 				case 'keep-forever': {
 					return Ok(undefined);

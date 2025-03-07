@@ -25,7 +25,7 @@
 
 	$effect(() => {
 		recorder.recorderState;
-		void DbRecordingsService.cleanupExpiredRecordings(settings.value);
+		void DbRecordingsService.cleanupExpiredRecordings();
 	});
 
 	onMount(async () => {

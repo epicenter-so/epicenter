@@ -83,9 +83,7 @@ export type DbRecordingsService = {
 	 * 2. Before adding new recordings
 	 * 3. When retention settings change
 	 */
-	cleanupExpiredRecordings: (
-		settings: Settings,
-	) => Promise<DbServiceResult<void>>;
+	cleanupExpiredRecordings: () => Promise<DbServiceResult<void>>;
 };
 
 export type DbTransformationsService = {
