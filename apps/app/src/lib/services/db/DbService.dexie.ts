@@ -1,6 +1,7 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { useDownloadIndexedDbBlobWithToast } from '$lib/query/download/mutations';
 import { toast } from '$lib/services/toast';
+import { settings } from '$lib/stores/settings.svelte';
 import { Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
@@ -20,7 +21,6 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './DbServiceTypes';
-import { settings } from '$lib/stores/settings.svelte';
 
 const DB_NAME = 'RecordingDB';
 
@@ -166,9 +166,9 @@ class RecordingsDatabase extends Dexie {
 						const blobs = oldRecordings.map(({ id, blob }) => ({ id, blob }));
 
 						await tx
-							.table<RecordingsDbSchemaV2['recordingMetadata']>(
-								'recordingMetadata',
-							)
+							.table<
+								RecordingsDbSchemaV2['recordingMetadata']
+							>('recordingMetadata')
 							.bulkAdd(metadata);
 						await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -191,9 +191,9 @@ class RecordingsDatabase extends Dexie {
 					upgrade: async (tx) => {
 						// Get data from both tables
 						const metadata = await tx
-							.table<RecordingsDbSchemaV2['recordingMetadata']>(
-								'recordingMetadata',
-							)
+							.table<
+								RecordingsDbSchemaV2['recordingMetadata']
+							>('recordingMetadata')
 							.toArray();
 						const blobs = await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')

@@ -1,4 +1,4 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Ok, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
 import { WhisperingErr, type WhisperingResult } from '@repo/shared';
 import type {

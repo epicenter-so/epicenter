@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { useLatestRecording } from '$lib/query/recordings/queries';
+	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import type { Recording } from '$lib/services/db';
@@ -17,7 +18,6 @@
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 
 	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
