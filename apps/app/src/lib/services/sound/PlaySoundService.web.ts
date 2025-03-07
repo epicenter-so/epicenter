@@ -2,13 +2,13 @@ import { Ok } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
 import { WhisperingErr } from '@repo/shared';
 import type { PlaySoundService } from './PlaySoundService';
-import { sounds } from './soundsMap';
+import { audioElements } from './audioElements';
 
 export function createPlaySoundServiceWeb(): PlaySoundService {
 	return {
 		playSound: async (soundName) => {
 			if (!document.hidden) {
-				await sounds[soundName].play();
+				await audioElements[soundName].play();
 				return Ok(undefined);
 			}
 			const playSoundResult = await extension.playSound({ sound: soundName });

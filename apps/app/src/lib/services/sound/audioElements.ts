@@ -8,7 +8,7 @@ import cancelSoundSrc from './assets/zapsplat_multimedia_click_button_short_shar
 import transformationCompleteSoundSrc from './assets/zapsplat_multimedia_notification_alert_ping_bright_chime_001_93276.mp3';
 import transcriptionCompleteSoundSrc from './assets/zapsplat_multimedia_ui_notification_classic_bell_synth_success_107505.mp3';
 
-export const sounds = {
+export const audioElements = {
 	'start-manual': new Audio(startManualSoundSrc),
 	'cancel-manual': new Audio(cancelSoundSrc),
 	'stop-manual': new Audio(stopManualSoundSrc),

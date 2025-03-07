@@ -1,11 +1,11 @@
 import { Ok } from '@epicenterhq/result';
 import type { PlaySoundService } from './PlaySoundService';
-import { sounds } from './soundsMap';
+import { audioElements } from './audioElements';
 
 export function createPlaySoundServiceDesktop(): PlaySoundService {
 	return {
 		playSound: async (soundName) => {
-			await sounds[soundName].play();
+			await audioElements[soundName].play();
 			return Ok(undefined);
 		},
 	};
