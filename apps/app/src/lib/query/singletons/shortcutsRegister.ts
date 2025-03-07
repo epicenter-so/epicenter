@@ -13,7 +13,7 @@ type RegisterShortcutJob = Promise<void>;
 export const initShortcutsRegisterInContext = ({
 	commands,
 }: {
-	commands: Commands;
+	commands: CommandCallbacks;
 }) => {
 	setContext('shortcutsRegister', createShortcutsRegister({ commands }));
 };
@@ -24,7 +24,7 @@ export const getShortcutsRegisterFromContext = () => {
 	);
 };
 
-function createShortcutsRegister({ commands }: { commands: Commands }) {
+function createShortcutsRegister({ commands }: { commands: CommandCallbacks }) {
 	const jobQueue = createJobQueue<RegisterShortcutJob>();
 
 	const initialSilentJob = async () => {

@@ -37,7 +37,7 @@
 					...settings.value,
 					[`shortcuts.local.${command.id}`]: value,
 				};
-				shortcutsRegister.registerLocalShortcut({
+				shortcutsRegister.registerCommandLocally({
 					shortcut: value,
 					callback: commandCallbacks[command.id],
 				});
@@ -56,7 +56,7 @@
 					...settings.value,
 					'shortcuts.global.toggleManualRecording': value,
 				};
-				shortcutsRegister.registerGlobalShortcut({
+				shortcutsRegister.registerCommandGlobally({
 					shortcut: value,
 					callback: () => commands.toggleManualRecording(),
 				});

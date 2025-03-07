@@ -5,7 +5,7 @@ import type { Transcriber } from './transcriber';
 import type { Transformer } from './transformer';
 import type { VadRecorder } from './vadRecorder';
 
-export type Commands = ReturnType<typeof createCommands>;
+export type CommandCallbacks = ReturnType<typeof createCommandCallbacks>;
 
 export const initCommandsInContext = ({
 	manualRecorder,
@@ -18,21 +18,21 @@ export const initCommandsInContext = ({
 	transcriber: Transcriber;
 	transformer: Transformer;
 }) => {
-	const commands = createCommands({
+	const commandCallbacks = createCommandCallbacks({
 		manualRecorder,
 		vadRecorder,
 		transcriber,
 		transformer,
 	});
-	setContext('commands', commands);
-	return commands;
+	setContext('commandCallbacks', commandCallbacks);
+	return commandCallbacks;
 };
 
 export const getCommandsFromContext = () => {
-	return getContext<Commands>('commands');
+	return getContext<CommandCallbacks>('commandCallbacks');
 };
 
-function createCommands({
+function createCommandCallbacks({
 	manualRecorder,
 	vadRecorder,
 	transcriber,
