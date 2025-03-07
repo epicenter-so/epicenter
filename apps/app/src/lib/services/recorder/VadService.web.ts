@@ -23,6 +23,7 @@ export function createVadServiceWeb() {
 			if (maybeVad) return Ok(maybeVad);
 			maybeVad = await MicVAD.new({
 				additionalAudioConstraints: deviceId ? { deviceId } : undefined,
+				submitUserSpeechOnPause: true,
 				onSpeechStart: () => {
 					toast.success({
 						title: '🎙️ Speech started',
