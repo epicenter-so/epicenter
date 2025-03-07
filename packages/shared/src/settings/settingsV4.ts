@@ -90,4 +90,16 @@ export type SettingsV4 = z.infer<typeof settingsV4Schema>;
 export const migrateV3ToV4 = (settings: SettingsV3) =>
 	settingsV4Schema.parse({
 		...settings,
+		'shortcuts.local.toggleManualRecording':
+			settings['shortcuts.currentLocalShortcut'],
+		'shortcuts.local.cancelManualRecording': 'escape',
+		'shortcuts.local.closeManualRecordingSession': '',
+		'shortcuts.local.toggleVadRecording': '',
+		'shortcuts.local.pushToTalk': '',
+		'shortcuts.global.toggleManualRecording':
+			settings['shortcuts.currentGlobalShortcut'],
+		'shortcuts.global.cancelManualRecording': "CommandOrControl+Shift+'",
+		'shortcuts.global.closeManualRecordingSession': '',
+		'shortcuts.global.toggleVadRecording': '',
+		'shortcuts.global.pushToTalk': '',
 	} satisfies SettingsV4);
