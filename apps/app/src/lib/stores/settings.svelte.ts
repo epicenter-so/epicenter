@@ -15,15 +15,6 @@ export const settings = createPersistedState({
 	key: 'whispering-settings',
 	schema: settingsSchema,
 	defaultValue: getDefaultSettings(),
-	onUpdateSuccess: () => {
-		toast.success({ title: 'Settings updated!', description: '' });
-	},
-	onUpdateError: (err) => {
-		toast.error({
-			title: 'Error updating settings',
-			description: err instanceof Error ? err.message : 'Unknown error',
-		});
-	},
 });
 
 type RegisterShortcutJob = Promise<void>;
