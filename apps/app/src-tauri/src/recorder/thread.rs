@@ -11,6 +11,7 @@ const INITIAL_BUFFER_CAPACITY: usize = 5_760_000; // Pre-allocate for ~2 minutes
 
 #[derive(Debug)]
 pub enum AudioCommand {
+    GetRecorderState,
     CloseThread,
     EnumerateRecordingDevices,
     InitRecordingSession(String),
@@ -175,6 +176,19 @@ pub fn spawn_audio_thread(
                     response_tx.send(AudioResponse::Success(
                         "Recording session initialized".to_string(),
                     ))?;
+                }
+
+                AudioCommand::GetRecorderState => {
+                    if let Some(session) = &current_session {
+                        if session.is_recording.load((Ordering::Relaxed)) {
+                            response_tx
+                                .send(AudioResponse::Success("SESSION+RECORDING".to_string()))?;
+                        } else {
+                            response_tx.send(AudioResponse::Success("SESSION".to_string()))?;
+                        }
+                    } else {
+                        response_tx.send(AudioResponse::Success("IDLE".to_string()))?;
+                    }
                 }
 
                 AudioCommand::StartRecording => {

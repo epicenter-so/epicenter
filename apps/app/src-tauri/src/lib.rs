@@ -10,7 +10,8 @@ use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 pub mod recorder;
 use recorder::{
     cancel_recording, close_recording_session, close_thread, ensure_thread_initialized,
-    enumerate_recording_devices, init_recording_session, start_recording, stop_recording,
+    enumerate_recording_devices, get_recorder_state, init_recording_session, start_recording,
+    stop_recording,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -55,6 +56,7 @@ pub fn run() {
         open_apple_accessibility,
         is_macos_accessibility_enabled,
         // Register recorder commands
+        get_recorder_state,
         enumerate_recording_devices,
         init_recording_session,
         close_recording_session,
