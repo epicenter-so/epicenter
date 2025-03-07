@@ -10,15 +10,29 @@ import {
 } from '../constants.js';
 import type { SettingsV3 } from './settingsV3.js';
 
-export const commandNames = [
-	'toggleManualRecording',
-	'cancelManualRecording',
-	'closeManualRecordingSession',
-	'pushToTalk',
-	'toggleVadRecording',
+export const commands = [
+	{
+		id: 'toggleManualRecording',
+		description: 'toggling manual recording',
+	},
+	{
+		id: 'cancelManualRecording',
+		description: 'canceling manual recording',
+	},
+	{
+		id: 'closeManualRecordingSession',
+		description: 'closing the current manual recording session',
+	},
+	{ id: 'pushToTalk', description: 'activating push to talk' },
+	{
+		id: 'toggleVadRecording',
+		description: 'toggling vad recording',
+	},
 ] as const;
 
-export type CommandName = (typeof commandNames)[number];
+export const commandIds = commands.map((command) => command.id);
+
+export type CommandId = (typeof commandIds)[number];
 
 export const settingsV4Schema = z.object({
 	...({
@@ -77,7 +91,7 @@ export const settingsV4Schema = z.object({
 		'shortcuts.local.closeManualRecordingSession': z.string(),
 		'shortcuts.local.toggleVadRecording': z.string(),
 		'shortcuts.local.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.local.${CommandName}`, ZodString>),
+	} satisfies Record<`shortcuts.local.${CommandId}`, ZodString>),
 
 	...({
 		'shortcuts.global.toggleManualRecording': z.string(),
@@ -85,7 +99,7 @@ export const settingsV4Schema = z.object({
 		'shortcuts.global.closeManualRecordingSession': z.string(),
 		'shortcuts.global.toggleVadRecording': z.string(),
 		'shortcuts.global.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.global.${CommandName}`, ZodString>),
+	} satisfies Record<`shortcuts.global.${CommandId}`, ZodString>),
 });
 
 export type SettingsV4 = z.infer<typeof settingsV4Schema>;

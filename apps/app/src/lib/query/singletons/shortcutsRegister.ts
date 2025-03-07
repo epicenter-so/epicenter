@@ -6,7 +6,7 @@ import { WhisperingErr } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { Commands } from './commands';
-import { commandNames } from '@repo/shared/settings';
+import { commandIds } from '@repo/shared/settings';
 
 type RegisterShortcutJob = Promise<void>;
 
@@ -31,14 +31,14 @@ function createShortcutsRegister({ commands }: { commands: Commands }) {
 		unregisterAllLocalShortcuts();
 		await unregisterAllGlobalShortcuts();
 
-		for (const commandName of commandNames) {
+		for (const commandName of commandIds) {
 			registerLocalShortcut({
 				shortcut: settings.value[`shortcuts.local.${commandName}`],
 				callback: commands[commandName],
 			});
 		}
 		await Promise.all(
-			commandNames.map((commandName) =>
+			commandIds.map((commandName) =>
 				registerGlobalShortcut({
 					shortcut: settings.value[`shortcuts.global.${commandName}`],
 					callback: commands[commandName],
@@ -57,6 +57,7 @@ function createShortcutsRegister({ commands }: { commands: Commands }) {
 			shortcut: string;
 			callback: () => void;
 		}) => {
+			console.log('🚀 ~ createShortcutsRegister ~ shortcut:', shortcut);
 			const job = async () => {
 				unregisterAllLocalShortcuts();
 				registerLocalShortcut({ shortcut, callback });

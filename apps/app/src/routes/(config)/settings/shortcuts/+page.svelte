@@ -7,8 +7,9 @@
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { commands } from '@repo/shared/settings';
 
-	const commands = getCommandsFromContext();
+	const commandCallbacks = getCommandsFromContext();
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
 
@@ -25,22 +26,24 @@
 	</div>
 	<Separator />
 
-	<LabeledInput
-		id="local-shortcut"
-		label="Local Shortcut"
-		placeholder="Local Shortcut to toggle recording"
-		value={settings.value['shortcuts.local.toggleManualRecording']}
-		onchange={({ currentTarget: { value } }) => {
-			settings.value = {
-				...settings.value,
-				'shortcuts.local.toggleManualRecording': value,
-			};
-			shortcutsRegister.registerLocalShortcut({
-				shortcut: value,
-				callback: () => commands.toggleManualRecording(),
-			});
-		}}
-	/>
+	{#each commands as command}
+		<LabeledInput
+			id="local-shortcut-{command.id}"
+			label="Local Shortcut for {command.description}"
+			placeholder="Local Shortcut for {command.description}"
+			value={settings.value[`shortcuts.local.${command.id}`]}
+			onchange={({ currentTarget: { value } }) => {
+				settings.value = {
+					...settings.value,
+					[`shortcuts.local.${command.id}`]: value,
+				};
+				shortcutsRegister.registerLocalShortcut({
+					shortcut: value,
+					callback: () => commandCallbacks[command.id],
+				});
+			}}
+		/>
+	{/each}
 
 	{#if window.__TAURI_INTERNALS__}
 		<LabeledInput
