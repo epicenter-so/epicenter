@@ -36,11 +36,15 @@ function createShortcutsRegister({ commands }: { commands: Commands }) {
 				shortcut: settings.value[`shortcuts.local.${commandName}`],
 				callback: commands[commandName],
 			});
-			await registerGlobalShortcut({
-				shortcut: settings.value[`shortcuts.global.${commandName}`],
-				callback: commands[commandName],
-			});
 		}
+		await Promise.all(
+			commandNames.map((commandName) =>
+				registerGlobalShortcut({
+					shortcut: settings.value[`shortcuts.global.${commandName}`],
+					callback: commands[commandName],
+				}),
+			),
+		);
 	};
 
 	jobQueue.addJobToQueue(initialSilentJob());
