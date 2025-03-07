@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { LabeledSwitch } from '$lib/components/labeled';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
@@ -24,11 +22,11 @@
 		<LabeledSwitch
 			id="play-sound-start"
 			label="Play sound when recording starts"
-			checked={settings.value['sound.playOn.start']}
+			checked={settings.value['sound.playOn.start-manual']}
 			onCheckedChange={(v) => {
 				settings.value = {
 					...settings.value,
-					'sound.playOn.start': v,
+					'sound.playOn.start-manual': v,
 				};
 			}}
 		/>
@@ -36,11 +34,11 @@
 		<LabeledSwitch
 			id="play-sound-stop"
 			label="Play sound when recording stops"
-			checked={settings.value['sound.playOn.stop']}
+			checked={settings.value['sound.playOn.stop-manual']}
 			onCheckedChange={(v) => {
 				settings.value = {
 					...settings.value,
-					'sound.playOn.stop': v,
+					'sound.playOn.stop-manual': v,
 				};
 			}}
 		/>
@@ -48,11 +46,11 @@
 		<LabeledSwitch
 			id="play-sound-cancel"
 			label="Play sound when recording cancels"
-			checked={settings.value['sound.playOn.cancel']}
+			checked={settings.value['sound.playOn.cancel-manual']}
 			onCheckedChange={(v) => {
 				settings.value = {
 					...settings.value,
-					'sound.playOn.cancel': v,
+					'sound.playOn.cancel-manual': v,
 				};
 			}}
 		/>
