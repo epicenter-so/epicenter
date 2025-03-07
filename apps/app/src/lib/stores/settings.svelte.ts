@@ -30,7 +30,7 @@ export const settingsV2 = createPersistedState({
 export const settings = createPersistedState({
 	key: 'whispering-settings',
 	schema: settingsV3Schema,
-	defaultValue: migrateV2ToV3(settingsV1.value),
+	defaultValue: migrateV2ToV3(settingsV2.value),
 });
 
 type RegisterShortcutJob = Promise<void>;
