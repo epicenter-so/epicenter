@@ -13,11 +13,13 @@
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
+	import { syncIconWithRecorderState } from './syncIconWithRecorderState';
 
 	const recorder = getRecorderFromContext();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
+		syncIconWithRecorderState();
 		closeToTrayIfEnabled();
 	}
 
