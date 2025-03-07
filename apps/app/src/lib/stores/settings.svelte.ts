@@ -3,9 +3,11 @@ import {
 	getDefaultSettingsV1,
 	migrateV1ToV2,
 	migrateV2ToV3,
+	migrateV3ToV4,
 	settingsV1Schema,
 	settingsV2Schema,
 	settingsV3Schema,
+	settingsV4Schema,
 } from '@repo/shared/settings';
 
 const settingsV1 = createPersistedState({
@@ -20,8 +22,14 @@ export const settingsV2 = createPersistedState({
 	defaultValue: migrateV1ToV2(settingsV1.value),
 });
 
-export const settings = createPersistedState({
+export const settingsV3 = createPersistedState({
 	key: 'whispering-settings',
 	schema: settingsV3Schema,
 	defaultValue: migrateV2ToV3(settingsV2.value),
+});
+
+export const settings = createPersistedState({
+	key: 'whispering-settings',
+	schema: settingsV4Schema,
+	defaultValue: migrateV3ToV4(settingsV3.value),
 });

@@ -8,9 +8,9 @@ import {
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
 } from '../constants.js';
-import type { SettingsV2 } from './settingsV2.js';
+import type { SettingsV3 } from './settingsV3.js';
 
-export const settingsV3Schema = z.object({
+export const settingsV4Schema = z.object({
 	...({
 		'sound.playOn.manual-start': z.boolean(),
 		'sound.playOn.manual-stop': z.boolean(),
@@ -63,19 +63,22 @@ export const settingsV3Schema = z.object({
 	'apiKeys.groq': z.string(),
 	'apiKeys.google': z.string(),
 
-	'shortcuts.currentLocalShortcut': z.string(),
-	'shortcuts.currentGlobalShortcut': z.string(),
+	'shortcuts.local.toggleManualRecording': z.string(),
+	'shortcuts.local.cancelManualRecording': z.string(),
+	'shortcuts.local.startVad': z.string(),
+	'shortcuts.local.stopVad': z.string(),
+	'shortcuts.local.pushToTalk': z.string(),
+
+	'shortcuts.global.toggleManualRecording': z.string(),
+	'shortcuts.global.cancelManualRecording': z.string(),
+	'shortcuts.global.startVad': z.string(),
+	'shortcuts.global.stopVad': z.string(),
+	'shortcuts.global.pushToTalk': z.string(),
 });
 
-export type SettingsV3 = z.infer<typeof settingsV3Schema>;
+export type SettingsV4 = z.infer<typeof settingsV4Schema>;
 
-export const migrateV2ToV3 = (settings: SettingsV2) =>
-	settingsV3Schema.parse({
+export const migrateV3ToV4 = (settings: SettingsV3) =>
+	settingsV4Schema.parse({
 		...settings,
-		'sound.playOn.manual-start': true,
-		'sound.playOn.manual-stop': true,
-		'sound.playOn.manual-cancel': true,
-		'sound.playOn.vad-start': true,
-		'sound.playOn.vad-capture': true,
-		'sound.playOn.vad-stop': true,
-	} satisfies SettingsV3);
+	} satisfies SettingsV4);
