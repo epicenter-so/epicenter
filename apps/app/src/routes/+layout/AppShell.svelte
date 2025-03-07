@@ -6,14 +6,13 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
 	import { DbRecordingsService } from '$lib/services';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { extension } from '@repo/extension';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
-	import { syncIconWithRecorderState } from './syncIconWithRecorderState';
+	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
 	const recorder = getRecorderFromContext();
 
