@@ -35,6 +35,9 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	defaultValue,
 	isBrowser = true,
 	resolveParseErrorStrategy = attemptMergeStrategy,
+	onUpdateSuccess,
+	onUpdateError,
+	onUpdateSettled,
 }: {
 	/** The key used to store the value in local storage. */
 	key: string;
@@ -80,6 +83,21 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		/** The error that occurred when parsing the value from storage. */
 		error: z.ZodError;
 	}) => z.infer<TSchema>;
+	/**
+	 * Handler for when the value from storage is successfully updated.
+	 * @default `() => {}`
+	 */
+	onUpdateSuccess?: (newValue: z.infer<TSchema>) => void;
+	/**
+	 * Handler for when the value from storage fails to update.
+	 * @default `() => {}`
+	 */
+	onUpdateError?: (error: unknown) => void;
+	/**
+	 * Handler for when the value from storage update is settled.
+	 * @default `() => {}`
+	 */
+	onUpdateSettled?: () => void;
 }) {
 	let value = $state(defaultValue);
 
@@ -125,7 +143,14 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		set value(newValue: z.infer<TSchema>) {
 			value = newValue;
 			if (!isBrowser) return;
-			localStorage.setItem(key, JSON.stringify(newValue));
+			try {
+				localStorage.setItem(key, JSON.stringify(newValue));
+				onUpdateSuccess?.(newValue);
+			} catch (error) {
+				onUpdateError?.(error);
+			} finally {
+				onUpdateSettled?.();
+			}
 		},
 	};
 }

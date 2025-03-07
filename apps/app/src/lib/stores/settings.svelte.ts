@@ -1,3 +1,4 @@
+import { toast } from '$lib/services/toast';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 import {
 	getDefaultSettingsV1,
@@ -32,4 +33,13 @@ export const settings = createPersistedState({
 	key: 'whispering-settings',
 	schema: settingsV4Schema,
 	defaultValue: migrateV3ToV4(settingsV3.value),
+	onUpdateSuccess: () => {
+		toast.success({ title: 'Settings updated!', description: '' });
+	},
+	onUpdateError: (err) => {
+		toast.error({
+			title: 'Error updating settings',
+			description: err instanceof Error ? err.message : 'Unknown error',
+		});
+	},
 });
