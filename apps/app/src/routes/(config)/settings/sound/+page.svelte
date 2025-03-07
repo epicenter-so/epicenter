@@ -18,65 +18,65 @@
 
 	<Separator />
 
-	<div class="space-y-4">
-		<LabeledSwitch
-			id="play-sound-start"
-			label="Play sound when recording starts"
-			checked={settings.value['sound.playOn.start-manual']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.start-manual': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="play-sound-start"
+		label="Play sound when recording starts"
+		checked={settings.value['sound.playOn.start-manual']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.start-manual': v,
+			};
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-stop"
-			label="Play sound when recording stops"
-			checked={settings.value['sound.playOn.stop-manual']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.stop-manual': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="play-sound-stop"
+		label="Play sound when recording stops"
+		checked={settings.value['sound.playOn.stop-manual']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.stop-manual': v,
+			};
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-cancel"
-			label="Play sound when recording cancels"
-			checked={settings.value['sound.playOn.cancel-manual']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.cancel-manual': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="play-sound-cancel"
+		label="Play sound when recording cancels"
+		checked={settings.value['sound.playOn.cancel-manual']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.cancel-manual': v,
+			};
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-transcription"
-			label="Play sound after transcription"
-			checked={settings.value['sound.playOn.transcriptionComplete']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.transcriptionComplete': v,
-				};
-			}}
-		/>
+	<Separator />
 
-		<LabeledSwitch
-			id="play-sound-transformation"
-			label="Play sound after transformation"
-			checked={settings.value['sound.playOn.transformationComplete']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.transformationComplete': v,
-				};
-			}}
-		/>
-	</div>
+	<LabeledSwitch
+		id="play-sound-transcription"
+		label="Play sound after transcription"
+		checked={settings.value['sound.playOn.transcriptionComplete']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.transcriptionComplete': v,
+			};
+		}}
+	/>
+
+	<LabeledSwitch
+		id="play-sound-transformation"
+		label="Play sound after transformation"
+		checked={settings.value['sound.playOn.transformationComplete']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.transformationComplete': v,
+			};
+		}}
+	/>
 </div>
