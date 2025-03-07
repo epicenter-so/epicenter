@@ -9,17 +9,7 @@ import {
 	type WhisperingSoundNames,
 } from '../constants.js';
 import type { SettingsV1 } from './settingsV1.js';
-
-export const migrateV2ToV3 = (settings: SettingsV1) =>
-	({
-		...settings,
-		'sound.playOn.manual-start': true,
-		'sound.playOn.manual-stop': true,
-		'sound.playOn.manual-cancel': true,
-		'sound.playOn.vad-start': true,
-		'sound.playOn.vad-capture': true,
-		'sound.playOn.vad-stop': true,
-	}) satisfies SettingsV3;
+import type { SettingsV2 } from './settingsV2.js';
 
 export const settingsV3Schema = z.object({
 	...({
@@ -79,3 +69,14 @@ export const settingsV3Schema = z.object({
 });
 
 export type SettingsV3 = z.infer<typeof settingsV3Schema>;
+
+export const migrateV2ToV3 = (settings: SettingsV2) =>
+	settingsV3Schema.parse({
+		...settings,
+		'sound.playOn.manual-start': true,
+		'sound.playOn.manual-stop': true,
+		'sound.playOn.manual-cancel': true,
+		'sound.playOn.vad-start': true,
+		'sound.playOn.vad-capture': true,
+		'sound.playOn.vad-stop': true,
+	} satisfies SettingsV3);

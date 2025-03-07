@@ -9,17 +9,6 @@ import {
 } from '../constants.js';
 import type { SettingsV1 } from './settingsV1.js';
 
-export const migrateV1ToV2 = (settings: SettingsV1) =>
-	({
-		...settings,
-		'sound.playOn.start-manual': true,
-		'sound.playOn.stop-manual': true,
-		'sound.playOn.cancel-manual': true,
-		'sound.playOn.start-vad': true,
-		'sound.playOn.capture-vad': true,
-		'sound.playOn.stop-vad': true,
-	}) satisfies SettingsV2;
-
 export const settingsV2Schema = z.object({
 	'sound.playOn.start-manual': z.boolean(),
 	'sound.playOn.stop-manual': z.boolean(),
@@ -74,3 +63,14 @@ export const settingsV2Schema = z.object({
 });
 
 export type SettingsV2 = z.infer<typeof settingsV2Schema>;
+
+export const migrateV1ToV2 = (settings: SettingsV1) =>
+	settingsV2Schema.parse({
+		...settings,
+		'sound.playOn.start-manual': true,
+		'sound.playOn.stop-manual': true,
+		'sound.playOn.cancel-manual': true,
+		'sound.playOn.start-vad': true,
+		'sound.playOn.capture-vad': true,
+		'sound.playOn.stop-vad': true,
+	} satisfies SettingsV2);
