@@ -271,7 +271,7 @@
 								class="flex-1"
 							/>
 							{#if settings.value[`shortcuts.local.${command.id}`]}
-								<Badge variant="status.running">Active</Badge>
+								<Badge variant="status.completed">Active</Badge>
 							{:else}
 								<Badge variant="outline">Not Set</Badge>
 							{/if}
@@ -348,7 +348,6 @@
 							<p class="text-muted-foreground text-sm">
 								Available only in the desktop app
 							</p>
-							<Badge variant="status.failed" class="mt-2">Desktop Only</Badge>
 						</div>
 						<Button
 							href="/global-shortcut"
