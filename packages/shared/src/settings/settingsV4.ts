@@ -107,10 +107,10 @@ export const migrateV3ToV4 = (settings: SettingsV3) =>
 		...settings,
 		'shortcuts.local.toggleManualRecording':
 			settings['shortcuts.currentLocalShortcut'],
-		'shortcuts.local.cancelManualRecording': 'escape',
+		'shortcuts.local.cancelManualRecording': 'c',
 		'shortcuts.local.closeManualRecordingSession': '',
-		'shortcuts.local.toggleVadRecording': '',
-		'shortcuts.local.pushToTalk': '',
+		'shortcuts.local.toggleVadRecording': 'v',
+		'shortcuts.local.pushToTalk': 'p',
 		'shortcuts.global.toggleManualRecording':
 			settings['shortcuts.currentGlobalShortcut'],
 		'shortcuts.global.cancelManualRecording': "CommandOrControl+Shift+'",
