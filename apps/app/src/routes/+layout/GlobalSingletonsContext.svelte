@@ -13,15 +13,17 @@
 		transformer,
 	});
 	const vadRecorder = initVadRecorderInContext({ transcriber, transformer });
-	const commands = initCommandsInContext({
+	const commandCallbacks = initCommandsInContext({
 		manualRecorder,
 		vadRecorder,
 		transcriber,
 		transformer,
 	});
-	const shortcutsRegister = initShortcutsRegisterInContext({ commands });
+	const shortcutsRegister = initShortcutsRegisterInContext({
+		commandCallbacks,
+	});
 
 	let { children } = $props();
 </script>
 
-{@render children()}initManualRecorderInContext
+{@render children()}
