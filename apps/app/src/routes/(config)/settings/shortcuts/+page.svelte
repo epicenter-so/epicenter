@@ -4,6 +4,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -12,9 +13,46 @@
 	import type { Command } from '@repo/shared/settings';
 	import { commands } from '@repo/shared/settings';
 	import hotkeys from 'hotkeys-js';
-	import { InfoIcon } from 'lucide-svelte';
+	import { InfoIcon, KeyboardIcon } from 'lucide-svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
+
+	const modifiers = [
+		{ symbol: '⇧', name: 'shift' },
+		{ symbol: '⌥', name: 'option/alt' },
+		{ symbol: '⌃', name: 'ctrl/control' },
+		{ symbol: '⌘', name: 'command' },
+		{ symbol: '⇪', name: 'caps lock' },
+	];
+
+	const specialKeys = [
+		'backspace',
+		'tab',
+		'clear',
+		'enter',
+		'return',
+		'esc',
+		'escape',
+		'space',
+		'up',
+		'down',
+		'left',
+		'right',
+		'home',
+		'end',
+		'pageup',
+		'pagedown',
+		'del',
+		'delete',
+		'f1-f19',
+		'num_0-num_9',
+		'num_multiply',
+		'num_add',
+		'num_enter',
+		'num_subtract',
+		'num_decimal',
+		'num_divide',
+	];
 
 	const shortcutExamples = [
 		'ctrl+a',
@@ -23,6 +61,8 @@
 		'f5',
 		'ctrl+alt+delete',
 		'shift+/',
+		'⌘+space',
+		'⌃+⌥+del',
 	];
 
 	function registerLocalShortcut(command: Command, shortcutKey: string) {
@@ -117,29 +157,47 @@
 
 	<div class="bg-muted/50 p-4 rounded-md mb-4">
 		<div class="flex items-start gap-3">
-			<InfoIcon class="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+			<KeyboardIcon class="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
 			<div>
 				<h4 class="font-medium text-sm mb-1">Shortcut Format Guide</h4>
 				<p class="text-muted-foreground text-sm mb-2">
-					Use the following format for shortcuts: <code
-						class="bg-muted px-1 py-0.5 rounded text-xs">modifier+key</code
-					>
-					or just <code class="bg-muted px-1 py-0.5 rounded text-xs">key</code> for
-					single keys.
+					Use the following format for shortcuts:
+					<Badge variant="secondary" class="font-mono">modifier+key</Badge>
+					or just
+					<Badge variant="secondary" class="font-mono">key</Badge>
+					for single keys.
 				</p>
-				<div class="text-xs text-muted-foreground">
-					<p class="mb-1">
-						Supported modifiers: <code class="bg-muted px-1 py-0.5 rounded"
-							>ctrl</code
-						>, <code class="bg-muted px-1 py-0.5 rounded">alt</code>,
-						<code class="bg-muted px-1 py-0.5 rounded">shift</code>,
-						<code class="bg-muted px-1 py-0.5 rounded">command</code>
-						(or <code class="bg-muted px-1 py-0.5 rounded">⌘</code>)
-					</p>
-					<div class="flex flex-wrap gap-2 mt-2">
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+					<div>
+						<h5 class="text-xs font-medium mb-2">Supported Modifiers</h5>
+						<div class="flex flex-wrap gap-2">
+							{#each modifiers as { symbol, name }}
+								<div class="flex items-center gap-1.5">
+									<Badge variant="secondary" class="font-mono">{symbol}</Badge>
+									<span class="text-xs text-muted-foreground">{name}</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+
+					<div>
+						<h5 class="text-xs font-medium mb-2">Special Keys</h5>
+						<div class="flex flex-wrap gap-1.5">
+							{#each specialKeys as key}
+								<Badge variant="outline" class="text-xs">{key}</Badge>
+							{/each}
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<h5 class="text-xs font-medium mb-2">Examples (click to copy)</h5>
+					<div class="flex flex-wrap gap-2">
 						{#each shortcutExamples as example}
-							<button
-								class="bg-muted hover:bg-muted/80 px-2 py-1 rounded text-xs transition-colors"
+							<Badge
+								variant="outline"
+								class="cursor-pointer hover:bg-muted/80 transition-colors"
 								onclick={() => {
 									navigator.clipboard.writeText(example);
 									toast.success({
@@ -149,7 +207,7 @@
 								}}
 							>
 								{example}
-							</button>
+							</Badge>
 						{/each}
 					</div>
 				</div>
@@ -173,14 +231,22 @@
 						</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						<Input
-							id="local-shortcut-{command.id}"
-							placeholder={`e.g. ${command.defaultLocalShortcut}`}
-							value={settings.value[`shortcuts.local.${command.id}`]}
-							oninput={({ currentTarget: { value } }) =>
-								registerLocalShortcut(command, value)}
-							autocomplete="off"
-						/>
+						<div class="flex gap-2 items-center">
+							<Input
+								id="local-shortcut-{command.id}"
+								placeholder={`e.g. ${command.defaultLocalShortcut}`}
+								value={settings.value[`shortcuts.local.${command.id}`]}
+								oninput={({ currentTarget: { value } }) =>
+									registerLocalShortcut(command, value)}
+								autocomplete="off"
+								class="flex-1"
+							/>
+							{#if settings.value[`shortcuts.local.${command.id}`]}
+								<Badge variant="status.running">Active</Badge>
+							{:else}
+								<Badge variant="outline">Not Set</Badge>
+							{/if}
+						</div>
 					</Card.Content>
 				</Card.Root>
 			{/each}
@@ -198,20 +264,28 @@
 							</Card.Description>
 						</Card.Header>
 						<Card.Content>
-							<Input
-								id="global-shortcut-{command.id}"
-								placeholder="e.g. CommandOrControl+Shift+P"
-								value={settings.value[`shortcuts.global.${command.id}`]}
-								oninput={({ currentTarget: { value } }) =>
-									registerGlobalShortcut(command, value)}
-								autocomplete="off"
-							/>
+							<div class="flex gap-2 items-center">
+								<Input
+									id="global-shortcut-{command.id}"
+									placeholder="e.g. CommandOrControl+Shift+P"
+									value={settings.value[`shortcuts.global.${command.id}`]}
+									oninput={({ currentTarget: { value } }) =>
+										registerGlobalShortcut(command, value)}
+									autocomplete="off"
+									class="flex-1"
+								/>
+								{#if settings.value[`shortcuts.global.${command.id}`]}
+									<Badge variant="status.completed">Global</Badge>
+								{:else}
+									<Badge variant="outline">Not Set</Badge>
+								{/if}
+							</div>
 						</Card.Content>
 					</Card.Root>
 				{/each}
 			{:else}
 				<div class="relative">
-					<div class="space-y-4">
+					<div class="space-y-4 opacity-50">
 						{#each commands as command}
 							<Card.Root>
 								<Card.Header class="pb-2">
@@ -231,7 +305,7 @@
 										type="text"
 										autocomplete="off"
 										disabled
-										class="cursor-not-allowed opacity-50"
+										class="cursor-not-allowed"
 									/>
 								</Card.Content>
 							</Card.Root>
@@ -245,6 +319,7 @@
 							<p class="text-muted-foreground text-sm">
 								Available only in the desktop app
 							</p>
+							<Badge variant="status.failed" class="mt-2">Desktop Only</Badge>
 						</div>
 						<Button
 							href="/global-shortcut"
