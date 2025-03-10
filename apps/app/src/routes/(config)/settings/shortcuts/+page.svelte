@@ -147,8 +147,8 @@
 		</Tabs.Content>
 
 		<Tabs.Content value="global" class="space-y-4 mt-4">
-			<TauriGlobalShortcutFormatGuide></TauriGlobalShortcutFormatGuide>
 			{#if window.__TAURI_INTERNALS__}
+				<TauriGlobalShortcutFormatGuide></TauriGlobalShortcutFormatGuide>
 				{#each commands as command}
 					<Card.Root>
 						<Card.Header class="pb-2">
@@ -170,7 +170,7 @@
 									class="flex-1"
 								/>
 								{#if settings.value[`shortcuts.global.${command.id}`]}
-									<Badge variant="status.completed">Global</Badge>
+									<Badge variant="status.completed">Active</Badge>
 								{:else}
 									<Badge variant="outline">Not Set</Badge>
 								{/if}
