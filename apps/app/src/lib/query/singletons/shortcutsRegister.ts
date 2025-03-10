@@ -1,21 +1,23 @@
-import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { createJobQueue } from '$lib/utils/createJobQueue';
 import { tryAsync, trySync } from '@epicenterhq/result';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingErr, type WhisperingErrProperties } from '@repo/shared';
+import type { CommandId } from '@repo/shared/settings';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
-import type { Commands } from './commands';
-import { commandIds } from '@repo/shared/settings';
+import type { CommandCallbacks } from './commands';
 
 type RegisterShortcutJob = Promise<void>;
 
 export const initShortcutsRegisterInContext = ({
-	commands,
+	commandCallbacks,
 }: {
-	commands: CommandCallbacks;
+	commandCallbacks: CommandCallbacks;
 }) => {
-	setContext('shortcutsRegister', createShortcutsRegister({ commands }));
+	setContext(
+		'shortcutsRegister',
+		createShortcutsRegister({ commandCallbacks }),
+	);
 };
 
 export const getShortcutsRegisterFromContext = () => {
@@ -24,154 +26,112 @@ export const getShortcutsRegisterFromContext = () => {
 	);
 };
 
-function createShortcutsRegister({ commands }: { commands: CommandCallbacks }) {
+function createShortcutsRegister({
+	commandCallbacks,
+}: { commandCallbacks: CommandCallbacks }) {
 	const jobQueue = createJobQueue<RegisterShortcutJob>();
 
-	const initialSilentJob = async () => {
-		unregisterAllLocalShortcuts();
-		await unregisterAllGlobalShortcuts();
-
-		for (const commandName of commandIds) {
-			registerLocalShortcut({
-				shortcut: settings.value[`shortcuts.local.${commandName}`],
-				callback: commands[commandName],
-			});
-		}
-		await Promise.all(
-			commandIds.map((commandName) =>
-				registerGlobalShortcut({
-					shortcut: settings.value[`shortcuts.global.${commandName}`],
-					callback: commands[commandName],
-				}),
-			),
-		);
-	};
-
-	jobQueue.addJobToQueue(initialSilentJob());
-
 	return {
-		registerLocalShortcut: ({
-			shortcut,
-			callback,
+		registerCommandLocally: ({
+			commandId,
+			shortcutKey,
 		}: {
-			shortcut: string;
-			callback: () => void;
+			commandId: CommandId;
+			shortcutKey: string;
 		}) => {
-			console.log('🚀 ~ createShortcutsRegister ~ shortcut:', shortcut);
-			const job = async () => {
-				unregisterAllLocalShortcuts();
-				registerLocalShortcut({ shortcut, callback });
-				toast.success({
-					title: `Local shortcut set to ${shortcut}`,
-					description: 'Press the shortcut to start recording',
-				});
-			};
-			jobQueue.addJobToQueue(job());
+			const currentCommandKey = settings.value[`shortcuts.local.${commandId}`];
+			const unregisterOldCommandLocallyResult = trySync({
+				try: () => hotkeys.unbind(currentCommandKey),
+				mapErr: (error) =>
+					WhisperingErr({
+						title: `Error unregistering command with id ${commandId} locally`,
+						description: 'Please try again.',
+						action: { type: 'more-details', error },
+					}),
+			});
+			if (!unregisterOldCommandLocallyResult.ok)
+				return unregisterOldCommandLocallyResult;
+			const registerNewCommandLocallyResult = trySync({
+				try: () =>
+					hotkeys(shortcutKey, (event) => {
+						// Prevent the default refresh event under WINDOWS system
+						event.preventDefault();
+						commandCallbacks[commandId]();
+					}),
+				mapErr: (error) =>
+					WhisperingErr({
+						title: 'Error registering local shortcut',
+						description: 'Please make sure it is a valid keyboard shortcut.',
+						action: { type: 'more-details', error },
+					}),
+			});
+			if (!registerNewCommandLocallyResult.ok)
+				return registerNewCommandLocallyResult;
+			return registerNewCommandLocallyResult;
 		},
-		registerGlobalShortcut: ({
-			shortcut,
-			callback,
+		registerCommandGlobally: ({
+			commandId,
+			shortcutKey,
+			onSuccess,
+			onError,
 		}: {
-			shortcut: string;
-			callback: () => void;
+			commandId: CommandId;
+			shortcutKey: string;
+			onSuccess: () => void;
+			onError: (error: WhisperingErrProperties) => void;
 		}) => {
 			const job = async () => {
-				if (!window.__TAURI_INTERNALS__) return;
-				unregisterAllGlobalShortcuts();
-				await registerGlobalShortcut({ shortcut, callback });
-				toast.success({
-					title: `Global shortcut set to ${shortcut}`,
-					description: 'Press the shortcut to start recording',
+				const oldShortcutKey = settings.value[`shortcuts.global.${commandId}`];
+				const unregisterOldShortcutKeyResult = await tryAsync({
+					try: async () => {
+						if (!window.__TAURI_INTERNALS__) return;
+						const { unregister } = await import(
+							'@tauri-apps/plugin-global-shortcut'
+						);
+						return await unregister(oldShortcutKey);
+					},
+					mapErr: (error) =>
+						WhisperingErr({
+							title: `Error unregistering command with id ${commandId} globally`,
+							description: 'Please try again.',
+							action: { type: 'more-details', error },
+						}),
 				});
+				if (!unregisterOldShortcutKeyResult.ok)
+					return unregisterOldShortcutKeyResult;
+				const registerNewShortcutKeyResult = await tryAsync({
+					try: async () => {
+						if (!window.__TAURI_INTERNALS__) return;
+						const { register } = await import(
+							'@tauri-apps/plugin-global-shortcut'
+						);
+						return await register(shortcutKey, (event) => {
+							if (event.state === 'Pressed') {
+								commandCallbacks[commandId]();
+							}
+						});
+					},
+					mapErr: (error) =>
+						WhisperingErr({
+							title: 'Error registering global shortcut.',
+							description:
+								'Please make sure it is a valid Electron keyboard shortcut.',
+							action: { type: 'more-details', error },
+						}),
+				});
+				if (!registerNewShortcutKeyResult.ok)
+					return registerNewShortcutKeyResult;
+				return registerNewShortcutKeyResult;
 			};
-			jobQueue.addJobToQueue(job());
-		},
-	};
-}
 
-function unregisterAllLocalShortcuts() {
-	return trySync({
-		try: () => hotkeys.unbind(),
-		mapErr: (error) =>
-			WhisperingErr({
-				title: 'Error unregistering all shortcuts',
-				description: 'Please try again.',
-				action: { type: 'more-details', error },
-			}),
-	});
-}
-
-function unregisterAllGlobalShortcuts() {
-	return tryAsync({
-		try: async () => {
-			if (!window.__TAURI_INTERNALS__) return;
-			const { unregisterAll } = await import(
-				'@tauri-apps/plugin-global-shortcut'
-			);
-			return await unregisterAll();
-		},
-		mapErr: (error) =>
-			WhisperingErr({
-				title: 'Error unregistering all shortcuts',
-				description: 'Please try again.',
-				action: { type: 'more-details', error },
-			}),
-	});
-}
-
-function registerLocalShortcut({
-	shortcut,
-	callback,
-}: {
-	shortcut: string;
-	callback: () => void;
-}) {
-	const unregisterAllLocalShortcutsResult = unregisterAllLocalShortcuts();
-	if (!unregisterAllLocalShortcutsResult.ok)
-		return unregisterAllLocalShortcutsResult;
-	return trySync({
-		try: () =>
-			hotkeys(shortcut, (event) => {
-				// Prevent the default refresh event under WINDOWS system
-				event.preventDefault();
-				callback();
-			}),
-		mapErr: (error) =>
-			WhisperingErr({
-				title: 'Error registering local shortcut',
-				description: 'Please make sure it is a valid keyboard shortcut.',
-				action: { type: 'more-details', error },
-			}),
-	});
-}
-
-async function registerGlobalShortcut({
-	shortcut,
-	callback,
-}: {
-	shortcut: string;
-	callback: () => void;
-}) {
-	const unregisterAllGlobalShortcutsResult =
-		await unregisterAllGlobalShortcuts();
-	if (!unregisterAllGlobalShortcutsResult.ok)
-		return unregisterAllGlobalShortcutsResult;
-	return tryAsync({
-		try: async () => {
-			if (!window.__TAURI_INTERNALS__) return;
-			const { register } = await import('@tauri-apps/plugin-global-shortcut');
-			return await register(shortcut, (event) => {
-				if (event.state === 'Pressed') {
-					callback();
+			jobQueue.addJobToQueue(async () => {
+				const result = await job();
+				if (result.ok) {
+					onSuccess();
+				} else {
+					onError(result.error);
 				}
 			});
 		},
-		mapErr: (error) =>
-			WhisperingErr({
-				title: 'Error registering global shortcut.',
-				description:
-					'Please make sure it is a valid Electron keyboard shortcut.',
-				action: { type: 'more-details', error },
-			}),
-	});
+	};
 }
