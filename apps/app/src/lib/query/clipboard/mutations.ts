@@ -8,7 +8,6 @@ export type CopyToClipboardLabel =
 	| 'transformed text'
 	| 'code'
 	| 'latest transformation run output'
-	| 'example'
 	| 'modifier'
 	| 'key'
 	| 'key combination';
