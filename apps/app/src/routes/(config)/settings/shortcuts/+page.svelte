@@ -14,6 +14,7 @@
 	import { commands } from '@repo/shared/settings';
 	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
+	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 
@@ -107,8 +108,6 @@
 	</div>
 	<Separator />
 
-	<HotkeysJsFormatGuide></HotkeysJsFormatGuide>
-
 	<Tabs.Root value="local" class="w-full">
 		<Tabs.List class="grid w-full grid-cols-2">
 			<Tabs.Trigger value="local">Local Shortcuts</Tabs.Trigger>
@@ -116,6 +115,7 @@
 		</Tabs.List>
 
 		<Tabs.Content value="local" class="space-y-4 mt-4">
+			<HotkeysJsFormatGuide></HotkeysJsFormatGuide>
 			{#each commands as command}
 				<Card.Root>
 					<Card.Header class="pb-2">
@@ -147,6 +147,7 @@
 		</Tabs.Content>
 
 		<Tabs.Content value="global" class="space-y-4 mt-4">
+			<TauriGlobalShortcutFormatGuide></TauriGlobalShortcutFormatGuide>
 			{#if window.__TAURI_INTERNALS__}
 				{#each commands as command}
 					<Card.Root>
