@@ -32,7 +32,7 @@
 		}
 
 		shortcutsRegister.registerCommandLocally({
-			commandId: command.id,
+			command,
 			shortcutKey: value,
 			onSuccess: () => {
 				settings.value = {
@@ -73,7 +73,7 @@
 		}
 
 		shortcutsRegister.registerCommandGlobally({
-			commandId: command.id,
+			command,
 			shortcutKey: value,
 			onSuccess: () => {
 				settings.value = {

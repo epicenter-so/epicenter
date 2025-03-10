@@ -1,8 +1,7 @@
-import { settings } from '$lib/stores/settings.svelte';
 import { createJobQueue } from '$lib/utils/createJobQueue';
 import { tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingErr, type WhisperingErrProperties } from '@repo/shared';
-import type { CommandId } from '@repo/shared/settings';
+import type { Command } from '@repo/shared/settings';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';
@@ -33,12 +32,12 @@ function createShortcutsRegister({
 
 	return {
 		registerCommandLocally: ({
-			commandId,
+			command,
 			shortcutKey,
 			onSuccess,
 			onError,
 		}: {
-			commandId: CommandId;
+			command: Command;
 			shortcutKey: string;
 			onSuccess: () => void;
 			onError: (error: WhisperingErrProperties) => void;
@@ -48,7 +47,7 @@ function createShortcutsRegister({
 					hotkeys(shortcutKey, (event) => {
 						// Prevent the default refresh event under WINDOWS system
 						event.preventDefault();
-						commandCallbacks[commandId]();
+						commandCallbacks[command.id]();
 					}),
 				mapErr: (error) =>
 					WhisperingErr({
@@ -64,12 +63,12 @@ function createShortcutsRegister({
 			}
 		},
 		registerCommandGlobally: ({
-			commandId,
+			command,
 			shortcutKey,
 			onSuccess,
 			onError,
 		}: {
-			commandId: CommandId;
+			command: Command;
 			shortcutKey: string;
 			onSuccess: () => void;
 			onError: (error: WhisperingErrProperties) => void;
@@ -83,7 +82,7 @@ function createShortcutsRegister({
 						);
 						return await register(shortcutKey, (event) => {
 							if (event.state === 'Pressed') {
-								commandCallbacks[commandId]();
+								commandCallbacks[command.id]();
 							}
 						});
 					},

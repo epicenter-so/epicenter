@@ -32,10 +32,6 @@ export const commands = [
 
 export type Command = (typeof commands)[number];
 
-export const commandIds = commands.map((command) => command.id);
-
-export type CommandId = (typeof commandIds)[number];
-
 export const settingsV4Schema = z.object({
 	...({
 		'sound.playOn.manual-start': z.boolean(),
@@ -93,7 +89,7 @@ export const settingsV4Schema = z.object({
 		'shortcuts.local.closeManualRecordingSession': z.string(),
 		'shortcuts.local.toggleVadRecording': z.string(),
 		'shortcuts.local.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.local.${CommandId}`, ZodString>),
+	} satisfies Record<`shortcuts.local.${Command['id']}`, ZodString>),
 
 	...({
 		'shortcuts.global.toggleManualRecording': z.string(),
@@ -101,7 +97,7 @@ export const settingsV4Schema = z.object({
 		'shortcuts.global.closeManualRecordingSession': z.string(),
 		'shortcuts.global.toggleVadRecording': z.string(),
 		'shortcuts.global.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.global.${CommandId}`, ZodString>),
+	} satisfies Record<`shortcuts.global.${Command['id']}`, ZodString>),
 });
 
 export type SettingsV4 = z.infer<typeof settingsV4Schema>;

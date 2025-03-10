@@ -1,4 +1,4 @@
-import type { CommandId } from '@repo/shared/settings';
+import type { Command } from '@repo/shared/settings';
 import { getContext, setContext } from 'svelte';
 import type { ManualRecorder } from './manualRecorder';
 import type { Transcriber } from './transcriber';
@@ -50,5 +50,5 @@ function createCommandCallbacks({
 			manualRecorder.closeRecordingSessionWithToast(),
 		toggleVadRecording: () => vadRecorder.toggleVad(),
 		pushToTalk: () => {},
-	} satisfies Record<CommandId, () => void>;
+	} satisfies Record<Command['id'], () => void>;
 }
