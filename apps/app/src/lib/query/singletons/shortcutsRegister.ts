@@ -1,7 +1,7 @@
 import { createJobQueue } from '$lib/utils/createJobQueue';
 import { tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingErr, type WhisperingErrProperties } from '@repo/shared';
-import type { Command } from '@repo/shared/settings';
+import type { Command } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';

@@ -1,4 +1,4 @@
-import type { Command } from '@repo/shared/settings';
+import type { Command } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import type { ManualRecorder } from './manualRecorder';
 import type { Transcriber } from './transcriber';
