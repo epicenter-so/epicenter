@@ -4,13 +4,76 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle,
+	} from '$lib/components/ui/card/index.js';
+	import {
+		Tabs,
+		TabsContent,
+		TabsList,
+		TabsTrigger,
+	} from '$lib/components/ui/tabs/index.js';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
+	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { commands } from '@repo/shared/settings';
+	import type { CommandId } from '@repo/shared/settings';
 
-	const commandCallbacks = getCommandsFromContext();
 	const shortcutsRegister = getShortcutsRegisterFromContext();
+
+	function registerLocalShortcut(commandId: CommandId, value: string) {
+		settings.value = {
+			...settings.value,
+			[`shortcuts.local.${commandId}`]: value,
+		};
+
+		const result = shortcutsRegister.registerCommandLocally({
+			commandId,
+			shortcutKey: value,
+		});
+
+		if (!result.ok) {
+			toast.error({
+				title: 'Error setting local shortcut',
+				description: result.error.title,
+			});
+			return;
+		}
+
+		toast.success({
+			title: `Local shortcut set to ${value}`,
+			description: `Press the shortcut to ${commandId.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+		});
+	}
+
+	function registerGlobalShortcut(commandId: CommandId, value: string) {
+		settings.value = {
+			...settings.value,
+			[`shortcuts.global.${commandId}`]: value,
+		};
+
+		shortcutsRegister.registerCommandGlobally({
+			commandId,
+			shortcutKey: value,
+			onSuccess: () => {
+				toast.success({
+					title: `Global shortcut set to ${value}`,
+					description: `Press the shortcut to ${commandId.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+				});
+			},
+			onError: (error) => {
+				toast.error({
+					title: 'Error setting global shortcut',
+					description: error.title,
+				});
+			},
+		});
+	}
 </script>
 
 <svelte:head>
@@ -26,60 +89,102 @@
 	</div>
 	<Separator />
 
-	{#each commands as command}
-		<LabeledInput
-			id="local-shortcut-{command.id}"
-			label="Local Shortcut for {command.description}"
-			placeholder="Local Shortcut for {command.description}"
-			value={settings.value[`shortcuts.local.${command.id}`]}
-			oninput={({ currentTarget: { value } }) => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.local.${command.id}`]: value,
-				};
-				shortcutsRegister.registerCommandLocally({
-					shortcut: value,
-					callback: commandCallbacks[command.id],
-				});
-			}}
-		/>
-	{/each}
+	<Tabs value="local" class="w-full">
+		<TabsList class="grid w-full grid-cols-2">
+			<TabsTrigger value="local">Local Shortcuts</TabsTrigger>
+			<TabsTrigger value="global">Global Shortcuts</TabsTrigger>
+		</TabsList>
 
-	{#if window.__TAURI_INTERNALS__}
-		<LabeledInput
-			id="global-shortcut"
-			label="Global Shortcut"
-			placeholder="Global Shortcut to toggle recording"
-			value={settings.value['shortcuts.global.toggleManualRecording']}
-			oninput={({ currentTarget: { value } }) => {
-				settings.value = {
-					...settings.value,
-					'shortcuts.global.toggleManualRecording': value,
-				};
-				shortcutsRegister.registerCommandGlobally({
-					shortcut: value,
-					callback: () => commands.toggleManualRecording(),
-				});
-			}}
-		/>
-	{:else}
-		<Label class="text-sm" for="global-shortcut">Global Shortcut</Label>
-		<div class="relative">
-			<Input
-				id="global-shortcut"
-				placeholder="Global Shortcut to toggle recording"
-				value={settings.value['shortcuts.global.toggleManualRecording']}
-				type="text"
-				autocomplete="off"
-				disabled
-			/>
-			<Button
-				class="absolute inset-0 backdrop-blur"
-				href="/global-shortcut"
-				variant="link"
-			>
-				Enable Global Shortcut
-			</Button>
-		</div>
-	{/if}
+		<TabsContent value="local" class="space-y-4 mt-4">
+			{#each commands as command}
+				<Card>
+					<CardHeader class="pb-2">
+						<CardTitle class="text-base">{command.description}</CardTitle>
+						<CardDescription>
+							Set a keyboard shortcut that works when the app is in focus
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<Input
+							id="local-shortcut-{command.id}"
+							placeholder="Press keys to set shortcut"
+							value={settings.value[`shortcuts.local.${command.id}`]}
+							oninput={({ currentTarget: { value } }) =>
+								registerLocalShortcut(command.id, value)}
+							autocomplete="off"
+						/>
+					</CardContent>
+				</Card>
+			{/each}
+		</TabsContent>
+
+		<TabsContent value="global" class="space-y-4 mt-4">
+			{#if window.__TAURI_INTERNALS__}
+				{#each commands as command}
+					<Card>
+						<CardHeader class="pb-2">
+							<CardTitle class="text-base">{command.description}</CardTitle>
+							<CardDescription>
+								Set a system-wide keyboard shortcut that works even when the app
+								is not in focus
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Input
+								id="global-shortcut-{command.id}"
+								placeholder="Press keys to set global shortcut"
+								value={settings.value[`shortcuts.global.${command.id}`]}
+								oninput={({ currentTarget: { value } }) =>
+									registerGlobalShortcut(command.id, value)}
+								autocomplete="off"
+							/>
+						</CardContent>
+					</Card>
+				{/each}
+			{:else}
+				<div class="relative">
+					<div class="space-y-4">
+						{#each commands as command}
+							<Card>
+								<CardHeader class="pb-2">
+									<CardTitle class="text-base">{command.description}</CardTitle>
+									<CardDescription>
+										Set a system-wide keyboard shortcut that works even when the
+										app is not in focus
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<Input
+										id="global-shortcut-{command.id}"
+										placeholder="Global Shortcut"
+										value={settings.value[`shortcuts.global.${command.id}`]}
+										type="text"
+										autocomplete="off"
+										disabled
+										class="cursor-not-allowed opacity-50"
+									/>
+								</CardContent>
+							</Card>
+						{/each}
+					</div>
+					<div
+						class="absolute inset-0 bg-background/40 backdrop-blur-sm hover:bg-background/50 transition-all duration-200 flex flex-col items-center justify-center rounded-md"
+					>
+						<div class="text-center mb-4 max-w-md">
+							<h3 class="font-medium text-lg mb-2">Global Shortcuts</h3>
+							<p class="text-muted-foreground text-sm">Available only in the desktop app</p>
+						</div>
+						<Button
+							href="/global-shortcut"
+							variant="default"
+							size="lg"
+							class="shadow-md hover:shadow-lg transition-shadow"
+						>
+							Enable Global Shortcuts
+						</Button>
+					</div>
+				</div>
+			{/if}
+		</TabsContent>
+	</Tabs>
 </div>
