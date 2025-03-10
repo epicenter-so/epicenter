@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { InfoIcon, KeyboardIcon } from 'lucide-svelte';
-
-	const shortcutsRegister = getShortcutsRegisterFromContext();
 
 	const modifiers = [
 		{ symbol: '⇧', name: 'shift' },
@@ -53,6 +52,10 @@
 		'⌘+space',
 		'⌃+⌥+del',
 	];
+
+	// Common class for all clickable badges
+	const clickableBadgeClass =
+		'cursor-pointer hover:bg-muted/80 hover:scale-105 transition-all duration-150';
 </script>
 
 <div class="bg-muted/50 p-4 rounded-md mb-4">
@@ -74,7 +77,15 @@
 					<div class="flex flex-wrap gap-2">
 						{#each modifiers as { symbol, name }}
 							<div class="flex items-center gap-1.5">
-								<Badge variant="secondary" class="font-mono">{symbol}</Badge>
+								<Badge
+									variant="secondary"
+									class="font-mono {clickableBadgeClass}"
+									onclick={() =>
+										copyTextToClipboardWithToast({
+											label: 'modifier',
+											text: symbol,
+										})}>{symbol}</Badge
+								>
 								<span class="text-xs text-muted-foreground">{name}</span>
 							</div>
 						{/each}
@@ -85,26 +96,32 @@
 					<h5 class="text-xs font-medium mb-2">Special Keys</h5>
 					<div class="flex flex-wrap gap-1.5">
 						{#each specialKeys as key}
-							<Badge variant="outline" class="text-xs">{key}</Badge>
+							<Badge
+								variant="outline"
+								class="text-xs {clickableBadgeClass}"
+								onclick={() =>
+									copyTextToClipboardWithToast({
+										label: 'key',
+										text: key,
+									})}>{key}</Badge
+							>
 						{/each}
 					</div>
 				</div>
 			</div>
 
 			<div>
-				<h5 class="text-xs font-medium mb-2">Examples (click to copy)</h5>
+				<h5 class="text-xs font-medium mb-2">Examples</h5>
 				<div class="flex flex-wrap gap-2">
 					{#each shortcutExamples as example}
 						<Badge
 							variant="outline"
-							class="cursor-pointer hover:bg-muted/80 transition-colors"
-							onclick={() => {
-								navigator.clipboard.writeText(example);
-								toast.success({
-									title: 'Copied to clipboard',
-									description: `Shortcut format: ${example}`,
-								});
-							}}
+							class={clickableBadgeClass}
+							onclick={() =>
+								copyTextToClipboardWithToast({
+									label: 'key combination',
+									text: example,
+								})}
 						>
 							{example}
 						</Badge>
@@ -118,13 +135,19 @@
 					You can bind multiple shortcuts to the same action by separating them
 					with commas:
 				</p>
-				<Badge variant="secondary" class="font-mono mb-2"
-					>ctrl+r,command+r</Badge
+				<Badge
+					variant="secondary"
+					class="font-mono mb-2 {clickableBadgeClass}"
+					onclick={() =>
+						copyTextToClipboardWithToast({
+							label: 'key combination',
+							text: 'ctrl+r,command+r',
+						})}>ctrl+r,command+r</Badge
 				>
 				<p class="text-muted-foreground text-xs">
-					This will trigger the action when either <span class="font-mono"
-						>ctrl+r</span
-					>
+					This will trigger the action when either <span class="font-mono">
+						ctrl+r
+					</span>
 					OR <span class="font-mono">command+r</span> is pressed.
 				</p>
 			</div>

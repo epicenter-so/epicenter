@@ -7,7 +7,11 @@ export type CopyToClipboardLabel =
 	| 'transcribed text (joined)'
 	| 'transformed text'
 	| 'code'
-	| 'latest transformation run output';
+	| 'latest transformation run output'
+	| 'example'
+	| 'modifier'
+	| 'key'
+	| 'key combination';
 
 export const copyTextToClipboardWithToast = createMutation({
 	mutationFn: async ({
