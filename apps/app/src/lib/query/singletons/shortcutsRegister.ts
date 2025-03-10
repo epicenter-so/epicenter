@@ -1,5 +1,4 @@
 import { createJobQueue } from '$lib/utils/createJobQueue';
-import { validateHotkey } from '$lib/utils/validateHotkey';
 import { tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingErr, type WhisperingErrProperties } from '@repo/shared';
 import type { Command } from '@repo/shared/settings';
@@ -75,14 +74,6 @@ function createShortcutsRegister({
 			onSuccess: () => void;
 			onError: (error: WhisperingErrProperties) => void;
 		}) => {
-			// Validate the shortcut key format first for local hotkeys format
-			// Note: This doesn't guarantee it will work globally, but catches basic format issues
-			const validationResult = validateHotkey(shortcutKey);
-			if (!validationResult.ok) {
-				onError(validationResult.error);
-				return;
-			}
-
 			const job = async () => {
 				const registerNewShortcutKeyResult = await tryAsync({
 					try: async () => {
