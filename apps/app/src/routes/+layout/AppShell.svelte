@@ -15,6 +15,7 @@
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 
 	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
@@ -25,6 +26,8 @@
 		syncIconWithRecorderState();
 		closeToTrayIfEnabled();
 	}
+
+	bindKeyboardShortcutsOnLoad();
 
 	$effect(() => {
 		manualRecorder.recorderState;
