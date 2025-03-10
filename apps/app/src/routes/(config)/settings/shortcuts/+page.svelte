@@ -12,10 +12,20 @@
 	import type { Command } from '@repo/shared/settings';
 	import { commands } from '@repo/shared/settings';
 	import hotkeys from 'hotkeys-js';
+	import { InfoIcon } from 'lucide-svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 
-	function registerLocalShortcut(command: Command, value: string) {
+	const shortcutExamples = [
+		'ctrl+a',
+		'command+shift+p',
+		'alt+s',
+		'f5',
+		'ctrl+alt+delete',
+		'shift+/',
+	];
+
+	function registerLocalShortcut(command: Command, shortcutKey: string) {
 		const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
 		const unregisterOldCommandLocallyResult = trySync({
 			try: () => hotkeys.unbind(currentCommandKey),
@@ -33,14 +43,14 @@
 
 		shortcutsRegister.registerCommandLocally({
 			command,
-			shortcutKey: value,
+			shortcutKey,
 			onSuccess: () => {
 				settings.value = {
 					...settings.value,
-					[`shortcuts.local.${command.id}`]: value,
+					[`shortcuts.local.${command.id}`]: shortcutKey,
 				};
 				toast.success({
-					title: `Local shortcut set to ${value}`,
+					title: `Local shortcut set to ${shortcutKey}`,
 					description: `Press the shortcut to ${command.description}`,
 				});
 			},
@@ -50,7 +60,7 @@
 		});
 	}
 
-	async function registerGlobalShortcut(command: Command, value: string) {
+	async function registerGlobalShortcut(command: Command, shortcutKey: string) {
 		const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 		const unregisterOldShortcutKeyResult = await tryAsync({
 			try: async () => {
@@ -74,14 +84,14 @@
 
 		shortcutsRegister.registerCommandGlobally({
 			command,
-			shortcutKey: value,
+			shortcutKey,
 			onSuccess: () => {
 				settings.value = {
 					...settings.value,
-					[`shortcuts.global.${command.id}`]: value,
+					[`shortcuts.global.${command.id}`]: shortcutKey,
 				};
 				toast.success({
-					title: `Global shortcut set to ${value}`,
+					title: `Global shortcut set to ${shortcutKey}`,
 					description: `Press the shortcut to ${command.description}`,
 				});
 			},
@@ -104,6 +114,48 @@
 		</p>
 	</div>
 	<Separator />
+
+	<div class="bg-muted/50 p-4 rounded-md mb-4">
+		<div class="flex items-start gap-3">
+			<InfoIcon class="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+			<div>
+				<h4 class="font-medium text-sm mb-1">Shortcut Format Guide</h4>
+				<p class="text-muted-foreground text-sm mb-2">
+					Use the following format for shortcuts: <code
+						class="bg-muted px-1 py-0.5 rounded text-xs">modifier+key</code
+					>
+					or just <code class="bg-muted px-1 py-0.5 rounded text-xs">key</code> for
+					single keys.
+				</p>
+				<div class="text-xs text-muted-foreground">
+					<p class="mb-1">
+						Supported modifiers: <code class="bg-muted px-1 py-0.5 rounded"
+							>ctrl</code
+						>, <code class="bg-muted px-1 py-0.5 rounded">alt</code>,
+						<code class="bg-muted px-1 py-0.5 rounded">shift</code>,
+						<code class="bg-muted px-1 py-0.5 rounded">command</code>
+						(or <code class="bg-muted px-1 py-0.5 rounded">⌘</code>)
+					</p>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each shortcutExamples as example}
+							<button
+								class="bg-muted hover:bg-muted/80 px-2 py-1 rounded text-xs transition-colors"
+								onclick={() => {
+									navigator.clipboard.writeText(example);
+									toast.success({
+										title: 'Copied to clipboard',
+										description: `Shortcut format: ${example}`,
+									});
+								}}
+							>
+								{example}
+							</button>
+						{/each}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<Tabs.Root value="local" class="w-full">
 		<Tabs.List class="grid w-full grid-cols-2">
@@ -148,7 +200,7 @@
 						<Card.Content>
 							<Input
 								id="global-shortcut-{command.id}"
-								placeholder="Press keys to set global shortcut"
+								placeholder="e.g. CommandOrControl+Shift+P"
 								value={settings.value[`shortcuts.global.${command.id}`]}
 								oninput={({ currentTarget: { value } }) =>
 									registerGlobalShortcut(command, value)}
