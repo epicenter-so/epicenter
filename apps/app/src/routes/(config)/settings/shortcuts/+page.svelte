@@ -123,7 +123,7 @@
 					<Card.Content>
 						<Input
 							id="local-shortcut-{command.id}"
-							placeholder="Press keys to set shortcut"
+							placeholder={`e.g. ${command.defaultLocalShortcut}`}
 							value={settings.value[`shortcuts.local.${command.id}`]}
 							oninput={({ currentTarget: { value } }) =>
 								registerLocalShortcut(command, value)}
