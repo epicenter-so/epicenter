@@ -1,28 +1,14 @@
 <script lang="ts">
-	import { LabeledInput } from '$lib/components/labeled/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle,
-	} from '$lib/components/ui/card/index.js';
-	import {
-		Tabs,
-		TabsContent,
-		TabsList,
-		TabsTrigger,
-	} from '$lib/components/ui/tabs/index.js';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { commands } from '@repo/shared/settings';
 	import type { CommandId } from '@repo/shared/settings';
+	import { commands } from '@repo/shared/settings';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 
@@ -89,22 +75,22 @@
 	</div>
 	<Separator />
 
-	<Tabs value="local" class="w-full">
-		<TabsList class="grid w-full grid-cols-2">
-			<TabsTrigger value="local">Local Shortcuts</TabsTrigger>
-			<TabsTrigger value="global">Global Shortcuts</TabsTrigger>
-		</TabsList>
+	<Tabs.Root value="local" class="w-full">
+		<Tabs.List class="grid w-full grid-cols-2">
+			<Tabs.Trigger value="local">Local Shortcuts</Tabs.Trigger>
+			<Tabs.Trigger value="global">Global Shortcuts</Tabs.Trigger>
+		</Tabs.List>
 
-		<TabsContent value="local" class="space-y-4 mt-4">
+		<Tabs.Content value="local" class="space-y-4 mt-4">
 			{#each commands as command}
-				<Card>
-					<CardHeader class="pb-2">
-						<CardTitle class="text-base">{command.description}</CardTitle>
-						<CardDescription>
+				<Card.Root>
+					<Card.Header class="pb-2">
+						<Card.Title class="text-base">{command.description}</Card.Title>
+						<Card.Description>
 							Set a keyboard shortcut that works when the app is in focus
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
+						</Card.Description>
+					</Card.Header>
+					<Card.Content>
 						<Input
 							id="local-shortcut-{command.id}"
 							placeholder="Press keys to set shortcut"
@@ -113,23 +99,23 @@
 								registerLocalShortcut(command.id, value)}
 							autocomplete="off"
 						/>
-					</CardContent>
-				</Card>
+					</Card.Content>
+				</Card.Root>
 			{/each}
-		</TabsContent>
+		</Tabs.Content>
 
-		<TabsContent value="global" class="space-y-4 mt-4">
+		<Tabs.Content value="global" class="space-y-4 mt-4">
 			{#if window.__TAURI_INTERNALS__}
 				{#each commands as command}
-					<Card>
-						<CardHeader class="pb-2">
-							<CardTitle class="text-base">{command.description}</CardTitle>
-							<CardDescription>
+					<Card.Root>
+						<Card.Header class="pb-2">
+							<Card.Title class="text-base">{command.description}</Card.Title>
+							<Card.Description>
 								Set a system-wide keyboard shortcut that works even when the app
 								is not in focus
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
+							</Card.Description>
+						</Card.Header>
+						<Card.Content>
 							<Input
 								id="global-shortcut-{command.id}"
 								placeholder="Press keys to set global shortcut"
@@ -138,22 +124,24 @@
 									registerGlobalShortcut(command.id, value)}
 								autocomplete="off"
 							/>
-						</CardContent>
-					</Card>
+						</Card.Content>
+					</Card.Root>
 				{/each}
 			{:else}
 				<div class="relative">
 					<div class="space-y-4">
 						{#each commands as command}
-							<Card>
-								<CardHeader class="pb-2">
-									<CardTitle class="text-base">{command.description}</CardTitle>
-									<CardDescription>
+							<Card.Root>
+								<Card.Header class="pb-2">
+									<Card.Title class="text-base"
+										>{command.description}</Card.Title
+									>
+									<Card.Description>
 										Set a system-wide keyboard shortcut that works even when the
 										app is not in focus
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
+									</Card.Description>
+								</Card.Header>
+								<Card.Content>
 									<Input
 										id="global-shortcut-{command.id}"
 										placeholder="Global Shortcut"
@@ -163,8 +151,8 @@
 										disabled
 										class="cursor-not-allowed opacity-50"
 									/>
-								</CardContent>
-							</Card>
+								</Card.Content>
+							</Card.Root>
 						{/each}
 					</div>
 					<div
@@ -172,7 +160,9 @@
 					>
 						<div class="text-center mb-4 max-w-md">
 							<h3 class="font-medium text-lg mb-2">Global Shortcuts</h3>
-							<p class="text-muted-foreground text-sm">Available only in the desktop app</p>
+							<p class="text-muted-foreground text-sm">
+								Available only in the desktop app
+							</p>
 						</div>
 						<Button
 							href="/global-shortcut"
@@ -185,6 +175,6 @@
 					</div>
 				</div>
 			{/if}
-		</TabsContent>
-	</Tabs>
+		</Tabs.Content>
+	</Tabs.Root>
 </div>
