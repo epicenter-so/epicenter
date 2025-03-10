@@ -13,22 +13,24 @@ import type { SettingsV3 } from './settingsV3.js';
 export const commands = [
 	{
 		id: 'toggleManualRecording',
-		description: 'toggling manual recording',
+		description: 'toggle manual recording',
 	},
 	{
 		id: 'cancelManualRecording',
-		description: 'canceling manual recording',
+		description: 'cancel manual recording',
 	},
 	{
 		id: 'closeManualRecordingSession',
-		description: 'closing the current manual recording session',
+		description: 'close manual recording session',
 	},
-	{ id: 'pushToTalk', description: 'activating push to talk' },
+	{ id: 'pushToTalk', description: 'push to talk' },
 	{
 		id: 'toggleVadRecording',
-		description: 'toggling vad recording',
+		description: 'toggle vad recording',
 	},
 ] as const;
+
+export type Command = (typeof commands)[number];
 
 export const commandIds = commands.map((command) => command.id);
 
