@@ -7,56 +7,86 @@
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
-	import type { CommandId } from '@repo/shared/settings';
+	import { tryAsync, trySync } from '@epicenterhq/result';
+	import { WhisperingErr } from '@repo/shared';
+	import type { Command } from '@repo/shared/settings';
 	import { commands } from '@repo/shared/settings';
+	import hotkeys from 'hotkeys-js';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 
-	function registerLocalShortcut(commandId: CommandId, value: string) {
-		settings.value = {
-			...settings.value,
-			[`shortcuts.local.${commandId}`]: value,
-		};
-
-		const result = shortcutsRegister.registerCommandLocally({
-			commandId,
-			shortcutKey: value,
+	function registerLocalShortcut(command: Command, value: string) {
+		const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
+		const unregisterOldCommandLocallyResult = trySync({
+			try: () => hotkeys.unbind(currentCommandKey),
+			mapErr: (error) =>
+				WhisperingErr({
+					title: `Error unregistering old command with id ${command.id} locally`,
+					description: 'Please try again.',
+					action: { type: 'more-details', error },
+				}),
 		});
 
-		if (!result.ok) {
-			toast.error({
-				title: 'Error setting local shortcut',
-				description: result.error.title,
-			});
-			return;
+		if (!unregisterOldCommandLocallyResult.ok) {
+			toast.error(unregisterOldCommandLocallyResult.error);
 		}
 
-		toast.success({
-			title: `Local shortcut set to ${value}`,
-			description: `Press the shortcut to ${commandId.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
-		});
-	}
-
-	function registerGlobalShortcut(commandId: CommandId, value: string) {
-		settings.value = {
-			...settings.value,
-			[`shortcuts.global.${commandId}`]: value,
-		};
-
-		shortcutsRegister.registerCommandGlobally({
-			commandId,
+		shortcutsRegister.registerCommandLocally({
+			commandId: command.id,
 			shortcutKey: value,
 			onSuccess: () => {
+				settings.value = {
+					...settings.value,
+					[`shortcuts.local.${command.id}`]: value,
+				};
 				toast.success({
-					title: `Global shortcut set to ${value}`,
-					description: `Press the shortcut to ${commandId.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+					title: `Local shortcut set to ${value}`,
+					description: `Press the shortcut to ${command.description}`,
 				});
 			},
 			onError: (error) => {
-				toast.error({
-					title: 'Error setting global shortcut',
-					description: error.title,
+				toast.error(error);
+			},
+		});
+	}
+
+	async function registerGlobalShortcut(command: Command, value: string) {
+		const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+		const unregisterOldShortcutKeyResult = await tryAsync({
+			try: async () => {
+				if (!window.__TAURI_INTERNALS__) return;
+				const { unregister } = await import(
+					'@tauri-apps/plugin-global-shortcut'
+				);
+				return await unregister(oldShortcutKey);
+			},
+			mapErr: (error) =>
+				WhisperingErr({
+					title: `Error unregistering command with id ${command.id} globally`,
+					description: 'Please try again.',
+					action: { type: 'more-details', error },
+				}),
+		});
+
+		if (!unregisterOldShortcutKeyResult.ok) {
+			toast.error(unregisterOldShortcutKeyResult.error);
+		}
+
+		shortcutsRegister.registerCommandGlobally({
+			commandId: command.id,
+			shortcutKey: value,
+			onSuccess: () => {
+				settings.value = {
+					...settings.value,
+					[`shortcuts.global.${command.id}`]: value,
+				};
+				toast.success({
+					title: `Global shortcut set to ${value}`,
+					description: `Press the shortcut to ${command.description}`,
 				});
+			},
+			onError: (error) => {
+				toast.error(error);
 			},
 		});
 	}
@@ -96,7 +126,7 @@
 							placeholder="Press keys to set shortcut"
 							value={settings.value[`shortcuts.local.${command.id}`]}
 							oninput={({ currentTarget: { value } }) =>
-								registerLocalShortcut(command.id, value)}
+								registerLocalShortcut(command, value)}
 							autocomplete="off"
 						/>
 					</Card.Content>
@@ -121,7 +151,7 @@
 								placeholder="Press keys to set global shortcut"
 								value={settings.value[`shortcuts.global.${command.id}`]}
 								oninput={({ currentTarget: { value } }) =>
-									registerGlobalShortcut(command.id, value)}
+									registerGlobalShortcut(command, value)}
 								autocomplete="off"
 							/>
 						</Card.Content>
@@ -133,9 +163,9 @@
 						{#each commands as command}
 							<Card.Root>
 								<Card.Header class="pb-2">
-									<Card.Title class="text-base"
-										>{command.description}</Card.Title
-									>
+									<Card.Title class="text-base">
+										{command.description}
+									</Card.Title>
 									<Card.Description>
 										Set a system-wide keyboard shortcut that works even when the
 										app is not in focus

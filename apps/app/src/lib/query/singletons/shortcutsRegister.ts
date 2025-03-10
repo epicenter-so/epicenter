@@ -35,22 +35,14 @@ function createShortcutsRegister({
 		registerCommandLocally: ({
 			commandId,
 			shortcutKey,
+			onSuccess,
+			onError,
 		}: {
 			commandId: CommandId;
 			shortcutKey: string;
+			onSuccess: () => void;
+			onError: (error: WhisperingErrProperties) => void;
 		}) => {
-			const currentCommandKey = settings.value[`shortcuts.local.${commandId}`];
-			const unregisterOldCommandLocallyResult = trySync({
-				try: () => hotkeys.unbind(currentCommandKey),
-				mapErr: (error) =>
-					WhisperingErr({
-						title: `Error unregistering command with id ${commandId} locally`,
-						description: 'Please try again.',
-						action: { type: 'more-details', error },
-					}),
-			});
-			if (!unregisterOldCommandLocallyResult.ok)
-				return unregisterOldCommandLocallyResult;
 			const registerNewCommandLocallyResult = trySync({
 				try: () =>
 					hotkeys(shortcutKey, (event) => {
@@ -65,9 +57,11 @@ function createShortcutsRegister({
 						action: { type: 'more-details', error },
 					}),
 			});
-			if (!registerNewCommandLocallyResult.ok)
-				return registerNewCommandLocallyResult;
-			return registerNewCommandLocallyResult;
+			if (!registerNewCommandLocallyResult.ok) {
+				onError(registerNewCommandLocallyResult.error);
+			} else {
+				onSuccess();
+			}
 		},
 		registerCommandGlobally: ({
 			commandId,
@@ -81,24 +75,6 @@ function createShortcutsRegister({
 			onError: (error: WhisperingErrProperties) => void;
 		}) => {
 			const job = async () => {
-				const oldShortcutKey = settings.value[`shortcuts.global.${commandId}`];
-				const unregisterOldShortcutKeyResult = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { unregister } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await unregister(oldShortcutKey);
-					},
-					mapErr: (error) =>
-						WhisperingErr({
-							title: `Error unregistering command with id ${commandId} globally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
-				});
-				if (!unregisterOldShortcutKeyResult.ok)
-					return unregisterOldShortcutKeyResult;
 				const registerNewShortcutKeyResult = await tryAsync({
 					try: async () => {
 						if (!window.__TAURI_INTERNALS__) return;
