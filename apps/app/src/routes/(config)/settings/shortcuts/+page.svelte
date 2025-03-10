@@ -211,6 +211,35 @@
 						{/each}
 					</div>
 				</div>
+
+				<div class="mt-4">
+					<h5 class="text-xs font-medium mb-2">Multiple Key Combinations</h5>
+					<p class="text-muted-foreground text-xs mb-2">
+						You can bind multiple shortcuts to the same action by separating
+						them with commas:
+					</p>
+					<Badge variant="secondary" class="font-mono mb-2"
+						>ctrl+r,command+r</Badge
+					>
+					<p class="text-muted-foreground text-xs">
+						This will trigger the action when either <span class="font-mono"
+							>ctrl+r</span
+						>
+						OR <span class="font-mono">command+r</span> is pressed.
+					</p>
+				</div>
+
+				<div class="mt-3 flex items-center gap-1.5">
+					<InfoIcon class="h-3.5 w-3.5 text-blue-500" />
+					<a
+						href="https://github.com/jaywcjlove/hotkeys-js#documentation"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-xs text-blue-500 hover:underline"
+					>
+						View hotkeys-js documentation
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>
