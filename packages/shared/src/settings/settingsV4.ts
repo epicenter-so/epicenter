@@ -14,19 +14,23 @@ export const commands = [
 	{
 		id: 'toggleManualRecording',
 		description: 'toggle manual recording',
+		defaultLocalShortcut: 'space',
 	},
 	{
 		id: 'cancelManualRecording',
 		description: 'cancel manual recording',
+		defaultLocalShortcut: 'c',
 	},
 	{
 		id: 'closeManualRecordingSession',
 		description: 'close manual recording session',
+		defaultLocalShortcut: 'shift+c',
 	},
-	{ id: 'pushToTalk', description: 'push to talk' },
+	{ id: 'pushToTalk', description: 'push to talk', defaultLocalShortcut: 'p' },
 	{
 		id: 'toggleVadRecording',
 		description: 'toggle vad recording',
+		defaultLocalShortcut: 'v',
 	},
 ] as const;
 
@@ -108,7 +112,7 @@ export const migrateV3ToV4 = (settings: SettingsV3) =>
 		'shortcuts.local.toggleManualRecording':
 			settings['shortcuts.currentLocalShortcut'],
 		'shortcuts.local.cancelManualRecording': 'c',
-		'shortcuts.local.closeManualRecordingSession': '',
+		'shortcuts.local.closeManualRecordingSession': 'shift+c',
 		'shortcuts.local.toggleVadRecording': 'v',
 		'shortcuts.local.pushToTalk': 'p',
 		'shortcuts.global.toggleManualRecording':
