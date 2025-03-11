@@ -9,8 +9,8 @@ use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
 pub mod recorder;
 use recorder::commands::{
-    cancel_recording, close_recording_session, close_thread, ensure_thread_initialized,
-    enumerate_recording_devices, get_recorder_state, init_recording_session, start_recording,
+    cancel_recording, close_recording_session, enumerate_recording_devices, 
+    get_recorder_state, init_recording_session, start_recording,
     stop_recording, AppData,
 };
 
@@ -29,16 +29,12 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .manage(AppData::new())
-        .setup(|app| {
-            let state = app.state::<AppData>();
-            let _ = ensure_thread_initialized(state);
+        .setup(|_app| {
+            // Thread initialization is now handled automatically by init_recording_session
             Ok(())
         })
-        .on_window_event(|app, event| {
-            if let tauri::WindowEvent::Destroyed = event {
-                let state = app.state::<AppData>();
-                let _ = close_thread(state);
-            }
+        .on_window_event(|_app, _event| {
+            // Thread cleanup is now handled by Rust's Drop trait in AudioManager
         });
 
     // When a new instance is opened, focus on the main window if it's already running

@@ -26,10 +26,9 @@ fn get_audio_manager<'a>(
         .map_err(|e| RecorderError::LockError(e.to_string()))
 }
 
-#[tauri::command]
-pub async fn ensure_thread_initialized(state: State<'_, AppData>) -> Result<()> {
+fn ensure_thread_initialized(state: &State<'_, AppData>) -> Result<()> {
     debug!("Ensuring thread is initialized...");
-    let mut audio_manager = get_audio_manager(&state)?;
+    let mut audio_manager = get_audio_manager(state)?;
     audio_manager.ensure_initialized()
 }
 
@@ -46,6 +45,7 @@ pub async fn init_recording_session(device_name: String, state: State<'_, AppDat
         "Starting init_recording_session with device_name: {}",
         device_name
     );
+    ensure_thread_initialized(&state)?;
     let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.init_recording_session(device_name)
 }
@@ -56,9 +56,9 @@ pub async fn close_recording_session(state: State<'_, AppData>) -> Result<()> {
     audio_manager.close_recording_session()
 }
 
-// Removed #[tauri::command] since this is only used internally
-pub async fn close_thread(state: State<'_, AppData>) -> Result<()> {
-    let mut audio_manager = get_audio_manager(&state)?;
+// This function is only used internally and doesn't need to be exposed to the frontend
+fn close_thread(state: &State<'_, AppData>) -> Result<()> {
+    let mut audio_manager = get_audio_manager(state)?;
     audio_manager.close_thread()
 }
 
