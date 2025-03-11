@@ -50,6 +50,34 @@ impl AudioManager {
         }
     }
 
+    /// Helper method to handle common response patterns
+    fn handle_response<T>(
+        response: AudioResponse,
+        success_handler: impl FnOnce(String) -> T,
+        context: &str,
+        recording_state: Option<bool>,
+    ) -> Result<(T, Option<bool>)> {
+        match response {
+            AudioResponse::Success(status) => {
+                if recording_state.is_some() {
+                    info!("{} completed successfully", context);
+                }
+                Ok((success_handler(status), recording_state))
+            }
+            AudioResponse::Error(e) => {
+                error!("Error in {}: {}", context, e);
+                Err(RecorderError::AudioError(e))
+            }
+            _ => {
+                error!("Unexpected response in {}", context);
+                Err(RecorderError::AudioError(format!(
+                    "Unexpected response in {}",
+                    context
+                )))
+            }
+        }
+    }
+
     /// Ensure the audio thread is initialized
     fn ensure_initialized(&mut self) -> Result<()> {
         if self.thread_handle.is_some() {
@@ -92,35 +120,46 @@ impl AudioManager {
         Ok(result)
     }
 
+    /// Helper method to handle device list responses
+    fn handle_device_list_response(
+        response: AudioResponse,
+        context: &str,
+    ) -> Result<(Vec<DeviceInfo>, Option<bool>)> {
+        match response {
+            AudioResponse::RecordingDeviceList(devices) => {
+                info!("Found {} recording devices", devices.len());
+                Ok((
+                    devices
+                        .into_iter()
+                        .map(|label| DeviceInfo {
+                            device_id: label.clone(),
+                            label,
+                        })
+                        .collect(),
+                    None,
+                ))
+            }
+            AudioResponse::Error(e) => {
+                error!("Error in {}: {}", context, e);
+                Err(RecorderError::AudioError(e))
+            }
+            _ => {
+                error!("Unexpected response in {}", context);
+                Err(RecorderError::AudioError(format!(
+                    "Unexpected response in {}",
+                    context
+                )))
+            }
+        }
+    }
+
     /// Enumerate available recording devices
     pub fn enumerate_recording_devices(&mut self) -> Result<Vec<DeviceInfo>> {
         debug!("Enumerating recording devices");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::EnumerateRecordingDevices)?;
-
-            match rx.recv()? {
-                AudioResponse::RecordingDeviceList(devices) => {
-                    info!("Found {} recording devices", devices.len());
-                    Ok((
-                        devices
-                            .into_iter()
-                            .map(|label| DeviceInfo {
-                                device_id: label.clone(),
-                                label,
-                            })
-                            .collect(),
-                        None,
-                    ))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to enumerate devices: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while enumerating devices");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
+            let response = rx.recv()?;
+            Self::handle_device_list_response(response, "enumerate_recording_devices")
         })
     }
 
@@ -132,21 +171,8 @@ impl AudioManager {
         );
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::InitRecordingSession(device_name))?;
-
-            match rx.recv()? {
-                AudioResponse::Success(_) => {
-                    info!("Recording session initialized successfully");
-                    Ok(((), None))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to initialize recording session: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response during initialization");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
+            let response = rx.recv()?;
+            Self::handle_response(response, |_| (), "init_recording_session", None)
         })
     }
 
@@ -155,21 +181,8 @@ impl AudioManager {
         info!("Closing recording session");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::CloseRecordingSession)?;
-
-            match rx.recv()? {
-                AudioResponse::Success(_) => {
-                    info!("Recording session closed successfully");
-                    Ok(((), Some(false)))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to close recording session: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while closing session");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
+            let response = rx.recv()?;
+            Self::handle_response(response, |_| (), "close_recording_session", Some(false))
         })
     }
 
@@ -178,12 +191,8 @@ impl AudioManager {
         debug!("Getting recorder state");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::GetRecorderState)?;
-
-            match rx.recv()? {
-                AudioResponse::Success(status) => Ok((status, None)),
-                AudioResponse::Error(e) => Err(RecorderError::AudioError(e)),
-                _ => Err(RecorderError::AudioError("Unexpected response".to_string())),
-            }
+            let response = rx.recv()?;
+            Self::handle_response(response, |status| status, "get_recorder_state", None)
         })
     }
 
@@ -192,22 +201,37 @@ impl AudioManager {
         info!("Starting recording");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::StartRecording)?;
-
-            match rx.recv()? {
-                AudioResponse::Success(_) => {
-                    info!("Recording started successfully");
-                    Ok(((), Some(true)))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to start recording: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while starting recording");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
+            let response = rx.recv()?;
+            Self::handle_response(response, |_| (), "start_recording", Some(true))
         })
+    }
+
+    /// Helper method to handle audio data responses
+    fn handle_audio_response(
+        response: AudioResponse,
+        context: &str,
+    ) -> Result<(Vec<f32>, Option<bool>)> {
+        match response {
+            AudioResponse::AudioData(data) => {
+                info!(
+                    "{} completed successfully ({} samples)",
+                    context,
+                    data.len()
+                );
+                Ok((data, Some(false)))
+            }
+            AudioResponse::Error(e) => {
+                error!("Error in {}: {}", context, e);
+                Err(RecorderError::AudioError(e))
+            }
+            _ => {
+                error!("Unexpected response in {}", context);
+                Err(RecorderError::AudioError(format!(
+                    "Unexpected response in {}",
+                    context
+                )))
+            }
+        }
     }
 
     /// Stop recording and return the recorded audio data
@@ -215,45 +239,16 @@ impl AudioManager {
         info!("Stopping recording");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::StopRecording)?;
-
-            match rx.recv()? {
-                AudioResponse::AudioData(data) => {
-                    info!("Recording stopped successfully ({} samples)", data.len());
-                    Ok((data, Some(false)))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to stop recording: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while stopping recording");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
+            let response = rx.recv()?;
+            Self::handle_audio_response(response, "stop_recording")
         })
     }
 
     /// Cancel the current recording
     pub fn cancel_recording(&mut self) -> Result<()> {
         info!("Canceling recording");
-        self.with_thread(|tx, rx| {
-            tx.send(AudioCommand::StopRecording)?;
-
-            match rx.recv()? {
-                AudioResponse::AudioData(_) => {
-                    info!("Recording canceled successfully");
-                    Ok(((), Some(false)))
-                }
-                AudioResponse::Error(e) => {
-                    error!("Failed to cancel recording: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while canceling recording");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
-            }
-        })
+        // Reuse stop_recording and discard the audio data
+        self.stop_recording().map(|_| ())
     }
 
     /// Close the audio thread
