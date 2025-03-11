@@ -6,9 +6,9 @@ use tracing::{debug, error, info};
 
 pub type Result<T> = std::result::Result<T, RecorderError>;
 
-pub struct AudioThreadHandle {
-    pub command_tx: Sender<AudioCommand>,
-    pub response_rx: Receiver<AudioResponse>,
+struct AudioThreadHandle {
+    command_tx: Sender<AudioCommand>,
+    response_rx: Receiver<AudioResponse>,
 }
 
 pub struct AudioManager {
@@ -19,11 +19,10 @@ pub struct AudioManager {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
-    device_id: String,
-    label: String,
+    pub device_id: String,
+    pub label: String,
 }
 
-// Implement From traits for more idiomatic error handling
 impl From<SendError<AudioCommand>> for RecorderError {
     fn from(err: SendError<AudioCommand>) -> Self {
         RecorderError::SendError(err.to_string())
@@ -128,16 +127,14 @@ impl AudioManager {
         match response {
             AudioResponse::RecordingDeviceList(devices) => {
                 info!("Found {} recording devices", devices.len());
-                Ok((
-                    devices
-                        .into_iter()
-                        .map(|label| DeviceInfo {
-                            device_id: label.clone(),
-                            label,
-                        })
-                        .collect(),
-                    None,
-                ))
+                let device_infos = devices
+                    .into_iter()
+                    .map(|label| DeviceInfo {
+                        device_id: label.clone(),
+                        label,
+                    })
+                    .collect();
+                Ok((device_infos, None))
             }
             AudioResponse::Error(e) => {
                 error!("Error in {}: {}", context, e);
@@ -253,28 +250,31 @@ impl AudioManager {
 
     /// Close the audio thread
     pub fn close_thread(&mut self) -> Result<()> {
-        if let Some(handle) = self.thread_handle.take() {
-            debug!("Sending CloseThread command...");
-            handle.command_tx.send(AudioCommand::CloseThread)?;
-
-            match handle.response_rx.recv()? {
-                AudioResponse::Success(_) => {
-                    info!("Audio thread closed successfully");
-                    self.is_recording = false;
-                    Ok(())
-                }
-                AudioResponse::Error(e) => {
-                    error!("Error closing audio thread: {}", e);
-                    Err(RecorderError::AudioError(e))
-                }
-                _ => {
-                    error!("Unexpected response while closing thread");
-                    Err(RecorderError::AudioError("Unexpected response".to_string()))
-                }
+        let handle = match self.thread_handle.take() {
+            Some(h) => h,
+            None => {
+                debug!("No audio thread to close");
+                return Ok(());
             }
-        } else {
-            debug!("No audio thread to close");
-            Ok(())
+        };
+
+        debug!("Sending CloseThread command...");
+        handle.command_tx.send(AudioCommand::CloseThread)?;
+
+        match handle.response_rx.recv()? {
+            AudioResponse::Success(_) => {
+                info!("Audio thread closed successfully");
+                self.is_recording = false;
+                Ok(())
+            }
+            AudioResponse::Error(e) => {
+                error!("Error closing audio thread: {}", e);
+                Err(RecorderError::AudioError(e))
+            }
+            _ => {
+                error!("Unexpected response while closing thread");
+                Err(RecorderError::AudioError("Unexpected response".to_string()))
+            }
         }
     }
 }
