@@ -221,12 +221,7 @@ function createManualRecorder({
 		mutationFn: async (toastId: string) => {
 			const ensureRecordingSessionResult =
 				await userConfiguredServices.recorder.ensureRecordingSession(
-					{
-						deviceId:
-							settings.value['recording.navigator.selectedAudioInputDeviceId'],
-						bitsPerSecond:
-							Number(settings.value['recording.navigator.bitrateKbps']) * 1000,
-					},
+					settings.value,
 					{
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 					},

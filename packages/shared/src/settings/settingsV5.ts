@@ -49,6 +49,9 @@ export const settingsV5Schema = z.object({
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
+	// Tauri-specific recording settings
+	'recording.tauri.selectedAudioInputName': z.string().nullable(),
+
 	// Shared transcription settings
 	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES),
@@ -93,4 +96,5 @@ export const migrateV4ToV5 = (settings: SettingsV4) =>
 		'recording.navigator.selectedAudioInputDeviceId':
 			settings['recording.selectedAudioInputDeviceId'],
 		'recording.navigator.bitrateKbps': settings['recording.bitrateKbps'],
+		'recording.tauri.selectedAudioInputName': null,
 	} satisfies SettingsV5);

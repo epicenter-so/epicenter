@@ -42,7 +42,7 @@ export function createRecorderServiceTauri(): RecorderService {
 					'Initializing your recording session and checking microphone access...',
 			});
 			const result = await invoke('init_recording_session', {
-				deviceName: settings.deviceId,
+				deviceName: settings['recording.tauri.selectedAudioInputName'],
 			});
 			if (!result.ok)
 				return WhisperingErr({

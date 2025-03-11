@@ -3,6 +3,7 @@ import type {
 	WhisperingRecordingState,
 	WhisperingResult,
 } from '@repo/shared';
+import type { Settings } from '@repo/shared/settings';
 
 export type UpdateStatusMessageFn = (args: {
 	title: string;
@@ -22,7 +23,7 @@ export type RecorderService = {
 		WhisperingResult<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[]>
 	>;
 	ensureRecordingSession: (
-		settings: RecordingSessionSettings,
+		settings: Settings,
 		callbacks: { sendStatus: UpdateStatusMessageFn },
 	) => Promise<WhisperingResult<void>>;
 	closeRecordingSession: (callbacks: {

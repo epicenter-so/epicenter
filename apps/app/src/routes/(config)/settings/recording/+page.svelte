@@ -1,21 +1,13 @@
 <script lang="ts">
+	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
+
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { useGetMediaDevices } from '$lib/query/audio/queries';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
-	import type { SettingsV5 } from '@repo/shared/settings';
 
 	const manualRecorder = getManualRecorderFromContext();
-	const { getMediaDevicesQuery } = useGetMediaDevices();
-
-	$effect(() => {
-		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
-		}
-	});
 </script>
 
 <svelte:head>
@@ -56,43 +48,17 @@
 				</p>
 			</div>
 
-			{#if getMediaDevicesQuery.isPending}
-				<LabeledSelect
-					id="recording-device"
-					label="Recording Device"
-					placeholder="Loading devices..."
-					items={[]}
-					selected={''}
-					onSelectedChange={() => {}}
-					disabled
-				/>
-			{:else if getMediaDevicesQuery.isError}
-				<p class="text-sm text-red-500">
-					{getMediaDevicesQuery.error.title}: {getMediaDevicesQuery.error
-						.description}
-				</p>
-			{:else}
-				{@const items = getMediaDevicesQuery.data.map((device) => ({
-					value: device.deviceId,
-					label: device.label,
-				}))}
-				<LabeledSelect
-					id="recording-device"
-					label="Recording Device"
-					{items}
-					selected={(settings.value as Partial<SettingsV5>)[
-						'recording.navigator.selectedAudioInputDeviceId'
-					] ?? ''}
-					onSelectedChange={(selected) => {
-						manualRecorder.closeRecordingSessionSilent();
-						settings.value = {
-							...settings.value,
-							'recording.navigator.selectedAudioInputDeviceId': selected,
-						} as typeof settings.value;
-					}}
-					placeholder="Select a device"
-				/>
-			{/if}
+			<SelectRecordingDevice
+				selected={settings.value[
+					'recording.navigator.selectedAudioInputDeviceId'
+				] ?? ''}
+				onSelectedChange={(selected) => {
+					settings.value = {
+						...settings.value,
+						'recording.navigator.selectedAudioInputDeviceId': selected,
+					};
+				}}
+			></SelectRecordingDevice>
 
 			<LabeledSelect
 				id="bit-rate"
@@ -101,9 +67,7 @@
 					value: option.value,
 					label: option.label,
 				}))}
-				selected={(settings.value as Partial<SettingsV5>)[
-					'recording.navigator.bitrateKbps'
-				]}
+				selected={settings.value['recording.navigator.bitrateKbps']}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
@@ -122,10 +86,17 @@
 					Native recording uses your system's audio APIs for better performance.
 				</p>
 			</div>
-			<p class="text-sm text-muted-foreground">
-				Native recording settings are managed by the system. No additional
-				configuration is needed.
-			</p>
+
+			<SelectRecordingDevice
+				selected={settings.value['recording.tauri.selectedAudioInputName'] ??
+					''}
+				onSelectedChange={(selected) => {
+					settings.value = {
+						...settings.value,
+						'recording.tauri.selectedAudioInputName': selected,
+					};
+				}}
+			></SelectRecordingDevice>
 		</div>
 	{/if}
 </div>
