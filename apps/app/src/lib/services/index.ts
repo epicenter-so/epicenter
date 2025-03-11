@@ -180,7 +180,8 @@ export const userConfiguredServices = (() => {
 				tauri: RecorderServiceTauri,
 				navigator: RecorderServiceWeb,
 			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
-			return recorderServices[settings.value['recording.method']];
+			const recordingMethod = settings.value['recording.method'];
+			return recorderServices[recordingMethod];
 		},
 	};
 })();
