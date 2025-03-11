@@ -1,8 +1,8 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { useDownloadIndexedDbBlobWithToast } from '$lib/query/download/mutations';
 import { toast } from '$lib/services/toast';
+import { settings } from '$lib/stores/settings.svelte';
 import { Ok, tryAsync } from '@epicenterhq/result';
-import type { Settings } from '@repo/shared';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type {
@@ -480,10 +480,10 @@ export function createDbRecordingsServiceDexie() {
 			return Ok(undefined);
 		},
 
-		async cleanupExpiredRecordings({
-			'database.recordingRetentionStrategy': recordingRetentionStrategy,
-			'database.maxRecordingCount': maxRecordingCount,
-		}: Settings) {
+		async cleanupExpiredRecordings() {
+			const recordingRetentionStrategy =
+				settings.value['database.recordingRetentionStrategy'];
+			const maxRecordingCount = settings.value['database.maxRecordingCount'];
 			switch (recordingRetentionStrategy) {
 				case 'keep-forever': {
 					return Ok(undefined);

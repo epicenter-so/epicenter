@@ -7,56 +7,17 @@ import {
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
-} from './constants.js';
+} from '../constants.js';
+import type { SettingsV2 } from './settingsV2.js';
 
-export const getDefaultSettings = () =>
-	({
-		'sound.playOn.start': true,
-		'sound.playOn.stop': true,
-		'sound.playOn.cancel': true,
-		'sound.playOn.transcriptionComplete': true,
-		'sound.playOn.transformationComplete': true,
-		'transcription.clipboard.copyOnSuccess': true,
-		'transcription.clipboard.pasteOnSuccess': true,
-		'transformation.clipboard.copyOnSuccess': true,
-		'transformation.clipboard.pasteOnSuccess': true,
-		'recording.isFasterRerecordEnabled': false,
-		'system.closeToTray': false,
-		'system.alwaysOnTop': 'Never',
-
-		// Recording retention defaults
-		'database.recordingRetentionStrategy': 'keep-forever',
-		'database.maxRecordingCount': '5',
-
-		'recording.selectedAudioInputDeviceId': 'default',
-		'recording.bitrateKbps': DEFAULT_BITRATE_KBPS,
-
-		'transcription.selectedTranscriptionService': 'OpenAI',
-		'transcription.groq.model': 'whisper-large-v3',
-		'transcription.outputLanguage': 'auto',
-		'transcription.prompt': '',
-		'transcription.temperature': '0',
-
-		'transcription.fasterWhisperServer.serverUrl': 'http://localhost:8000',
-		'transcription.fasterWhisperServer.serverModel':
-			'Systran/faster-whisper-medium.en',
-
-		'transformations.selectedTransformationId': null,
-
-		'apiKeys.openai': '',
-		'apiKeys.anthropic': '',
-		'apiKeys.groq': '',
-		'apiKeys.google': '',
-
-		'shortcuts.currentLocalShortcut': 'space',
-		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
-	}) satisfies Settings;
-
-export const settingsSchema = z.object({
+export const settingsV3Schema = z.object({
 	...({
-		'sound.playOn.start': z.boolean(),
-		'sound.playOn.stop': z.boolean(),
-		'sound.playOn.cancel': z.boolean(),
+		'sound.playOn.manual-start': z.boolean(),
+		'sound.playOn.manual-stop': z.boolean(),
+		'sound.playOn.manual-cancel': z.boolean(),
+		'sound.playOn.vad-start': z.boolean(),
+		'sound.playOn.vad-capture': z.boolean(),
+		'sound.playOn.vad-stop': z.boolean(),
 		'sound.playOn.transcriptionComplete': z.boolean(),
 		'sound.playOn.transformationComplete': z.boolean(),
 	} satisfies {
@@ -106,4 +67,15 @@ export const settingsSchema = z.object({
 	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type Settings = z.infer<typeof settingsSchema>;
+export type SettingsV3 = z.infer<typeof settingsV3Schema>;
+
+export const migrateV2ToV3 = (settings: SettingsV2) =>
+	settingsV3Schema.parse({
+		...settings,
+		'sound.playOn.manual-start': true,
+		'sound.playOn.manual-stop': true,
+		'sound.playOn.manual-cancel': true,
+		'sound.playOn.vad-start': true,
+		'sound.playOn.vad-capture': true,
+		'sound.playOn.vad-stop': true,
+	} satisfies SettingsV3);

@@ -24,8 +24,8 @@ export const createJobQueue = <T extends Promise<unknown>>() => {
 
 	return {
 		queue,
-		addJobToQueue: (job: T) => {
-			queue.push(job);
+		addJobToQueue: (job: () => T) => {
+			queue.push(job());
 			processJobQueue();
 		},
 	};

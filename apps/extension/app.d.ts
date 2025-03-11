@@ -1,7 +1,7 @@
-import type { Recorder } from '../app/src/lib/query/recorder/mutations';
+import type { Commands } from '../app/src/lib/query/singletons/commands';
 declare global {
 	interface Window {
-		recorder: Recorder;
+		commands: Commands;
 		goto: (url: string) => Promise<void>;
 	}
 }

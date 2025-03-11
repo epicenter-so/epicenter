@@ -1,12 +1,7 @@
 import { Ok } from '@epicenterhq/result';
 import type { PlasmoMessaging } from '@plasmohq/messaging';
-import {
-	type Settings,
-	WhisperingErr,
-	type WhisperingResult,
-	parseJson,
-	settingsSchema,
-} from '@repo/shared';
+import { WhisperingErr, type WhisperingResult, parseJson } from '@repo/shared';
+import { type Settings, settingsSchema } from '@repo/shared/src/settings';
 import { injectScript } from '~background/injectScript';
 import { getOrCreateWhisperingTabId } from '~lib/getOrCreateWhisperingTabId';
 import type { WhisperingStorageKey } from '~lib/storage';
