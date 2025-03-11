@@ -57,8 +57,12 @@ struct RecordingSession {
 
 impl Drop for RecordingSession {
     fn drop(&mut self) {
-        // Ensure recording is stopped and resources are properly released
         self.is_recording.store(false, Ordering::Release);
+
+        if let Err(e) = self.stream.pause() {
+            debug!("Error pausing stream during drop: {}", e);
+        }
+
         debug!("Recording session resources released");
     }
 }
@@ -127,17 +131,28 @@ pub fn spawn_audio_thread(
                             }
                         };
 
-                        // Extract all values before converting config
+                        // Extract all values before creating StreamConfig directly
                         let sample_format = config.sample_format();
                         let sample_rate = config.sample_rate().0;
                         let channels = config.channels();
-                        let config_into = config.into();
+
+                        // Create StreamConfig directly instead of converting
+                        let stream_config = cpal::StreamConfig {
+                            channels,
+                            sample_rate: cpal::SampleRate(sample_rate),
+                            buffer_size: match config.buffer_size() {
+                                cpal::SupportedBufferSize::Range { min, max } => {
+                                    cpal::BufferSize::Default
+                                }
+                                cpal::SupportedBufferSize::Unknown => cpal::BufferSize::Default,
+                            },
+                        };
 
                         // Build the stream with appropriate sample format handling
                         let stream = match sample_format {
                             SampleFormat::F32 => build_stream_f32(
                                 &device,
-                                &config_into,
+                                &stream_config,
                                 is_recording.clone(),
                                 audio_buffer.clone(),
                                 sample_rate,
@@ -145,7 +160,7 @@ pub fn spawn_audio_thread(
                             ),
                             SampleFormat::I16 => build_stream_i16(
                                 &device,
-                                &config_into,
+                                &stream_config,
                                 is_recording.clone(),
                                 audio_buffer.clone(),
                                 sample_rate,
@@ -153,7 +168,7 @@ pub fn spawn_audio_thread(
                             ),
                             SampleFormat::U16 => build_stream_u16(
                                 &device,
-                                &config_into,
+                                &stream_config,
                                 is_recording.clone(),
                                 audio_buffer.clone(),
                                 sample_rate,
@@ -268,7 +283,7 @@ pub fn spawn_audio_thread(
                                 session.channels
                             );
 
-                            // Stop the stream
+                            // Properly stop the stream - first pause it
                             if let Err(e) = session.stream.pause() {
                                 warn!("Error pausing stream: {}", e);
                             }
@@ -284,7 +299,7 @@ pub fn spawn_audio_thread(
                     AudioCommand::CloseRecordingSession => {
                         info!("Audio thread: Closing recording session");
                         if let Some(session) = current_session.take() {
-                            // The Drop implementation will handle cleanup
+                            // The Drop implementation will handle stopping recording and pausing the stream
                             drop(session);
                             info!("Recording session closed successfully");
                             response_tx.send(AudioResponse::Success(
@@ -302,7 +317,7 @@ pub fn spawn_audio_thread(
                         info!("Audio thread: Closing thread");
                         // Clean up any active session
                         if let Some(session) = current_session.take() {
-                            // The Drop implementation will handle cleanup
+                            // The Drop implementation will handle stopping recording and pausing the stream
                             drop(session);
                         }
 
