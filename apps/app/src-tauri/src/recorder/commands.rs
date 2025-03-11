@@ -49,12 +49,6 @@ pub async fn close_recording_session(state: State<'_, AppData>) -> Result<()> {
     audio_manager.close_recording_session()
 }
 
-// This function is only used internally and doesn't need to be exposed to the frontend
-fn close_thread(state: &State<'_, AppData>) -> Result<()> {
-    let mut audio_manager = get_audio_manager(state)?;
-    audio_manager.close_thread()
-}
-
 #[tauri::command]
 pub async fn get_recorder_state(state: State<'_, AppData>) -> Result<String> {
     let mut audio_manager = get_audio_manager(&state)?;

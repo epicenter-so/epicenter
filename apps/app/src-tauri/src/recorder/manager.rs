@@ -282,9 +282,8 @@ impl AudioManager {
 impl Drop for AudioManager {
     fn drop(&mut self) {
         debug!("AudioManager being dropped, cleaning up resources");
-        if let Some(handle) = &self.thread_handle {
-            // Try to close the thread gracefully, but don't wait for response
-            let _ = handle.command_tx.send(AudioCommand::CloseThread);
+        if let Err(e) = self.close_thread() {
+            error!("Error during AudioManager drop: {}", e);
         }
     }
 }
