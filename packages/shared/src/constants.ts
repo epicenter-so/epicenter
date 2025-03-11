@@ -29,6 +29,13 @@ export const BITRATE_OPTIONS = BITRATE_VALUES_KBPS.map((bitrate) => ({
 	value: bitrate,
 }));
 
+export const RECORDING_METHODS = ['navigator', 'tauri'] as const;
+
+export const RECORDING_METHOD_OPTIONS = RECORDING_METHODS.map((method) => ({
+	label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
+	value: method,
+}));
+
 export const DEFAULT_BITRATE_KBPS =
 	'128' as const satisfies (typeof BITRATE_VALUES_KBPS)[number];
 

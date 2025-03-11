@@ -1,11 +1,8 @@
 import { Ok, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
 import { WhisperingErr, type WhisperingResult } from '@repo/shared';
-import type {
-	RecorderService,
-	RecordingSessionSettings,
-	UpdateStatusMessageFn,
-} from './RecorderService';
+import type { Settings } from '@repo/shared/settings';
+import type { RecorderService, UpdateStatusMessageFn } from './RecorderService';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
@@ -15,7 +12,7 @@ const WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS = {
 } satisfies MediaTrackConstraints;
 
 type RecordingSession = {
-	settings: RecordingSessionSettings;
+	settings: Settings;
 	stream: MediaStream;
 	recorder: {
 		mediaRecorder: MediaRecorder;
@@ -28,10 +25,10 @@ export function createRecorderServiceWeb(): RecorderService {
 	let maybeCurrentSession: RecordingSession | null = null;
 
 	const acquireStream = async (
-		settings: RecordingSessionSettings,
+		settings: Settings,
 		{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
 	): Promise<WhisperingResult<MediaStream>> => {
-		if (!settings.deviceId) {
+		if (!settings['recording.navigator.selectedAudioInputDeviceId']) {
 			sendStatus({
 				title: '🔍 No Device Selected',
 				description:
@@ -55,7 +52,7 @@ export function createRecorderServiceWeb(): RecorderService {
 				'Almost there! Just need your permission to use the microphone...',
 		});
 		const getPreferredStreamResult = await getStreamForDeviceId(
-			settings.deviceId,
+			settings['recording.navigator.selectedAudioInputDeviceId'],
 		);
 		if (!getPreferredStreamResult.ok) {
 			sendStatus({
@@ -158,7 +155,10 @@ export function createRecorderServiceWeb(): RecorderService {
 			const newRecorderResult = await tryAsync({
 				try: async () => {
 					return new MediaRecorder(currentSession.stream, {
-						bitsPerSecond: currentSession.settings.bitsPerSecond,
+						bitsPerSecond:
+							Number(
+								currentSession.settings['recording.navigator.bitrateKbps'],
+							) * 1000,
 					});
 				},
 				mapErr: (error) =>

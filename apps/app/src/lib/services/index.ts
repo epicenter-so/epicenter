@@ -1,6 +1,10 @@
 import type { Accessor } from '$lib/query/types';
 import type { Result } from '@epicenterhq/result';
-import type { MaybePromise, WhisperingSoundNames } from '@repo/shared';
+import type {
+	MaybePromise,
+	RECORDING_METHODS,
+	WhisperingSoundNames,
+} from '@repo/shared';
 import {
 	type CreateMutationOptions,
 	type CreateQueryOptions,
@@ -26,6 +30,7 @@ import { createHttpServiceDesktop } from './http/HttpService.desktop';
 import { createHttpServiceWeb } from './http/HttpService.web';
 import { createNotificationServiceDesktop } from './notifications/NotificationService.desktop';
 import { createNotificationServiceWeb } from './notifications/NotificationService.web';
+import type { RecorderService } from './recorder/RecorderService';
 import { createRecorderServiceTauri } from './recorder/RecorderService.tauri';
 import { createRecorderServiceWeb } from './recorder/RecorderService.web';
 import { createRunTransformationService } from './runTransformation';
@@ -171,10 +176,12 @@ export const userConfiguredServices = (() => {
 			}
 		},
 		get recorder() {
-			if (settings.value['recorder.selectedRecorderService'] === 'Tauri') {
-				return RecorderServiceTauri;
-			}
-			return RecorderServiceWeb;
+			const recorderServices = {
+				tauri: RecorderServiceTauri,
+				navigator: RecorderServiceWeb,
+			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
+			const recordingMethod = settings.value['recording.method'];
+			return recorderServices[recordingMethod];
 		},
 	};
 })();

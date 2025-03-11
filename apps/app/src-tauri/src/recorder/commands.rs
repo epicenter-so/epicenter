@@ -193,6 +193,21 @@ pub async fn close_thread() -> Result<()> {
 }
 
 #[tauri::command]
+pub async fn get_recorder_state() -> Result<String> {
+    with_thread(|tx, rx| {
+        tx.send(AudioCommand::GetRecorderState)
+            .map_err(|e| RecorderError::SendError(e.to_string()))?;
+
+        match rx.recv() {
+            Ok(AudioResponse::Success(status)) => Ok(status),
+            Ok(AudioResponse::Error(e)) => Err(RecorderError::AudioError(e)),
+            Ok(_) => Err(RecorderError::AudioError("Unexpected response".to_string())),
+            Err(e) => Err(RecorderError::ReceiveError(e.to_string())),
+        }
+    })
+}
+
+#[tauri::command]
 pub async fn start_recording() -> Result<()> {
     with_thread(|tx, rx| {
         tx.send(AudioCommand::StartRecording)

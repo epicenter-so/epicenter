@@ -42,7 +42,7 @@ export function createRecorderServiceTauri(): RecorderService {
 					'Initializing your recording session and checking microphone access...',
 			});
 			const result = await invoke('init_recording_session', {
-				deviceName: settings.deviceId,
+				deviceName: settings['recording.tauri.selectedAudioInputName'],
 			});
 			if (!result.ok)
 				return WhisperingErr({
@@ -69,11 +69,7 @@ export function createRecorderServiceTauri(): RecorderService {
 				});
 			return Ok(undefined);
 		},
-		startRecording: async (recordingId, { sendStatus: sendUpdateStatus }) => {
-			sendUpdateStatus({
-				title: '🎯 Starting Up',
-				description: 'Preparing your microphone and initializing recording...',
-			});
+		startRecording: async (recordingId) => {
 			const result = await invoke<void>('start_recording', {
 				recordingId,
 			});
@@ -86,12 +82,7 @@ export function createRecorderServiceTauri(): RecorderService {
 				});
 			return Ok(undefined);
 		},
-		stopRecording: async ({ sendStatus: sendUpdateStatus }) => {
-			sendUpdateStatus({
-				title: '⏸️ Finishing Up',
-				description:
-					'Saving your recording and preparing the final audio file...',
-			});
+		stopRecording: async () => {
 			const result = await invoke<number[]>('stop_recording');
 			if (!result.ok)
 				return WhisperingErr({
