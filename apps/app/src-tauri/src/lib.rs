@@ -11,7 +11,7 @@ pub mod recorder;
 use recorder::commands::{
     cancel_recording, close_recording_session, close_thread, ensure_thread_initialized,
     enumerate_recording_devices, get_recorder_state, init_recording_session, start_recording,
-    stop_recording, RecorderState,
+    stop_recording, AppData,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -28,15 +28,15 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
-        .manage(RecorderState::new())
+        .manage(AppData::new())
         .setup(|app| {
-            let state = app.state::<RecorderState>();
+            let state = app.state::<AppData>();
             let _ = ensure_thread_initialized(state);
             Ok(())
         })
         .on_window_event(|app, event| {
             if let tauri::WindowEvent::Destroyed = event {
-                let state = app.state::<RecorderState>();
+                let state = app.state::<AppData>();
                 let _ = close_thread(state);
             }
         });
