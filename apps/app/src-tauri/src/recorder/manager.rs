@@ -51,7 +51,7 @@ impl AudioManager {
     }
 
     /// Ensure the audio thread is initialized
-    pub fn ensure_initialized(&mut self) -> Result<()> {
+    fn ensure_initialized(&mut self) -> Result<()> {
         if self.thread_handle.is_some() {
             debug!("Audio thread already initialized");
             return Ok(());

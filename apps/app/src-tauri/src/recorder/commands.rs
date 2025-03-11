@@ -26,12 +26,6 @@ fn get_audio_manager<'a>(
         .map_err(|e| RecorderError::LockError(e.to_string()))
 }
 
-fn ensure_thread_initialized(state: &State<'_, AppData>) -> Result<()> {
-    debug!("Ensuring thread is initialized...");
-    let mut audio_manager = get_audio_manager(state)?;
-    audio_manager.ensure_initialized()
-}
-
 #[tauri::command]
 pub async fn enumerate_recording_devices(state: State<'_, AppData>) -> Result<Vec<DeviceInfo>> {
     debug!("Enumerating recording devices");
@@ -45,7 +39,6 @@ pub async fn init_recording_session(device_name: String, state: State<'_, AppDat
         "Starting init_recording_session with device_name: {}",
         device_name
     );
-    ensure_thread_initialized(&state)?;
     let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.init_recording_session(device_name)
 }
