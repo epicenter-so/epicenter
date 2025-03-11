@@ -16,25 +16,27 @@ impl AppData {
     }
 }
 
+/// Helper function to get a locked audio manager from state
+fn get_audio_manager<'a>(
+    state: &'a State<'_, AppData>,
+) -> Result<std::sync::MutexGuard<'a, AudioManager>> {
+    state
+        .audio_manager
+        .lock()
+        .map_err(|e| RecorderError::LockError(e.to_string()))
+}
+
 #[tauri::command]
 pub async fn ensure_thread_initialized(state: State<'_, AppData>) -> Result<()> {
     debug!("Ensuring thread is initialized...");
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.ensure_initialized()
 }
 
 #[tauri::command]
 pub async fn enumerate_recording_devices(state: State<'_, AppData>) -> Result<Vec<DeviceInfo>> {
     debug!("Enumerating recording devices");
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.enumerate_recording_devices()
 }
 
@@ -44,72 +46,44 @@ pub async fn init_recording_session(device_name: String, state: State<'_, AppDat
         "Starting init_recording_session with device_name: {}",
         device_name
     );
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.init_recording_session(device_name)
 }
 
 #[tauri::command]
 pub async fn close_recording_session(state: State<'_, AppData>) -> Result<()> {
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.close_recording_session()
 }
 
-#[tauri::command]
+// Removed #[tauri::command] since this is only used internally
 pub async fn close_thread(state: State<'_, AppData>) -> Result<()> {
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.close_thread()
 }
 
 #[tauri::command]
 pub async fn get_recorder_state(state: State<'_, AppData>) -> Result<String> {
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.get_recorder_state()
 }
 
 #[tauri::command]
 pub async fn start_recording(state: State<'_, AppData>) -> Result<()> {
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.start_recording()
 }
 
 #[tauri::command]
 pub async fn stop_recording(state: State<'_, AppData>) -> Result<Vec<f32>> {
     debug!("Stopping recording");
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.stop_recording()
 }
 
 #[tauri::command]
 pub async fn cancel_recording(state: State<'_, AppData>) -> Result<()> {
     debug!("Canceling recording");
-    let mut audio_manager = state
-        .audio_manager
-        .lock()
-        .map_err(|e| RecorderError::LockError(e.to_string()))?;
-
+    let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.cancel_recording()
 }
