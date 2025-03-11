@@ -8,10 +8,10 @@ mod accessibility;
 use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
 pub mod recorder;
-use recorder::{
+use recorder::commands::{
     cancel_recording, close_recording_session, close_thread, ensure_thread_initialized,
     enumerate_recording_devices, get_recorder_state, init_recording_session, start_recording,
-    stop_recording,
+    stop_recording, RecorderState,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -28,13 +28,16 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
-        .setup(|_| {
-            let _ = ensure_thread_initialized();
+        .manage(RecorderState::new())
+        .setup(|app| {
+            let state = app.state::<RecorderState>();
+            let _ = ensure_thread_initialized(state);
             Ok(())
         })
-        .on_window_event(|_, event| {
+        .on_window_event(|app, event| {
             if let tauri::WindowEvent::Destroyed = event {
-                let _ = close_thread();
+                let state = app.state::<RecorderState>();
+                let _ = close_thread(state);
             }
         });
 

@@ -180,7 +180,7 @@ pub fn spawn_audio_thread(
 
                 AudioCommand::GetRecorderState => {
                     if let Some(session) = &current_session {
-                        if session.is_recording.load((Ordering::Relaxed)) {
+                        if session.is_recording.load(Ordering::Relaxed) {
                             response_tx
                                 .send(AudioResponse::Success("SESSION+RECORDING".to_string()))?;
                         } else {
