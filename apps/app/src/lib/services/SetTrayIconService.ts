@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+import { getCommandsFromContext } from '$lib/query/singletons/commands';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
@@ -131,8 +131,8 @@ async function initTray() {
 				e.button === 'Left' &&
 				e.buttonState === 'Down'
 			) {
-				const recorder = getRecorderFromContext();
-				recorder.toggleRecording();
+				const commands = getCommandsFromContext();
+				commands.toggleManualRecording();
 				return true;
 			}
 			return false;

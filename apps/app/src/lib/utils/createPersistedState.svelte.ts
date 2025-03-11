@@ -1,6 +1,4 @@
-import { toast } from '$lib/services/toast';
 import { parseJson } from '@repo/shared';
-import { nanoid } from 'nanoid/non-secure';
 import type { z } from 'zod';
 
 const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
@@ -15,13 +13,6 @@ const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 	schema: TSchema;
 	error: z.ZodError;
 }): z.infer<TSchema> => {
-	const updatingLocalStorageToastId = nanoid();
-	toast.loading({
-		id: updatingLocalStorageToastId,
-		title: `Updating "${key}" in local storage...`,
-		description: 'Please wait...',
-	});
-
 	// Attempt to merge the default value with the value from storage if possible
 	const defaultValueMergedOldValues = {
 		...defaultValue,
@@ -29,21 +20,9 @@ const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 	};
 
 	const parseMergedValuesResult = schema.safeParse(defaultValueMergedOldValues);
-	if (!parseMergedValuesResult.success) {
-		toast.error({
-			id: updatingLocalStorageToastId,
-			title: `Error updating "${key}" in local storage`,
-			description: 'Reverting to default value.',
-		});
-		return defaultValue;
-	}
+	if (!parseMergedValuesResult.success) return defaultValue;
 
 	const updatedValue = parseMergedValuesResult.data;
-	toast.success({
-		id: updatingLocalStorageToastId,
-		title: `Successfully updated "${key}" in local storage`,
-		description: 'The value has been updated.',
-	});
 	return updatedValue;
 };
 
@@ -54,7 +33,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	key,
 	schema,
 	defaultValue,
-	disableLocalStorage = false,
+	isBrowser = true,
 	resolveParseErrorStrategy = attemptMergeStrategy,
 	onUpdateSuccess,
 	onUpdateError,
@@ -73,8 +52,8 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	 * */
 	defaultValue: z.infer<TSchema>;
 	/**
-	 * If true, disables the use of local storage. In SvelteKit, you set
-	 * this to `!browser` because local storage doesn't exist in the server
+	 * If false, disables the use of local storage. In SvelteKit, you set
+	 * this to `browser` because local storage doesn't exist in the server
 	 * context.
 	 *
 	 * @example
@@ -86,7 +65,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	 * ...
 	 * ```
 	 * */
-	disableLocalStorage?: boolean;
+	isBrowser?: boolean;
 	/**
 	 * Handler for when the value from storage fails schema validation.
 	 * Return a valid value to use it and save to storage.
@@ -122,44 +101,31 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 }) {
 	let value = $state(defaultValue);
 
-	const setValueInLocalStorage = (newValue: z.infer<TSchema>) => {
-		try {
-			localStorage.setItem(key, JSON.stringify(newValue));
-			onUpdateSuccess?.(newValue);
-		} catch (error) {
-			onUpdateError?.(error);
-		} finally {
-			onUpdateSettled?.();
-		}
-	};
+	if (isBrowser) {
+		const parseValueFromStorage = (
+			valueFromStorageUnparsed: string | null,
+		): z.infer<TSchema> => {
+			const isEmpty = valueFromStorageUnparsed === null;
+			if (isEmpty) return defaultValue;
 
-	const parseValueFromStorage = (
-		valueFromStorageUnparsed: string | null,
-	): z.infer<TSchema> => {
-		const isEmpty = valueFromStorageUnparsed === null;
-		if (isEmpty) return defaultValue;
+			const parseJsonResult = parseJson(valueFromStorageUnparsed);
+			if (!parseJsonResult.ok) return defaultValue;
+			const valueFromStorageJson = parseJsonResult.data;
 
-		const parseJsonResult = parseJson(valueFromStorageUnparsed);
-		if (!parseJsonResult.ok) return defaultValue;
-		const valueFromStorageMaybeInvalid = parseJsonResult.data;
+			const valueFromStorageResult = schema.safeParse(valueFromStorageJson);
+			if (valueFromStorageResult.success) return valueFromStorageResult.data;
 
-		const valueFromStorageResult = schema.safeParse(
-			valueFromStorageMaybeInvalid,
-		);
-		if (valueFromStorageResult.success) return valueFromStorageResult.data;
+			const resolvedValue = resolveParseErrorStrategy({
+				key,
+				valueFromStorage: valueFromStorageJson,
+				defaultValue,
+				schema,
+				error: valueFromStorageResult.error,
+			});
 
-		const resolvedValue = resolveParseErrorStrategy({
-			key,
-			valueFromStorage: valueFromStorageMaybeInvalid,
-			defaultValue,
-			schema,
-			error: valueFromStorageResult.error,
-		});
+			return resolvedValue;
+		};
 
-		return resolvedValue;
-	};
-
-	if (!disableLocalStorage) {
 		value = parseValueFromStorage(localStorage.getItem(key));
 		window.addEventListener('storage', (event: StorageEvent) => {
 			if (event.key !== key) return;
@@ -176,7 +142,15 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		},
 		set value(newValue: z.infer<TSchema>) {
 			value = newValue;
-			if (!disableLocalStorage) setValueInLocalStorage(newValue);
+			if (!isBrowser) return;
+			try {
+				localStorage.setItem(key, JSON.stringify(newValue));
+				onUpdateSuccess?.(newValue);
+			} catch (error) {
+				onUpdateError?.(error);
+			} finally {
+				onUpdateSettled?.();
+			}
 		},
 	};
 }

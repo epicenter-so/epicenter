@@ -1,4 +1,3 @@
-import type { Err } from '@epicenterhq/result';
 import type {
 	MaybePromise,
 	WhisperingRecordingState,

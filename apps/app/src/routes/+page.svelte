@@ -8,7 +8,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { useLatestRecording } from '$lib/query/recordings/queries';
-	import { getRecorderFromContext } from '$lib/query/singletons/recorder';
+	import { getCommandsFromContext } from '$lib/query/singletons/commands';
+	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -18,8 +19,9 @@
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
-	const recorder = getRecorderFromContext();
+	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
+	const commands = getCommandsFromContext();
 	const { latestRecordingQuery } = useLatestRecording();
 
 	const latestRecording = $derived<Recording>(
@@ -96,10 +98,10 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={recorder.recorderState === 'SESSION+RECORDING'
+				tooltipContent={manualRecorder.recorderState === 'SESSION+RECORDING'
 					? 'Stop recording'
 					: 'Start recording'}
-				onclick={recorder.toggleRecording}
+				onclick={commands.toggleManualRecording}
 				variant="ghost"
 				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -107,7 +109,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if recorder.recorderState === 'SESSION+RECORDING'}
+					{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 						⏹️
 					{:else}
 						🎙️
@@ -119,7 +121,7 @@
 				tooltipContent={vadRecorder.vadState === 'SESSION+RECORDING'
 					? 'Stop voice activated session'
 					: 'Start voice activated session'}
-				onclick={vadRecorder.toggleVad}
+				onclick={commands.toggleVadRecording}
 				variant="ghost"
 				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -136,21 +138,19 @@
 			</WhisperingButton>
 		{/if}
 		<div class="flex-1 flex-justify-center mb-2">
-			{#if recorder.recorderState === 'SESSION+RECORDING'}
+			{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
-					onclick={() => recorder.cancelRecorderWithToast()}
+					onclick={commands.cancelManualRecording}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: cancel-icon;"
 				>
 					🚫
 				</WhisperingButton>
-			{:else if recorder.recorderState === 'SESSION'}
+			{:else if manualRecorder.recorderState === 'SESSION'}
 				<WhisperingButton
-					onclick={() => {
-						recorder.closeRecordingSessionWithToast();
-					}}
+					onclick={commands.closeManualRecordingSession}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: end-session-icon;"

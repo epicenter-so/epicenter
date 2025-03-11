@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { LabeledSwitch } from '$lib/components/labeled';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
@@ -20,65 +18,85 @@
 
 	<Separator />
 
-	<div class="space-y-4">
-		<LabeledSwitch
-			id="play-sound-start"
-			label="Play sound when recording starts"
-			checked={settings.value['sound.playOn.start']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.start': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="sound.playOn.manual-start"
+		label="Play sound when starting manual recording"
+		checked={settings.value['sound.playOn.manual-start']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.manual-start': v };
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-stop"
-			label="Play sound when recording stops"
-			checked={settings.value['sound.playOn.stop']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.stop': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="sound.playOn.manual-start"
+		label="Play sound when stopping manual recording"
+		checked={settings.value['sound.playOn.manual-stop']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.manual-stop': v };
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-cancel"
-			label="Play sound when recording cancels"
-			checked={settings.value['sound.playOn.cancel']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.cancel': v,
-				};
-			}}
-		/>
+	<LabeledSwitch
+		id="sound.playOn.manual-start"
+		label="Play sound when canceling manual recording"
+		checked={settings.value['sound.playOn.manual-cancel']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.manual-cancel': v };
+		}}
+	/>
 
-		<LabeledSwitch
-			id="play-sound-transcription"
-			label="Play sound after transcription"
-			checked={settings.value['sound.playOn.transcriptionComplete']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.transcriptionComplete': v,
-				};
-			}}
-		/>
+	<Separator />
 
-		<LabeledSwitch
-			id="play-sound-transformation"
-			label="Play sound after transformation"
-			checked={settings.value['sound.playOn.transformationComplete']}
-			onCheckedChange={(v) => {
-				settings.value = {
-					...settings.value,
-					'sound.playOn.transformationComplete': v,
-				};
-			}}
-		/>
-	</div>
+	<LabeledSwitch
+		id="sound.playOn.vad-start"
+		label="Play sound when starting vad recording session"
+		checked={settings.value['sound.playOn.vad-start']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.vad-start': v };
+		}}
+	/>
+
+	<LabeledSwitch
+		id="sound.playOn.vad-start"
+		label="Play sound vad capture"
+		checked={settings.value['sound.playOn.vad-capture']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.vad-capture': v };
+		}}
+	/>
+
+	<LabeledSwitch
+		id="sound.playOn.vad-start"
+		label="Play sound when stopping vad recording session"
+		checked={settings.value['sound.playOn.vad-stop']}
+		onCheckedChange={(v) => {
+			settings.value = { ...settings.value, 'sound.playOn.vad-stop': v };
+		}}
+	/>
+
+	<Separator />
+
+	<LabeledSwitch
+		id="play-sound-transcription"
+		label="Play sound after transcription"
+		checked={settings.value['sound.playOn.transcriptionComplete']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.transcriptionComplete': v,
+			};
+		}}
+	/>
+
+	<LabeledSwitch
+		id="play-sound-transformation"
+		label="Play sound after transformation"
+		checked={settings.value['sound.playOn.transformationComplete']}
+		onCheckedChange={(v) => {
+			settings.value = {
+				...settings.value,
+				'sound.playOn.transformationComplete': v,
+			};
+		}}
+	/>
 </div>

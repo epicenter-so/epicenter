@@ -14,7 +14,7 @@ const cancelRecording = async () => {
 		commandName: 'cancelRecording',
 		func: () => {
 			try {
-				window.recorder.cancelRecordingWithToast();
+				window.commands.cancelManualRecording();
 				return { ok: true, data: undefined } as const;
 			} catch (error) {
 				return {

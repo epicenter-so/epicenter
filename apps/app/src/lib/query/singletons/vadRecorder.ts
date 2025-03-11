@@ -66,7 +66,7 @@ function createVadRecorder({
 						description: 'Your voice activated speech has been captured.',
 					});
 					console.info('Voice activated speech captured');
-					void playSoundIfEnabled('stop-manual');
+					void playSoundIfEnabled('vad-capture');
 
 					const now = new Date().toISOString();
 					const newRecordingId = nanoid();
@@ -181,7 +181,7 @@ function createVadRecorder({
 					'Speak now. Will transcribe until you end the voice activated capture session',
 			});
 			console.info('Voice activated capture started');
-			void playSoundIfEnabled('start-vad');
+			void playSoundIfEnabled('vad-start');
 		},
 		onSettled: invalidateVadState,
 	}));
@@ -210,7 +210,7 @@ function createVadRecorder({
 			const { toastId } = ctx;
 
 			console.info('Stopping voice activated capture');
-			void playSoundIfEnabled('on-stopped-voice-activated-session');
+			void playSoundIfEnabled('vad-stop');
 
 			if (!settings.value['recording.isFasterRerecordEnabled']) {
 				toast.loading({

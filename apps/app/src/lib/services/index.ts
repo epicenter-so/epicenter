@@ -5,7 +5,6 @@ import {
 	type CreateMutationOptions,
 	type CreateQueryOptions,
 	type DefaultError,
-	type FunctionedParams,
 	type QueryKey,
 	createMutation,
 	createQuery,
@@ -181,41 +180,7 @@ export const userConfiguredServices = (() => {
 })();
 
 export const playSoundIfEnabled = (soundName: WhisperingSoundNames) => {
-	switch (soundName) {
-		case 'start-vad':
-			if (settings.value['sound.playOn.start']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'start-manual':
-			if (settings.value['sound.playOn.start']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'on-stopped-voice-activated-session':
-			if (settings.value['sound.playOn.stop']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'stop-manual':
-			if (settings.value['sound.playOn.stop']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'cancel':
-			if (settings.value['sound.playOn.cancel']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'transcriptionComplete':
-			if (settings.value['sound.playOn.transcriptionComplete']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
-		case 'transformationComplete':
-			if (settings.value['sound.playOn.transformationComplete']) {
-				void PlaySoundService.playSound(soundName);
-			}
-			break;
+	if (settings.value[`sound.playOn.${soundName}`]) {
+		void PlaySoundService.playSound(soundName);
 	}
 };

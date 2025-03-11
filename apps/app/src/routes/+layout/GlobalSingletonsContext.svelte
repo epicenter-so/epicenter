@@ -1,15 +1,27 @@
 <script lang="ts">
-	import { initRecorderInContext } from '$lib/query/singletons/recorder';
+	import { initCommandsInContext } from '$lib/query/singletons/commands';
+	import { initManualRecorderInContext } from '$lib/query/singletons/manualRecorder';
+	import { initShortcutsRegisterInContext } from '$lib/query/singletons/shortcutsRegister';
 	import { initTranscriberInContext } from '$lib/query/singletons/transcriber';
 	import { initTransformerInContext } from '$lib/query/singletons/transformer';
 	import { initVadRecorderInContext } from '$lib/query/singletons/vadRecorder';
-	import { initRegisterShortcutsInContext } from '$lib/stores/settings.svelte';
 
 	const transcriber = initTranscriberInContext();
 	const transformer = initTransformerInContext();
-	const recorder = initRecorderInContext({ transcriber, transformer });
+	const manualRecorder = initManualRecorderInContext({
+		transcriber,
+		transformer,
+	});
 	const vadRecorder = initVadRecorderInContext({ transcriber, transformer });
-	const registerShortcuts = initRegisterShortcutsInContext({ recorder });
+	const commandCallbacks = initCommandsInContext({
+		manualRecorder,
+		vadRecorder,
+		transcriber,
+		transformer,
+	});
+	const shortcutsRegister = initShortcutsRegisterInContext({
+		commandCallbacks,
+	});
 
 	let { children } = $props();
 </script>
