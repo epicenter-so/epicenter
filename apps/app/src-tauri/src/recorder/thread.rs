@@ -263,46 +263,47 @@ fn find_device(host: &cpal::Host, device_name: &str) -> Result<cpal::Device, Str
     host.input_devices()
         .map_err(|e| e.to_string())?
         .find(|d| matches!(d.name(), Ok(name) if name == device_name))
-        .ok_or_else(|| "Device not found".to_string())
+        .ok_or_else(|| format!("Device '{}' not found", device_name))
 }
 
 /// Get an optimal audio configuration for voice recording
 fn get_optimal_config(device: &cpal::Device) -> Result<cpal::SupportedStreamConfig, String> {
+    const VOICE_SAMPLE_RATE: u32 = 16000;
+
     let supported_configs = device
         .supported_input_configs()
         .map_err(|e| e.to_string())?;
 
-    // Try to find a voice-friendly configuration
-    let voice_config = find_voice_friendly_config(supported_configs);
-
-    if let Some(config) = voice_config {
-        info!(
-            "Using voice-optimized config: {} Hz, {} channels",
-            config.sample_rate().0,
-            config.channels()
-        );
-        return Ok(config);
-    }
-
-    // Fall back to default configuration
-    device
-        .default_input_config()
-        .map_err(|e| format!("Failed to get default input config: {}", e))
-}
-
-/// Find a configuration suitable for voice recording
-fn find_voice_friendly_config(
-    supported_configs: cpal::SupportedInputConfigs,
-) -> Option<cpal::SupportedStreamConfig> {
     supported_configs
         .filter(|config| {
             let min_rate = config.min_sample_rate().0;
             let max_rate = config.max_sample_rate().0;
             let channels = config.channels();
 
-            // Look for mono or stereo config that supports common voice sample rates
-            (channels == 1 || channels == 2) && (min_rate <= 16000 && max_rate >= 16000)
+            // Look for mono or stereo config that supports voice sample rate
+            (channels == 1 || channels == 2)
+                && (min_rate <= VOICE_SAMPLE_RATE && max_rate >= VOICE_SAMPLE_RATE)
         })
-        .map(|range| range.with_sample_rate(cpal::SampleRate(16000)))
+        .map(|range| range.with_sample_rate(cpal::SampleRate(VOICE_SAMPLE_RATE)))
         .next()
+        .map(|config| {
+            info!(
+                "Using voice-optimized config: {} Hz, {} channels",
+                config.sample_rate().0,
+                config.channels()
+            );
+            config
+        })
+        .or_else(|| match device.default_input_config() {
+            Ok(config) => {
+                info!(
+                    "Using default config: {} Hz, {} channels",
+                    config.sample_rate().0,
+                    config.channels()
+                );
+                Some(config)
+            }
+            Err(e) => None,
+        })
+        .ok_or_else(|| "Failed to find suitable audio configuration".to_string())
 }
