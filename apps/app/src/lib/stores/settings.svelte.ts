@@ -5,10 +5,12 @@ import {
 	migrateV1ToV2,
 	migrateV2ToV3,
 	migrateV3ToV4,
+	migrateV4ToV5,
 	settingsV1Schema,
 	settingsV2Schema,
 	settingsV3Schema,
 	settingsV4Schema,
+	settingsV5Schema,
 } from '@repo/shared/settings';
 
 const settingsV1 = createPersistedState({
@@ -29,10 +31,16 @@ export const settingsV3 = createPersistedState({
 	defaultValue: migrateV2ToV3(settingsV2.value),
 });
 
-export const settings = createPersistedState({
+export const settingsV4 = createPersistedState({
 	key: 'whispering-settings',
 	schema: settingsV4Schema,
 	defaultValue: migrateV3ToV4(settingsV3.value),
+});
+
+export const settings = createPersistedState({
+	key: 'whispering-settings',
+	schema: settingsV5Schema,
+	defaultValue: migrateV4ToV5(settingsV4.value),
 	onUpdateSuccess: () => {
 		toast.success({ title: 'Settings updated!', description: '' });
 	},

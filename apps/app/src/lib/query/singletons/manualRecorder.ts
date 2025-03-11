@@ -222,9 +222,10 @@ function createManualRecorder({
 			const ensureRecordingSessionResult =
 				await userConfiguredServices.recorder.ensureRecordingSession(
 					{
-						deviceId: settings.value['recording.selectedAudioInputDeviceId'],
+						deviceId:
+							settings.value['recording.navigator.selectedAudioInputDeviceId'],
 						bitsPerSecond:
-							Number(settings.value['recording.bitrateKbps']) * 1000,
+							Number(settings.value['recording.navigator.bitrateKbps']) * 1000,
 					},
 					{
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
