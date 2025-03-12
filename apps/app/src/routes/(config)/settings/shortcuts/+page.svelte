@@ -16,16 +16,24 @@
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
-	let searchQuery = '';
-	let selectedCommand: Command | null = null;
-	let editingShortcut = '';
-	let isGlobalShortcut = false;
-	let popoverOpen = false;
-	let activeCommandId = '';
 
-	// Filter commands based on search query
-	$: filteredCommands = commands.filter((command) =>
-		command.description.toLowerCase().includes(searchQuery.toLowerCase()),
+	// Convert let variables to state runes
+	const state = $state({
+		searchQuery: '',
+		selectedCommand: null as Command | null,
+		editingShortcut: '',
+		isGlobalShortcut: false,
+		popoverOpen: false,
+		activeCommandId: '',
+	});
+
+	// Convert reactive declaration to $derived rune
+	const filteredCommands = $derived(
+		commands.filter((command) =>
+			command.description
+				.toLowerCase()
+				.includes(state.searchQuery.toLowerCase()),
+		),
 	);
 
 	function registerLocalShortcut(command: Command, shortcutKey: string) {
@@ -56,7 +64,7 @@
 					title: `Local shortcut set to ${shortcutKey}`,
 					description: `Press the shortcut to trigger "${command.description}"`,
 				});
-				popoverOpen = false;
+				state.popoverOpen = false;
 			},
 			onError: (error) => {
 				toast.error(error);
@@ -98,7 +106,7 @@
 					title: `Global shortcut set to ${shortcutKey}`,
 					description: `Press the shortcut to trigger "${command.description}"`,
 				});
-				popoverOpen = false;
+				state.popoverOpen = false;
 			},
 			onError: (error) => {
 				toast.error(error);
@@ -107,38 +115,38 @@
 	}
 
 	function openEditPopover(command: Command, isGlobal: boolean) {
-		selectedCommand = command;
-		isGlobalShortcut = isGlobal;
-		editingShortcut = isGlobal
+		state.selectedCommand = command;
+		state.isGlobalShortcut = isGlobal;
+		state.editingShortcut = isGlobal
 			? settings.value[`shortcuts.global.${command.id}`] || ''
 			: settings.value[`shortcuts.local.${command.id}`] || '';
-		activeCommandId = command.id;
-		popoverOpen = true;
+		state.activeCommandId = command.id;
+		state.popoverOpen = true;
 	}
 
 	function saveShortcut() {
-		if (!selectedCommand) return;
+		if (!state.selectedCommand) return;
 
-		if (isGlobalShortcut) {
-			registerGlobalShortcut(selectedCommand, editingShortcut);
+		if (state.isGlobalShortcut) {
+			registerGlobalShortcut(state.selectedCommand, state.editingShortcut);
 		} else {
-			registerLocalShortcut(selectedCommand, editingShortcut);
+			registerLocalShortcut(state.selectedCommand, state.editingShortcut);
 		}
 	}
 
 	function clearShortcut() {
-		if (!selectedCommand) return;
+		if (!state.selectedCommand) return;
 
-		if (isGlobalShortcut) {
-			registerGlobalShortcut(selectedCommand, '');
+		if (state.isGlobalShortcut) {
+			registerGlobalShortcut(state.selectedCommand, '');
 		} else {
-			registerLocalShortcut(selectedCommand, '');
+			registerLocalShortcut(state.selectedCommand, '');
 		}
 	}
 
 	function handleInputChange(event: Event) {
 		const target = event.target as HTMLInputElement;
-		editingShortcut = target.value;
+		state.editingShortcut = target.value;
 	}
 </script>
 
@@ -189,7 +197,7 @@
 						type="search"
 						placeholder="Search commands..."
 						class="pl-10"
-						bind:value={searchQuery}
+						bind:value={state.searchQuery}
 					/>
 				</div>
 
@@ -208,7 +216,8 @@
 									<Table.Cell>{command.description}</Table.Cell>
 									<Table.Cell class="text-right">
 										<Popover.Root
-											open={popoverOpen && activeCommandId === command.id}
+											open={state.popoverOpen &&
+												state.activeCommandId === command.id}
 										>
 											<Popover.Trigger>
 												{#if settings.value[`shortcuts.local.${command.id}`]}
@@ -247,15 +256,15 @@
 													<div>
 														<Input
 															placeholder={`e.g. ${command.defaultLocalShortcut}`}
-															bind:value={editingShortcut}
+															bind:value={state.editingShortcut}
 															autocomplete="off"
 															class="w-full"
 														/>
 													</div>
 
-													{#if editingShortcut}
+													{#if state.editingShortcut}
 														<div class="flex flex-wrap gap-1">
-															{#each editingShortcut.split('+') as key}
+															{#each state.editingShortcut.split('+') as key}
 																<kbd
 																	class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
 																>
@@ -319,7 +328,7 @@
 							type="search"
 							placeholder="Search commands..."
 							class="pl-10"
-							bind:value={searchQuery}
+							bind:value={state.searchQuery}
 						/>
 					</div>
 
@@ -338,7 +347,8 @@
 										<Table.Cell>{command.description}</Table.Cell>
 										<Table.Cell class="text-right">
 											<Popover.Root
-												open={popoverOpen && activeCommandId === command.id}
+												open={state.popoverOpen &&
+													state.activeCommandId === command.id}
 											>
 												<Popover.Trigger>
 													{#if settings.value[`shortcuts.global.${command.id}`]}
@@ -377,15 +387,15 @@
 														<div>
 															<Input
 																placeholder="e.g. CommandOrControl+Shift+P"
-																bind:value={editingShortcut}
+																bind:value={state.editingShortcut}
 																autocomplete="off"
 																class="w-full"
 															/>
 														</div>
 
-														{#if editingShortcut}
+														{#if state.editingShortcut}
 															<div class="flex flex-wrap gap-1">
-																{#each editingShortcut.split('+') as key}
+																{#each state.editingShortcut.split('+') as key}
 																	<kbd
 																		class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
 																	>
