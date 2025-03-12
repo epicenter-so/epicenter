@@ -22,12 +22,9 @@
 
 	let isPopoverOpen = $state(false);
 
-	function isAppleOS() {
-		const userAgent = navigator.userAgent.toLowerCase();
-		return /macintosh|mac os x|iphone|ipad|ipod/i.test(userAgent);
-	}
-
-	const isAppleDevice = isAppleOS();
+	const isAppleDevice = /macintosh|mac os x|iphone|ipad|ipod/i.test(
+		navigator.userAgent.toLowerCase(),
+	);
 
 	const keyRecorder = createKeyRecorder({
 		mapKeyboardEventToKeyCombination: (event) => {
