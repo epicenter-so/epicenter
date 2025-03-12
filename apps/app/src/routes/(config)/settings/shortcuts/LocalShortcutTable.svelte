@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { KeyboardShortcutRecorder } from '$lib/components/ui/keyboard-shortcut-recorder/index.svelte.js';
+	import { KeyboardShortcutRecorder } from './keyboard-shortcut-recorder/index.svelte.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { type Command, commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
