@@ -1,11 +1,11 @@
 export { default as KeyboardShortcutRecorder } from './LocalKeyboardShortcutRecorder.svelte';
 
 export function createKeyRecorder({
-	getKeyCombination,
+	mapKeyboardEventToKeyCombination,
 	onKeyCombinationRecorded,
 	onEscape,
 }: {
-	getKeyCombination: (event: KeyboardEvent) => string | null;
+	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
 	onKeyCombinationRecorded: (keyCombination: string) => void;
 	onEscape?: () => void;
 }) {
@@ -34,7 +34,7 @@ export function createKeyRecorder({
 			return;
 		}
 
-		const maybeValidKeyCombination = getKeyCombination(event);
+		const maybeValidKeyCombination = mapKeyboardEventToKeyCombination(event);
 		if (!maybeValidKeyCombination) return;
 		keyCombination = maybeValidKeyCombination;
 		onKeyCombinationRecorded(keyCombination);

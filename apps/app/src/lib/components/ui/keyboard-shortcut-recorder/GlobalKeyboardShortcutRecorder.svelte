@@ -22,7 +22,7 @@
 	let isPopoverOpen = $state(false);
 
 	const keyRecorder = createKeyRecorder({
-		getKeyCombination: (event) => {
+		mapKeyboardEventToKeyCombination: (event) => {
 			// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
 			const keyMap: Record<string, string> = {
 				// Modifier keys
