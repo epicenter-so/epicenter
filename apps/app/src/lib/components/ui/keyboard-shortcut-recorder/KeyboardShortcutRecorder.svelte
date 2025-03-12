@@ -156,7 +156,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
-	import { X } from 'lucide-svelte';
+	import { XIcon } from 'lucide-svelte';
 
 	const {
 		title,
@@ -211,9 +211,7 @@
 		}
 	}}
 >
-	<Popover.Trigger
-		class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
-	>
+	<Popover.Trigger class="inline-flex items-center gap-1">
 		{#if value}
 			{#each value.split('+') as key}
 				<kbd
@@ -223,14 +221,15 @@
 				</kbd>
 			{/each}
 			<WhisperingButton
-				variant="outline"
+				size="icon"
+				variant="ghost"
 				onclick={(e) => {
 					e.stopPropagation();
 					keyRecorder.clear();
 				}}
 				tooltipContent="Clear shortcut"
 			>
-				<X class="h-4 w-4" />
+				<XIcon class="h-4 w-4" />
 			</WhisperingButton>
 		{:else}
 			<button
