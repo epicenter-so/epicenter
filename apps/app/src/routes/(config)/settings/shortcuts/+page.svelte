@@ -139,11 +139,8 @@
 							<div class="flex items-center justify-between">
 								<h3 class="text-base font-medium">{command.description}</h3>
 							</div>
-							<p class="text-sm text-muted-foreground mt-2 mb-4">
-								Set a keyboard shortcut that works when the app is in focus
-							</p>
 
-							<div class="flex items-center gap-3">
+							<div class="flex items-center gap-3 mt-4">
 								<Input
 									id="local-shortcut-{command.id}"
 									placeholder={`e.g. ${command.defaultLocalShortcut}`}
@@ -203,12 +200,8 @@
 								<div class="flex items-center justify-between">
 									<h3 class="text-base font-medium">{command.description}</h3>
 								</div>
-								<p class="text-sm text-muted-foreground mt-2 mb-4">
-									Set a system-wide keyboard shortcut that works even when the
-									app is not in focus
-								</p>
 
-								<div class="flex items-center gap-3">
+								<div class="flex items-center gap-3 mt-4">
 									<Input
 										id="global-shortcut-{command.id}"
 										placeholder="e.g. CommandOrControl+Shift+P"
