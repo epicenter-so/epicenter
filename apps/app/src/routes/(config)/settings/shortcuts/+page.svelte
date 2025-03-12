@@ -8,8 +8,11 @@
 	import { WhisperingErr } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
-	import { LocalShortcutTable } from './keyboard-shortcut-recorder/index.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
+	import {
+		GlobalShortcutTable,
+		LocalShortcutTable,
+	} from './keyboard-shortcut-recorder/index.svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
@@ -52,13 +55,7 @@
 					<HotkeysJsFormatGuide />
 				</div>
 
-				<LocalShortcutTable
-					registerShortcutKeyAndUpdateSettings={({
-						command,
-						keyCombination,
-					}) => {
-					}}
-				/>
+				<LocalShortcutTable />
 			</section>
 		</Tabs.Content>
 
@@ -81,7 +78,7 @@
 						<TauriGlobalShortcutFormatGuide />
 					</div>
 
-					<LocalShortcutTable />
+					<GlobalShortcutTable />
 				{:else}
 					<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
 						<div
