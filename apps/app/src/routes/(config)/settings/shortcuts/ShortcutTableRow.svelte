@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input/index.js';
+	import { KeyboardShortcutRecorder } from '$lib/components/ui/keyboard-shortcut-recorder';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { type Command } from '@repo/shared';
@@ -67,18 +67,17 @@
 						<p class="text-sm text-muted-foreground">Set a keyboard shortcut</p>
 					</div>
 
-					<div class="flex gap-2">
-						<Input
-							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
+					<div class="space-y-2">
+						<KeyboardShortcutRecorder
 							value={shortcutKey}
-							oninput={({ currentTarget: { value } }) =>
-								registerShortcutKey({
-									shortcutKey: value,
-								})}
-							autocomplete="off"
+							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
+							onValueChange={(value: string) =>
+								registerShortcutKey({ shortcutKey: value })}
 						/>
+
 						<Button
 							variant="outline"
+							class="w-full"
 							onclick={() => {
 								registerShortcutKey({
 									shortcutKey: '',
@@ -88,18 +87,6 @@
 							Clear
 						</Button>
 					</div>
-
-					{#if shortcutKey}
-						<div class="flex flex-wrap gap-1">
-							{#each shortcutKey.split('+') as key}
-								<kbd
-									class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
-								>
-									{key}
-								</kbd>
-							{/each}
-						</div>
-					{/if}
 				</div>
 			</Popover.Content>
 		</Popover.Root>
