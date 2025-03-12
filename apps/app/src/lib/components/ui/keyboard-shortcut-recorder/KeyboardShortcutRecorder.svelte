@@ -80,119 +80,72 @@
 		Slash: '/',
 	};
 
-	function createKeyRecorder({
-		onValueChange,
-		onCancel,
-	}: {
-		onValueChange: (shortcutKey: string) => void;
-		onCancel: () => void;
-	}) {
+	function createKeyRecorder({ onEscape }: { onEscape?: () => void }) {
 		/** Internal state keeping track of the keys pressed as an array */
-		const keys = (() => {
-			let value = $state<string[]>([]);
-			return {
-				get value() {
-					return value;
-				},
-				set value(newValue: string[]) {
-					value = newValue;
-				},
-				reset() {
-					value = [];
-				},
+		let keys = $state<string[]>([]);
+
+		let isListening = $state(false);
+
+		const startListening = () => {
+			isListening = true;
+		};
+
+		const stopListening = () => {
+			isListening = false;
+		};
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (!isListening) return;
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			if (event.key === 'Escape') {
+				stopListening();
+				onEscape?.();
+				return;
+			}
+
+			const modifiers: string[] = [];
+			if (event.ctrlKey) modifiers.push('ctrl');
+			if (event.metaKey) modifiers.push('command');
+			if (event.altKey) modifiers.push('alt');
+			if (event.shiftKey) modifiers.push('shift');
+
+			const getMainKey = ({ key }: KeyboardEvent) => {
+				if (key in keyMap) return keyMap[key];
+				if (key.length === 1) return key.toLowerCase();
+				return key;
 			};
-		})();
+			const mainKey = getMainKey(event);
 
-		let isRecording = $state(false);
+			const isJustModifiers = modifiers.includes(mainKey);
+			if (isJustModifiers) return;
 
-		const startRecording = () => {
-			keys.reset();
-			isRecording = true;
+			keys = [...modifiers, mainKey];
+			stopListening();
 		};
 
-		const stopRecording = () => {
-			isRecording = false;
-		};
+		$effect(() => {
+			window.addEventListener('keydown', handleKeyDown);
+
+			return () => {
+				window.removeEventListener('keydown', handleKeyDown);
+			};
+		});
 
 		return {
 			get keys() {
 				return keys;
 			},
-			get isRecording() {
-				return isRecording;
+			get isListening() {
+				return isListening;
 			},
-			onkeyup: (event: KeyboardEvent) => {
-				// Only process events when recording is active
-				if (!isRecording) return;
-
-				// This helps with cases where the user releases a key before pressing another
-				if (
-					!event.ctrlKey &&
-					!event.metaKey &&
-					!event.altKey &&
-					!event.shiftKey
-				) {
-					// If all modifier keys are released and we haven't captured a main key yet,
-					// keep the recording state active
-					if (keys.value.length === 0) {
-						return;
-					}
-				}
-			},
-			onkeydown: (event: KeyboardEvent) => {
-				// Only process events when recording is active
-				if (!isRecording) return;
-
-				event.preventDefault();
-				event.stopPropagation();
-
-				if (event.key === 'Escape') {
-					stopRecording();
-					onCancel();
-					return;
-				}
-
-				// Collect all pressed modifier keys
-				const modifiers: string[] = [];
-				if (event.ctrlKey) modifiers.push('ctrl');
-				if (event.metaKey) modifiers.push('command');
-				if (event.altKey) modifiers.push('alt');
-				if (event.shiftKey) modifiers.push('shift');
-
-				// Get the main key (non-modifier)
-				let mainKey = event.key;
-
-				// Convert to friendly format if needed
-				if (keyMap[mainKey]) {
-					mainKey = keyMap[mainKey];
-				} else if (mainKey.length === 1) {
-					// For single character keys, use lowercase
-					mainKey = mainKey.toLowerCase();
-				}
-
-				// Skip if the key is a modifier key that's already included
-				if (modifiers.includes(mainKey)) {
-					return;
-				}
-
-				// Build the final key combination
-				const newKeys = [...modifiers, mainKey];
-				keys.value = newKeys;
-
-				// Update the value
-				const shortcutValue = newKeys.join('+');
-				onValueChange(shortcutValue);
-
-				// Stop recording after a valid combination is entered
-				stopRecording();
-			},
-
-			startRecording,
-			stopRecording,
+			startListening,
+			stopListening,
 			clear() {
-				keys.reset();
-				stopRecording();
-				onValueChange('');
+				keys = [];
+				stopListening();
 			},
 		};
 	}
@@ -223,52 +176,40 @@
 	} = $props();
 
 	let isPopoverOpen = $state(false);
-	let shouldListenForKeyEvents = $state(false);
-
-	// Auto-focus effect
-	onMount(() => {
-		if (autoFocus) {
-			setTimeout(() => {}, 100); // Small delay to ensure the component is fully mounted
-		}
-	});
 
 	function handleCancelClick(e: MouseEvent) {
 		e.stopPropagation();
-		keyRecorder.stopRecording();
+		keyRecorder.stopListening();
 		isPopoverOpen = false;
 	}
 
 	function handleRecordButtonClick(e: MouseEvent) {
 		e.stopPropagation();
-		keyRecorder.startRecording();
+		keyRecorder.startListening();
 	}
 
 	const keyRecorder = createKeyRecorder({
-		onValueChange,
-		onCancel: () => {
+		onEscape: () => {
 			isPopoverOpen = false;
 		},
 	});
 
-	// Handle keyboard events conditionally
-	function handleKeyDown(event: KeyboardEvent) {
-		if (shouldListenForKeyEvents) {
-			keyRecorder.onkeydown(event);
-		}
-	}
-
-	function handleKeyUp(event: KeyboardEvent) {
-		if (shouldListenForKeyEvents) {
-			keyRecorder.onkeyup(event);
-		}
-	}
+	$effect(() => {
+		const newValue = keyRecorder.keys.join('+');
+		if (newValue !== value) onValueChange(value);
+	});
 </script>
 
 <Popover.Root
 	open={isPopoverOpen}
 	onOpenChange={(isOpen) => {
 		isPopoverOpen = isOpen;
-		if (!isOpen) keyRecorder.stopRecording();
+		if (!isOpen) keyRecorder.stopListening();
+		if (isOpen && autoFocus) {
+			setTimeout(() => {
+				keyRecorder.startListening();
+			}, 100);
+		}
 	}}
 >
 	<Popover.Trigger
@@ -315,12 +256,12 @@
 					type="button"
 					class={cn(
 						'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-						keyRecorder.isRecording && 'ring-2 ring-ring ring-offset-2',
+						keyRecorder.isListening && 'ring-2 ring-ring ring-offset-2',
 						className,
 					)}
 					onclick={handleRecordButtonClick}
 					tabindex="0"
-					aria-label={keyRecorder.isRecording
+					aria-label={keyRecorder.isListening
 						? 'Recording keyboard shortcut'
 						: 'Click to record keyboard shortcut'}
 				>
@@ -344,7 +285,7 @@
 						</div>
 					</div>
 
-					{#if keyRecorder.isRecording}
+					{#if keyRecorder.isListening}
 						<div
 							class="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-input animate-in fade-in-0 zoom-in-95 z-10"
 							aria-live="polite"
