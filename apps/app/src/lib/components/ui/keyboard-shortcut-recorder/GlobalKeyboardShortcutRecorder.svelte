@@ -9,15 +9,13 @@
 		title,
 		keyCombination,
 		onKeyCombinationChange,
-		placeholder = 'Click to record shortcut',
-		className = '',
+		placeholder,
 		autoFocus = false,
 	}: {
 		title: string;
 		keyCombination: string;
 		onKeyCombinationChange: (keyCombination: string) => void;
 		placeholder?: string;
-		className?: string;
 		autoFocus?: boolean;
 	} = $props();
 
@@ -190,7 +188,6 @@
 					class={cn(
 						'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 						keyRecorder.isListening && 'ring-2 ring-ring ring-offset-2',
-						className,
 					)}
 					onclick={(e) => {
 						e.stopPropagation();

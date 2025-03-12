@@ -1,4 +1,4 @@
-export { default as KeyboardShortcutRecorder } from './KeyboardShortcutRecorder.svelte';
+export { default as KeyboardShortcutRecorder } from './LocalKeyboardShortcutRecorder.svelte';
 
 export function createKeyRecorder({
 	getKeyCombination,
