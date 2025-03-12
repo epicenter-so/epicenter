@@ -53,11 +53,14 @@
 				</div>
 
 				<ShortcutTable
-					getShortcutKeysForCommand={(command) =>
-						settings.value[`shortcuts.local.${command.id}`].split('+')}
+					getKeyCombinationForCommand={(command) =>
+						settings.value[`shortcuts.local.${command.id}`]}
 					getDefaultShortcutForCommand={(command) =>
 						command.defaultLocalShortcut}
-					registerShortcutKeyAndUpdateSettings={({ command, shortcutKey }) => {
+					registerShortcutKeyAndUpdateSettings={({
+						command,
+						keyCombination,
+					}) => {
 						const currentCommandKey =
 							settings.value[`shortcuts.local.${command.id}`];
 						const unregisterOldCommandLocallyResult = trySync({
@@ -76,14 +79,14 @@
 
 						shortcutsRegister.registerCommandLocally({
 							command,
-							shortcutKey,
+							keyCombination,
 							onSuccess: () => {
 								settings.value = {
 									...settings.value,
-									[`shortcuts.local.${command.id}`]: shortcutKey,
+									[`shortcuts.local.${command.id}`]: keyCombination,
 								};
 								toast.success({
-									title: `Local shortcut set to ${shortcutKey}`,
+									title: `Local shortcut set to ${keyCombination}`,
 									description: `Press the shortcut to trigger "${command.title}"`,
 								});
 							},
@@ -116,11 +119,11 @@
 					</div>
 
 					<ShortcutTable
-						getShortcutKeysForCommand={(command) =>
-							settings.value[`shortcuts.global.${command.id}`].split('+')}
+						getKeyCombinationForCommand={(command) =>
+							settings.value[`shortcuts.global.${command.id}`]}
 						getDefaultShortcutForCommand={(command) =>
 							command.defaultGlobalShortcut}
-						registerShortcutKeyAndUpdateSettings={async ({ command, shortcutKey, }) => {
+						registerShortcutKeyAndUpdateSettings={async ({ command, keyCombination, }) => {
 							const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 							const unregisterOldShortcutKeyResult = await tryAsync({
 								try: async () => {
@@ -144,14 +147,14 @@
 
 		shortcutsRegister.registerCommandGlobally({
 			command,
-			shortcutKey,
+			keyCombination,
 			onSuccess: () => {
 				settings.value = {
 					...settings.value,
-					[`shortcuts.global.${command.id}`]: shortcutKey,
+					[`shortcuts.global.${command.id}`]: keyCombination,
 				};
 				toast.success({
-					title: `Global shortcut set to ${shortcutKey}`,
+					title: `Global shortcut set to ${keyCombination}`,
 					description: `Press the shortcut to trigger "${command.title}"`,
 				});
 			},

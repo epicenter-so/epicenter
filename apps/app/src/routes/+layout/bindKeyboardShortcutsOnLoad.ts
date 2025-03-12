@@ -10,7 +10,7 @@ export function bindKeyboardShortcutsOnLoad() {
 		for (const command of commands) {
 			shortcutsRegister.registerCommandLocally({
 				command,
-				shortcutKey: settings.value[`shortcuts.local.${command.id}`],
+				keyCombination: settings.value[`shortcuts.local.${command.id}`],
 				onSuccess: () => {},
 				onError: () => {},
 			});
@@ -20,7 +20,7 @@ export function bindKeyboardShortcutsOnLoad() {
 			commands.map((command) =>
 				shortcutsRegister.registerCommandGlobally({
 					command,
-					shortcutKey: settings.value[`shortcuts.global.${command.id}`],
+					keyCombination: settings.value[`shortcuts.global.${command.id}`],
 					onSuccess: () => {},
 					onError: () => {},
 				}),

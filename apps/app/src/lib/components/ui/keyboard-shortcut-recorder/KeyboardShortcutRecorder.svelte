@@ -7,15 +7,15 @@
 
 	const {
 		title,
-		keys,
-		onKeysChange,
+		keyCombination,
+		onKeyCombinationChange,
 		placeholder = 'Click to record shortcut',
 		className = '',
 		autoFocus = false,
 	}: {
 		title: string;
-		keys: string[];
-		onKeysChange: (keys: string[]) => void;
+		keyCombination: string;
+		onKeyCombinationChange: (keyCombination: string) => void;
 		placeholder?: string;
 		className?: string;
 		autoFocus?: boolean;
@@ -24,7 +24,7 @@
 	let isPopoverOpen = $state(false);
 
 	const keyRecorder = createKeyRecorder({
-		getKeys: (event) => {
+		getKeyCombination: (event) => {
 			// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
 			const keyMap: Record<string, string> = {
 				// Modifier keys
@@ -122,10 +122,10 @@
 			const isJustModifiers = modifiers.includes(mainKey);
 			if (isJustModifiers) return null;
 
-			return [...modifiers, mainKey];
+			return [...modifiers, mainKey].join('+');
 		},
-		onKeysRecorded: (keys) => {
-			onKeysChange(keys);
+		onKeyCombinationRecorded: (keyCombination) => {
+			onKeyCombinationChange(keyCombination);
 			isPopoverOpen = false;
 		},
 		onEscape: () => {
@@ -147,8 +147,8 @@
 	}}
 >
 	<Popover.Trigger class="inline-flex items-center gap-1">
-		{#if keys.length > 0}
-			{#each keys as key}
+		{#if keyCombination}
+			{#each keyCombination.split('+') as key}
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
@@ -205,8 +205,8 @@
 						<div
 							class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2 flex-grow"
 						>
-							{#if keys.length > 0}
-								{#each keys as key}
+							{#if keyCombination}
+								{#each keyCombination.split('+') as key}
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>

@@ -1,16 +1,16 @@
 export { default as KeyboardShortcutRecorder } from './KeyboardShortcutRecorder.svelte';
 
 export function createKeyRecorder({
-	getKeys,
-	onKeysRecorded,
+	getKeyCombination,
+	onKeyCombinationRecorded,
 	onEscape,
 }: {
-	getKeys: (event: KeyboardEvent) => string[] | null;
-	onKeysRecorded: (keys: string[]) => void;
+	getKeyCombination: (event: KeyboardEvent) => string | null;
+	onKeyCombinationRecorded: (keyCombination: string) => void;
 	onEscape?: () => void;
 }) {
-	/** Internal state keeping track of the keys pressed as an array */
-	let keys = $state<string[]>([]);
+	/** Internal state keeping track of the keys pressed as a string */
+	let keyCombination = $state<string | null>(null);
 
 	let isListening = $state(false);
 
@@ -34,10 +34,10 @@ export function createKeyRecorder({
 			return;
 		}
 
-		const maybeKeys = getKeys(event);
-		if (!maybeKeys) return;
-		keys = maybeKeys;
-		onKeysRecorded(keys);
+		const maybeValidKeyCombination = getKeyCombination(event);
+		if (!maybeValidKeyCombination) return;
+		keyCombination = maybeValidKeyCombination;
+		onKeyCombinationRecorded(keyCombination);
 		stopListening();
 	};
 
@@ -50,8 +50,8 @@ export function createKeyRecorder({
 	});
 
 	return {
-		get keys() {
-			return keys;
+		get keyCombination() {
+			return keyCombination;
 		},
 		get isListening() {
 			return isListening;
@@ -59,8 +59,7 @@ export function createKeyRecorder({
 		startListening,
 		stopListening,
 		clear() {
-			keys = [];
-			onKeysRecorded([]);
+			keyCombination = null;
 			stopListening();
 		},
 	};

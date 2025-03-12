@@ -33,18 +33,18 @@ function createShortcutsRegister({
 	return {
 		registerCommandLocally: ({
 			command,
-			shortcutKey,
+			keyCombination,
 			onSuccess,
 			onError,
 		}: {
 			command: Command;
-			shortcutKey: string;
+			keyCombination: string;
 			onSuccess: () => void;
 			onError: (error: WhisperingErrProperties) => void;
 		}) => {
 			const registerNewCommandLocallyResult = trySync({
 				try: () =>
-					hotkeys(shortcutKey, (event) => {
+					hotkeys(keyCombination, (event) => {
 						// Prevent the default refresh event under WINDOWS system
 						event.preventDefault();
 						commandCallbacks[command.id]();
@@ -65,12 +65,12 @@ function createShortcutsRegister({
 		},
 		registerCommandGlobally: ({
 			command,
-			shortcutKey,
+			keyCombination,
 			onSuccess,
 			onError,
 		}: {
 			command: Command;
-			shortcutKey: string;
+			keyCombination: string;
 			onSuccess: () => void;
 			onError: (error: WhisperingErrProperties) => void;
 		}) => {
@@ -81,7 +81,7 @@ function createShortcutsRegister({
 						const { register } = await import(
 							'@tauri-apps/plugin-global-shortcut'
 						);
-						return await register(shortcutKey, (event) => {
+						return await register(keyCombination, (event) => {
 							if (event.state === 'Pressed') {
 								commandCallbacks[command.id]();
 							}

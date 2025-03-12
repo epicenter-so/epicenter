@@ -6,18 +6,18 @@
 	import { Search } from 'lucide-svelte';
 
 	const {
-		getShortcutKeysForCommand,
+		getKeyCombinationForCommand,
 		getDefaultShortcutForCommand,
 		registerShortcutKeyAndUpdateSettings,
 	}: {
-		getShortcutKeysForCommand: (command: Command) => string[];
+		getKeyCombinationForCommand: (command: Command) => string;
 		getDefaultShortcutForCommand: (command: Command) => string;
 		registerShortcutKeyAndUpdateSettings: ({
 			command,
-			shortcutKey,
+			keyCombination,
 		}: {
 			command: Command;
-			shortcutKey: string;
+			keyCombination: string;
 		}) => void;
 	} = $props();
 
@@ -60,11 +60,11 @@
 					<Table.Cell class="text-right">
 						<KeyboardShortcutRecorder
 							title={command.title}
-							keys={getShortcutKeysForCommand(command)}
-							onKeysChange={(shortcutKeys) => {
+							keyCombination={getKeyCombinationForCommand(command)}
+							onKeyCombinationChange={(keyCombination) => {
 								registerShortcutKeyAndUpdateSettings({
 									command,
-									shortcutKeys,
+									keyCombination: keyCombination,
 								});
 							}}
 							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
