@@ -38,13 +38,7 @@
 <Table.Row>
 	<Table.Cell>{command.description}</Table.Cell>
 	<Table.Cell class="text-right">
-		<Popover.Root
-			open={isPopoverOpen}
-			onOpenChange={(open) => {
-				editingShortcut = shortcutKey;
-				isPopoverOpen = open;
-			}}
-		>
+		<Popover.Root bind:open={isPopoverOpen}>
 			<Popover.Trigger
 				class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
 			>
