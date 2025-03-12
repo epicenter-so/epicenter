@@ -17,11 +17,9 @@
 		registerShortcut: ({
 			command,
 			shortcutKey,
-			onSuccess,
 		}: {
 			command: Command;
 			shortcutKey: string;
-			onSuccess: () => void;
 		}) => void;
 	}>();
 
@@ -29,17 +27,10 @@
 
 	let isPopoverOpen = $state(false);
 
-	function registerShortcutKey({
-		shortcutKey,
-		onSuccess,
-	}: {
-		shortcutKey: string;
-		onSuccess: () => void;
-	}) {
+	function registerShortcutKey({ shortcutKey }: { shortcutKey: string }) {
 		registerShortcut({
 			command,
 			shortcutKey,
-			onSuccess,
 		});
 	}
 </script>
@@ -76,18 +67,26 @@
 						<p class="text-sm text-muted-foreground">Set a keyboard shortcut</p>
 					</div>
 
-					<div>
+					<div class="flex gap-2">
 						<Input
 							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
 							value={shortcutKey}
 							oninput={({ currentTarget: { value } }) =>
 								registerShortcutKey({
 									shortcutKey: value,
-									onSuccess: () => {},
 								})}
 							autocomplete="off"
-							class="w-full"
 						/>
+						<Button
+							variant="outline"
+							onclick={() => {
+								registerShortcutKey({
+									shortcutKey: '',
+								});
+							}}
+						>
+							Clear
+						</Button>
 					</div>
 
 					{#if shortcutKey}
@@ -101,22 +100,6 @@
 							{/each}
 						</div>
 					{/if}
-
-					<div class="flex justify-between">
-						<Button
-							variant="outline"
-							onclick={() => {
-								registerShortcutKey({
-									shortcutKey: '',
-									onSuccess: () => {
-										isPopoverOpen = false;
-									},
-								});
-							}}
-						>
-							Clear
-						</Button>
-					</div>
 				</div>
 			</Popover.Content>
 		</Popover.Root>

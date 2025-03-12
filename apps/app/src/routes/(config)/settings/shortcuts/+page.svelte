@@ -57,7 +57,7 @@
 						settings.value[`shortcuts.local.${command.id}`]}
 					getDefaultShortcutForCommand={(command) =>
 						command.defaultLocalShortcut}
-					registerShortcut={({ command, shortcutKey, onSuccess }) => {
+					registerShortcut={({ command, shortcutKey }) => {
 						const currentCommandKey =
 							settings.value[`shortcuts.local.${command.id}`];
 						const unregisterOldCommandLocallyResult = trySync({
@@ -86,7 +86,6 @@
 									title: `Local shortcut set to ${shortcutKey}`,
 									description: `Press the shortcut to trigger "${command.description}"`,
 								});
-								onSuccess();
 							},
 							onError: (error) => {
 								toast.error(error);
@@ -121,7 +120,7 @@
 							settings.value[`shortcuts.global.${command.id}`]}
 						getDefaultShortcutForCommand={(command) =>
 							command.defaultGlobalShortcut}
-						registerShortcut={async ({ command, shortcutKey, onSuccess }) => {
+						registerShortcut={async ({ command, shortcutKey, }) => {
 							const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 							const unregisterOldShortcutKeyResult = await tryAsync({
 								try: async () => {
@@ -155,7 +154,6 @@
 					title: `Global shortcut set to ${shortcutKey}`,
 					description: `Press the shortcut to trigger "${command.description}"`,
 				});
-				onSuccess();
 			},
 			onError: (error) => {
 				toast.error(error);

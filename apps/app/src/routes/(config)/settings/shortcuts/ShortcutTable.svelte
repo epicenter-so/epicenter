@@ -15,11 +15,9 @@
 		registerShortcut: ({
 			command,
 			shortcutKey,
-			onSuccess,
 		}: {
 			command: Command;
 			shortcutKey: string;
-			onSuccess: () => void;
 		}) => void;
 	}>();
 
