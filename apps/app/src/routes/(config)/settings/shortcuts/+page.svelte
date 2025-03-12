@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync, trySync } from '@epicenterhq/result';
-	import { type Command, commands, WhisperingErr } from '@repo/shared';
+	import { type Command, WhisperingErr, commands } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
@@ -97,127 +96,253 @@
 	<title>Configure Shortcuts - Whispering</title>
 </svelte:head>
 
-<div class="space-y-6">
-	<div>
-		<h3 class="text-lg font-medium">Shortcuts</h3>
-		<p class="text-muted-foreground text-sm">
-			Configure your shortcuts for activating Whispering.
+<div class="container mx-auto py-6 max-w-4xl">
+	<header class="mb-8">
+		<h1 class="text-3xl font-bold tracking-tight">Keyboard Shortcuts</h1>
+		<p class="text-muted-foreground mt-2">
+			Configure keyboard shortcuts to quickly access Whispering features.
 		</p>
-	</div>
-	<Separator />
+	</header>
 
 	<Tabs.Root value="local" class="w-full">
-		<Tabs.List class="grid w-full grid-cols-2">
-			<Tabs.Trigger value="local">Local Shortcuts</Tabs.Trigger>
-			<Tabs.Trigger value="global">Global Shortcuts</Tabs.Trigger>
+		<Tabs.List class="grid grid-cols-2 mb-6 w-full">
+			<Tabs.Trigger value="local" class="text-sm font-medium"
+				>Local Shortcuts</Tabs.Trigger
+			>
+			<Tabs.Trigger value="global" class="text-sm font-medium"
+				>Global Shortcuts</Tabs.Trigger
+			>
 		</Tabs.List>
 
-		<Tabs.Content value="local" class="space-y-4 mt-4">
-			<HotkeysJsFormatGuide></HotkeysJsFormatGuide>
-			{#each commands as command}
-				<Card.Root>
-					<Card.Header class="pb-2">
-						<Card.Title class="text-base">{command.description}</Card.Title>
-						<Card.Description>
-							Set a keyboard shortcut that works when the app is in focus
-						</Card.Description>
-					</Card.Header>
-					<Card.Content>
-						<div class="flex gap-2 items-center">
-							<Input
-								id="local-shortcut-{command.id}"
-								placeholder={`e.g. ${command.defaultLocalShortcut}`}
-								value={settings.value[`shortcuts.local.${command.id}`]}
-								oninput={({ currentTarget: { value } }) =>
-									registerLocalShortcut(command, value)}
-								autocomplete="off"
-								class="flex-1"
-							/>
-							{#if settings.value[`shortcuts.local.${command.id}`]}
-								<Badge variant="status.completed">Active</Badge>
-							{:else}
-								<Badge variant="outline">Not Set</Badge>
-							{/if}
-						</div>
-					</Card.Content>
-				</Card.Root>
-			{/each}
-		</Tabs.Content>
+		<Tabs.Content value="local" class="space-y-8">
+			<section>
+				<div class="space-y-2">
+					<h2 class="text-2xl font-semibold tracking-tight">Local Shortcuts</h2>
+					<p class="text-sm text-muted-foreground">
+						Set keyboard shortcuts that work when the app is in focus. These
+						shortcuts will only trigger when Whispering is the active
+						application.
+					</p>
+				</div>
+				<Separator class="my-6" />
 
-		<Tabs.Content value="global" class="space-y-4 mt-4">
-			{#if window.__TAURI_INTERNALS__}
-				<TauriGlobalShortcutFormatGuide></TauriGlobalShortcutFormatGuide>
+				<div class="bg-card rounded-lg border p-4 shadow-sm">
+					<HotkeysJsFormatGuide />
+				</div>
+			</section>
+
+			<div class="space-y-6">
 				{#each commands as command}
-					<Card.Root>
-						<Card.Header class="pb-2">
-							<Card.Title class="text-base">{command.description}</Card.Title>
-							<Card.Description>
-								Set a system-wide keyboard shortcut that works even when the app
-								is not in focus
-							</Card.Description>
-						</Card.Header>
-						<Card.Content>
-							<div class="flex gap-2 items-center">
+					<div
+						class="rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow"
+					>
+						<div class="p-6">
+							<div class="flex items-center justify-between">
+								<h3 class="text-base font-medium">{command.description}</h3>
+								<div class="flex items-center gap-3">
+									<span class="text-sm text-muted-foreground">Active</span>
+									<Switch
+										checked={!!settings.value[`shortcuts.local.${command.id}`]}
+										onCheckedChange={(checked) => {
+											if (!checked) {
+												const currentCommandKey =
+													settings.value[`shortcuts.local.${command.id}`];
+												trySync({
+													try: () => hotkeys.unbind(currentCommandKey),
+													mapErr: (error) =>
+														WhisperingErr({
+															title: `Error unregistering command with id ${command.id} locally`,
+															description: 'Please try again.',
+															action: { type: 'more-details', error },
+														}),
+												});
+												settings.value = {
+													...settings.value,
+													[`shortcuts.local.${command.id}`]: '',
+												};
+												toast.success({
+													title: `Local shortcut deactivated`,
+													description: `The shortcut for ${command.description} has been removed`,
+												});
+											} else if (
+												!settings.value[`shortcuts.local.${command.id}`]
+											) {
+												registerLocalShortcut(
+													command,
+													command.defaultLocalShortcut,
+												);
+											}
+										}}
+									/>
+								</div>
+							</div>
+							<p class="text-sm text-muted-foreground mt-2 mb-4">
+								Set a keyboard shortcut that works when the app is in focus
+							</p>
+
+							<div class="flex items-center gap-3">
 								<Input
-									id="global-shortcut-{command.id}"
-									placeholder="e.g. CommandOrControl+Shift+P"
-									value={settings.value[`shortcuts.global.${command.id}`]}
+									id="local-shortcut-{command.id}"
+									placeholder={`e.g. ${command.defaultLocalShortcut}`}
+									value={settings.value[`shortcuts.local.${command.id}`]}
 									oninput={({ currentTarget: { value } }) =>
-										registerGlobalShortcut(command, value)}
+										registerLocalShortcut(command, value)}
 									autocomplete="off"
 									class="flex-1"
 								/>
-								{#if settings.value[`shortcuts.global.${command.id}`]}
-									<Badge variant="status.completed">Active</Badge>
-								{:else}
-									<Badge variant="outline">Not Set</Badge>
+
+								{#if settings.value[`shortcuts.local.${command.id}`]}
+									<div class="flex flex-wrap gap-1">
+										{#each settings.value[`shortcuts.local.${command.id}`].split('+') as key}
+											<kbd
+												class="inline-flex h-8 select-none items-center justify-center rounded border bg-muted px-2.5 font-mono text-sm font-medium text-muted-foreground"
+											>
+												{key}
+											</kbd>
+										{/each}
+									</div>
 								{/if}
 							</div>
-						</Card.Content>
-					</Card.Root>
+						</div>
+					</div>
 				{/each}
-			{:else}
-				<div class="relative">
-					<div class="space-y-4 opacity-50">
-						{#each commands as command}
-							<Card.Root>
-								<Card.Header class="pb-2">
-									<Card.Title class="text-base">
-										{command.description}
-									</Card.Title>
-									<Card.Description>
-										Set a system-wide keyboard shortcut that works even when the
-										app is not in focus
-									</Card.Description>
-								</Card.Header>
-								<Card.Content>
+			</div>
+		</Tabs.Content>
+
+		<Tabs.Content value="global" class="space-y-8">
+			<section>
+				<div class="space-y-2">
+					<h2 class="text-2xl font-semibold tracking-tight">
+						Global Shortcuts
+					</h2>
+					<p class="text-sm text-muted-foreground">
+						Set system-wide keyboard shortcuts that work even when Whispering is
+						not in focus. These shortcuts will trigger from anywhere on your
+						system.
+					</p>
+				</div>
+				<Separator class="my-6" />
+
+				{#if window.__TAURI_INTERNALS__}
+					<div class="bg-card rounded-lg border p-4 shadow-sm">
+						<TauriGlobalShortcutFormatGuide />
+					</div>
+				{/if}
+			</section>
+
+			{#if window.__TAURI_INTERNALS__}
+				<div class="space-y-6">
+					{#each commands as command}
+						<div
+							class="rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow"
+						>
+							<div class="p-6">
+								<div class="flex items-center justify-between">
+									<h3 class="text-base font-medium">{command.description}</h3>
+									<div class="flex items-center gap-3">
+										<span class="text-sm text-muted-foreground">Active</span>
+										<Switch
+											checked={!!settings.value[
+												`shortcuts.global.${command.id}`
+											]}
+											onCheckedChange={async (checked) => {
+												if (!checked) {
+													const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+													const unregisterResult = await tryAsync({
+														try: async () => {
+															if (!window.__TAURI_INTERNALS__) return;
+															const { unregister } = await import('@tauri-apps/plugin-global-shortcut');
+															return await unregister(oldShortcutKey);
+														},
+														mapErr: (error) =>
+															WhisperingErr({
+																title: `Error unregistering command with id ${command.id} globally`,
+																description: 'Please try again.',
+																action: { type: 'more-details', error },
+															}),
+													});
+													
+													if (unregisterResult.ok) {
+														settings.value = {
+															...settings.value,
+															[`shortcuts.global.${command.id}`]: '',
+														};
+														toast.success({
+															title: `Global shortcut deactivated`,
+															description: `The shortcut for ${command.description} has been removed`,
+														});
+													} else {
+														toast.error(unregisterResult.error);
+													}
+												}
+											}}
+										/>
+									</div>
+								</div>
+								<p class="text-sm text-muted-foreground mt-2 mb-4">
+									Set a system-wide keyboard shortcut that works even when the
+									app is not in focus
+								</p>
+
+								<div class="flex items-center gap-3">
 									<Input
 										id="global-shortcut-{command.id}"
-										placeholder="Global Shortcut"
+										placeholder="e.g. CommandOrControl+Shift+P"
 										value={settings.value[`shortcuts.global.${command.id}`]}
-										type="text"
+										oninput={({ currentTarget: { value } }) =>
+											registerGlobalShortcut(command, value)}
 										autocomplete="off"
-										disabled
-										class="cursor-not-allowed"
+										class="flex-1"
 									/>
-								</Card.Content>
-							</Card.Root>
-						{/each}
-					</div>
-					<div
-						class="absolute inset-0 bg-background/40 backdrop-blur-sm hover:bg-background/50 transition-all duration-200 flex flex-col items-center justify-center rounded-md"
-					>
-						<div class="text-center mb-4 max-w-md">
-							<h3 class="font-medium text-lg mb-2">Global Shortcuts</h3>
-							<p class="text-muted-foreground text-sm">
-								Available only in the desktop app
-							</p>
+
+									{#if settings.value[`shortcuts.global.${command.id}`]}
+										<div class="flex flex-wrap gap-1">
+											{#each settings.value[`shortcuts.global.${command.id}`].split('+') as key}
+												<kbd
+													class="inline-flex h-8 select-none items-center justify-center rounded border bg-muted px-2.5 font-mono text-sm font-medium text-muted-foreground"
+												>
+													{key}
+												</kbd>
+											{/each}
+										</div>
+									{/if}
+								</div>
+							</div>
 						</div>
+					{/each}
+				</div>
+			{:else}
+				<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+					<div
+						class="p-8 flex flex-col items-center justify-center text-center"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="40"
+							height="40"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="text-muted-foreground mb-6"
+						>
+							<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+							<path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+							<path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+						</svg>
+						<h3 class="text-xl font-medium mb-3">Global Shortcuts</h3>
+						<p class="text-muted-foreground mb-8 max-w-md">
+							Global shortcuts allow you to use Whispering from any application
+							on your computer. This feature is only available in the desktop
+							app.
+						</p>
 						<Button
 							href="/global-shortcut"
 							variant="default"
 							size="lg"
-							class="shadow-md hover:shadow-lg transition-shadow"
+							class="font-medium"
 						>
 							Enable Global Shortcuts
 						</Button>
