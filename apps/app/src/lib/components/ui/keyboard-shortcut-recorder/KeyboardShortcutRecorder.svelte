@@ -1,34 +1,40 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { cn } from '$lib/utils';
 	import { X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
 	const {
+		title,
 		value = '',
 		placeholder = 'Click to record shortcut',
-		onValueChange,
-		onEscape = () => {},
 		className = '',
 		autoFocus = false,
+		registerShortcutKey,
 	}: {
+		title: string;
 		value: string;
 		placeholder?: string;
-		onValueChange: (value: string) => void;
-		onEscape?: () => void;
 		className?: string;
 		autoFocus?: boolean;
+		registerShortcutKey: (shortcutKey: string) => void;
 	} = $props();
 
 	let isRecording = $state(false);
+
 	/** Internal state keeping track of the keys pressed as an array */
 	let keys = $state<string[]>([]);
+
+	let isPopoverOpen = $state(false);
+
+	const shortcutKey = $derived(keys.join('+'));
 
 	// Derived values
 	const displayValue = $derived(value ?? placeholder);
 
-	// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js
+	// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
 	const keyMap: Record<string, string> = {
 		// Modifier keys
 		Control: 'ctrl',
@@ -137,12 +143,10 @@
 		isRecording = false;
 	}
 
-	function clearShortcut(e?: MouseEvent) {
-		if (e) {
-			e.stopPropagation();
-		}
+	function clearShortcut(e: MouseEvent) {
+		e.stopPropagation();
 		keys = [];
-		onValueChange('');
+		registerShortcutKey('');
 		stopRecording();
 	}
 
@@ -154,7 +158,7 @@
 
 		if (event.key === 'Escape') {
 			stopRecording();
-			onEscape();
+			isPopoverOpen = false;
 			return;
 		}
 
@@ -187,7 +191,7 @@
 
 		// Update the value
 		const shortcutValue = newKeys.join('+');
-		onValueChange(shortcutValue);
+		registerShortcutKey(shortcutValue);
 
 		// Stop recording after a valid combination is entered
 		stopRecording();
@@ -209,22 +213,22 @@
 			}
 		}
 	}
+
+	function handleCancelClick(e: MouseEvent) {
+		e.stopPropagation();
+		stopRecording();
+		isPopoverOpen = false;
+	}
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
-<button
-	class={cn(
-		'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all',
-		isRecording && 'ring-2 ring-ring ring-offset-2',
-		className,
-	)}
-	onclick={startRecording}
-	tabindex="0"
->
-	<div class="flex flex-1 items-center gap-1">
-		{#if keys.length > 0}
-			{#each keys as key}
+<Popover.Root bind:open={isPopoverOpen}>
+	<Popover.Trigger
+		class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
+	>
+		{#if shortcutKey}
+			{#each shortcutKey.split('+') as key}
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
@@ -232,51 +236,107 @@
 				</kbd>
 			{/each}
 		{:else}
-			<span class="text-muted-foreground">{displayValue}</span>
-		{/if}
-	</div>
-
-	{#if value}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger class="inline-flex">
-					<Button
-						variant="ghost"
-						size="icon"
-						class="h-6 w-6 p-0 opacity-70 hover:opacity-100"
-						onclick={clearShortcut}
-					>
-						<X class="h-4 w-4" />
-						<span class="sr-only">Clear</span>
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content side="top">
-					<p>Clear shortcut</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
-	{/if}
-
-	{#if isRecording}
-		<div
-			class="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-input animate-in fade-in-0 zoom-in-95"
-		>
-			<div class="flex flex-col items-center gap-1">
-				<p class="text-sm font-medium">Press key combination</p>
-				<p class="text-xs text-muted-foreground">Esc to cancel</p>
-			</div>
-			<Button
-				variant="ghost"
-				size="sm"
-				class="absolute right-2 top-1/2 -translate-y-1/2"
-				onclick={(e) => {
-					e.stopPropagation();
-					stopRecording();
-					onEscape();
-				}}
+			<button
+				class="text-sm text-muted-foreground hover:text-foreground hover:underline"
 			>
-				Cancel
-			</Button>
+				Add shortcut
+			</button>
+		{/if}
+	</Popover.Trigger>
+	<Popover.Content class="w-80 p-4" align="end">
+		<div class="space-y-4">
+			<div>
+				<h4 class="font-medium leading-none mb-2">
+					{title}
+				</h4>
+				<p class="text-sm text-muted-foreground">Set a keyboard shortcut</p>
+			</div>
+
+			<div class="space-y-2">
+				<button
+					type="button"
+					class={cn(
+						'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+						isRecording && 'ring-2 ring-ring ring-offset-2',
+						className,
+					)}
+					onclick={startRecording}
+					tabindex="0"
+					aria-label={isRecording
+						? 'Recording keyboard shortcut'
+						: 'Click to record keyboard shortcut'}
+				>
+					<div class="flex flex-1 items-center justify-between">
+						<div
+							class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2 flex-grow"
+						>
+							{#if keys.length > 0}
+								{#each keys as key}
+									<kbd
+										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+									>
+										{key}
+									</kbd>
+								{/each}
+							{:else}
+								<span class="text-muted-foreground truncate"
+									>{displayValue}</span
+								>
+							{/if}
+						</div>
+
+						{#if keys.length > 0}
+							<Tooltip.Provider>
+								<Tooltip.Root>
+									<Tooltip.Trigger>
+										<button
+											type="button"
+											class="h-6 w-6 p-0 opacity-70 hover:opacity-100 flex-shrink-0 inline-flex items-center justify-center rounded-sm hover:bg-muted"
+											onclick={(e) => clearShortcut(e)}
+											aria-label="Clear shortcut"
+										>
+											<X class="h-4 w-4" />
+										</button>
+									</Tooltip.Trigger>
+									<Tooltip.Content side="top" class="z-50">
+										<p>Clear shortcut</p>
+									</Tooltip.Content>
+								</Tooltip.Root>
+							</Tooltip.Provider>
+						{/if}
+					</div>
+
+					{#if isRecording}
+						<div
+							class="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-input animate-in fade-in-0 zoom-in-95 z-10"
+							aria-live="polite"
+						>
+							<div class="flex flex-col items-center gap-1 px-4 py-2">
+								<p class="text-sm font-medium">Press key combination</p>
+								<p class="text-xs text-muted-foreground">Esc to cancel</p>
+							</div>
+							<Button
+								variant="ghost"
+								size="sm"
+								class="absolute right-2 top-1/2 -translate-y-1/2"
+								onclick={(e) => handleCancelClick(e)}
+								aria-label="Cancel recording"
+							>
+								Cancel
+							</Button>
+						</div>
+					{/if}
+				</button>
+				<Button
+					variant="outline"
+					class="w-full"
+					onclick={() => {
+						registerShortcutKey('');
+					}}
+				>
+					Clear
+				</Button>
+			</div>
 		</div>
-	{/if}
-</button>
+	</Popover.Content>
+</Popover.Root>
