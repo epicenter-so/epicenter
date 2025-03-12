@@ -3,20 +3,25 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { cn } from '$lib/utils';
 	import { X } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 
 	// Props using Svelte 5 $props
 	const {
 		value = '',
 		placeholder = 'Click to record shortcut',
 		onValueChange,
+		onEscape = () => {},
 		disabled = false,
 		className = '',
+		autoFocus = false,
 	} = $props<{
 		value: string;
 		placeholder?: string;
 		onValueChange: (value: string) => void;
+		onEscape?: () => void;
 		disabled?: boolean;
 		className?: string;
+		autoFocus?: boolean;
 	}>();
 
 	// State
@@ -59,6 +64,15 @@
 		}
 	});
 
+	// Auto-focus effect
+	onMount(() => {
+		if (autoFocus && !disabled) {
+			setTimeout(() => {
+				startRecording();
+			}, 100); // Small delay to ensure the component is fully mounted
+		}
+	});
+
 	// Event handlers
 	function startRecording() {
 		if (disabled) return;
@@ -88,6 +102,7 @@
 		// Handle escape to cancel recording
 		if (event.key === 'Escape') {
 			stopRecording();
+			onEscape();
 			return;
 		}
 
@@ -209,6 +224,7 @@
 				onclick={(e) => {
 					e.stopPropagation();
 					stopRecording();
+					onEscape();
 				}}
 			>
 				Cancel

@@ -32,11 +32,13 @@
 			command,
 			shortcutKey,
 		});
+		isPopoverOpen = false;
 	}
 </script>
 
 <Table.Row>
 	<Table.Cell>{command.description}</Table.Cell>
+
 	<Table.Cell class="text-right">
 		<Popover.Root bind:open={isPopoverOpen}>
 			<Popover.Trigger
@@ -73,6 +75,8 @@
 							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
 							onValueChange={(value: string) =>
 								registerShortcutKey({ shortcutKey: value })}
+							autoFocus
+							onEscape={() => (isPopoverOpen = false)}
 						/>
 
 						<Button
