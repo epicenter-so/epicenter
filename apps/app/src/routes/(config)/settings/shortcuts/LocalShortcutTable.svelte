@@ -64,7 +64,7 @@
 							onKeyCombinationChange={(keyCombination) => {
 								registerShortcutKeyAndUpdateSettings({
 									command,
-									keyCombination: keyCombination,
+									keyCombination,
 								});
 							}}
 							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
