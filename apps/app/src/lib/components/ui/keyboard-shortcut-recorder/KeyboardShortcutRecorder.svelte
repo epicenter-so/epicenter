@@ -82,10 +82,10 @@
 
 	function createKeyRecorder({
 		onValueChange,
-		onEscape,
+		onCancel,
 	}: {
 		onValueChange: (shortcutKey: string) => void;
-		onEscape: () => void;
+		onCancel: () => void;
 	}) {
 		/** Internal state keeping track of the keys pressed as an array */
 		const keys = (() => {
@@ -148,7 +148,7 @@
 
 				if (event.key === 'Escape') {
 					stopRecording();
-					onEscape();
+					onCancel();
 					return;
 				}
 
@@ -245,7 +245,9 @@
 
 	const keyRecorder = createKeyRecorder({
 		onValueChange,
-		onEscape: () => (isPopoverOpen = false),
+		onCancel: () => {
+			isPopoverOpen = false;
+		},
 	});
 
 	// Handle keyboard events conditionally
@@ -261,8 +263,6 @@
 		}
 	}
 </script>
-
-<svelte:window onkeydown={handleKeyDown} onkeyup={handleKeyUp} />
 
 <Popover.Root
 	open={isPopoverOpen}
