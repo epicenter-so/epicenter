@@ -2,7 +2,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
@@ -139,42 +138,6 @@
 						<div class="p-6">
 							<div class="flex items-center justify-between">
 								<h3 class="text-base font-medium">{command.description}</h3>
-								<div class="flex items-center gap-3">
-									<span class="text-sm text-muted-foreground">Active</span>
-									<Switch
-										checked={!!settings.value[`shortcuts.local.${command.id}`]}
-										onCheckedChange={(checked) => {
-											if (!checked) {
-												const currentCommandKey =
-													settings.value[`shortcuts.local.${command.id}`];
-												trySync({
-													try: () => hotkeys.unbind(currentCommandKey),
-													mapErr: (error) =>
-														WhisperingErr({
-															title: `Error unregistering command with id ${command.id} locally`,
-															description: 'Please try again.',
-															action: { type: 'more-details', error },
-														}),
-												});
-												settings.value = {
-													...settings.value,
-													[`shortcuts.local.${command.id}`]: '',
-												};
-												toast.success({
-													title: `Local shortcut deactivated`,
-													description: `The shortcut for ${command.description} has been removed`,
-												});
-											} else if (
-												!settings.value[`shortcuts.local.${command.id}`]
-											) {
-												registerLocalShortcut(
-													command,
-													command.defaultLocalShortcut,
-												);
-											}
-										}}
-									/>
-								</div>
 							</div>
 							<p class="text-sm text-muted-foreground mt-2 mb-4">
 								Set a keyboard shortcut that works when the app is in focus
@@ -239,45 +202,6 @@
 							<div class="p-6">
 								<div class="flex items-center justify-between">
 									<h3 class="text-base font-medium">{command.description}</h3>
-									<div class="flex items-center gap-3">
-										<span class="text-sm text-muted-foreground">Active</span>
-										<Switch
-											checked={!!settings.value[
-												`shortcuts.global.${command.id}`
-											]}
-											onCheckedChange={async (checked) => {
-												if (!checked) {
-													const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-													const unregisterResult = await tryAsync({
-														try: async () => {
-															if (!window.__TAURI_INTERNALS__) return;
-															const { unregister } = await import('@tauri-apps/plugin-global-shortcut');
-															return await unregister(oldShortcutKey);
-														},
-														mapErr: (error) =>
-															WhisperingErr({
-																title: `Error unregistering command with id ${command.id} globally`,
-																description: 'Please try again.',
-																action: { type: 'more-details', error },
-															}),
-													});
-													
-													if (unregisterResult.ok) {
-														settings.value = {
-															...settings.value,
-															[`shortcuts.global.${command.id}`]: '',
-														};
-														toast.success({
-															title: `Global shortcut deactivated`,
-															description: `The shortcut for ${command.description} has been removed`,
-														});
-													} else {
-														toast.error(unregisterResult.error);
-													}
-												}
-											}}
-										/>
-									</div>
 								</div>
 								<p class="text-sm text-muted-foreground mt-2 mb-4">
 									Set a system-wide keyboard shortcut that works even when the
