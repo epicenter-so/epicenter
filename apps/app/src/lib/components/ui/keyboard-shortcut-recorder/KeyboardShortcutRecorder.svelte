@@ -1,89 +1,21 @@
-<script module lang="ts">
-	function createKeyRecorder({
-		getKeys,
-		onKeysRecorded,
-		onEscape,
-	}: {
-		getKeys: (event: KeyboardEvent) => string[] | null;
-		onKeysRecorded: (keys: string[]) => void;
-		onEscape?: () => void;
-	}) {
-		/** Internal state keeping track of the keys pressed as an array */
-		let keys = $state<string[]>([]);
-
-		let isListening = $state(false);
-
-		const startListening = () => {
-			isListening = true;
-		};
-
-		const stopListening = () => {
-			isListening = false;
-		};
-
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (!isListening) return;
-
-			event.preventDefault();
-			event.stopPropagation();
-
-			if (event.key === 'Escape') {
-				stopListening();
-				onEscape?.();
-				return;
-			}
-
-			const maybeKeys = getKeys(event);
-			if (!maybeKeys) return;
-			keys = maybeKeys;
-			onKeysRecorded(keys);
-			stopListening();
-		};
-
-		$effect(() => {
-			window.addEventListener('keydown', handleKeyDown);
-
-			return () => {
-				window.removeEventListener('keydown', handleKeyDown);
-			};
-		});
-
-		return {
-			get keys() {
-				return keys;
-			},
-			get isListening() {
-				return isListening;
-			},
-			startListening,
-			stopListening,
-			clear() {
-				keys = [];
-				onKeysRecorded([]);
-				stopListening();
-			},
-		};
-	}
-</script>
-
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
 	import { XIcon } from 'lucide-svelte';
+	import { createKeyRecorder } from './index.svelte';
 
 	const {
 		title,
-		value = '',
-		onValueChange,
+		keys,
+		onKeysChange,
 		placeholder = 'Click to record shortcut',
 		className = '',
 		autoFocus = false,
 	}: {
 		title: string;
-		value: string;
-		onValueChange: (shortcutKey: string) => void;
+		keys: string[];
+		onKeysChange: (keys: string[]) => void;
 		placeholder?: string;
 		className?: string;
 		autoFocus?: boolean;
@@ -193,7 +125,7 @@
 			return [...modifiers, mainKey];
 		},
 		onKeysRecorded: (keys) => {
-			onValueChange(keys.join('+'));
+			onKeysChange(keys);
 			isPopoverOpen = false;
 		},
 		onEscape: () => {
@@ -215,8 +147,8 @@
 	}}
 >
 	<Popover.Trigger class="inline-flex items-center gap-1">
-		{#if value}
-			{#each value.split('+') as key}
+		{#if keys.length > 0}
+			{#each keys as key}
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
@@ -273,8 +205,8 @@
 						<div
 							class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2 flex-grow"
 						>
-							{#if value}
-								{#each value.split('+') as key}
+							{#if keys.length > 0}
+								{#each keys as key}
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>

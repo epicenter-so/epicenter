@@ -6,11 +6,11 @@
 	import ShortcutTableRow from './ShortcutTableRow.svelte';
 
 	const {
-		getShortcutKeyForCommand,
+		getShortcutKeysForCommand,
 		getDefaultShortcutForCommand,
 		registerShortcutKeyAndUpdateSettings,
-	} = $props<{
-		getShortcutKeyForCommand: (command: Command) => string;
+	}: {
+		getShortcutKeysForCommand: (command: Command) => string[];
 		getDefaultShortcutForCommand: (command: Command) => string;
 		registerShortcutKeyAndUpdateSettings: ({
 			command,
@@ -19,13 +19,13 @@
 			command: Command;
 			shortcutKey: string;
 		}) => void;
-	}>();
+	} = $props();
 
 	let searchQuery = $state('');
 
 	const filteredCommands = $derived(
 		commands.filter((command) =>
-			command.description.toLowerCase().includes(searchQuery.toLowerCase()),
+			command.title.toLowerCase().includes(searchQuery.toLowerCase()),
 		),
 	);
 </script>
@@ -56,7 +56,7 @@
 			{#each filteredCommands as command}
 				<ShortcutTableRow
 					{command}
-					{getShortcutKeyForCommand}
+					{getShortcutKeysForCommand}
 					{getDefaultShortcutForCommand}
 					{registerShortcutKeyAndUpdateSettings}
 				/>

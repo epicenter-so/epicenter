@@ -53,8 +53,8 @@
 				</div>
 
 				<ShortcutTable
-					getShortcutKeyForCommand={(command) =>
-						settings.value[`shortcuts.local.${command.id}`]}
+					getShortcutKeysForCommand={(command) =>
+						settings.value[`shortcuts.local.${command.id}`].split('+')}
 					getDefaultShortcutForCommand={(command) =>
 						command.defaultLocalShortcut}
 					registerShortcutKeyAndUpdateSettings={({ command, shortcutKey }) => {
@@ -84,7 +84,7 @@
 								};
 								toast.success({
 									title: `Local shortcut set to ${shortcutKey}`,
-									description: `Press the shortcut to trigger "${command.description}"`,
+									description: `Press the shortcut to trigger "${command.title}"`,
 								});
 							},
 							onError: (error) => {
@@ -116,8 +116,8 @@
 					</div>
 
 					<ShortcutTable
-						getShortcutKeyForCommand={(command) =>
-							settings.value[`shortcuts.global.${command.id}`]}
+						getShortcutKeysForCommand={(command) =>
+							settings.value[`shortcuts.global.${command.id}`].split('+')}
 						getDefaultShortcutForCommand={(command) =>
 							command.defaultGlobalShortcut}
 						registerShortcutKeyAndUpdateSettings={async ({ command, shortcutKey, }) => {
@@ -152,7 +152,7 @@
 				};
 				toast.success({
 					title: `Global shortcut set to ${shortcutKey}`,
-					description: `Press the shortcut to trigger "${command.description}"`,
+					description: `Press the shortcut to trigger "${command.title}"`,
 				});
 			},
 			onError: (error) => {
