@@ -4,6 +4,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import { Search } from 'lucide-svelte';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
@@ -193,103 +194,99 @@
 				</div>
 
 				<!-- Command list with shortcuts -->
-				<div class="rounded-lg border bg-card">
-					<div class="p-0">
-						<table class="w-full">
-							<thead>
-								<tr class="border-b">
-									<th class="text-left p-4 font-medium text-muted-foreground"
-										>Command</th
-									>
-									<th class="text-right p-4 font-medium text-muted-foreground"
-										>Shortcut</th
-									>
-								</tr>
-							</thead>
-							<tbody>
-								{#each filteredCommands as command}
-									<tr class="border-b last:border-0 hover:bg-muted/50">
-										<td class="p-4">{command.description}</td>
-										<td class="p-4 text-right">
-											<Popover.Root
-												open={popoverOpen && activeCommandId === command.id}
-											>
-												<Popover.Trigger>
-													{#if settings.value[`shortcuts.local.${command.id}`]}
-														<button
-															class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
-															on:click={() => openEditPopover(command, false)}
-														>
-															{#each settings.value[`shortcuts.local.${command.id}`].split('+') as key}
+				<div class="rounded-lg border">
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>Command</Table.Head>
+								<Table.Head class="text-right">Shortcut</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each filteredCommands as command}
+								<Table.Row>
+									<Table.Cell>{command.description}</Table.Cell>
+									<Table.Cell class="text-right">
+										<Popover.Root
+											open={popoverOpen && activeCommandId === command.id}
+										>
+											<Popover.Trigger>
+												{#if settings.value[`shortcuts.local.${command.id}`]}
+													<button
+														class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
+														on:click={() => openEditPopover(command, false)}
+													>
+														{#each settings.value[`shortcuts.local.${command.id}`].split('+') as key}
+															<kbd
+																class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+															>
+																{key}
+															</kbd>
+														{/each}
+													</button>
+												{:else}
+													<button
+														class="text-sm text-muted-foreground hover:text-foreground hover:underline"
+														on:click={() => openEditPopover(command, false)}
+													>
+														Add shortcut
+													</button>
+												{/if}
+											</Popover.Trigger>
+											<Popover.Content class="w-80 p-4" align="end">
+												<div class="space-y-4">
+													<div>
+														<h4 class="font-medium leading-none mb-2">
+															{command.description}
+														</h4>
+														<p class="text-sm text-muted-foreground">
+															Set a local keyboard shortcut
+														</p>
+													</div>
+
+													<div>
+														<Input
+															placeholder={`e.g. ${command.defaultLocalShortcut}`}
+															bind:value={editingShortcut}
+															autocomplete="off"
+															class="w-full"
+														/>
+													</div>
+
+													{#if editingShortcut}
+														<div class="flex flex-wrap gap-1">
+															{#each editingShortcut.split('+') as key}
 																<kbd
-																	class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+																	class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
 																>
 																	{key}
 																</kbd>
 															{/each}
-														</button>
-													{:else}
-														<button
-															class="text-sm text-muted-foreground hover:text-foreground hover:underline"
-															on:click={() => openEditPopover(command, false)}
-														>
-															Add shortcut
-														</button>
+														</div>
 													{/if}
-												</Popover.Trigger>
-												<Popover.Content class="w-80 p-4" align="end">
-													<div class="space-y-4">
-														<div>
-															<h4 class="font-medium leading-none mb-2">
-																{command.description}
-															</h4>
-															<p class="text-sm text-muted-foreground">
-																Set a local keyboard shortcut
-															</p>
-														</div>
 
-														<div>
-															<Input
-																placeholder={`e.g. ${command.defaultLocalShortcut}`}
-																bind:value={editingShortcut}
-																autocomplete="off"
-																class="w-full"
-															/>
-														</div>
-
-														{#if editingShortcut}
-															<div class="flex flex-wrap gap-1">
-																{#each editingShortcut.split('+') as key}
-																	<kbd
-																		class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
-																	>
-																		{key}
-																	</kbd>
-																{/each}
-															</div>
-														{/if}
-
-														<div class="flex justify-between">
-															<Button
-																variant="outline"
-																size="sm"
-																on:click={clearShortcut}
-															>
-																Clear
-															</Button>
-															<Button size="sm" on:click={saveShortcut}>
-																Save
-															</Button>
-														</div>
+													<div class="flex justify-between">
+														<button
+															class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+															on:click={clearShortcut}
+														>
+															Clear
+														</button>
+														<button
+															class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+															on:click={saveShortcut}
+														>
+															Save
+														</button>
 													</div>
-												</Popover.Content>
-											</Popover.Root>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
+												</div>
+											</Popover.Content>
+										</Popover.Root>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
 				</div>
 			</section>
 		</Tabs.Content>
@@ -327,103 +324,99 @@
 					</div>
 
 					<!-- Command list with shortcuts -->
-					<div class="rounded-lg border bg-card">
-						<div class="p-0">
-							<table class="w-full">
-								<thead>
-									<tr class="border-b">
-										<th class="text-left p-4 font-medium text-muted-foreground"
-											>Command</th
-										>
-										<th class="text-right p-4 font-medium text-muted-foreground"
-											>Shortcut</th
-										>
-									</tr>
-								</thead>
-								<tbody>
-									{#each filteredCommands as command}
-										<tr class="border-b last:border-0 hover:bg-muted/50">
-											<td class="p-4">{command.description}</td>
-											<td class="p-4 text-right">
-												<Popover.Root
-													open={popoverOpen && activeCommandId === command.id}
-												>
-													<Popover.Trigger>
-														{#if settings.value[`shortcuts.global.${command.id}`]}
-															<button
-																class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
-																on:click={() => openEditPopover(command, true)}
-															>
-																{#each settings.value[`shortcuts.global.${command.id}`].split('+') as key}
+					<div class="rounded-lg border">
+						<Table.Root>
+							<Table.Header>
+								<Table.Row>
+									<Table.Head>Command</Table.Head>
+									<Table.Head class="text-right">Shortcut</Table.Head>
+								</Table.Row>
+							</Table.Header>
+							<Table.Body>
+								{#each filteredCommands as command}
+									<Table.Row>
+										<Table.Cell>{command.description}</Table.Cell>
+										<Table.Cell class="text-right">
+											<Popover.Root
+												open={popoverOpen && activeCommandId === command.id}
+											>
+												<Popover.Trigger>
+													{#if settings.value[`shortcuts.global.${command.id}`]}
+														<button
+															class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
+															on:click={() => openEditPopover(command, true)}
+														>
+															{#each settings.value[`shortcuts.global.${command.id}`].split('+') as key}
+																<kbd
+																	class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+																>
+																	{key}
+																</kbd>
+															{/each}
+														</button>
+													{:else}
+														<button
+															class="text-sm text-muted-foreground hover:text-foreground hover:underline"
+															on:click={() => openEditPopover(command, true)}
+														>
+															Add shortcut
+														</button>
+													{/if}
+												</Popover.Trigger>
+												<Popover.Content class="w-80 p-4" align="end">
+													<div class="space-y-4">
+														<div>
+															<h4 class="font-medium leading-none mb-2">
+																{command.description}
+															</h4>
+															<p class="text-sm text-muted-foreground">
+																Set a global keyboard shortcut
+															</p>
+														</div>
+
+														<div>
+															<Input
+																placeholder="e.g. CommandOrControl+Shift+P"
+																bind:value={editingShortcut}
+																autocomplete="off"
+																class="w-full"
+															/>
+														</div>
+
+														{#if editingShortcut}
+															<div class="flex flex-wrap gap-1">
+																{#each editingShortcut.split('+') as key}
 																	<kbd
-																		class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+																		class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
 																	>
 																		{key}
 																	</kbd>
 																{/each}
-															</button>
-														{:else}
-															<button
-																class="text-sm text-muted-foreground hover:text-foreground hover:underline"
-																on:click={() => openEditPopover(command, true)}
-															>
-																Add shortcut
-															</button>
+															</div>
 														{/if}
-													</Popover.Trigger>
-													<Popover.Content class="w-80 p-4" align="end">
-														<div class="space-y-4">
-															<div>
-																<h4 class="font-medium leading-none mb-2">
-																	{command.description}
-																</h4>
-																<p class="text-sm text-muted-foreground">
-																	Set a global keyboard shortcut
-																</p>
-															</div>
 
-															<div>
-																<Input
-																	placeholder="e.g. CommandOrControl+Shift+P"
-																	bind:value={editingShortcut}
-																	autocomplete="off"
-																	class="w-full"
-																/>
-															</div>
-
-															{#if editingShortcut}
-																<div class="flex flex-wrap gap-1">
-																	{#each editingShortcut.split('+') as key}
-																		<kbd
-																			class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
-																		>
-																			{key}
-																		</kbd>
-																	{/each}
-																</div>
-															{/if}
-
-															<div class="flex justify-between">
-																<Button
-																	variant="outline"
-																	size="sm"
-																	on:click={clearShortcut}
-																>
-																	Clear
-																</Button>
-																<Button size="sm" on:click={saveShortcut}>
-																	Save
-																</Button>
-															</div>
+														<div class="flex justify-between">
+															<button
+																class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+																on:click={clearShortcut}
+															>
+																Clear
+															</button>
+															<button
+																class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+																on:click={saveShortcut}
+															>
+																Save
+															</button>
 														</div>
-													</Popover.Content>
-												</Popover.Root>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
+													</div>
+												</Popover.Content>
+											</Popover.Root>
+										</Table.Cell>
+									</Table.Row>
+								{/each}
+							</Table.Body>
+						</Table.Root>
 					</div>
 				{:else}
 					<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -452,14 +445,12 @@
 								application on your computer. This feature is only available in
 								the desktop app.
 							</p>
-							<Button
+							<a
 								href="/global-shortcut"
-								variant="default"
-								size="lg"
-								class="font-medium"
+								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 font-medium"
 							>
 								Enable Global Shortcuts
-							</Button>
+							</a>
 						</div>
 					</div>
 				{/if}
