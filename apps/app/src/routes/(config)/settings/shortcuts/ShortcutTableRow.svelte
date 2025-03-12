@@ -5,9 +5,15 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { type Command } from '@repo/shared';
 
-	const { command, getShortcutForCommand, registerShortcut } = $props<{
+	const {
+		command,
+		getShortcutKeyForCommand,
+		getDefaultShortcutForCommand,
+		registerShortcut,
+	} = $props<{
 		command: Command;
-		getShortcutForCommand: (command: Command) => string;
+		getShortcutKeyForCommand: (command: Command) => string;
+		getDefaultShortcutForCommand: (command: Command) => string;
 		registerShortcut: ({
 			command,
 			shortcutKey,
@@ -19,7 +25,7 @@
 		}) => void;
 	}>();
 
-	const shortcutKey = $derived(getShortcutForCommand(command));
+	const shortcutKey = $derived(getShortcutKeyForCommand(command));
 
 	let isPopoverOpen = $state(false);
 
@@ -72,7 +78,7 @@
 
 					<div>
 						<Input
-							placeholder={`e.g. ${command.defaultLocalShortcut}`}
+							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
 							value={shortcutKey}
 							oninput={({ currentTarget: { value } }) =>
 								registerShortcutKey({

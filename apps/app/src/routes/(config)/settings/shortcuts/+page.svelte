@@ -53,8 +53,10 @@
 				</div>
 
 				<ShortcutTable
-					getShortcutForCommand={(command) =>
+					getShortcutKeyForCommand={(command) =>
 						settings.value[`shortcuts.local.${command.id}`]}
+					getDefaultShortcutForCommand={(command) =>
+						command.defaultLocalShortcut}
 					registerShortcut={({ command, shortcutKey, onSuccess }) => {
 						const currentCommandKey =
 							settings.value[`shortcuts.local.${command.id}`];
@@ -115,8 +117,10 @@
 					</div>
 
 					<ShortcutTable
-						getShortcutForCommand={(command) =>
+						getShortcutKeyForCommand={(command) =>
 							settings.value[`shortcuts.global.${command.id}`]}
+						getDefaultShortcutForCommand={(command) =>
+							command.defaultGlobalShortcut}
 						registerShortcut={async ({ command, shortcutKey, onSuccess }) => {
 							const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 							const unregisterOldShortcutKeyResult = await tryAsync({

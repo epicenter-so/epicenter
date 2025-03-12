@@ -5,8 +5,13 @@
 	import { Search } from 'lucide-svelte';
 	import ShortcutTableRow from './ShortcutTableRow.svelte';
 
-	const { getShortcutForCommand, registerShortcut } = $props<{
-		getShortcutForCommand: (command: Command) => string;
+	const {
+		getShortcutKeyForCommand,
+		getDefaultShortcutForCommand,
+		registerShortcut,
+	} = $props<{
+		getShortcutKeyForCommand: (command: Command) => string;
+		getDefaultShortcutForCommand: (command: Command) => string;
 		registerShortcut: ({
 			command,
 			shortcutKey,
@@ -53,7 +58,8 @@
 			{#each filteredCommands as command}
 				<ShortcutTableRow
 					{command}
-					{getShortcutForCommand}
+					{getShortcutKeyForCommand}
+					{getDefaultShortcutForCommand}
 					{registerShortcut}
 				/>
 			{/each}
