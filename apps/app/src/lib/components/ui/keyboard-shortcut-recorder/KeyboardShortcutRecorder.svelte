@@ -11,7 +11,6 @@
 		placeholder = 'Click to record shortcut',
 		onValueChange,
 		onEscape = () => {},
-		disabled = false,
 		className = '',
 		autoFocus = false,
 	} = $props<{
@@ -19,7 +18,6 @@
 		placeholder?: string;
 		onValueChange: (value: string) => void;
 		onEscape?: () => void;
-		disabled?: boolean;
 		className?: string;
 		autoFocus?: boolean;
 	}>();
@@ -66,7 +64,7 @@
 
 	// Auto-focus effect
 	onMount(() => {
-		if (autoFocus && !disabled) {
+		if (autoFocus) {
 			setTimeout(() => {
 				startRecording();
 			}, 100); // Small delay to ensure the component is fully mounted
@@ -75,7 +73,6 @@
 
 	// Event handlers
 	function startRecording() {
-		if (disabled) return;
 		isRecording = true;
 		keys = [];
 	}
@@ -165,14 +162,12 @@
 	class={cn(
 		'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all',
 		isRecording && 'ring-2 ring-ring ring-offset-2',
-		disabled && 'cursor-not-allowed opacity-50',
 		className,
 	)}
 	on:click={startRecording}
 	on:keydown={(e) => e.key === 'Enter' && startRecording()}
 	role="button"
 	tabindex="0"
-	aria-disabled={disabled}
 >
 	<div class="flex flex-1 items-center gap-1">
 		{#if keys.length > 0}
@@ -188,7 +183,7 @@
 		{/if}
 	</div>
 
-	{#if value && !disabled}
+	{#if value}
 		<Tooltip.Provider>
 			<Tooltip.Root>
 				<Tooltip.Trigger class="inline-flex">
