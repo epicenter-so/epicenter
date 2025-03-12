@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { KeyboardShortcutRecorder } from '$lib/components/ui/keyboard-shortcut-recorder/index.svelte.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { commands, type Command } from '@repo/shared';
+	import { type Command, commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
-	import ShortcutTableRow from './ShortcutTableRow.svelte';
 
 	const {
 		getShortcutKeysForCommand,
@@ -54,12 +54,24 @@
 		</Table.Header>
 		<Table.Body>
 			{#each filteredCommands as command}
-				<ShortcutTableRow
-					{command}
-					{getShortcutKeysForCommand}
-					{getDefaultShortcutForCommand}
-					{registerShortcutKeyAndUpdateSettings}
-				/>
+				<Table.Row>
+					<Table.Cell>{command.title}</Table.Cell>
+
+					<Table.Cell class="text-right">
+						<KeyboardShortcutRecorder
+							title={command.title}
+							keys={getShortcutKeysForCommand(command)}
+							onKeysChange={(shortcutKeys) => {
+								registerShortcutKeyAndUpdateSettings({
+									command,
+									shortcutKeys,
+								});
+							}}
+							placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
+							autoFocus
+						/>
+					</Table.Cell>
+				</Table.Row>
 			{/each}
 		</Table.Body>
 	</Table.Root>
