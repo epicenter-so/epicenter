@@ -5,7 +5,6 @@
 	import { X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	// Props using Svelte 5 $props
 	const {
 		value = '',
 		placeholder = 'Click to record shortcut',
@@ -13,21 +12,21 @@
 		onEscape = () => {},
 		className = '',
 		autoFocus = false,
-	} = $props<{
+	}: {
 		value: string;
 		placeholder?: string;
 		onValueChange: (value: string) => void;
 		onEscape?: () => void;
 		className?: string;
 		autoFocus?: boolean;
-	}>();
+	} = $props();
 
-	// State
 	let isRecording = $state(false);
+	/** Internal state keeping track of the keys pressed as an array */
 	let keys = $state<string[]>([]);
 
 	// Derived values
-	const displayValue = $derived(value || placeholder);
+	const displayValue = $derived(value ?? placeholder);
 
 	// Key mapping for better display
 	const keyMap: Record<string, string> = {
@@ -96,7 +95,6 @@
 		event.preventDefault();
 		event.stopPropagation();
 
-		// Handle escape to cancel recording
 		if (event.key === 'Escape') {
 			stopRecording();
 			onEscape();
