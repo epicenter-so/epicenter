@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import NavItems from '$lib/components/NavItems.svelte';
-	import RecordingControls from '$lib/components/RecordingControls.svelte';
+	import { RecordingControls } from '$lib/components/recording-controls';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';

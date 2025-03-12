@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';
-	import PersistSelectTransformationCombobox from './PersistSelectTransformationCombobox.svelte';
-	import { RecordingDeviceSelector } from './recording-device-selector';
+	import PersistSelectTransformationCombobox from '../PersistSelectTransformationCombobox.svelte';
+	import RecordingDeviceSelector from './RecordingDeviceSelector.svelte';
 
 	let { class: className }: { class?: string } = $props();
 </script>
