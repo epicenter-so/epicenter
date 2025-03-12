@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { KeyboardShortcutRecorder } from '$lib/components/ui/keyboard-shortcut-recorder';
+	import { KeyboardShortcutRecorder } from '$lib/components/ui/keyboard-shortcut-recorder/index.svelte.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { type Command } from '@repo/shared';
 
 	const {
 		command,
-		getShortcutKeyForCommand,
+		getShortcutKeysForCommand,
 		getDefaultShortcutForCommand,
 		registerShortcutKeyAndUpdateSettings,
-	} = $props<{
+	}: {
 		command: Command;
-		getShortcutKeyForCommand: (command: Command) => string;
+		getShortcutKeysForCommand: (command: Command) => string[];
 		getDefaultShortcutForCommand: (command: Command) => string;
 		registerShortcutKeyAndUpdateSettings: ({
 			command,
@@ -19,22 +19,20 @@
 			command: Command;
 			shortcutKey: string;
 		}) => void;
-	}>();
-
-	const shortcutKey = $derived(getShortcutKeyForCommand(command));
+	} = $props();
 </script>
 
 <Table.Row>
-	<Table.Cell>{command.description}</Table.Cell>
+	<Table.Cell>{command.title}</Table.Cell>
 
 	<Table.Cell class="text-right">
 		<KeyboardShortcutRecorder
-			title={command.description}
-			value={shortcutKey}
-			onValueChange={(shortcutKey: string) => {
+			title={command.title}
+			keys={getShortcutKeysForCommand(command)}
+			onKeysChange={(shortcutKeys) => {
 				registerShortcutKeyAndUpdateSettings({
 					command,
-					shortcutKey,
+					shortcutKeys,
 				});
 			}}
 			placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
