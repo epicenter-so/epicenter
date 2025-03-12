@@ -9,9 +9,7 @@
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync, trySync } from '@epicenterhq/result';
-	import { WhisperingErr } from '@repo/shared';
-	import type { Command } from '@repo/shared/settings';
-	import { commands } from '@repo/shared/settings';
+	import { type Command, commands, WhisperingErr } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';

@@ -228,14 +228,14 @@
 			Click the microphone or press
 			{' '}<WhisperingButton
 				tooltipContent="Go to local shortcut in settings"
-				href="/settings#local-shortcut"
+				href="/settings/shortcuts"
 				variant="link"
 				size="inline"
 			>
 				<kbd
 					class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
 				>
-					{settings.value['shortcuts.currentLocalShortcut']}
+					{settings.value['shortcuts.local.toggleManualRecording']}
 				</kbd>
 			</WhisperingButton>{' '}
 			to start recording here.
@@ -245,14 +245,14 @@
 				Press
 				{' '}<WhisperingButton
 					tooltipContent="Go to global shortcut in settings"
-					href="/settings#global-shortcut"
+					href="/settings/shortcuts"
 					variant="link"
 					size="inline"
 				>
 					<kbd
 						class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
 					>
-						{settings.value['shortcuts.currentGlobalShortcut']}
+						{settings.value['shortcuts.global.toggleManualRecording']}
 					</kbd>
 				</WhisperingButton>{' '}
 				to start recording anywhere.
