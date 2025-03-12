@@ -1,39 +1,4 @@
-<script lang="ts">
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Popover from '$lib/components/ui/popover/index.js';
-	import { cn } from '$lib/utils';
-	import { X } from 'lucide-svelte';
-	import { onMount } from 'svelte';
-
-	const {
-		title,
-		value = '',
-		placeholder = 'Click to record shortcut',
-		className = '',
-		autoFocus = false,
-		registerShortcutKey,
-	}: {
-		title: string;
-		value: string;
-		placeholder?: string;
-		className?: string;
-		autoFocus?: boolean;
-		registerShortcutKey: (shortcutKey: string) => void;
-	} = $props();
-
-	let isRecording = $state(false);
-
-	/** Internal state keeping track of the keys pressed as an array */
-	let keys = $state<string[]>([]);
-
-	let isPopoverOpen = $state(false);
-
-	const shortcutKey = $derived(keys.join('+'));
-
-	// Derived values
-	const displayValue = $derived(value ?? placeholder);
-
+<script module lang="ts">
 	// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
 	const keyMap: Record<string, string> = {
 		// Modifier keys
@@ -115,12 +80,162 @@
 		Slash: '/',
 	};
 
+	function createKeyRecorder({
+		onValueChange,
+		onIsRecordingChange,
+		setIsPopoverOpen,
+	}: {
+		onValueChange: (shortcutKey: string) => void;
+		onIsRecordingChange: (isRecording: boolean) => void;
+		setIsPopoverOpen: (isOpen: boolean) => void;
+	}) {
+		/** Internal state keeping track of the keys pressed as an array */
+		const keys = (() => {
+			let value = $state<string[]>([]);
+			return {
+				get value() {
+					return value;
+				},
+				set value(newValue: string[]) {
+					value = newValue;
+				},
+				reset() {
+					value = [];
+				},
+			};
+		})();
+
+		let isRecording = $state(false);
+
+		const startRecording = () => {
+			keys.reset();
+			isRecording = true;
+			onIsRecordingChange(true);
+		};
+
+		const stopRecording = () => {
+			isRecording = false;
+			onIsRecordingChange(false);
+		};
+
+		return {
+			get keys() {
+				return keys;
+			},
+			get isRecording() {
+				return isRecording;
+			},
+			onkeyup: (event: KeyboardEvent) => {
+				// This helps with cases where the user releases a key before pressing another
+				if (
+					isRecording &&
+					!event.ctrlKey &&
+					!event.metaKey &&
+					!event.altKey &&
+					!event.shiftKey
+				) {
+					// If all modifier keys are released and we haven't captured a main key yet,
+					// keep the recording state active
+					if (keys.value.length === 0) {
+						return;
+					}
+				}
+			},
+			onkeydown: (event: KeyboardEvent) => {
+				if (!isRecording) return;
+
+				event.preventDefault();
+				event.stopPropagation();
+
+				if (event.key === 'Escape') {
+					stopRecording();
+					setIsPopoverOpen(false);
+					return;
+				}
+
+				// Collect all pressed modifier keys
+				const modifiers: string[] = [];
+				if (event.ctrlKey) modifiers.push('ctrl');
+				if (event.metaKey) modifiers.push('command');
+				if (event.altKey) modifiers.push('alt');
+				if (event.shiftKey) modifiers.push('shift');
+
+				// Get the main key (non-modifier)
+				let mainKey = event.key;
+
+				// Convert to friendly format if needed
+				if (keyMap[mainKey]) {
+					mainKey = keyMap[mainKey];
+				} else if (mainKey.length === 1) {
+					// For single character keys, use lowercase
+					mainKey = mainKey.toLowerCase();
+				}
+
+				// Skip if the key is a modifier key that's already included
+				if (modifiers.includes(mainKey)) {
+					return;
+				}
+
+				// Build the final key combination
+				const newKeys = [...modifiers, mainKey];
+				keys.value = newKeys;
+
+				// Update the value
+				const shortcutValue = newKeys.join('+');
+				onValueChange(shortcutValue);
+
+				// Stop recording after a valid combination is entered
+				stopRecording();
+			},
+
+			startRecording,
+			stopRecording,
+			clear() {
+				keys.reset();
+				stopRecording();
+				onValueChange('');
+			},
+		};
+	}
+</script>
+
+<script lang="ts">
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { cn } from '$lib/utils';
+	import { X } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+
+	const {
+		title,
+		value = '',
+		onValueChange,
+		placeholder = 'Click to record shortcut',
+		className = '',
+		autoFocus = false,
+	}: {
+		title: string;
+		value: string;
+		onValueChange: (shortcutKey: string) => void;
+		placeholder?: string;
+		className?: string;
+		autoFocus?: boolean;
+	} = $props();
+
+	let isPopoverOpen = $state(false);
+	let isRecording = $state(false);
+	let keysArray = $state<string[]>([]);
+
+	// Derived values
+	const displayValue = $derived(value ?? placeholder);
+
 	// Update keys when value changes
 	$effect(() => {
 		if (value) {
-			keys = value.split('+');
+			keysArray = value.split('+');
 		} else {
-			keys = [];
+			keysArray = [];
 		}
 	});
 
@@ -128,133 +243,68 @@
 	onMount(() => {
 		if (autoFocus) {
 			setTimeout(() => {
-				startRecording();
+				keyRecorder.startRecording();
 			}, 100); // Small delay to ensure the component is fully mounted
 		}
 	});
 
-	// Event handlers
-	function startRecording() {
-		isRecording = true;
-		keys = [];
-	}
-
-	function stopRecording() {
-		isRecording = false;
-	}
-
-	function clearShortcut(e: MouseEvent) {
-		e.stopPropagation();
-		keys = [];
-		registerShortcutKey('');
-		stopRecording();
-	}
-
-	function handleKeyDown(event: KeyboardEvent) {
-		if (!isRecording) return;
-
-		event.preventDefault();
-		event.stopPropagation();
-
-		if (event.key === 'Escape') {
-			stopRecording();
-			isPopoverOpen = false;
-			return;
-		}
-
-		// Collect all pressed modifier keys
-		const modifiers: string[] = [];
-		if (event.ctrlKey) modifiers.push('ctrl');
-		if (event.metaKey) modifiers.push('command');
-		if (event.altKey) modifiers.push('alt');
-		if (event.shiftKey) modifiers.push('shift');
-
-		// Get the main key (non-modifier)
-		let mainKey = event.key;
-
-		// Convert to friendly format if needed
-		if (keyMap[mainKey]) {
-			mainKey = keyMap[mainKey];
-		} else if (mainKey.length === 1) {
-			// For single character keys, use lowercase
-			mainKey = mainKey.toLowerCase();
-		}
-
-		// Skip if the key is a modifier key that's already included
-		if (modifiers.includes(mainKey)) {
-			return;
-		}
-
-		// Build the final key combination
-		const newKeys = [...modifiers, mainKey];
-		keys = newKeys;
-
-		// Update the value
-		const shortcutValue = newKeys.join('+');
-		registerShortcutKey(shortcutValue);
-
-		// Stop recording after a valid combination is entered
-		stopRecording();
-	}
-
-	function handleKeyUp(event: KeyboardEvent) {
-		// This helps with cases where the user releases a key before pressing another
-		if (
-			isRecording &&
-			!event.ctrlKey &&
-			!event.metaKey &&
-			!event.altKey &&
-			!event.shiftKey
-		) {
-			// If all modifier keys are released and we haven't captured a main key yet,
-			// keep the recording state active
-			if (keys.length === 0) {
-				return;
-			}
-		}
-	}
-
 	function handleCancelClick(e: MouseEvent) {
 		e.stopPropagation();
-		stopRecording();
+		keyRecorder.stopRecording();
 		isPopoverOpen = false;
 	}
+
+	const keyRecorder = createKeyRecorder({
+		onValueChange,
+		onIsRecordingChange: (recording) => {
+			isRecording = recording;
+		},
+		setIsPopoverOpen: (isOpen) => {
+			isPopoverOpen = isOpen;
+		},
+	});
+
+	// Sync keys from recorder to component state
+	$effect(() => {
+		keysArray = keyRecorder.keys.value;
+	});
 </script>
 
-<svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
+<svelte:window
+	onkeydown={keyRecorder.onkeydown}
+	onkeyup={keyRecorder.onkeyup}
+/>
 
 <Popover.Root bind:open={isPopoverOpen}>
-	<div class="relative inline-flex items-center">
-		<Popover.Trigger
-			class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
-		>
-			{#if shortcutKey}
-				{#each shortcutKey.split('+') as key}
-					<kbd
-						class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
-					>
-						{key}
-					</kbd>
-				{/each}
-			{:else}
-				<button
-					class="text-sm text-muted-foreground hover:text-foreground hover:underline"
+	<Popover.Trigger
+		class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
+	>
+		{#if value}
+			{#each value.split('+') as key}
+				<kbd
+					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
-					Add shortcut
-				</button>
-			{/if}
-		</Popover.Trigger>
-
-		{#if shortcutKey}
+					{key}
+				</kbd>
+			{/each}
 			<WhisperingButton
 				variant="outline"
-				onclick={(e) => clearShortcut(e)}
+				onclick={(e) => {
+					e.stopPropagation();
+					keyRecorder.clear();
+				}}
 				tooltipContent="Clear shortcut"
 			>
 				<X class="h-4 w-4" />
 			</WhisperingButton>
+		{:else}
+			<button
+				class="text-sm text-muted-foreground hover:text-foreground hover:underline"
+			>
+				Add shortcut
+			</button>
 		{/if}
-	</div>
+	</Popover.Trigger>
 
 	<Popover.Content class="w-80 p-4" align="end">
 		<div class="space-y-4">
@@ -273,7 +323,7 @@
 						isRecording && 'ring-2 ring-ring ring-offset-2',
 						className,
 					)}
-					onclick={startRecording}
+					onclick={keyRecorder.startRecording}
 					tabindex="0"
 					aria-label={isRecording
 						? 'Recording keyboard shortcut'
@@ -283,8 +333,8 @@
 						<div
 							class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2 flex-grow"
 						>
-							{#if keys.length > 0}
-								{#each keys as key}
+							{#if keysArray.length > 0}
+								{#each keysArray as key}
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
