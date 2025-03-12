@@ -8,7 +8,7 @@
 	import { WhisperingErr } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
-	import LocalShortcutTable from './LocalShortcutTable.svelte';
+	import { LocalShortcutTable } from './keyboard-shortcut-recorder/index.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
 
 	const shortcutsRegister = getShortcutsRegisterFromContext();
@@ -53,47 +53,10 @@
 				</div>
 
 				<LocalShortcutTable
-					getKeyCombinationForCommand={(command) =>
-						settings.value[`shortcuts.local.${command.id}`]}
-					getDefaultShortcutForCommand={(command) =>
-						command.defaultLocalShortcut}
 					registerShortcutKeyAndUpdateSettings={({
 						command,
 						keyCombination,
 					}) => {
-						const currentCommandKey =
-							settings.value[`shortcuts.local.${command.id}`];
-						const unregisterOldCommandLocallyResult = trySync({
-							try: () => hotkeys.unbind(currentCommandKey),
-							mapErr: (error) =>
-								WhisperingErr({
-									title: `Error unregistering old command with id ${command.id} locally`,
-									description: 'Please try again.',
-									action: { type: 'more-details', error },
-								}),
-						});
-
-						if (!unregisterOldCommandLocallyResult.ok) {
-							toast.error(unregisterOldCommandLocallyResult.error);
-						}
-
-						shortcutsRegister.registerCommandLocally({
-							command,
-							keyCombination,
-							onSuccess: () => {
-								settings.value = {
-									...settings.value,
-									[`shortcuts.local.${command.id}`]: keyCombination,
-								};
-								toast.success({
-									title: `Local shortcut set to ${keyCombination}`,
-									description: `Press the shortcut to trigger "${command.title}"`,
-								});
-							},
-							onError: (error) => {
-								toast.error(error);
-							},
-						});
 					}}
 				/>
 			</section>
@@ -118,52 +81,7 @@
 						<TauriGlobalShortcutFormatGuide />
 					</div>
 
-					<LocalShortcutTable
-						getKeyCombinationForCommand={(command) =>
-							settings.value[`shortcuts.global.${command.id}`]}
-						getDefaultShortcutForCommand={(command) =>
-							command.defaultGlobalShortcut}
-						registerShortcutKeyAndUpdateSettings={async ({ command, keyCombination, }) => {
-							const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-							const unregisterOldShortcutKeyResult = await tryAsync({
-								try: async () => {
-				if (!window.__TAURI_INTERNALS__) return;
-				const { unregister } = await import(
-					'@tauri-apps/plugin-global-shortcut'
-				);
-				return await unregister(oldShortcutKey);
-			},
-			mapErr: (error) =>
-				WhisperingErr({
-					title: `Error unregistering command with id ${command.id} globally`,
-					description: 'Please try again.',
-					action: { type: 'more-details', error },
-				}),
-		});
-
-		if (!unregisterOldShortcutKeyResult.ok) {
-			toast.error(unregisterOldShortcutKeyResult.error);
-		}
-
-		shortcutsRegister.registerCommandGlobally({
-			command,
-			keyCombination,
-			onSuccess: () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: keyCombination,
-				};
-				toast.success({
-					title: `Global shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
-				});
-			},
-			onError: (error) => {
-				toast.error(error);
-			},
-		});
-	}}
-					/>
+					<LocalShortcutTable />
 				{:else}
 					<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
 						<div

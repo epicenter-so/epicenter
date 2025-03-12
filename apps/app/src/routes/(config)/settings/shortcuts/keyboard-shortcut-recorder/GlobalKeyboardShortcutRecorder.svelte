@@ -4,15 +4,16 @@
 	import { cn } from '$lib/utils';
 	import { XIcon } from 'lucide-svelte';
 	import { createKeyRecorder } from './index.svelte';
+	import type { Command } from '@repo/shared';
 
 	const {
-		title,
+		command,
 		keyCombination,
 		onKeyCombinationChange,
 		placeholder,
 		autoFocus = false,
 	}: {
-		title: string;
+		command: Command;
 		keyCombination: string;
 		onKeyCombinationChange: (keyCombination: string) => void;
 		placeholder?: string;
@@ -177,7 +178,7 @@
 		<div class="space-y-4">
 			<div>
 				<h4 class="font-medium leading-none mb-2">
-					{title}
+					{command.title}
 				</h4>
 				<p class="text-sm text-muted-foreground">Set a keyboard shortcut</p>
 			</div>
