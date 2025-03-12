@@ -19,18 +19,21 @@
 		}) => void;
 	}>();
 
-	let editingShortcut = $state('');
-	let isPopoverOpen = $state(false);
-
 	const shortcutKey = $derived(getShortcutForCommand(command));
 
-	function submitEditingShortcut() {
+	let isPopoverOpen = $state(false);
+
+	function registerShortcutKey({
+		shortcutKey,
+		onSuccess,
+	}: {
+		shortcutKey: string;
+		onSuccess: () => void;
+	}) {
 		registerShortcut({
 			command,
-			shortcutKey: editingShortcut,
-			onSuccess: () => {
-				isPopoverOpen = false;
-			},
+			shortcutKey,
+			onSuccess,
 		});
 	}
 </script>
@@ -70,15 +73,20 @@
 					<div>
 						<Input
 							placeholder={`e.g. ${command.defaultLocalShortcut}`}
-							bind:value={editingShortcut}
+							value={shortcutKey}
+							oninput={({ currentTarget: { value } }) =>
+								registerShortcutKey({
+									shortcutKey: value,
+									onSuccess: () => {},
+								})}
 							autocomplete="off"
 							class="w-full"
 						/>
 					</div>
 
-					{#if editingShortcut}
+					{#if shortcutKey}
 						<div class="flex flex-wrap gap-1">
-							{#each editingShortcut.split('+') as key}
+							{#each shortcutKey.split('+') as key}
 								<kbd
 									class="inline-flex h-7 select-none items-center justify-center rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground"
 								>
@@ -92,13 +100,16 @@
 						<Button
 							variant="outline"
 							onclick={() => {
-								editingShortcut = '';
-								submitEditingShortcut();
+								registerShortcutKey({
+									shortcutKey: '',
+									onSuccess: () => {
+										isPopoverOpen = false;
+									},
+								});
 							}}
 						>
 							Clear
 						</Button>
-						<Button onclick={submitEditingShortcut}>Save</Button>
 					</div>
 				</div>
 			</Popover.Content>
