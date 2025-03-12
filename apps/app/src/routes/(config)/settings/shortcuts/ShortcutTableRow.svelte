@@ -38,9 +38,9 @@
 		<KeyboardShortcutRecorder
 			title={command.description}
 			value={shortcutKey}
+			onValueChange={registerShortcutKey}
 			placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
 			autoFocus
-			{registerShortcutKey}
 		/>
 	</Table.Cell>
 </Table.Row>

@@ -82,12 +82,10 @@
 
 	function createKeyRecorder({
 		onValueChange,
-		onIsRecordingChange,
-		setIsPopoverOpen,
+		onEscape,
 	}: {
 		onValueChange: (shortcutKey: string) => void;
-		onIsRecordingChange: (isRecording: boolean) => void;
-		setIsPopoverOpen: (isOpen: boolean) => void;
+		onEscape: () => void;
 	}) {
 		/** Internal state keeping track of the keys pressed as an array */
 		const keys = (() => {
@@ -110,12 +108,10 @@
 		const startRecording = () => {
 			keys.reset();
 			isRecording = true;
-			onIsRecordingChange(true);
 		};
 
 		const stopRecording = () => {
 			isRecording = false;
-			onIsRecordingChange(false);
 		};
 
 		return {
@@ -152,7 +148,7 @@
 
 				if (event.key === 'Escape') {
 					stopRecording();
-					setIsPopoverOpen(false);
+					onEscape();
 					return;
 				}
 
@@ -227,32 +223,7 @@
 	} = $props();
 
 	let isPopoverOpen = $state(false);
-	let isRecording = $state(false);
-	let keysArray = $state<string[]>([]);
 	let shouldListenForKeyEvents = $state(false);
-
-	// Derived values
-	const displayValue = $derived(value ?? placeholder);
-
-	// Update keys when value changes
-	$effect(() => {
-		if (value) {
-			keysArray = value.split('+');
-		} else {
-			keysArray = [];
-		}
-	});
-
-	// Handle popover state changes
-	$effect(() => {
-		// When popover closes, stop recording
-		if (!isPopoverOpen && isRecording) {
-			keyRecorder.stopRecording();
-		}
-
-		// Only listen for key events when popover is open
-		shouldListenForKeyEvents = isPopoverOpen;
-	});
 
 	// Auto-focus effect
 	onMount(() => {
@@ -274,17 +245,7 @@
 
 	const keyRecorder = createKeyRecorder({
 		onValueChange,
-		onIsRecordingChange: (recording) => {
-			isRecording = recording;
-		},
-		setIsPopoverOpen: (isOpen) => {
-			isPopoverOpen = isOpen;
-		},
-	});
-
-	// Sync keys from recorder to component state
-	$effect(() => {
-		keysArray = keyRecorder.keys.value;
+		onEscape: () => (isPopoverOpen = false),
 	});
 
 	// Handle keyboard events conditionally
@@ -303,7 +264,13 @@
 
 <svelte:window onkeydown={handleKeyDown} onkeyup={handleKeyUp} />
 
-<Popover.Root bind:open={isPopoverOpen}>
+<Popover.Root
+	open={isPopoverOpen}
+	onOpenChange={(isOpen) => {
+		isPopoverOpen = isOpen;
+		if (!isOpen) keyRecorder.stopRecording();
+	}}
+>
 	<Popover.Trigger
 		class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
 	>
@@ -348,12 +315,12 @@
 					type="button"
 					class={cn(
 						'relative flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-						isRecording && 'ring-2 ring-ring ring-offset-2',
+						keyRecorder.isRecording && 'ring-2 ring-ring ring-offset-2',
 						className,
 					)}
 					onclick={handleRecordButtonClick}
 					tabindex="0"
-					aria-label={isRecording
+					aria-label={keyRecorder.isRecording
 						? 'Recording keyboard shortcut'
 						: 'Click to record keyboard shortcut'}
 				>
@@ -361,8 +328,8 @@
 						<div
 							class="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2 flex-grow"
 						>
-							{#if keysArray.length > 0}
-								{#each keysArray as key}
+							{#if value}
+								{#each value.split('+') as key}
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
@@ -370,14 +337,14 @@
 									</kbd>
 								{/each}
 							{:else}
-								<span class="text-muted-foreground truncate"
-									>{displayValue}</span
-								>
+								<span class="text-muted-foreground truncate">
+									{placeholder}
+								</span>
 							{/if}
 						</div>
 					</div>
 
-					{#if isRecording}
+					{#if keyRecorder.isRecording}
 						<div
 							class="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-input animate-in fade-in-0 zoom-in-95 z-10"
 							aria-live="polite"
