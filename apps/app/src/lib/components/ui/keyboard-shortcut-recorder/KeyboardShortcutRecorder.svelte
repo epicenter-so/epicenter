@@ -195,7 +195,7 @@
 
 	$effect(() => {
 		const newValue = keyRecorder.keys.join('+');
-		if (newValue !== value) onValueChange(value);
+		if (newValue !== value) onValueChange(newValue);
 	});
 </script>
 
