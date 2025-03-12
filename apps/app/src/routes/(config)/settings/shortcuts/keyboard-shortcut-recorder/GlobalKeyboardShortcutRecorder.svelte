@@ -22,6 +22,13 @@
 
 	let isPopoverOpen = $state(false);
 
+	function isAppleOS() {
+		const userAgent = navigator.userAgent.toLowerCase();
+		return /macintosh|mac os x|iphone|ipad|ipod/i.test(userAgent);
+	}
+
+	const isAppleDevice = isAppleOS();
+
 	const keyRecorder = createKeyRecorder({
 		mapKeyboardEventToKeyCombination: (event) => {
 			// Key mapping for Tauri Global Shortcut
@@ -158,9 +165,9 @@
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
 					{#if key === 'CommandOrControl'}
-						{navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}
+						{isAppleDevice ? '⌘' : 'Ctrl'}
 					{:else if key === 'Alt'}
-						{navigator.platform.includes('Mac') ? '⌥' : 'Alt'}
+						{isAppleDevice ? '⌥' : 'Alt'}
 					{:else if key === 'Shift'}
 						⇧
 					{:else}
@@ -223,10 +230,14 @@
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
 										{#if key === 'CommandOrControl'}
-											{navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}
+											{isAppleDevice ? '⌘' : 'Ctrl'}
 										{:else if key === 'Alt'}
-											{navigator.platform.includes('Mac') ? '⌥' : 'Alt'}
-										{key}
+											{isAppleDevice ? '⌥' : 'Alt'}
+										{:else if key === 'Shift'}
+											⇧
+										{:else}
+											{key}
+										{/if}
 									</kbd>
 								{/each}
 							{:else}
