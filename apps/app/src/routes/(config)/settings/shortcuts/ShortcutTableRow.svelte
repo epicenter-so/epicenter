@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
@@ -22,6 +23,16 @@
 	let isPopoverOpen = $state(false);
 
 	const shortcutKey = $derived(getShortcutForCommand(command));
+
+	function submitEditingShortcut() {
+		registerShortcut({
+			command,
+			shortcutKey: editingShortcut,
+			onSuccess: () => {
+				isPopoverOpen = false;
+			},
+		});
+	}
 </script>
 
 <Table.Row>
@@ -84,34 +95,16 @@
 					{/if}
 
 					<div class="flex justify-between">
-						<button
-							class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+						<Button
+							variant="outline"
 							onclick={() => {
-								registerShortcut({
-									command,
-									shortcutKey: '',
-									onSuccess: () => {
-										editingShortcut = '';
-									},
-								});
+								editingShortcut = '';
+								submitEditingShortcut();
 							}}
 						>
 							Clear
-						</button>
-						<button
-							class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
-							onclick={() => {
-								registerShortcut({
-									command,
-									shortcutKey: editingShortcut,
-									onSuccess: () => {
-										editingShortcut = '';
-									},
-								});
-							}}
-						>
-							Save
-						</button>
+						</Button>
+						<Button onclick={submitEditingShortcut}>Save</Button>
 					</div>
 				</div>
 			</Popover.Content>
