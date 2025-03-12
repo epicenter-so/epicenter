@@ -1,7 +1,7 @@
 <script lang="ts">
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { cn } from '$lib/utils';
 	import { X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
@@ -224,25 +224,38 @@
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
 <Popover.Root bind:open={isPopoverOpen}>
-	<Popover.Trigger
-		class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
-	>
-		{#if shortcutKey}
-			{#each shortcutKey.split('+') as key}
-				<kbd
-					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+	<div class="relative inline-flex items-center">
+		<Popover.Trigger
+			class="inline-flex items-center gap-1 hover:bg-muted rounded px-2 py-1"
+		>
+			{#if shortcutKey}
+				{#each shortcutKey.split('+') as key}
+					<kbd
+						class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+					>
+						{key}
+					</kbd>
+				{/each}
+			{:else}
+				<button
+					class="text-sm text-muted-foreground hover:text-foreground hover:underline"
 				>
-					{key}
-				</kbd>
-			{/each}
-		{:else}
-			<button
-				class="text-sm text-muted-foreground hover:text-foreground hover:underline"
+					Add shortcut
+				</button>
+			{/if}
+		</Popover.Trigger>
+
+		{#if shortcutKey}
+			<WhisperingButton
+				variant="outline"
+				onclick={(e) => clearShortcut(e)}
+				tooltipContent="Clear shortcut"
 			>
-				Add shortcut
-			</button>
+				<X class="h-4 w-4" />
+			</WhisperingButton>
 		{/if}
-	</Popover.Trigger>
+	</div>
+
 	<Popover.Content class="w-80 p-4" align="end">
 		<div class="space-y-4">
 			<div>
@@ -284,26 +297,6 @@
 								>
 							{/if}
 						</div>
-
-						{#if keys.length > 0}
-							<Tooltip.Provider>
-								<Tooltip.Root>
-									<Tooltip.Trigger>
-										<button
-											type="button"
-											class="h-6 w-6 p-0 opacity-70 hover:opacity-100 flex-shrink-0 inline-flex items-center justify-center rounded-sm hover:bg-muted"
-											onclick={(e) => clearShortcut(e)}
-											aria-label="Clear shortcut"
-										>
-											<X class="h-4 w-4" />
-										</button>
-									</Tooltip.Trigger>
-									<Tooltip.Content side="top" class="z-50">
-										<p>Clear shortcut</p>
-									</Tooltip.Content>
-								</Tooltip.Root>
-							</Tooltip.Provider>
-						{/if}
 					</div>
 
 					{#if isRecording}
@@ -327,15 +320,6 @@
 						</div>
 					{/if}
 				</button>
-				<Button
-					variant="outline"
-					class="w-full"
-					onclick={() => {
-						registerShortcutKey('');
-					}}
-				>
-					Clear
-				</Button>
 			</div>
 		</div>
 	</Popover.Content>
