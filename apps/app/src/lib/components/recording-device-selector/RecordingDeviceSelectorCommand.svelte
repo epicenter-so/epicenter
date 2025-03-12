@@ -6,7 +6,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
-	import { combobox } from './SelectRecordingDeviceCombobox.svelte';
+	import { combobox } from './index';
 
 	const manualRecorder = getManualRecorderFromContext();
 	const { getMediaDevicesQuery } = useGetMediaDevices();
@@ -39,9 +39,10 @@
 						manualRecorder.closeRecordingSessionSilent();
 						settings.value = {
 							...settings.value,
-							'recording.selectedAudioInputDeviceId':
-								settings.value['recording.selectedAudioInputDeviceId'] ===
-								device.deviceId
+							'recording.navigator.selectedAudioInputDeviceId':
+								settings.value[
+									'recording.navigator.selectedAudioInputDeviceId'
+								] === device.deviceId
 									? null
 									: device.deviceId,
 						};
@@ -52,8 +53,9 @@
 					<CheckIcon
 						class={cn(
 							'h-4 w-4 flex-shrink-0 mx-2',
-							settings.value['recording.selectedAudioInputDeviceId'] !==
-								device.deviceId && 'text-transparent',
+							settings.value[
+								'recording.navigator.selectedAudioInputDeviceId'
+							] !== device.deviceId && 'text-transparent',
 						)}
 					/>
 					<div class="flex flex-col min-w-0">

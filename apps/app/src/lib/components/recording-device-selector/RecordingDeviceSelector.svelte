@@ -1,20 +1,15 @@
-<script module lang="ts">
-	import { useCombobox } from './useCombobox.svelte';
-
-	export const combobox = useCombobox();
-</script>
-
 <script lang="ts">
 	import * as Popover from '$lib/components/ui/popover';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { MicIcon } from 'lucide-svelte';
-	import SelectRecordingDeviceComboboxCommand from './SelectRecordingDeviceComboboxCommand.svelte';
-	import WhisperingButton from './WhisperingButton.svelte';
+	import { combobox } from './index';
+	import RecordingDeviceSelectorCommand from './RecordingDeviceSelectorCommand.svelte';
+	import WhisperingButton from '../WhisperingButton.svelte';
 
 	let { class: className }: { class?: string } = $props();
 
 	const isDeviceSelected = $derived(
-		!!settings.value['recording.selectedAudioInputDeviceId'],
+		!!settings.value['recording.navigator.selectedAudioInputDeviceId'],
 	);
 </script>
 
@@ -41,7 +36,6 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="w-80 max-w-xl p-0">
-		<SelectRecordingDeviceComboboxCommand
-		></SelectRecordingDeviceComboboxCommand>
+		<RecordingDeviceSelectorCommand></RecordingDeviceSelectorCommand>
 	</Popover.Content>
 </Popover.Root>

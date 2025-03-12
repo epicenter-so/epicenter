@@ -2,13 +2,13 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';
 	import PersistSelectTransformationCombobox from './PersistSelectTransformationCombobox.svelte';
-	import SelectRecordingDeviceCombobox from './SelectRecordingDeviceCombobox.svelte';
+	import { RecordingDeviceSelector } from './recording-device-selector';
 
 	let { class: className }: { class?: string } = $props();
 </script>
 
 <div class={cn('flex items-center gap-1.5', className)}>
-	<SelectRecordingDeviceCombobox />
+	<RecordingDeviceSelector />
 	<PersistSelectTransformationCombobox
 		selectedTransformationId={settings.value[
 			'transformations.selectedTransformationId'

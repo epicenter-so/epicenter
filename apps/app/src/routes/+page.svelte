@@ -170,7 +170,7 @@
 			{:else if vadRecorder.vadState === 'SESSION+RECORDING' || vadRecorder.vadState === 'SESSION'}
 				<!-- Render nothing -->
 			{:else}
-				<RecordingControls></RecordingControls>
+				<RecordingControls />
 			{/if}
 		</div>
 	</div>
