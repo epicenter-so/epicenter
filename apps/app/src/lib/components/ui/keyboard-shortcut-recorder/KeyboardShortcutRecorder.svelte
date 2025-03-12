@@ -126,9 +126,11 @@
 				return isRecording;
 			},
 			onkeyup: (event: KeyboardEvent) => {
+				// Only process events when recording is active
+				if (!isRecording) return;
+
 				// This helps with cases where the user releases a key before pressing another
 				if (
-					isRecording &&
 					!event.ctrlKey &&
 					!event.metaKey &&
 					!event.altKey &&
@@ -142,6 +144,7 @@
 				}
 			},
 			onkeydown: (event: KeyboardEvent) => {
+				// Only process events when recording is active
 				if (!isRecording) return;
 
 				event.preventDefault();
@@ -226,6 +229,7 @@
 	let isPopoverOpen = $state(false);
 	let isRecording = $state(false);
 	let keysArray = $state<string[]>([]);
+	let shouldListenForKeyEvents = $state(false);
 
 	// Derived values
 	const displayValue = $derived(value ?? placeholder);
@@ -239,12 +243,21 @@
 		}
 	});
 
+	// Handle popover state changes
+	$effect(() => {
+		// When popover closes, stop recording
+		if (!isPopoverOpen && isRecording) {
+			keyRecorder.stopRecording();
+		}
+
+		// Only listen for key events when popover is open
+		shouldListenForKeyEvents = isPopoverOpen;
+	});
+
 	// Auto-focus effect
 	onMount(() => {
 		if (autoFocus) {
-			setTimeout(() => {
-				keyRecorder.startRecording();
-			}, 100); // Small delay to ensure the component is fully mounted
+			setTimeout(() => {}, 100); // Small delay to ensure the component is fully mounted
 		}
 	});
 
@@ -252,6 +265,11 @@
 		e.stopPropagation();
 		keyRecorder.stopRecording();
 		isPopoverOpen = false;
+	}
+
+	function handleRecordButtonClick(e: MouseEvent) {
+		e.stopPropagation();
+		keyRecorder.startRecording();
 	}
 
 	const keyRecorder = createKeyRecorder({
@@ -268,12 +286,22 @@
 	$effect(() => {
 		keysArray = keyRecorder.keys.value;
 	});
+
+	// Handle keyboard events conditionally
+	function handleKeyDown(event: KeyboardEvent) {
+		if (shouldListenForKeyEvents) {
+			keyRecorder.onkeydown(event);
+		}
+	}
+
+	function handleKeyUp(event: KeyboardEvent) {
+		if (shouldListenForKeyEvents) {
+			keyRecorder.onkeyup(event);
+		}
+	}
 </script>
 
-<svelte:window
-	onkeydown={keyRecorder.onkeydown}
-	onkeyup={keyRecorder.onkeyup}
-/>
+<svelte:window onkeydown={handleKeyDown} onkeyup={handleKeyUp} />
 
 <Popover.Root bind:open={isPopoverOpen}>
 	<Popover.Trigger
@@ -323,7 +351,7 @@
 						isRecording && 'ring-2 ring-ring ring-offset-2',
 						className,
 					)}
-					onclick={keyRecorder.startRecording}
+					onclick={handleRecordButtonClick}
 					tabindex="0"
 					aria-label={isRecording
 						? 'Recording keyboard shortcut'
