@@ -54,7 +54,7 @@
 				};
 				toast.success({
 					title: `Local shortcut set to ${shortcutKey}`,
-					description: `Press the shortcut to ${command.description}`,
+					description: `Press the shortcut to trigger "${command.description}"`,
 				});
 				popoverOpen = false;
 			},
@@ -96,7 +96,7 @@
 				};
 				toast.success({
 					title: `Global shortcut set to ${shortcutKey}`,
-					description: `Press the shortcut to ${command.description}`,
+					description: `Press the shortcut to trigger "${command.description}"`,
 				});
 				popoverOpen = false;
 			},

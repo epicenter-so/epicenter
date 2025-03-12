@@ -1,23 +1,23 @@
 export const commands = [
 	{
 		id: 'toggleManualRecording',
-		description: 'toggle manual recording',
+		description: 'Toggle manual recording',
 		defaultLocalShortcut: 'space',
 	},
 	{
 		id: 'cancelManualRecording',
-		description: 'cancel manual recording',
+		description: 'Cancel manual recording',
 		defaultLocalShortcut: 'c',
 	},
 	{
 		id: 'closeManualRecordingSession',
-		description: 'close manual recording session',
+		description: 'Close manual recording session',
 		defaultLocalShortcut: 'shift+c',
 	},
-	{ id: 'pushToTalk', description: 'push to talk', defaultLocalShortcut: 'p' },
+	{ id: 'pushToTalk', description: 'Push to talk', defaultLocalShortcut: 'p' },
 	{
 		id: 'toggleVadRecording',
-		description: 'toggle vad recording',
+		description: 'Toggle vad recording',
 		defaultLocalShortcut: 'v',
 	},
 ] as const;
