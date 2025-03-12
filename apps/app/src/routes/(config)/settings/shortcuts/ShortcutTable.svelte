@@ -8,11 +8,11 @@
 	const {
 		getShortcutKeyForCommand,
 		getDefaultShortcutForCommand,
-		registerShortcut,
+		registerShortcutKeyAndUpdateSettings,
 	} = $props<{
 		getShortcutKeyForCommand: (command: Command) => string;
 		getDefaultShortcutForCommand: (command: Command) => string;
-		registerShortcut: ({
+		registerShortcutKeyAndUpdateSettings: ({
 			command,
 			shortcutKey,
 		}: {
@@ -58,7 +58,7 @@
 					{command}
 					{getShortcutKeyForCommand}
 					{getDefaultShortcutForCommand}
-					{registerShortcut}
+					{registerShortcutKeyAndUpdateSettings}
 				/>
 			{/each}
 		</Table.Body>

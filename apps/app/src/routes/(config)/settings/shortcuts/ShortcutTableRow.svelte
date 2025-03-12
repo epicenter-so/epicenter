@@ -7,12 +7,12 @@
 		command,
 		getShortcutKeyForCommand,
 		getDefaultShortcutForCommand,
-		registerShortcut,
+		registerShortcutKeyAndUpdateSettings,
 	} = $props<{
 		command: Command;
 		getShortcutKeyForCommand: (command: Command) => string;
 		getDefaultShortcutForCommand: (command: Command) => string;
-		registerShortcut: ({
+		registerShortcutKeyAndUpdateSettings: ({
 			command,
 			shortcutKey,
 		}: {
@@ -22,13 +22,6 @@
 	}>();
 
 	const shortcutKey = $derived(getShortcutKeyForCommand(command));
-
-	function registerShortcutKey(shortcutKey: string) {
-		registerShortcut({
-			command,
-			shortcutKey,
-		});
-	}
 </script>
 
 <Table.Row>
@@ -38,7 +31,12 @@
 		<KeyboardShortcutRecorder
 			title={command.description}
 			value={shortcutKey}
-			onValueChange={registerShortcutKey}
+			onValueChange={(shortcutKey: string) => {
+				registerShortcutKeyAndUpdateSettings({
+					command,
+					shortcutKey,
+				});
+			}}
 			placeholder={`e.g. ${getDefaultShortcutForCommand(command)}`}
 			autoFocus
 		/>

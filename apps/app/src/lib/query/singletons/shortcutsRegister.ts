@@ -6,7 +6,7 @@ import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';
 
-type RegisterShortcutJob = Promise<void>;
+type registerShortcutKeyAndUpdateSettingsJob = Promise<void>;
 
 export const initShortcutsRegisterInContext = ({
 	commandCallbacks,
@@ -28,7 +28,7 @@ export const getShortcutsRegisterFromContext = () => {
 function createShortcutsRegister({
 	commandCallbacks,
 }: { commandCallbacks: CommandCallbacks }) {
-	const jobQueue = createJobQueue<RegisterShortcutJob>();
+	const jobQueue = createJobQueue<registerShortcutKeyAndUpdateSettingsJob>();
 
 	return {
 		registerCommandLocally: ({

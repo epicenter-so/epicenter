@@ -57,7 +57,7 @@
 						settings.value[`shortcuts.local.${command.id}`]}
 					getDefaultShortcutForCommand={(command) =>
 						command.defaultLocalShortcut}
-					registerShortcut={({ command, shortcutKey }) => {
+					registerShortcutKeyAndUpdateSettings={({ command, shortcutKey }) => {
 						const currentCommandKey =
 							settings.value[`shortcuts.local.${command.id}`];
 						const unregisterOldCommandLocallyResult = trySync({
@@ -120,7 +120,7 @@
 							settings.value[`shortcuts.global.${command.id}`]}
 						getDefaultShortcutForCommand={(command) =>
 							command.defaultGlobalShortcut}
-						registerShortcut={async ({ command, shortcutKey, }) => {
+						registerShortcutKeyAndUpdateSettings={async ({ command, shortcutKey, }) => {
 							const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 							const unregisterOldShortcutKeyResult = await tryAsync({
 								try: async () => {
