@@ -80,7 +80,13 @@
 		Slash: '/',
 	};
 
-	function createKeyRecorder({ onEscape }: { onEscape?: () => void }) {
+	function createKeyRecorder({
+		onKeysRecorded,
+		onEscape,
+	}: {
+		onKeysRecorded: (keys: string[]) => void;
+		onEscape?: () => void;
+	}) {
 		/** Internal state keeping track of the keys pressed as an array */
 		let keys = $state<string[]>([]);
 
@@ -123,6 +129,7 @@
 			if (isJustModifiers) return;
 
 			keys = [...modifiers, mainKey];
+			onKeysRecorded(keys);
 			stopListening();
 		};
 
@@ -176,26 +183,14 @@
 
 	let isPopoverOpen = $state(false);
 
-	function handleCancelClick(e: MouseEvent) {
-		e.stopPropagation();
-		keyRecorder.stopListening();
-		isPopoverOpen = false;
-	}
-
-	function handleRecordButtonClick(e: MouseEvent) {
-		e.stopPropagation();
-		keyRecorder.startListening();
-	}
-
 	const keyRecorder = createKeyRecorder({
+		onKeysRecorded: (keys) => {
+			onValueChange(keys.join('+'));
+			isPopoverOpen = false;
+		},
 		onEscape: () => {
 			isPopoverOpen = false;
 		},
-	});
-
-	$effect(() => {
-		const newValue = keyRecorder.keys.join('+');
-		if (newValue !== value) onValueChange(newValue);
 	});
 </script>
 
@@ -257,7 +252,10 @@
 						keyRecorder.isListening && 'ring-2 ring-ring ring-offset-2',
 						className,
 					)}
-					onclick={handleRecordButtonClick}
+					onclick={(e) => {
+						e.stopPropagation();
+						keyRecorder.startListening();
+					}}
 					tabindex="0"
 					aria-label={keyRecorder.isListening
 						? 'Recording keyboard shortcut'
@@ -292,15 +290,6 @@
 								<p class="text-sm font-medium">Press key combination</p>
 								<p class="text-xs text-muted-foreground">Esc to cancel</p>
 							</div>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="absolute right-2 top-1/2 -translate-y-1/2"
-								onclick={(e) => handleCancelClick(e)}
-								aria-label="Cancel recording"
-							>
-								Cancel
-							</Button>
 						</div>
 					{/if}
 				</button>
