@@ -152,6 +152,7 @@
 			stopListening,
 			clear() {
 				keys = [];
+				onKeysRecorded([]);
 				stopListening();
 			},
 		};
