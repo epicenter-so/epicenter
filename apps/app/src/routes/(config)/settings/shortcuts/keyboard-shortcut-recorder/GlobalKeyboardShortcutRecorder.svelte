@@ -138,7 +138,7 @@
 
 			return [...modifiers, mainKey].join('+');
 		},
-		onKeyCombinationRecorded: async (keyCombination) => {
+		handleKeyCombinationRecorded: async (keyCombination) => {
 			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 			if (oldShortcutKey) {
 				const unregisterOldShortcutKeyResult = await tryAsync({
@@ -162,7 +162,6 @@
 				}
 			}
 
-			if (!keyCombination) return;
 			const result = await shortcutsRegister.registerCommandGlobally({
 				command,
 				keyCombination,
@@ -179,6 +178,13 @@
 					description: `Press the shortcut to trigger "${command.title}"`,
 				});
 			}
+			isPopoverOpen = false;
+		},
+		onClear: () => {
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: null,
+			};
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

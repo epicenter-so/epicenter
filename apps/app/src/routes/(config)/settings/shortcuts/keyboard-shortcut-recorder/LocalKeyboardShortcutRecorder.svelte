@@ -136,7 +136,7 @@
 
 			return [...modifiers, mainKey].join('+');
 		},
-		onKeyCombinationRecorded: (keyCombination) => {
+		handleKeyCombinationRecorded: (keyCombination) => {
 			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
 			if (currentCommandKey) {
 				const unregisterOldCommandLocallyResult = trySync({
@@ -154,7 +154,6 @@
 				}
 			}
 
-			if (!keyCombination) return;
 			const result = shortcutsRegister.registerCommandLocally({
 				command,
 				keyCombination,
@@ -171,6 +170,13 @@
 					description: `Press the shortcut to trigger "${command.title}"`,
 				});
 			}
+			isPopoverOpen = false;
+		},
+		onClear: () => {
+			settings.value = {
+				...settings.value,
+				[`shortcuts.local.${command.id}`]: null,
+			};
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

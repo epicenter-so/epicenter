@@ -1,20 +1,19 @@
-export { default as LocalShortcutTable } from './LocalShortcutTable.svelte';
 export { default as GlobalShortcutTable } from './GlobalShortcutTable.svelte';
+export { default as LocalShortcutTable } from './LocalShortcutTable.svelte';
 
-export type KeyCombination = string | null;
+export type KeyCombination = string;
 
 export function createKeyRecorder({
 	mapKeyboardEventToKeyCombination,
-	onKeyCombinationRecorded,
+	handleKeyCombinationRecorded,
+	onClear,
 	onEscape,
 }: {
 	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
-	onKeyCombinationRecorded: (keyCombination: KeyCombination) => void;
+	handleKeyCombinationRecorded: (keyCombination: KeyCombination) => void;
+	onClear: () => void;
 	onEscape?: () => void;
 }) {
-	/** Internal state keeping track of the keys pressed as a string */
-	let keyCombination = $state<KeyCombination>(null);
-
 	let isListening = $state(false);
 
 	const startListening = () => {
@@ -40,8 +39,7 @@ export function createKeyRecorder({
 		const maybeValidKeyCombination = mapKeyboardEventToKeyCombination(event);
 		if (!maybeValidKeyCombination) return;
 
-		keyCombination = maybeValidKeyCombination;
-		onKeyCombinationRecorded(maybeValidKeyCombination);
+		handleKeyCombinationRecorded(maybeValidKeyCombination);
 		stopListening();
 	};
 
@@ -51,17 +49,13 @@ export function createKeyRecorder({
 	});
 
 	return {
-		get keyCombination() {
-			return keyCombination;
-		},
 		get isListening() {
 			return isListening;
 		},
 		startListening,
 		stopListening,
 		clear() {
-			keyCombination = null;
-			onKeyCombinationRecorded(null);
+			onClear();
 			stopListening();
 		},
 	};
