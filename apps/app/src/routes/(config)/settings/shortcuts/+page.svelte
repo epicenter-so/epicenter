@@ -97,7 +97,7 @@
 							<p class="text-muted-foreground mb-8 max-w-md">
 								Global shortcuts allow you to use Whispering from any
 								application on your computer. This feature is only available in
-								the desktop app.
+								the desktop app or browser extension.
 							</p>
 							<a
 								href="/global-shortcut"
