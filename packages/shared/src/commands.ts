@@ -1,24 +1,33 @@
 export const commands = [
 	{
 		id: 'toggleManualRecording',
-		description: 'toggle manual recording',
+		title: 'Toggle manual recording',
 		defaultLocalShortcut: 'space',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
 	},
 	{
 		id: 'cancelManualRecording',
-		description: 'cancel manual recording',
+		title: 'Cancel manual recording',
 		defaultLocalShortcut: 'c',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+}',
 	},
 	{
 		id: 'closeManualRecordingSession',
-		description: 'close manual recording session',
+		title: 'Close manual recording session',
 		defaultLocalShortcut: 'shift+c',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+\\',
 	},
-	{ id: 'pushToTalk', description: 'push to talk', defaultLocalShortcut: 'p' },
+	{
+		id: 'pushToTalk',
+		title: 'Push to talk',
+		defaultLocalShortcut: 'p',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+;',
+	},
 	{
 		id: 'toggleVadRecording',
-		description: 'toggle vad recording',
+		title: 'Toggle vad recording',
 		defaultLocalShortcut: 'v',
+		defaultGlobalShortcut: "CommandOrControl+Shift+'",
 	},
 ] as const;
 
