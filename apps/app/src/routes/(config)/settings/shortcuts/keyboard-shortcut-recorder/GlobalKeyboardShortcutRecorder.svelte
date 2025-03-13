@@ -157,7 +157,7 @@
 			}
 			isPopoverOpen = false;
 		},
-		unregisterOldCommand: async () => {
+		unregisterOldKeyCombination: async () => {
 			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 			if (oldShortcutKey) {
 				const unregisterOldShortcutKeyResult = await tryAsync({

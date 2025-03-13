@@ -6,13 +6,13 @@ export type KeyCombination = string;
 export function createKeyRecorder({
 	mapKeyboardEventToKeyCombination,
 	registerKeyCombination,
-	unregisterOldCommand,
+	unregisterOldKeyCombination,
 	clearKeyCombination,
 	onEscape,
 }: {
 	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
 	registerKeyCombination: (keyCombination: KeyCombination) => void;
-	unregisterOldCommand: () => void;
+	unregisterOldKeyCombination: () => void;
 	clearKeyCombination: () => void;
 	onEscape?: () => void;
 }) {
@@ -41,7 +41,7 @@ export function createKeyRecorder({
 		const maybeValidKeyCombination = mapKeyboardEventToKeyCombination(event);
 		if (!maybeValidKeyCombination) return;
 
-		unregisterOldCommand();
+		unregisterOldKeyCombination();
 		registerKeyCombination(maybeValidKeyCombination);
 		stopListening();
 	};
@@ -58,7 +58,7 @@ export function createKeyRecorder({
 		startListening,
 		stopListening,
 		clear() {
-			unregisterOldCommand();
+			unregisterOldKeyCombination();
 			clearKeyCombination();
 			stopListening();
 		},

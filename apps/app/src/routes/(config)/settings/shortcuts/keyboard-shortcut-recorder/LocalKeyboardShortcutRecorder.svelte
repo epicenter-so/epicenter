@@ -136,10 +136,10 @@
 
 			return [...modifiers, mainKey].join('+');
 		},
-		unregisterOldCommand: () => {
+		unregisterOldKeyCombination: () => {
 			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
 			if (currentCommandKey) {
-				const unregisterOldCommandLocallyResult = trySync({
+				const unregisterOldKeyCombinationLocallyResult = trySync({
 					try: () => hotkeys.unbind(currentCommandKey),
 					mapErr: (error) =>
 						WhisperingErr({
@@ -149,8 +149,8 @@
 						}),
 				});
 
-				if (!unregisterOldCommandLocallyResult.ok) {
-					toast.error(unregisterOldCommandLocallyResult.error);
+				if (!unregisterOldKeyCombinationLocallyResult.ok) {
+					toast.error(unregisterOldKeyCombinationLocallyResult.error);
 				}
 			}
 		},
