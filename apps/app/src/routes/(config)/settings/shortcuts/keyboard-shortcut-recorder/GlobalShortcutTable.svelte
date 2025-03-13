@@ -52,7 +52,8 @@
 							{command}
 							keyCombination={settings.value[`shortcuts.global.${command.id}`]}
 							onKeyCombinationChange={async (keyCombination) => {
-															const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+								const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+								if (oldShortcutKey) {
 							const unregisterOldShortcutKeyResult = await tryAsync({
 								try: async () => {
 				if (!window.__TAURI_INTERNALS__) return;
@@ -72,7 +73,9 @@
 		if (!unregisterOldShortcutKeyResult.ok) {
 			toast.error(unregisterOldShortcutKeyResult.error);
 		}
+	}
 
+		if (!keyCombination) return;
 		shortcutsRegister.registerCommandGlobally({
 			command,
 			keyCombination,

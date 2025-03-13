@@ -71,20 +71,26 @@ export const settingsV5Schema = z.object({
 	'apiKeys.google': z.string(),
 
 	...({
-		'shortcuts.local.toggleManualRecording': z.string(),
-		'shortcuts.local.cancelManualRecording': z.string(),
-		'shortcuts.local.closeManualRecordingSession': z.string(),
-		'shortcuts.local.toggleVadRecording': z.string(),
-		'shortcuts.local.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.local.${Command['id']}`, ZodString>),
+		'shortcuts.local.toggleManualRecording': z.string().nullable(),
+		'shortcuts.local.cancelManualRecording': z.string().nullable(),
+		'shortcuts.local.closeManualRecordingSession': z.string().nullable(),
+		'shortcuts.local.toggleVadRecording': z.string().nullable(),
+		'shortcuts.local.pushToTalk': z.string().nullable(),
+	} satisfies Record<
+		`shortcuts.local.${Command['id']}`,
+		z.ZodNullable<ZodString>
+	>),
 
 	...({
-		'shortcuts.global.toggleManualRecording': z.string(),
-		'shortcuts.global.cancelManualRecording': z.string(),
-		'shortcuts.global.closeManualRecordingSession': z.string(),
-		'shortcuts.global.toggleVadRecording': z.string(),
-		'shortcuts.global.pushToTalk': z.string(),
-	} satisfies Record<`shortcuts.global.${Command['id']}`, ZodString>),
+		'shortcuts.global.toggleManualRecording': z.string().nullable(),
+		'shortcuts.global.cancelManualRecording': z.string().nullable(),
+		'shortcuts.global.closeManualRecordingSession': z.string().nullable(),
+		'shortcuts.global.toggleVadRecording': z.string().nullable(),
+		'shortcuts.global.pushToTalk': z.string().nullable(),
+	} satisfies Record<
+		`shortcuts.global.${Command['id']}`,
+		z.ZodNullable<ZodString>
+	>),
 });
 
 export type SettingsV5 = z.infer<typeof settingsV5Schema>;

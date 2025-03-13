@@ -55,20 +55,23 @@
 							onKeyCombinationChange={async (keyCombination) => {
 								const currentCommandKey =
 									settings.value[`shortcuts.local.${command.id}`];
-								const unregisterOldCommandLocallyResult = trySync({
-									try: () => hotkeys.unbind(currentCommandKey),
-									mapErr: (error) =>
-										WhisperingErr({
-											title: `Error unregistering old command with id ${command.id} locally`,
-											description: 'Please try again.',
-											action: { type: 'more-details', error },
-										}),
-								});
+								if (currentCommandKey) {
+									const unregisterOldCommandLocallyResult = trySync({
+										try: () => hotkeys.unbind(currentCommandKey),
+										mapErr: (error) =>
+											WhisperingErr({
+												title: `Error unregistering old command with id ${command.id} locally`,
+												description: 'Please try again.',
+												action: { type: 'more-details', error },
+											}),
+									});
 
-								if (!unregisterOldCommandLocallyResult.ok) {
-									toast.error(unregisterOldCommandLocallyResult.error);
+									if (!unregisterOldCommandLocallyResult.ok) {
+										toast.error(unregisterOldCommandLocallyResult.error);
+									}
 								}
 
+								if (!keyCombination) return;
 								shortcutsRegister.registerCommandLocally({
 									command,
 									keyCombination,

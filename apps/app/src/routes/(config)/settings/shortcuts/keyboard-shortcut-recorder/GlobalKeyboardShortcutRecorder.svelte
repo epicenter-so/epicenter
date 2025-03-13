@@ -3,7 +3,7 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
 	import { XIcon } from 'lucide-svelte';
-	import { createKeyRecorder } from './index.svelte';
+	import { createKeyRecorder, type KeyCombination } from './index.svelte';
 	import type { Command } from '@repo/shared';
 
 	const {
@@ -14,8 +14,8 @@
 		autoFocus = false,
 	}: {
 		command: Command;
-		keyCombination: string;
-		onKeyCombinationChange: (keyCombination: string) => void;
+		keyCombination: KeyCombination;
+		onKeyCombinationChange: (keyCombination: KeyCombination) => void;
 		placeholder?: string;
 		autoFocus?: boolean;
 	} = $props();
