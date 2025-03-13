@@ -3,47 +3,42 @@ export { default as LocalShortcutTable } from './LocalShortcutTable.svelte';
 
 export type KeyCombination = string;
 
-export function createKeyRecorder({
-	mapKeyboardEventToKeyCombination,
-	registerKeyCombination,
-	unregisterOldKeyCombination,
-	clearKeyCombination,
-	onEscape,
-}: {
-	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
-	registerKeyCombination: (keyCombination: KeyCombination) => void;
-	unregisterOldKeyCombination: () => void;
-	clearKeyCombination: () => void;
-	onEscape?: () => void;
-}) {
+/**
+ * Creates a keyboard shortcut recorder with state management and event handling
+ */
+export function createKeyRecorder(
+	callbacks: {
+		onRegister: (keyCombination: KeyCombination) => void | Promise<void>;
+		onUnregister: () => void | Promise<void>;
+		onClear: () => void | Promise<void>;
+		onEscape?: () => void;
+		onPopoverClose?: () => void;
+	},
+	options: {
+		mapKeyboardEvent: (event: KeyboardEvent) => KeyCombination | null;
+	},
+) {
 	let isListening = $state(false);
 
-	const startListening = () => {
-		isListening = true;
-	};
-
-	const stopListening = () => {
-		isListening = false;
-	};
-
-	const handleKeyDown = (event: KeyboardEvent) => {
+	const handleKeyDown = async (event: KeyboardEvent) => {
 		if (!isListening) return;
 
 		event.preventDefault();
 		event.stopPropagation();
 
 		if (event.key === 'Escape') {
-			stopListening();
-			onEscape?.();
+			isListening = false;
+			callbacks.onEscape?.();
 			return;
 		}
 
-		const maybeValidKeyCombination = mapKeyboardEventToKeyCombination(event);
-		if (!maybeValidKeyCombination) return;
+		const keyCombination = options.mapKeyboardEvent(event);
+		if (!keyCombination) return;
 
-		unregisterOldKeyCombination();
-		registerKeyCombination(maybeValidKeyCombination);
-		stopListening();
+		isListening = false;
+
+		await callbacks.onUnregister();
+		await callbacks.onRegister(keyCombination);
 	};
 
 	$effect(() => {
@@ -55,12 +50,16 @@ export function createKeyRecorder({
 		get isListening() {
 			return isListening;
 		},
-		startListening,
-		stopListening,
-		clear() {
-			unregisterOldKeyCombination();
-			clearKeyCombination();
-			stopListening();
+		start() {
+			isListening = true;
+		},
+		stop() {
+			isListening = false;
+		},
+		async clear() {
+			isListening = false;
+			await callbacks.onUnregister();
+			await callbacks.onClear();
 		},
 	};
 }
