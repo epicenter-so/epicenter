@@ -47,10 +47,7 @@ export function createKeyRecorder({
 
 	$effect(() => {
 		window.addEventListener('keydown', handleKeyDown);
-
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
+		return () => window.removeEventListener('keydown', handleKeyDown);
 	});
 
 	return {
