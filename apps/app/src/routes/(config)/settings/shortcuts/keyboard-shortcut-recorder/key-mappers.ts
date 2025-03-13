@@ -4,7 +4,7 @@ import type { KeyCombination } from './index.svelte';
  * Creates a key mapper for local shortcuts (hotkeys-js format)
  */
 export function createLocalKeyMapper() {
-	// Key mapping for hotkeys-js
+	// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
 	const keyMap: Record<string, string> = {
 		// Modifier keys
 		Control: 'ctrl',
@@ -114,6 +114,7 @@ export function createLocalKeyMapper() {
  */
 export function createGlobalKeyMapper() {
 	// Key mapping for Tauri Global Shortcut
+	// https://v2.tauri.app/plugin/global-shortcut/
 	const keyMap: Record<string, string> = {
 		// Special keys
 		' ': 'Space',
