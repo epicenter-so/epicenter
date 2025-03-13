@@ -138,7 +138,7 @@
 	});
 
 	// Helper function to render key symbols
-	function renderKeySymbol(key: string) {
+	function renderKeySymbol(key: (typeof keyMap)[keyof typeof keyMap]) {
 		const renderKeyMap = {
 			ctrl: isAppleDevice ? '⌃' : 'Ctrl',
 			command: '⌘',
