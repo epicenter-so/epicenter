@@ -172,11 +172,32 @@
 			}
 			isPopoverOpen = false;
 		},
-		onClear: () => {
+		clearKeyCombination: () => {
+			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
+			if (currentCommandKey) {
+				const unregisterOldCommandLocallyResult = trySync({
+					try: () => hotkeys.unbind(currentCommandKey),
+					mapErr: (error) =>
+						WhisperingErr({
+							title: `Error unregistering old command with id ${command.id} locally`,
+							description: 'Please try again.',
+							action: { type: 'more-details', error },
+						}),
+				});
+
+				if (!unregisterOldCommandLocallyResult.ok) {
+					toast.error(unregisterOldCommandLocallyResult.error);
+				}
+			}
+
 			settings.value = {
 				...settings.value,
 				[`shortcuts.local.${command.id}`]: null,
 			};
+			toast.success({
+				title: 'Local shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

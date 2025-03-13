@@ -6,12 +6,12 @@ export type KeyCombination = string;
 export function createKeyRecorder({
 	mapKeyboardEventToKeyCombination,
 	handleKeyCombinationRecorded,
-	onClear,
+	clearKeyCombination,
 	onEscape,
 }: {
 	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
 	handleKeyCombinationRecorded: (keyCombination: KeyCombination) => void;
-	onClear: () => void;
+	clearKeyCombination: () => void;
 	onEscape?: () => void;
 }) {
 	let isListening = $state(false);
@@ -55,7 +55,7 @@ export function createKeyRecorder({
 		startListening,
 		stopListening,
 		clear() {
-			onClear();
+			clearKeyCombination();
 			stopListening();
 		},
 	};

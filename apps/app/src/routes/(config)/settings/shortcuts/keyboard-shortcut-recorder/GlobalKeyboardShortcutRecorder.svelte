@@ -180,11 +180,38 @@
 			}
 			isPopoverOpen = false;
 		},
-		onClear: () => {
+		clearKeyCombination: async () => {
+			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+			if (oldShortcutKey) {
+				const unregisterOldShortcutKeyResult = await tryAsync({
+					try: async () => {
+						if (!window.__TAURI_INTERNALS__) return;
+						const { unregister } = await import(
+							'@tauri-apps/plugin-global-shortcut'
+						);
+						return await unregister(oldShortcutKey);
+					},
+					mapErr: (error) =>
+						WhisperingErr({
+							title: `Error unregistering command with id ${command.id} globally`,
+							description: 'Please try again.',
+							action: { type: 'more-details', error },
+						}),
+				});
+
+				if (!unregisterOldShortcutKeyResult.ok) {
+					toast.error(unregisterOldShortcutKeyResult.error);
+				}
+			}
+
 			settings.value = {
 				...settings.value,
 				[`shortcuts.global.${command.id}`]: null,
 			};
+			toast.success({
+				title: 'Global shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
 			isPopoverOpen = false;
 		},
 		onEscape: () => {
