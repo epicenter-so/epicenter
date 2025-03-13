@@ -154,7 +154,7 @@
 				}
 			}
 		},
-		handleKeyCombinationRecorded: (keyCombination) => {
+		registerKeyCombination: (keyCombination) => {
 			const result = shortcutsRegister.registerCommandLocally({
 				command,
 				keyCombination,

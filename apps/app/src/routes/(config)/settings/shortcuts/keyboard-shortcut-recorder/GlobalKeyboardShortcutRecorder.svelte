@@ -138,7 +138,7 @@
 
 			return [...modifiers, mainKey].join('+');
 		},
-		handleKeyCombinationRecorded: async (keyCombination) => {
+		registerKeyCombination: async (keyCombination) => {
 			const result = await shortcutsRegister.registerCommandGlobally({
 				command,
 				keyCombination,
