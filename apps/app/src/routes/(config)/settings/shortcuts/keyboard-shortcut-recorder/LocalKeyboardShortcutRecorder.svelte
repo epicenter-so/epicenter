@@ -27,89 +27,89 @@
 		navigator.userAgent.toLowerCase(),
 	);
 
+	// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
+	const keyMap = {
+		// Modifier keys
+		Control: 'ctrl',
+		Meta: 'command',
+		Alt: 'alt',
+		Shift: 'shift',
+
+		// Special keys
+		' ': 'space',
+		ArrowUp: 'up',
+		ArrowDown: 'down',
+		ArrowLeft: 'left',
+		ArrowRight: 'right',
+		Escape: 'esc',
+		Enter: 'enter',
+		Return: 'return',
+		Backspace: 'backspace',
+		Tab: 'tab',
+		Delete: 'delete',
+		Home: 'home',
+		End: 'end',
+		PageUp: 'pageup',
+		PageDown: 'pagedown',
+		Insert: 'insert',
+		CapsLock: 'capslock',
+		Clear: 'clear',
+
+		// Function keys
+		F1: 'f1',
+		F2: 'f2',
+		F3: 'f3',
+		F4: 'f4',
+		F5: 'f5',
+		F6: 'f6',
+		F7: 'f7',
+		F8: 'f8',
+		F9: 'f9',
+		F10: 'f10',
+		F11: 'f11',
+		F12: 'f12',
+		F13: 'f13',
+		F14: 'f14',
+		F15: 'f15',
+		F16: 'f16',
+		F17: 'f17',
+		F18: 'f18',
+		F19: 'f19',
+
+		// Numpad keys
+		Numpad0: 'num_0',
+		Numpad1: 'num_1',
+		Numpad2: 'num_2',
+		Numpad3: 'num_3',
+		Numpad4: 'num_4',
+		Numpad5: 'num_5',
+		Numpad6: 'num_6',
+		Numpad7: 'num_7',
+		Numpad8: 'num_8',
+		Numpad9: 'num_9',
+		NumpadMultiply: 'num_multiply',
+		NumpadAdd: 'num_add',
+		NumpadEnter: 'num_enter',
+		NumpadSubtract: 'num_subtract',
+		NumpadDecimal: 'num_decimal',
+		NumpadDivide: 'num_divide',
+
+		// Additional common keys
+		Comma: 'comma',
+		Period: '.',
+		Semicolon: ';',
+		Quote: "'",
+		BracketLeft: '[',
+		BracketRight: ']',
+		Backquote: '`',
+		Backslash: '\\',
+		Minus: '-',
+		Equal: '=',
+		Slash: '/',
+	} as const;
+
 	const keyRecorder = createKeyRecorder({
 		mapKeyboardEventToKeyCombination: (event) => {
-			// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
-			const keyMap: Record<string, string> = {
-				// Modifier keys
-				Control: 'ctrl',
-				Meta: 'command',
-				Alt: 'alt',
-				Shift: 'shift',
-
-				// Special keys
-				' ': 'space',
-				ArrowUp: 'up',
-				ArrowDown: 'down',
-				ArrowLeft: 'left',
-				ArrowRight: 'right',
-				Escape: 'esc',
-				Enter: 'enter',
-				Return: 'return',
-				Backspace: 'backspace',
-				Tab: 'tab',
-				Delete: 'delete',
-				Home: 'home',
-				End: 'end',
-				PageUp: 'pageup',
-				PageDown: 'pagedown',
-				Insert: 'insert',
-				CapsLock: 'capslock',
-				Clear: 'clear',
-
-				// Function keys
-				F1: 'f1',
-				F2: 'f2',
-				F3: 'f3',
-				F4: 'f4',
-				F5: 'f5',
-				F6: 'f6',
-				F7: 'f7',
-				F8: 'f8',
-				F9: 'f9',
-				F10: 'f10',
-				F11: 'f11',
-				F12: 'f12',
-				F13: 'f13',
-				F14: 'f14',
-				F15: 'f15',
-				F16: 'f16',
-				F17: 'f17',
-				F18: 'f18',
-				F19: 'f19',
-
-				// Numpad keys
-				Numpad0: 'num_0',
-				Numpad1: 'num_1',
-				Numpad2: 'num_2',
-				Numpad3: 'num_3',
-				Numpad4: 'num_4',
-				Numpad5: 'num_5',
-				Numpad6: 'num_6',
-				Numpad7: 'num_7',
-				Numpad8: 'num_8',
-				Numpad9: 'num_9',
-				NumpadMultiply: 'num_multiply',
-				NumpadAdd: 'num_add',
-				NumpadEnter: 'num_enter',
-				NumpadSubtract: 'num_subtract',
-				NumpadDecimal: 'num_decimal',
-				NumpadDivide: 'num_divide',
-
-				// Additional common keys
-				Comma: 'comma',
-				Period: '.',
-				Semicolon: ';',
-				Quote: "'",
-				BracketLeft: '[',
-				BracketRight: ']',
-				Backquote: '`',
-				Backslash: '\\',
-				Minus: '-',
-				Equal: '=',
-				Slash: '/',
-			};
-
 			const modifiers: string[] = [];
 			if (event.ctrlKey) modifiers.push('ctrl');
 			if (event.metaKey) modifiers.push('command');
@@ -117,7 +117,7 @@
 			if (event.shiftKey) modifiers.push('shift');
 
 			const getMainKey = ({ key }: KeyboardEvent) => {
-				if (key in keyMap) return keyMap[key];
+				if (key in keyMap) return keyMap[key as keyof typeof keyMap];
 				if (key.length === 1) return key.toLowerCase();
 				return key;
 			};
@@ -139,21 +139,81 @@
 
 	// Helper function to render key symbols
 	function renderKeySymbol(key: string) {
-		if (key === 'ctrl') return isAppleDevice ? '⌃' : 'Ctrl';
-		if (key === 'command') return '⌘';
-		if (key === 'alt') return isAppleDevice ? '⌥' : 'Alt';
-		if (key === 'shift') return '⇧';
-		if (key === 'space') return '␣';
-		if (key === 'up') return '↑';
-		if (key === 'down') return '↓';
-		if (key === 'left') return '←';
-		if (key === 'right') return '→';
-		if (key === 'esc') return 'Esc';
-		if (key === 'enter' || key === 'return') return '↵';
-		if (key === 'backspace') return '⌫';
-		if (key === 'tab') return '⇥';
-		if (key === 'delete') return '⌦';
-		return key;
+		const renderKeyMap = {
+			ctrl: isAppleDevice ? '⌃' : 'Ctrl',
+			command: '⌘',
+			alt: isAppleDevice ? '⌥' : 'Alt',
+			shift: '⇧',
+			space: '␣',
+			up: '↑',
+			down: '↓',
+			left: '←',
+			right: '→',
+			esc: 'Esc',
+			enter: '↵',
+			return: '↵',
+			backspace: '⌫',
+			tab: '⇥',
+			delete: '⌦',
+			home: 'Home',
+			end: 'End',
+			pageup: 'PgUp',
+			pagedown: 'PgDn',
+			insert: 'Ins',
+			capslock: 'Caps',
+			clear: 'Clear',
+			// Function keys
+			f1: 'F1',
+			f2: 'F2',
+			f3: 'F3',
+			f4: 'F4',
+			f5: 'F5',
+			f6: 'F6',
+			f7: 'F7',
+			f8: 'F8',
+			f9: 'F9',
+			f10: 'F10',
+			f11: 'F11',
+			f12: 'F12',
+			f13: 'F13',
+			f14: 'F14',
+			f15: 'F15',
+			f16: 'F16',
+			f17: 'F17',
+			f18: 'F18',
+			f19: 'F19',
+			// Numpad keys
+			num_0: '0',
+			num_1: '1',
+			num_2: '2',
+			num_3: '3',
+			num_4: '4',
+			num_5: '5',
+			num_6: '6',
+			num_7: '7',
+			num_8: '8',
+			num_9: '9',
+			num_multiply: '×',
+			num_add: '+',
+			num_enter: '↵',
+			num_subtract: '-',
+			num_decimal: '.',
+			num_divide: '/',
+			// Additional common keys
+			comma: ',',
+			'.': '.',
+			';': ';',
+			"'": "'",
+			'[': '[',
+			']': ']',
+			'`': '`',
+			'\\': '\\',
+			'-': '-',
+			'=': '=',
+			'/': '/',
+		} satisfies Record<(typeof keyMap)[keyof typeof keyMap], string>;
+
+		return renderKeyMap[key] ?? key;
 	}
 </script>
 

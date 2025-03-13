@@ -141,6 +141,83 @@
 			isPopoverOpen = false;
 		},
 	});
+
+	// Helper function to render key symbols
+	function renderKeySymbol(key: string) {
+		const renderKeyMap = {
+			CommandOrControl: isAppleDevice ? '⌘' : 'Ctrl',
+			Alt: isAppleDevice ? '⌥' : 'Alt',
+			Shift: '⇧',
+			Space: '␣',
+			Up: '↑',
+			Down: '↓',
+			Left: '←',
+			Right: '→',
+			Escape: 'Esc',
+			Return: '↵',
+			Backspace: '⌫',
+			Tab: '⇥',
+			Delete: '⌦',
+			Home: 'Home',
+			End: 'End',
+			PageUp: 'PgUp',
+			PageDown: 'PgDn',
+			Insert: 'Ins',
+			CapsLock: 'Caps',
+			Clear: 'Clear',
+			// Function keys
+			F1: 'F1',
+			F2: 'F2',
+			F3: 'F3',
+			F4: 'F4',
+			F5: 'F5',
+			F6: 'F6',
+			F7: 'F7',
+			F8: 'F8',
+			F9: 'F9',
+			F10: 'F10',
+			F11: 'F11',
+			F12: 'F12',
+			F13: 'F13',
+			F14: 'F14',
+			F15: 'F15',
+			F16: 'F16',
+			F17: 'F17',
+			F18: 'F18',
+			F19: 'F19',
+			// Numpad keys
+			Numpad0: '0',
+			Numpad1: '1',
+			Numpad2: '2',
+			Numpad3: '3',
+			Numpad4: '4',
+			Numpad5: '5',
+			Numpad6: '6',
+			Numpad7: '7',
+			Numpad8: '8',
+			Numpad9: '9',
+			NumpadMultiply: '×',
+			NumpadAdd: '+',
+			NumpadEnter: '↵',
+			NumpadSubtract: '-',
+			NumpadDecimal: '.',
+			NumpadDivide: '/',
+			// Additional common keys
+			',': ',',
+			'.': '.',
+			';': ';',
+			"'": "'",
+			'[': '[',
+			']': ']',
+			'`': '`',
+			'\\': '\\',
+			'-': '-',
+			'=': '=',
+			'/': '/',
+		} as Record<string, string>;
+
+		return renderKeyMap[key] ?? key;
+	}
 </script>
 
 <Popover.Root
@@ -161,15 +238,7 @@
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
-					{#if key === 'CommandOrControl'}
-						{isAppleDevice ? '⌘' : 'Ctrl'}
-					{:else if key === 'Alt'}
-						{isAppleDevice ? '⌥' : 'Alt'}
-					{:else if key === 'Shift'}
-						⇧
-					{:else}
-						{key}
-					{/if}
+					{renderKeySymbol(key)}
 				</kbd>
 			{/each}
 			<WhisperingButton
@@ -226,15 +295,7 @@
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
-										{#if key === 'CommandOrControl'}
-											{isAppleDevice ? '⌘' : 'Ctrl'}
-										{:else if key === 'Alt'}
-											{isAppleDevice ? '⌥' : 'Alt'}
-										{:else if key === 'Shift'}
-											⇧
-										{:else}
-											{key}
-										{/if}
+										{renderKeySymbol(key)}
 									</kbd>
 								{/each}
 							{:else}
