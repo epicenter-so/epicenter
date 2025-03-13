@@ -1,12 +1,10 @@
 import { createJobQueue } from '$lib/utils/createJobQueue';
 import { tryAsync, trySync } from '@epicenterhq/result';
-import { WhisperingErr, type WhisperingErrProperties } from '@repo/shared';
 import type { Command } from '@repo/shared';
+import { WhisperingErr } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';
-
-type registerShortcutKeyAndUpdateSettingsJob = Promise<void>;
 
 export const initShortcutsRegisterInContext = ({
 	commandCallbacks,
@@ -28,19 +26,13 @@ export const getShortcutsRegisterFromContext = () => {
 function createShortcutsRegister({
 	commandCallbacks,
 }: { commandCallbacks: CommandCallbacks }) {
-	const jobQueue = createJobQueue<registerShortcutKeyAndUpdateSettingsJob>();
-
 	return {
 		registerCommandLocally: ({
 			command,
 			keyCombination,
-			onSuccess,
-			onError,
 		}: {
 			command: Command;
 			keyCombination: string;
-			onSuccess: () => void;
-			onError: (error: WhisperingErrProperties) => void;
 		}) => {
 			const registerNewCommandLocallyResult = trySync({
 				try: () =>
@@ -57,57 +49,36 @@ function createShortcutsRegister({
 						action: { type: 'more-details', error },
 					}),
 			});
-			if (!registerNewCommandLocallyResult.ok) {
-				onError(registerNewCommandLocallyResult.error);
-			} else {
-				onSuccess();
-			}
+			return registerNewCommandLocallyResult;
 		},
-		registerCommandGlobally: ({
+		registerCommandGlobally: async ({
 			command,
 			keyCombination,
-			onSuccess,
-			onError,
 		}: {
 			command: Command;
 			keyCombination: string;
-			onSuccess: () => void;
-			onError: (error: WhisperingErrProperties) => void;
 		}) => {
-			const job = async () => {
-				const registerNewShortcutKeyResult = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { register } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await register(keyCombination, (event) => {
-							if (event.state === 'Pressed') {
-								commandCallbacks[command.id]();
-							}
-						});
-					},
-					mapErr: (error) =>
-						WhisperingErr({
-							title: 'Error registering global shortcut.',
-							description:
-								'Please make sure it is a valid Electron keyboard shortcut.',
-							action: { type: 'more-details', error },
-						}),
-				});
-				if (!registerNewShortcutKeyResult.ok)
-					return registerNewShortcutKeyResult;
-				return registerNewShortcutKeyResult;
-			};
-
-			jobQueue.addJobToQueue(async () => {
-				const result = await job();
-				if (result.ok) {
-					onSuccess();
-				} else {
-					onError(result.error);
-				}
+			const registerNewShortcutKeyResult = await tryAsync({
+				try: async () => {
+					if (!window.__TAURI_INTERNALS__) return;
+					const { register } = await import(
+						'@tauri-apps/plugin-global-shortcut'
+					);
+					return await register(keyCombination, (event) => {
+						if (event.state === 'Pressed') {
+							commandCallbacks[command.id]();
+						}
+					});
+				},
+				mapErr: (error) =>
+					WhisperingErr({
+						title: 'Error registering global shortcut.',
+						description:
+							'Please make sure it is a valid Electron keyboard shortcut.',
+						action: { type: 'more-details', error },
+					}),
 			});
+			return registerNewShortcutKeyResult;
 		},
 	};
 }

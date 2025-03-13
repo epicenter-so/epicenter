@@ -163,24 +163,22 @@
 			}
 
 			if (!keyCombination) return;
-			shortcutsRegister.registerCommandGlobally({
+			const result = await shortcutsRegister.registerCommandGlobally({
 				command,
 				keyCombination,
-				onSuccess: () => {
-					settings.value = {
-						...settings.value,
-						[`shortcuts.global.${command.id}`]: keyCombination,
-					};
-					toast.success({
-						title: `Global shortcut set to ${keyCombination}`,
-						description: `Press the shortcut to trigger "${command.title}"`,
-					});
-				},
-				onError: (error) => {
-					toast.error(error);
-				},
 			});
-
+			if (!result.ok) {
+				toast.error(result.error);
+			} else {
+				settings.value = {
+					...settings.value,
+					[`shortcuts.global.${command.id}`]: keyCombination,
+				};
+				toast.success({
+					title: `Global shortcut set to ${keyCombination}`,
+					description: `Press the shortcut to trigger "${command.title}"`,
+				});
+			}
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

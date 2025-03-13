@@ -8,23 +8,20 @@ export function bindKeyboardShortcutsOnLoad() {
 
 	onMount(async () => {
 		for (const command of commands) {
-			shortcutsRegister.registerCommandLocally({
-				command,
-				keyCombination: settings.value[`shortcuts.local.${command.id}`],
-				onSuccess: () => {},
-				onError: () => {},
-			});
+			const keyCombination = settings.value[`shortcuts.local.${command.id}`];
+			if (!keyCombination) continue;
+			shortcutsRegister.registerCommandLocally({ command, keyCombination });
 		}
 
 		await Promise.all(
-			commands.map((command) =>
-				shortcutsRegister.registerCommandGlobally({
+			commands.map((command) => {
+				const keyCombination = settings.value[`shortcuts.global.${command.id}`];
+				if (!keyCombination) return;
+				return shortcutsRegister.registerCommandGlobally({
 					command,
-					keyCombination: settings.value[`shortcuts.global.${command.id}`],
-					onSuccess: () => {},
-					onError: () => {},
-				}),
-			),
+					keyCombination,
+				});
+			}),
 		);
 	});
 }

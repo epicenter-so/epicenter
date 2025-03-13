@@ -155,23 +155,22 @@
 			}
 
 			if (!keyCombination) return;
-			shortcutsRegister.registerCommandLocally({
+			const result = shortcutsRegister.registerCommandLocally({
 				command,
 				keyCombination,
-				onSuccess: () => {
-					settings.value = {
-						...settings.value,
-						[`shortcuts.local.${command.id}`]: keyCombination,
-					};
-					toast.success({
-						title: `Local shortcut set to ${keyCombination}`,
-						description: `Press the shortcut to trigger "${command.title}"`,
-					});
-				},
-				onError: (error) => {
-					toast.error(error);
-				},
 			});
+			if (!result.ok) {
+				toast.error(result.error);
+			} else {
+				settings.value = {
+					...settings.value,
+					[`shortcuts.local.${command.id}`]: keyCombination,
+				};
+				toast.success({
+					title: `Local shortcut set to ${keyCombination}`,
+					description: `Press the shortcut to trigger "${command.title}"`,
+				});
+			}
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

@@ -9,7 +9,7 @@ export function createKeyRecorder({
 	onEscape,
 }: {
 	mapKeyboardEventToKeyCombination: (event: KeyboardEvent) => string | null;
-	onKeyCombinationRecorded: (keyCombination: string) => void;
+	onKeyCombinationRecorded: (keyCombination: KeyCombination) => void;
 	onEscape?: () => void;
 }) {
 	/** Internal state keeping track of the keys pressed as a string */
