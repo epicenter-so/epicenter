@@ -1,113 +1,6 @@
 import type { KeyCombination } from './index.svelte';
 
 /**
- * Shared key mapping utilities
- */
-export const keyUtils = {
-	isAppleDevice: /macintosh|mac os x|iphone|ipad|ipod/i.test(
-		navigator.userAgent.toLowerCase(),
-	),
-
-	// Check if a key is a modifier key
-	isModifierKey(key: string): boolean {
-		return [
-			'CommandOrControl',
-			'Control',
-			'Meta',
-			'Command',
-			'Alt',
-			'Shift',
-			'ctrl',
-			'command',
-			'alt',
-			'shift',
-		].includes(key);
-	},
-
-	/**
-	 * Renders a key symbol with platform-specific symbols
-	 */
-	renderKeySymbol(key: string): string {
-		const isApple = keyUtils.isAppleDevice;
-
-		const symbolMap: Record<string, string> = {
-			// Modifier keys
-			ctrl: isApple ? '⌃' : 'Ctrl',
-			CommandOrControl: isApple ? '⌘' : 'Ctrl',
-			command: '⌘',
-			alt: isApple ? '⌥' : 'Alt',
-			Alt: isApple ? '⌥' : 'Alt',
-			shift: '⇧',
-			Shift: '⇧',
-
-			// Special keys
-			space: '␣',
-			Space: '␣',
-			up: '↑',
-			Up: '↑',
-			down: '↓',
-			Down: '↓',
-			left: '←',
-			Left: '←',
-			right: '→',
-			Right: '→',
-			esc: 'Esc',
-			Escape: 'Esc',
-			enter: '↵',
-			Return: '↵',
-			return: '↵',
-			backspace: '⌫',
-			Backspace: '⌫',
-			tab: '⇥',
-			Tab: '⇥',
-			delete: '⌦',
-			Delete: '⌦',
-
-			// Navigation keys
-			home: 'Home',
-			Home: 'Home',
-			end: 'End',
-			End: 'End',
-			pageup: 'PgUp',
-			PageUp: 'PgUp',
-			pagedown: 'PgDn',
-			PageDown: 'PgDn',
-
-			// Other special keys
-			insert: 'Ins',
-			Insert: 'Ins',
-			capslock: 'Caps',
-			CapsLock: 'Caps',
-			clear: 'Clear',
-			Clear: 'Clear',
-		};
-
-		// Handle function keys
-		if (/^f\d+$/i.test(key)) {
-			return key.toUpperCase();
-		}
-
-		// Handle numpad keys
-		if (key.startsWith('num_') || key.startsWith('Numpad')) {
-			const numKey = key.replace(/^(num_|Numpad)/, '');
-
-			const numpadSymbols: Record<string, string> = {
-				multiply: '×',
-				add: '+',
-				enter: '↵',
-				subtract: '-',
-				decimal: '.',
-				divide: '/',
-			};
-
-			return numpadSymbols[numKey] || numKey;
-		}
-
-		return symbolMap[key] || key;
-	},
-};
-
-/**
  * Creates a key mapper for local shortcuts (hotkeys-js format)
  */
 export function createLocalKeyMapper() {
@@ -316,9 +209,24 @@ export function createGlobalKeyMapper() {
 			const mainKey = getMainKey(event);
 
 			// Don't allow modifier-only shortcuts
-			if (keyUtils.isModifierKey(mainKey)) return null;
+			if (isModifierKey(mainKey)) return null;
 
 			return [...modifiers, mainKey].join('+');
 		},
 	};
+}
+
+function isModifierKey(key: string): boolean {
+	return [
+		'CommandOrControl',
+		'Control',
+		'Meta',
+		'Command',
+		'Alt',
+		'Shift',
+		'ctrl',
+		'command',
+		'alt',
+		'shift',
+	].includes(key);
 }

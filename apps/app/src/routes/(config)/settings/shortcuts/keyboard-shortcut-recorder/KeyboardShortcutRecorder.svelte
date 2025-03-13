@@ -4,7 +4,6 @@
 	import { cn } from '$lib/utils';
 	import type { Command } from '@repo/shared';
 	import { XIcon } from 'lucide-svelte';
-	import { keyUtils } from './key-mappers';
 
 	const {
 		command,
@@ -27,6 +26,90 @@
 	} = $props();
 
 	let isPopoverOpen = $state(false);
+
+	/**
+	 * Renders a key symbol with platform-specific symbols
+	 */
+	function renderKeySymbol(key: string): string {
+		const isAppleDevice = /macintosh|mac os x|iphone|ipad|ipod/i.test(
+			navigator.userAgent.toLowerCase(),
+		);
+
+		const symbolMap: Record<string, string> = {
+			// Modifier keys
+			ctrl: isAppleDevice ? '⌃' : 'Ctrl',
+			CommandOrControl: isAppleDevice ? '⌘' : 'Ctrl',
+			command: '⌘',
+			alt: isAppleDevice ? '⌥' : 'Alt',
+			Alt: isAppleDevice ? '⌥' : 'Alt',
+			shift: '⇧',
+			Shift: '⇧',
+
+			// Special keys
+			space: '␣',
+			Space: '␣',
+			up: '↑',
+			Up: '↑',
+			down: '↓',
+			Down: '↓',
+			left: '←',
+			Left: '←',
+			right: '→',
+			Right: '→',
+			esc: 'Esc',
+			Escape: 'Esc',
+			enter: '↵',
+			Return: '↵',
+			return: '↵',
+			backspace: '⌫',
+			Backspace: '⌫',
+			tab: '⇥',
+			Tab: '⇥',
+			delete: '⌦',
+			Delete: '⌦',
+
+			// Navigation keys
+			home: 'Home',
+			Home: 'Home',
+			end: 'End',
+			End: 'End',
+			pageup: 'PgUp',
+			PageUp: 'PgUp',
+			pagedown: 'PgDn',
+			PageDown: 'PgDn',
+
+			// Other special keys
+			insert: 'Ins',
+			Insert: 'Ins',
+			capslock: 'Caps',
+			CapsLock: 'Caps',
+			clear: 'Clear',
+			Clear: 'Clear',
+		};
+
+		// Handle function keys
+		if (/^f\d+$/i.test(key)) {
+			return key.toUpperCase();
+		}
+
+		// Handle numpad keys
+		if (key.startsWith('num_') || key.startsWith('Numpad')) {
+			const numKey = key.replace(/^(num_|Numpad)/, '');
+
+			const numpadSymbols: Record<string, string> = {
+				multiply: '×',
+				add: '+',
+				enter: '↵',
+				subtract: '-',
+				decimal: '.',
+				divide: '/',
+			};
+
+			return numpadSymbols[numKey] || numKey;
+		}
+
+		return symbolMap[key] || key;
+	}
 </script>
 
 <Popover.Root
@@ -47,7 +130,7 @@
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
-					{keyUtils.renderKeySymbol(key)}
+					{renderKeySymbol(key)}
 				</kbd>
 			{/each}
 			<WhisperingButton
@@ -104,7 +187,7 @@
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
-										{keyUtils.renderKeySymbol(key)}
+										{renderKeySymbol(key)}
 									</kbd>
 								{/each}
 							{:else}
