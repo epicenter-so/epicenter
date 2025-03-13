@@ -139,29 +139,6 @@
 			return [...modifiers, mainKey].join('+');
 		},
 		handleKeyCombinationRecorded: async (keyCombination) => {
-			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-			if (oldShortcutKey) {
-				const unregisterOldShortcutKeyResult = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { unregister } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await unregister(oldShortcutKey);
-					},
-					mapErr: (error) =>
-						WhisperingErr({
-							title: `Error unregistering command with id ${command.id} globally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
-				});
-
-				if (!unregisterOldShortcutKeyResult.ok) {
-					toast.error(unregisterOldShortcutKeyResult.error);
-				}
-			}
-
 			const result = await shortcutsRegister.registerCommandGlobally({
 				command,
 				keyCombination,
@@ -180,7 +157,7 @@
 			}
 			isPopoverOpen = false;
 		},
-		clearKeyCombination: async () => {
+		unregisterOldCommand: async () => {
 			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 			if (oldShortcutKey) {
 				const unregisterOldShortcutKeyResult = await tryAsync({
@@ -203,7 +180,8 @@
 					toast.error(unregisterOldShortcutKeyResult.error);
 				}
 			}
-
+		},
+		clearKeyCombination: async () => {
 			settings.value = {
 				...settings.value,
 				[`shortcuts.global.${command.id}`]: null,
