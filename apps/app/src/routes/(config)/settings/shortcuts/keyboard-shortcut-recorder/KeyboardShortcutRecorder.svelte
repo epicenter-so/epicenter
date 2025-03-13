@@ -27,17 +27,13 @@
 	} = $props();
 
 	let isPopoverOpen = $state(false);
-
-	// Handle popover open/close
-	$effect(() => {
-		onOpenChange(isPopoverOpen);
-	});
 </script>
 
 <Popover.Root
 	open={isPopoverOpen}
 	onOpenChange={(isOpen) => {
 		isPopoverOpen = isOpen;
+		onOpenChange(isOpen);
 		if (isOpen && autoFocus) {
 			setTimeout(() => {
 				onStartListening();
