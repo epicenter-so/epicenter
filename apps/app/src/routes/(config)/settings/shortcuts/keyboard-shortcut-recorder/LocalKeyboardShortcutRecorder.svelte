@@ -255,7 +255,10 @@
 			'/': '/',
 		} satisfies Record<(typeof keyMap)[keyof typeof keyMap], string>;
 
-		return renderKeyMap[key] ?? key;
+		if (key in renderKeyMap) {
+			return renderKeyMap[key as keyof typeof renderKeyMap];
+		}
+		return key;
 	}
 </script>
 
