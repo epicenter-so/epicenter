@@ -2,19 +2,12 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
-	import { toast } from '$lib/services/toast';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { tryAsync, trySync } from '@epicenterhq/result';
-	import { WhisperingErr } from '@repo/shared';
-	import hotkeys from 'hotkeys-js';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
 	import {
 		GlobalShortcutTable,
 		LocalShortcutTable,
 	} from './keyboard-shortcut-recorder/index.svelte';
-
-	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
 
 <svelte:head>
