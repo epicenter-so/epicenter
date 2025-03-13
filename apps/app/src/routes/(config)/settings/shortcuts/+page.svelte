@@ -2,6 +2,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
+	import { Layers2Icon } from 'lucide-svelte';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
 	import {
@@ -77,23 +78,8 @@
 						<div
 							class="p-8 flex flex-col items-center justify-center text-center"
 						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="40"
-								height="40"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="text-muted-foreground mb-6"
-							>
-								<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-								<path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-								<path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-							</svg>
-							<h3 class="text-xl font-medium mb-3">Global Shortcuts</h3>
+							<Layers2Icon />
+							<h3 class="text-xl font-medium my-3">Global Shortcuts</h3>
 							<p class="text-muted-foreground mb-8 max-w-md">
 								Global shortcuts allow you to use Whispering from any
 								application on your computer. This feature is only available in
