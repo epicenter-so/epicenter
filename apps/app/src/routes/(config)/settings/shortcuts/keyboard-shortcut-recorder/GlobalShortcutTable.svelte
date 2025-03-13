@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
-	import { toast } from '$lib/services/toast';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { tryAsync } from '@epicenterhq/result';
-	import { type Command, commands, WhisperingErr } from '@repo/shared';
+	import { commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
 
@@ -16,8 +12,6 @@
 			command.title.toLowerCase().includes(searchQuery.toLowerCase()),
 		),
 	);
-
-	const shortcutsRegister = getShortcutsRegisterFromContext();
 </script>
 
 <!-- Search input -->
@@ -50,51 +44,6 @@
 					<Table.Cell class="text-right">
 						<GlobalKeyboardShortcutRecorder
 							{command}
-							keyCombination={settings.value[`shortcuts.global.${command.id}`]}
-							onKeyCombinationChange={async (keyCombination) => {
-								const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-								if (oldShortcutKey) {
-							const unregisterOldShortcutKeyResult = await tryAsync({
-								try: async () => {
-				if (!window.__TAURI_INTERNALS__) return;
-				const { unregister } = await import(
-					'@tauri-apps/plugin-global-shortcut'
-				);
-				return await unregister(oldShortcutKey);
-			},
-			mapErr: (error) =>
-				WhisperingErr({
-					title: `Error unregistering command with id ${command.id} globally`,
-					description: 'Please try again.',
-					action: { type: 'more-details', error },
-				}),
-		});
-
-		if (!unregisterOldShortcutKeyResult.ok) {
-			toast.error(unregisterOldShortcutKeyResult.error);
-		}
-	}
-
-		if (!keyCombination) return;
-		shortcutsRegister.registerCommandGlobally({
-			command,
-			keyCombination,
-			onSuccess: () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: keyCombination,
-				};
-				toast.success({
-					title: `Global shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
-				});
-			},
-			onError: (error) => {
-				toast.error(error);
-			},
-		});
-
-								}}
 							placeholder={`e.g. ${command.defaultGlobalShortcut}`}
 							autoFocus
 						/>

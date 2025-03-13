@@ -1,24 +1,30 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
+	import { toast } from '$lib/services/toast';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
+	import { tryAsync } from '@epicenterhq/result';
+	import { type Command, WhisperingErr } from '@repo/shared';
 	import { XIcon } from 'lucide-svelte';
-	import { createKeyRecorder, type KeyCombination } from './index.svelte';
-	import type { Command } from '@repo/shared';
+	import { createKeyRecorder } from './index.svelte';
 
 	const {
 		command,
-		keyCombination,
-		onKeyCombinationChange,
 		placeholder,
 		autoFocus = false,
 	}: {
 		command: Command;
-		keyCombination: KeyCombination;
-		onKeyCombinationChange: (keyCombination: KeyCombination) => void;
 		placeholder?: string;
 		autoFocus?: boolean;
 	} = $props();
+
+	const shortcutsRegister = getShortcutsRegisterFromContext();
+
+	const keyCombination = $derived(
+		settings.value[`shortcuts.global.${command.id}`],
+	);
 
 	let isPopoverOpen = $state(false);
 
@@ -132,8 +138,49 @@
 
 			return [...modifiers, mainKey].join('+');
 		},
-		onKeyCombinationRecorded: (keyCombination) => {
-			onKeyCombinationChange(keyCombination);
+		onKeyCombinationRecorded: async (keyCombination) => {
+			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+			if (oldShortcutKey) {
+				const unregisterOldShortcutKeyResult = await tryAsync({
+					try: async () => {
+						if (!window.__TAURI_INTERNALS__) return;
+						const { unregister } = await import(
+							'@tauri-apps/plugin-global-shortcut'
+						);
+						return await unregister(oldShortcutKey);
+					},
+					mapErr: (error) =>
+						WhisperingErr({
+							title: `Error unregistering command with id ${command.id} globally`,
+							description: 'Please try again.',
+							action: { type: 'more-details', error },
+						}),
+				});
+
+				if (!unregisterOldShortcutKeyResult.ok) {
+					toast.error(unregisterOldShortcutKeyResult.error);
+				}
+			}
+
+			if (!keyCombination) return;
+			shortcutsRegister.registerCommandGlobally({
+				command,
+				keyCombination,
+				onSuccess: () => {
+					settings.value = {
+						...settings.value,
+						[`shortcuts.global.${command.id}`]: keyCombination,
+					};
+					toast.success({
+						title: `Global shortcut set to ${keyCombination}`,
+						description: `Press the shortcut to trigger "${command.title}"`,
+					});
+				},
+				onError: (error) => {
+					toast.error(error);
+				},
+			});
+
 			isPopoverOpen = false;
 		},
 		onEscape: () => {

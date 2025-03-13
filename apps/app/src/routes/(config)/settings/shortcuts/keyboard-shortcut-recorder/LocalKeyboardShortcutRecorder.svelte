@@ -1,24 +1,32 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
+	import { toast } from '$lib/services/toast';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import { XIcon } from 'lucide-svelte';
-	import { createKeyRecorder, type KeyCombination } from './index.svelte';
+	import { trySync } from '@epicenterhq/result';
 	import type { Command } from '@repo/shared';
+	import { WhisperingErr } from '@repo/shared';
+	import hotkeys from 'hotkeys-js';
+	import { XIcon } from 'lucide-svelte';
+	import { createKeyRecorder } from './index.svelte';
 
 	const {
 		command,
-		keyCombination,
-		onKeyCombinationChange,
 		placeholder,
 		autoFocus = false,
 	}: {
 		command: Command;
-		keyCombination: KeyCombination;
-		onKeyCombinationChange: (keyCombination: KeyCombination) => void;
 		placeholder?: string;
 		autoFocus?: boolean;
 	} = $props();
+
+	const shortcutsRegister = getShortcutsRegisterFromContext();
+
+	const keyCombination = $derived(
+		settings.value[`shortcuts.local.${command.id}`],
+	);
 
 	let isPopoverOpen = $state(false);
 
@@ -129,7 +137,41 @@
 			return [...modifiers, mainKey].join('+');
 		},
 		onKeyCombinationRecorded: (keyCombination) => {
-			onKeyCombinationChange(keyCombination);
+			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
+			if (currentCommandKey) {
+				const unregisterOldCommandLocallyResult = trySync({
+					try: () => hotkeys.unbind(currentCommandKey),
+					mapErr: (error) =>
+						WhisperingErr({
+							title: `Error unregistering old command with id ${command.id} locally`,
+							description: 'Please try again.',
+							action: { type: 'more-details', error },
+						}),
+				});
+
+				if (!unregisterOldCommandLocallyResult.ok) {
+					toast.error(unregisterOldCommandLocallyResult.error);
+				}
+			}
+
+			if (!keyCombination) return;
+			shortcutsRegister.registerCommandLocally({
+				command,
+				keyCombination,
+				onSuccess: () => {
+					settings.value = {
+						...settings.value,
+						[`shortcuts.local.${command.id}`]: keyCombination,
+					};
+					toast.success({
+						title: `Local shortcut set to ${keyCombination}`,
+						description: `Press the shortcut to trigger "${command.title}"`,
+					});
+				},
+				onError: (error) => {
+					toast.error(error);
+				},
+			});
 			isPopoverOpen = false;
 		},
 		onEscape: () => {
