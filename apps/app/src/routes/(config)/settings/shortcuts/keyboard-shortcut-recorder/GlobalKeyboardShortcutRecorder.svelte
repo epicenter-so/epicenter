@@ -100,7 +100,7 @@
 		Minus: '-',
 		Equal: '=',
 		Slash: '/',
-	} as const;
+	} satisfies Record<KeyboardEvent['key'], string>;
 
 	const keyRecorder = createKeyRecorder({
 		mapKeyboardEventToKeyCombination: (event) => {
