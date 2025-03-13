@@ -22,6 +22,11 @@
 
 	let isPopoverOpen = $state(false);
 
+	// Detect Apple devices for key symbol rendering
+	const isAppleDevice = /macintosh|mac os x|iphone|ipad|ipod/i.test(
+		navigator.userAgent.toLowerCase(),
+	);
+
 	const keyRecorder = createKeyRecorder({
 		mapKeyboardEventToKeyCombination: (event) => {
 			// Key mapping for hotkeys-js, from https://github.com/jaywcjlove/hotkeys-js/
@@ -131,6 +136,25 @@
 			isPopoverOpen = false;
 		},
 	});
+
+	// Helper function to render key symbols
+	function renderKeySymbol(key: string) {
+		if (key === 'ctrl') return isAppleDevice ? '⌃' : 'Ctrl';
+		if (key === 'command') return '⌘';
+		if (key === 'alt') return isAppleDevice ? '⌥' : 'Alt';
+		if (key === 'shift') return '⇧';
+		if (key === 'space') return '␣';
+		if (key === 'up') return '↑';
+		if (key === 'down') return '↓';
+		if (key === 'left') return '←';
+		if (key === 'right') return '→';
+		if (key === 'esc') return 'Esc';
+		if (key === 'enter' || key === 'return') return '↵';
+		if (key === 'backspace') return '⌫';
+		if (key === 'tab') return '⇥';
+		if (key === 'delete') return '⌦';
+		return key;
+	}
 </script>
 
 <Popover.Root
@@ -151,7 +175,7 @@
 				<kbd
 					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 				>
-					{key}
+					{renderKeySymbol(key)}
 				</kbd>
 			{/each}
 			<WhisperingButton
@@ -208,7 +232,7 @@
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
 									>
-										{key}
+										{renderKeySymbol(key)}
 									</kbd>
 								{/each}
 							{:else}
