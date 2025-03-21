@@ -105,10 +105,10 @@
 				divide: '/',
 			};
 
-			return numpadSymbols[numKey] || numKey;
+			return numpadSymbols[numKey] ?? numKey;
 		}
 
-		return symbolMap[key] || key;
+		return symbolMap[key] ?? key;
 	}
 </script>
 
