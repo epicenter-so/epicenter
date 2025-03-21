@@ -4,6 +4,8 @@
 	import { commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
+	import { LabeledInput } from '$lib/components/labeled';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	let searchQuery = $state('');
 
@@ -42,6 +44,18 @@
 					<Table.Cell>{command.title}</Table.Cell>
 
 					<Table.Cell class="text-right">
+						<LabeledInput
+							id={command.id}
+							placeholder="Raw Command Value"
+							label={command.title}
+							value={settings.value[`shortcuts.local.${command.id}`] ?? ''}
+							oninput={({ currentTarget: { value } }) => {
+								settings.value = {
+									...settings.value,
+									[`shortcuts.local.${command.id}`]: !!value ? value : null,
+								};
+							}}
+						/>
 						<LocalKeyboardShortcutRecorder
 							{command}
 							placeholder={`e.g. ${command.defaultLocalShortcut}`}
