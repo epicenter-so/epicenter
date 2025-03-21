@@ -46,7 +46,9 @@
 					<Table.Cell class="text-right">
 						<LabeledInput
 							id={command.id}
+							class="max-w-32"
 							placeholder="Raw Command Value"
+							hideLabel
 							label={command.title}
 							value={settings.value[`shortcuts.local.${command.id}`] ?? ''}
 							oninput={({ currentTarget: { value } }) => {
@@ -56,6 +58,8 @@
 								};
 							}}
 						/>
+					</Table.Cell>
+					<Table.Cell class="text-right">
 						<LocalKeyboardShortcutRecorder
 							{command}
 							placeholder={`e.g. ${command.defaultLocalShortcut}`}
