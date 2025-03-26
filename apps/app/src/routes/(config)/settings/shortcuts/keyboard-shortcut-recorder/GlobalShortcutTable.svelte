@@ -4,6 +4,8 @@
 	import { commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
+	import { LabeledInput } from '$lib/components/labeled';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	let searchQuery = $state('');
 
@@ -41,6 +43,22 @@
 				<Table.Row>
 					<Table.Cell>{command.title}</Table.Cell>
 
+					<Table.Cell class="text-right">
+						<LabeledInput
+							id={command.id}
+							class="max-w-32"
+							placeholder="Raw Command Value"
+							hideLabel
+							label={command.title}
+							value={settings.value[`shortcuts.global.${command.id}`] ?? ''}
+							oninput={({ currentTarget: { value } }) => {
+								settings.value = {
+									...settings.value,
+									[`shortcuts.global.${command.id}`]: !!value ? value : null,
+								};
+							}}
+						/>
+					</Table.Cell>
 					<Table.Cell class="text-right">
 						<GlobalKeyboardShortcutRecorder
 							{command}

@@ -75,7 +75,7 @@
 					} as typeof settings.value;
 				}}
 				placeholder="Select a bitrate"
-				description="16kbps is recommended since the Whisper model internally processes at 16kHz. Higher bitrates won't improve transcription quality."
+				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
 		</div>
 	{:else}
