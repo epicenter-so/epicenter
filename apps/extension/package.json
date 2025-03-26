@@ -1,7 +1,7 @@
 {
 	"name": "@repo/extension",
 	"displayName": "Whispering",
-	"version": "6.4.3",
+	"version": "6.5.0",
 	"private": true,
 	"description": "Seamlessly integrate speech-to-text transcriptions on ChatGPT and anywhere on the web. Powered by OpenAI's Whisper API.",
 	"author": "Braden Wong <whispering@bradenwong.com>",
