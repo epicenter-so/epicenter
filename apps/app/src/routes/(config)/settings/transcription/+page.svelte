@@ -18,6 +18,7 @@
 	} from '@repo/shared';
 	import GroqApiKeyInput from '../../-components/GroqApiKeyInput.svelte';
 	import OpenAiApiKeyInput from '../../-components/OpenAiApiKeyInput.svelte';
+	import ElevenLabsApiKeyInput from '../../-components/ElevenLabsApiKeyInput.svelte';
 </script>
 
 <svelte:head>
@@ -75,6 +76,8 @@
 			{/snippet}
 		</LabeledSelect>
 		<GroqApiKeyInput />
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
+		<ElevenLabsApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'faster-whisper-server'}
 		<Card.Root class="w-full">
 			<Card.Header>

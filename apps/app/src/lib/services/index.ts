@@ -39,6 +39,7 @@ import { createPlaySoundServiceWeb } from './sound/PlaySoundService.web';
 import { createFasterWhisperServerTranscriptionService } from './transcription/TranscriptionService.fasterWhisperServer';
 import { createGroqTranscriptionService } from './transcription/TranscriptionService.groq';
 import { createOpenaiTranscriptionService } from './transcription/TranscriptionService.openai';
+import { createElevenLabsTranscriptionService } from './transcription/TranscriptionService.elevenlabs';
 
 type QueryResultFunction<TData, TError> = () => MaybePromise<
 	Result<TData, TError>
@@ -165,6 +166,11 @@ export const userConfiguredServices = (() => {
 							settings.value['transcription.fasterWhisperServer.serverModel'],
 						serverUrl:
 							settings.value['transcription.fasterWhisperServer.serverUrl'],
+					});
+				}
+				case 'ElevenLabs': {
+					return createElevenLabsTranscriptionService({
+						apiKey: settings.value['apiKeys.elevenlabs'],
 					});
 				}
 				default: {

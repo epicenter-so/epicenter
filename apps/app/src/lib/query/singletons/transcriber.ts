@@ -104,8 +104,7 @@ function createTranscriber() {
 				{
 					onError: (error) => {
 						toast.error({
-							title:
-								'⚠️ Unable to set recording transcription status to failed',
+							title: '⚠️ Unable to set recording transcription status to failed',
 							description:
 								'Transcription failed and failed again to update recording transcription status to failed',
 							action: { type: 'more-details', error },
