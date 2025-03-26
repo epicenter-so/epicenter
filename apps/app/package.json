@@ -74,6 +74,7 @@
 		"cross-env": "^7.0.3",
 		"date-fns": "^4.1.0",
 		"dexie": "^4.0.10",
+		"elevenlabs": "^1.54.0",
 		"hotkeys-js": "^3.13.9",
 		"idb": "^8.0.1",
 		"nanoid": "^5.0.9",
