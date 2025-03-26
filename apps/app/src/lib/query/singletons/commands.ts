@@ -49,6 +49,6 @@ function createCommandCallbacks({
 		closeManualRecordingSession: () =>
 			manualRecorder.closeRecordingSessionWithToast(),
 		toggleVadRecording: () => vadRecorder.toggleVad(),
-		pushToTalk: () => {},
+		pushToTalk: () => manualRecorder.toggleRecording(),
 	} satisfies Record<Command['id'], () => void>;
 }
