@@ -35,15 +35,22 @@ function createShortcutsRegister({
 		}) => {
 			if (command.id === 'pushToTalk') {
 				const registerPushToTalkLocallyResult = trySync({
-					try: () =>
-						hotkeys(keyCombination, (event) => {
+					try: () => {
+						let isKeyPressed = false;
+						hotkeys(keyCombination, { keydown: true, keyup: true }, (event) => {
 							// Prevent the default refresh event under WINDOWS system
-							if (event.type === 'keydown' || event.type === 'keyup') {
-								event.preventDefault();
+							event.preventDefault();
+							if (event.type === 'keydown' && !isKeyPressed) {
+								isKeyPressed = true;
+								commandCallbacks.pushToTalk();
+							} else if (event.type === 'keyup') {
+								isKeyPressed = false;
 								commandCallbacks.pushToTalk();
 							}
+
 							return false;
-						}),
+						});
+					},
 					mapErr: (error) =>
 						WhisperingErr({
 							title: 'Error registering push to talk local shortcut',
