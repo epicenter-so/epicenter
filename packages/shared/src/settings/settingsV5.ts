@@ -69,6 +69,7 @@ export const settingsV5Schema = z.object({
 	'apiKeys.anthropic': z.string(),
 	'apiKeys.groq': z.string(),
 	'apiKeys.google': z.string(),
+	'apiKeys.elevenlabs': z.string(),
 
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable(),
@@ -103,4 +104,6 @@ export const migrateV4ToV5 = (settings: SettingsV4) =>
 			settings['recording.selectedAudioInputDeviceId'],
 		'recording.navigator.bitrateKbps': settings['recording.bitrateKbps'],
 		'recording.tauri.selectedAudioInputName': null,
+
+		'apiKeys.elevenlabs': '',
 	} satisfies SettingsV5);

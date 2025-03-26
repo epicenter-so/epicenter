@@ -133,6 +133,7 @@ export const TRANSCRIPTION_SERVICES = [
 	'OpenAI',
 	'Groq',
 	'faster-whisper-server',
+	'ElevenLabs',
 ] as const;
 
 export const TRANSCRIPTION_SERVICE_OPTIONS = TRANSCRIPTION_SERVICES.map(
