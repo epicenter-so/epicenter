@@ -8,6 +8,7 @@ import {
 	RECORDING_METHODS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
+	OPENAI_WHISPER_MODELS,
 	type WhisperingSoundNames,
 } from '../constants.js';
 import type { SettingsV4 } from './settingsV4.js';
@@ -59,6 +60,7 @@ export const settingsV5Schema = z.object({
 	'transcription.temperature': z.string(),
 
 	// Service-specific settings
+	'transcription.openai.model': z.enum(OPENAI_WHISPER_MODELS).optional().default('whisper-1'),
 	'transcription.groq.model': z.enum(GROQ_MODELS),
 	'transcription.fasterWhisperServer.serverUrl': z.string(),
 	'transcription.fasterWhisperServer.serverModel': z.string(),
@@ -106,4 +108,5 @@ export const migrateV4ToV5 = (settings: SettingsV4) =>
 		'recording.tauri.selectedAudioInputName': null,
 
 		'apiKeys.elevenlabs': '',
+		'transcription.openai.model': 'whisper-1',
 	} satisfies SettingsV5);

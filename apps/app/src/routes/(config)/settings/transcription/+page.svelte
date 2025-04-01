@@ -15,6 +15,7 @@
 		SUPPORTED_LANGUAGES_OPTIONS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 		WHISPERING_URL,
+		OPENAI_WHISPER_MODEL_OPTIONS,
 	} from '@repo/shared';
 	import GroqApiKeyInput from '../../-components/GroqApiKeyInput.svelte';
 	import OpenAiApiKeyInput from '../../-components/OpenAiApiKeyInput.svelte';
@@ -49,6 +50,18 @@
 	/>
 
 	{#if settings.value['transcription.selectedTranscriptionService'] === 'OpenAI'}
+		<LabeledSelect
+			id="openai-model"
+			label="OpenAI Model"
+			items={OPENAI_WHISPER_MODEL_OPTIONS}
+			selected={settings.value['transcription.openai.model']}
+			onSelectedChange={(selected) => {
+				settings.value = {
+					...settings.value,
+					'transcription.openai.model': selected,
+				};
+			}}
+		/>
 		<OpenAiApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'Groq'}
 		<LabeledSelect

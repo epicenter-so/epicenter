@@ -9,13 +9,15 @@ import { createWhisperService } from './createWhisperService';
 export function createOpenaiTranscriptionService({
 	HttpService,
 	apiKey,
+	modelName = 'whisper-1',
 }: {
 	HttpService: HttpService;
 	apiKey: string;
+	modelName: string;
 }): TranscriptionService {
 	return createWhisperService({
 		HttpService,
-		modelName: 'whisper-1',
+		modelName: modelName,
 		postConfig: {
 			url: 'https://api.openai.com/v1/audio/transcriptions',
 			headers: {

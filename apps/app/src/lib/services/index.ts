@@ -150,6 +150,7 @@ export const userConfiguredServices = (() => {
 					return createOpenaiTranscriptionService({
 						HttpService,
 						apiKey: settings.value['apiKeys.openai'],
+						modelName: settings.value['transcription.openai.model'],
 					});
 				}
 				case 'Groq': {

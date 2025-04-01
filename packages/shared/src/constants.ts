@@ -235,6 +235,19 @@ export const INFERENCE_PROVIDER_OPTIONS = INFERENCE_PROVIDERS.map(
 );
 
 // https://platform.openai.com/docs/models
+export const OPENAI_WHISPER_MODELS = [
+	'whisper-1',
+	'gpt-4o-transcribe',
+	'gpt-4o-mini-transcribe',	
+] as const;
+
+export const OPENAI_WHISPER_MODEL_OPTIONS = OPENAI_WHISPER_MODELS.map(
+	(model) => ({
+		value: model,
+		label: model,
+	}),
+);
+
 export const OPENAI_INFERENCE_MODELS = [
 	'gpt-4o',
 	'gpt-4o-mini',
