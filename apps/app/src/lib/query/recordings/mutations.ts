@@ -7,7 +7,6 @@ import {
 import { toast } from '$lib/services/toast';
 import { Ok } from '@epicenterhq/result';
 import { WhisperingErr } from '@repo/shared';
-import { createMutation } from '@tanstack/svelte-query';
 import { recordingsKeys } from './queries';
 
 export function useCreateRecording() {

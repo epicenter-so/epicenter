@@ -5,7 +5,6 @@ import type {
 	GROQ_INFERENCE_MODELS,
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
-	Settings,
 } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 
