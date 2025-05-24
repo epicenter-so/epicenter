@@ -1,4 +1,5 @@
-import { Err, type Ok } from '@epicenterhq/result';
+import type { Err, Ok } from '@epicenterhq/result';
+import type { BrandError } from '@repo/shared/errors';
 import type {
 	ANTHROPIC_INFERENCE_MODELS,
 	GOOGLE_INFERENCE_MODELS,
@@ -8,27 +9,9 @@ import type {
 } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 
-type DbErrorProperties = {
-	_tag: 'DbServiceError';
-	title: string;
-	error: unknown;
-};
+export type DbServiceErrorProperties = BrandError<'DbServiceError'>;
 
-export type DbServiceErr = Err<DbErrorProperties & { description: string }>;
-export type DbServiceResult<T> = Ok<T> | DbServiceErr;
-
-export const DbServiceErr = (
-	properties: Omit<DbErrorProperties, '_tag'>,
-): DbServiceErr => {
-	return Err({
-		_tag: 'DbServiceError',
-		description:
-			properties.error instanceof Error
-				? properties.error.message
-				: 'Unknown error',
-		...properties,
-	});
-};
+export type DbServiceResult<T> = Ok<T> | Err<DbServiceErrorProperties>;
 
 export function generateDefaultTransformation(): Transformation {
 	const now = new Date().toISOString();

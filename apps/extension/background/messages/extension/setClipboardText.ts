@@ -1,8 +1,9 @@
 import type { PlasmoMessaging } from '@plasmohq/messaging';
-import { WhisperingErr, type WhisperingResult } from '@repo/shared';
+import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import { injectScript } from '~background/injectScript';
 import { getActiveTabId } from '~lib/getActiveTabId';
 import { whisperingStorage } from '~lib/storage';
+import { Err } from '@epicenterhq/result';
 
 export type SetClipboardTextMessage = {
 	transcribedText: string;
@@ -13,21 +14,25 @@ export type SetClipboardTextResult = WhisperingResult<string>;
 const setClipboardText = async (
 	transcribedText: string,
 ): Promise<SetClipboardTextResult> => {
-	const getActiveTabIdResult = await getActiveTabId();
-	if (!getActiveTabIdResult.ok) {
-		return WhisperingErr({
-			title: 'Unable to copy transcribed text to clipboard',
-			description:
-				'Please go to your recordings tab in the Whispering website to copy the transcribed text to clipboard',
-			action: { type: 'more-details', error: getActiveTabIdResult.error },
-		});
+	const { data: activeTabId, error: getActiveTabIdError } =
+		await getActiveTabId();
+	if (getActiveTabIdError) {
+		return Err(
+			WhisperingError({
+				title: 'Unable to copy transcribed text to clipboard',
+				description:
+					'Please go to your recordings tab in the Whispering website to copy the transcribed text to clipboard',
+				action: { type: 'more-details', error: getActiveTabIdError },
+			}),
+		);
 	}
-	const activeTabId = getActiveTabIdResult.data;
 	if (!activeTabId) {
-		return WhisperingErr({
-			title: 'Unable to copy transcribed text to clipboard',
-			description: 'No active tab ID found',
-		});
+		return Err(
+			WhisperingError({
+				title: 'Unable to copy transcribed text to clipboard',
+				description: 'No active tab ID found',
+			}),
+		);
 	}
 
 	whisperingStorage.setLatestRecordingTranscribedText(transcribedText);
@@ -38,10 +43,10 @@ const setClipboardText = async (
 		func: (text) => {
 			try {
 				navigator.clipboard.writeText(text);
-				return { ok: true, data: text } as const;
+				return { data: text, error: null } as const;
 			} catch (error) {
 				return {
-					ok: false,
+					data: null,
 					error: {
 						_tag: 'WhisperingError',
 						variant: 'error',
@@ -64,10 +69,13 @@ const handler: PlasmoMessaging.MessageHandler<
 > = async ({ body }, res) => {
 	if (!body?.transcribedText) {
 		res.send(
-			WhisperingErr({
-				title: 'Unable to copy transcribed text to clipboard',
-				description: 'Text must be provided in the request body of the message',
-			}),
+			Err(
+				WhisperingError({
+					title: 'Unable to copy transcribed text to clipboard',
+					description:
+						'Text must be provided in the request body of the message',
+				}),
+			),
 		);
 		return;
 	}

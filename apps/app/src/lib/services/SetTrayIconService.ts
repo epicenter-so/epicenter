@@ -7,6 +7,7 @@ import {
 	ALWAYS_ON_TOP_VALUES,
 	type WhisperingRecordingState,
 } from '@repo/shared';
+import type { BrandError } from '@repo/shared/errors';
 import { CheckMenuItem, Menu, MenuItem } from '@tauri-apps/api/menu';
 import { resolveResource } from '@tauri-apps/api/path';
 import { TrayIcon } from '@tauri-apps/api/tray';
@@ -15,16 +16,12 @@ import { exit } from '@tauri-apps/plugin-process';
 
 const TRAY_ID = 'whispering-tray';
 
-export type SetTrayIconServiceErr = Err<{
-	_tag: 'TrayIconError';
-	icon: WhisperingRecordingState;
-}>;
+export type SetTrayIconServiceErrorProperties =
+	BrandError<'SetTrayIconServiceError'>;
 
-export type SetTrayIconServiceResult<T> = Ok<T> | SetTrayIconServiceErr;
-
-export const SetTrayIconServiceErr = (
-	icon: WhisperingRecordingState,
-): SetTrayIconServiceErr => Err({ _tag: 'TrayIconError', icon });
+export type SetTrayIconServiceResult<T> =
+	| Ok<T>
+	| Err<SetTrayIconServiceErrorProperties>;
 
 type SetTrayIconService = {
 	setTrayIcon: (
@@ -35,10 +32,16 @@ type SetTrayIconService = {
 export function createSetTrayIconWebService(): SetTrayIconService {
 	return {
 		setTrayIcon: async (icon: WhisperingRecordingState) => {
-			const setRecorderStateResult = await extension.setRecorderState({
-				recorderState: icon,
-			});
-			if (!setRecorderStateResult.ok) return SetTrayIconServiceErr(icon);
+			const { error: setRecorderStateError } = await extension.setRecorderState(
+				{ recorderState: icon },
+			);
+			if (setRecorderStateError)
+				return Err({
+					name: 'SetTrayIconServiceError',
+					message: 'Failed to set recorder state',
+					context: { icon },
+					cause: setRecorderStateError,
+				} as SetTrayIconServiceErrorProperties);
 			return Ok(undefined);
 		},
 	};
@@ -54,7 +57,12 @@ export function createSetTrayIconDesktopService(): SetTrayIconService {
 					const tray = await trayPromise;
 					return tray.setIcon(iconPath);
 				},
-				mapErr: (error) => SetTrayIconServiceErr(recorderState),
+				mapErr: (error): SetTrayIconServiceErrorProperties => ({
+					name: 'SetTrayIconServiceError',
+					message: 'Failed to set tray icon',
+					context: { icon: recorderState },
+					cause: error,
+				}),
 			}),
 	};
 }

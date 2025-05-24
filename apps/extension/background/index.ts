@@ -8,10 +8,10 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.commands.onCommand.addListener(async (command) => {
 	console.info('Received command via Chrome Keyboard Shortcut', command);
 	if (command !== 'toggleRecording') return;
-	const toggleRecordingResult = await toggleRecording();
-	if (!toggleRecordingResult.ok) {
+	const { error: toggleRecordingError } = await toggleRecording();
+	if (toggleRecordingError) {
 		await extension.createNotification({
-			notifyOptions: toggleRecordingResult.error,
+			notifyOptions: toggleRecordingError,
 		});
 	}
 });

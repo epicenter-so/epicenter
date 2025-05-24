@@ -60,22 +60,22 @@ export async function maybeCopyAndPaste({
 		});
 	if (!shouldCopy) return toastNull();
 
-	const copyResult = await ClipboardService.setClipboardText(text);
-	if (!copyResult.ok) {
-		toast.warning(copyResult.error);
+	const { error: copyError } = await ClipboardService.setClipboardText(text);
+	if (copyError) {
+		toast.warning(copyError);
 		toastNull();
 		return;
 	}
 
 	if (!shouldPaste) return toastCopied();
 
-	const pasteResult = await ClipboardService.writeTextToCursor(text);
-	if (!pasteResult.ok) {
+	const { error: pasteError } = await ClipboardService.writeTextToCursor(text);
+	if (pasteError) {
 		toast.warning({
 			title: '⚠️ Paste Operation Failed',
 			description:
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
-			action: { type: 'more-details', error: pasteResult.error },
+			action: { type: 'more-details', error: pasteError },
 		});
 		toastCopied();
 		return;

@@ -1,6 +1,10 @@
 import { Err, type Ok, tryAsync } from '@epicenterhq/result';
 import { sendToBackgroundViaRelay } from '@plasmohq/messaging';
-import { WhisperingErr, type WhisperingResult } from '@repo/shared';
+import {
+	WhisperingError,
+	type WhisperingErr,
+	type WhisperingResult,
+} from '@repo/shared';
 import type {
 	OpenWhisperingTabMessage,
 	OpenWhisperingTabResult,
@@ -43,8 +47,7 @@ type SendMessageToExtensionErrProperties = {
 	error: unknown;
 };
 
-export type SendMessageToExtensionErr =
-	Err<SendMessageToExtensionErrProperties>;
+type SendMessageToExtensionErr = Err<SendMessageToExtensionErrProperties>;
 
 export type SendMessageToExtensionResult<T> = Ok<T> | SendMessageToExtensionErr;
 
@@ -63,31 +66,34 @@ export async function sendMessageToExtension<
 >(
 	...args: Parameters<typeof sendToBackgroundViaRelay>
 ): Promise<R | WhisperingErr> {
-	const sendResult = (await tryAsync({
-		try: () => sendToBackgroundViaRelay(...args),
-		mapErr: (error) => {
-			const { name, body } = args[0];
-			return SendMessageToExtensionErr({
-				name,
-				body,
-				metadata: args[0],
-				error,
-			});
-		},
-	})) as SendMessageToExtensionResult<R>;
-
-	if (!sendResult.ok) {
-		const { name, body, metadata, error } = sendResult.error;
-		return WhisperingErr({
-			title: `Unable to ${name} - Extension Connection Failed`,
-			description: `Unable to send "${name}" command to the browser extension's background service worker. This could be due to the extension not being properly initialized or a communication error.`,
-			action: {
-				type: 'more-details',
-				error: { name, body, metadata, error },
+	const { data: commandAsWhisperingResult, error: sendError } = (await tryAsync(
+		{
+			try: () => sendToBackgroundViaRelay(...args),
+			mapErr: (error) => {
+				const { name, body } = args[0];
+				return SendMessageToExtensionErr({
+					name,
+					body,
+					metadata: args[0],
+					error,
+				});
 			},
-		});
+		},
+	)) as SendMessageToExtensionResult<R>;
+
+	if (sendError) {
+		const { name, body, metadata, error } = sendError;
+		return Err(
+			WhisperingError({
+				title: `Unable to ${name} - Extension Connection Failed`,
+				description: `Unable to send "${name}" command to the browser extension's background service worker. This could be due to the extension not being properly initialized or a communication error.`,
+				action: {
+					type: 'more-details',
+					error: { name, body, metadata, error },
+				},
+			}),
+		);
 	}
-	const commandAsWhisperingResult = sendResult.data;
 	return commandAsWhisperingResult;
 }
 

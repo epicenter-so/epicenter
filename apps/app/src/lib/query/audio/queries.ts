@@ -1,21 +1,21 @@
 import { userConfiguredServices } from '$lib/services';
-import type { WhisperingErrProperties } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import { createQuery } from '@tanstack/svelte-query';
 
 export function useGetMediaDevices() {
 	return {
 		getMediaDevicesQuery: createQuery<
 			Pick<MediaDeviceInfo, 'label' | 'deviceId'>[],
-			WhisperingErrProperties
+			WhisperingError
 		>(() => ({
 			queryKey: ['mediaDevices'],
 			queryFn: async () => {
-				const enumerateRecordingDevicesResult =
+				const { data: mediaDevices, error: enumerateRecordingDevicesError } =
 					await userConfiguredServices.recorder.enumerateRecordingDevices();
-				if (!enumerateRecordingDevicesResult.ok) {
-					throw enumerateRecordingDevicesResult.error;
+				if (enumerateRecordingDevicesError) {
+					throw enumerateRecordingDevicesError;
 				}
-				return enumerateRecordingDevicesResult.data;
+				return mediaDevices;
 			},
 		})),
 	};

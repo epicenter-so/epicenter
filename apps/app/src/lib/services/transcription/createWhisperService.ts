@@ -1,11 +1,11 @@
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Ok } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
 import { z } from 'zod';
 import type { HttpService } from '../http/HttpService';
 import {
 	HttpServiceErrIntoTranscriptionServiceErr,
 	type TranscriptionService,
-	TranscriptionServiceErr,
+	type TranscriptionServiceError,
 } from './TranscriptionService';
 
 const whisperApiResponseSchema = z.union([
@@ -25,19 +25,21 @@ export function createWhisperService({
 	HttpService: HttpService;
 	modelName: string;
 	postConfig: { url: string; headers?: Record<string, string> };
-	preValidate: () => Promise<Ok<undefined> | TranscriptionServiceErr>;
+	preValidate: () => Promise<Ok<undefined> | Err<TranscriptionServiceError>>;
 	errorConfig: { title: string; description: string };
 }): TranscriptionService {
 	return {
 		transcribe: async (audioBlob, options) => {
-			const validationResult = await preValidate();
-			if (!validationResult.ok) {
-				return validationResult;
+			const { error: validationError } = await preValidate();
+			if (validationError) {
+				return Err(validationError);
 			}
 
 			const blobSizeInMb = audioBlob.size / (1024 * 1024);
 			if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
 				});
@@ -60,20 +62,22 @@ export function createWhisperService({
 			if (options.temperature)
 				formData.append('temperature', options.temperature);
 
-			const postResult = await HttpService.post({
-				url: postConfig.url,
-				body: formData,
-				headers: postConfig.headers,
-				schema: whisperApiResponseSchema,
-			});
+			const { data: whisperApiResponse, error: postError } =
+				await HttpService.post({
+					url: postConfig.url,
+					body: formData,
+					headers: postConfig.headers,
+					schema: whisperApiResponseSchema,
+				});
 
-			if (!postResult.ok) {
-				return HttpServiceErrIntoTranscriptionServiceErr(postResult);
+			if (postError) {
+				return HttpServiceErrIntoTranscriptionServiceErr(postError);
 			}
 
-			const whisperApiResponse = postResult.data;
 			if ('error' in whisperApiResponse) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: errorConfig.title,
 					description: errorConfig.description,
 					action: {

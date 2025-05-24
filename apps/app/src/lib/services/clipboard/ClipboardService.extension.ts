@@ -1,5 +1,5 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingError } from '@repo/shared';
 import type { ClipboardService } from './ClipboardService';
 
 export function createClipboardServiceExtension(): ClipboardService {
@@ -8,7 +8,7 @@ export function createClipboardServiceExtension(): ClipboardService {
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: '⚠️ Unable to write to clipboard',
 						description:
 							'There was an error writing to the clipboard using the browser Clipboard API. Please try again.',
@@ -20,7 +20,7 @@ export function createClipboardServiceExtension(): ClipboardService {
 			trySync({
 				try: () => writeTextToCursor(text),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: '⚠️ Unable to write text to cursor',
 						description:
 							'There was an error writing to the cursor using the browser Clipboard API. Please try again.',

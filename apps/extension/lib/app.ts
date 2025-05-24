@@ -1,8 +1,9 @@
+import { Err, Ok } from '@epicenterhq/result';
 import { sendToBackground } from '@plasmohq/messaging';
-import type { WhisperingErr } from '@repo/shared';
-import type { Settings } from '@repo/shared/src/settings';
+import { WhisperingError } from '@repo/shared';
+import type { Settings } from '@repo/shared/settings';
 import type { CancelRecordingResponse } from '~background/messages/app/cancelRecording';
-import type { CloseRecordingSessionResponse } from '~background/messages/app/closeRecordingSessionWithToast';
+import type { CloseRecordingSessionResponse } from '~background/messages/app/ensureRecordingSessionClosedWithToast';
 import type { GetSettingsResponse } from '~background/messages/app/getSettings';
 import type {
 	SetSettingsRequest,
@@ -25,32 +26,36 @@ export const app = {
 		return response;
 	},
 	toggleRecording: async () => {
-		const response = (await sendToBackground({
-			name: 'app/toggleRecording',
-		})) as ToggleRecordingResponse;
-		if (!response.ok) {
-			return WhisperingErr({
-				title: 'Unable to toggle recording via background service worker',
-				description:
-					'There was likely an issue sending the message to the background service worker from the popup.',
-				action: { type: 'more-details', error: response.error },
-			});
+		const { data: toggleRecording, error: toggleRecordingError } =
+			(await sendToBackground({
+				name: 'app/toggleRecording',
+			})) as ToggleRecordingResponse;
+		if (toggleRecordingError) {
+			return Err(
+				WhisperingError({
+					title: 'Unable to toggle recording via background service worker',
+					description:
+						'There was likely an issue sending the message to the background service worker from the popup.',
+					action: { type: 'more-details', error: toggleRecordingError },
+				}),
+			);
 		}
-		return response;
+		return Ok(toggleRecording);
 	},
 	cancelRecording: async () => {
-		const response = (await sendToBackground({
-			name: 'app/cancelRecording',
-		})) as CancelRecordingResponse;
-		if (!response.ok) {
-			return WhisperingErr({
+		const { data: cancelRecording, error: cancelRecordingError } =
+			(await sendToBackground({
+				name: 'app/cancelRecording',
+			})) as CancelRecordingResponse;
+		if (cancelRecordingError) {
+			return Err(WhisperingError({
 				title: 'Unable to cancel recording via background service worker',
 				description:
 					'There was likely an issue sending the message to the background service worker from the popup.',
-				action: { type: 'more-details', error: response.error },
-			});
+				action: { type: 'more-details', error: cancelRecordingError },
+			}));
 		}
-		return response;
+		return Ok(cancelRecording);
 	},
 	closeRecordingSessionWithToast: async () => {
 		const response = (await sendToBackground({

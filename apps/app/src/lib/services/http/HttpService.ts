@@ -1,5 +1,5 @@
 import type { Ok } from '@epicenterhq/result';
-import { Err } from '@epicenterhq/result';
+import type { Err } from '@epicenterhq/result';
 import type { z } from 'zod';
 
 type HttpServiceErrCodes =
@@ -7,23 +7,21 @@ type HttpServiceErrCodes =
 	| { code: 'HttpError'; error: unknown; status: number }
 	| { code: 'ParseError'; error: unknown };
 
-type HttpServiceErrProperties = {
+export type HttpServiceError = {
 	_tag: 'HttpServiceErr';
 	error: unknown;
 } & HttpServiceErrCodes;
 
-export type HttpServiceErr = Err<HttpServiceErrProperties>;
-export type HttpServiceResult<T> = Ok<T> | HttpServiceErr;
+export type HttpServiceResult<T> = Ok<T> | Err<HttpServiceError>;
 
-export const HttpServiceErr = (
+export const HttpServiceError = (
 	args: {
 		error: unknown;
 	} & HttpServiceErrCodes,
-): HttpServiceErr =>
-	Err({
-		_tag: 'HttpServiceErr',
-		...args,
-	});
+): HttpServiceError => ({
+	_tag: 'HttpServiceErr',
+	...args,
+});
 
 export type HttpService = {
 	post: <TSchema extends z.ZodTypeAny>(config: {

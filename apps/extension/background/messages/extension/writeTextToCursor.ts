@@ -1,8 +1,9 @@
 import type { PlasmoMessaging } from '@plasmohq/messaging';
 import type { WhisperingResult } from '@repo/shared';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingError } from '@repo/shared';
 import { injectScript } from '~background/injectScript';
 import { getActiveTabId } from '~lib/getActiveTabId';
+import { Err } from '@epicenterhq/result';
 
 export type WriteTextToCursorMessage = {
 	transcribedText: string;
@@ -13,21 +14,24 @@ export type WriteTextToCursorResult = WhisperingResult<string>;
 const writeTextToCursor = async (
 	transcribedText: string,
 ): Promise<WriteTextToCursorResult> => {
-	const activeTabIdResult = await getActiveTabId();
-	if (!activeTabIdResult.ok) {
-		return WhisperingErr({
-			title: 'Unable to automatically paste transcribed text',
-			description: 'Error getting active tab ID',
-			action: { type: 'more-details', error: activeTabIdResult.error },
-		});
+	const { data: activeTabId, error: activeTabIdError } = await getActiveTabId();
+	if (activeTabIdError) {
+		return Err(
+			WhisperingError({
+				title: 'Unable to automatically paste transcribed text',
+				description: 'Error getting active tab ID',
+				action: { type: 'more-details', error: activeTabIdError },
+			}),
+		);
 	}
-	const activeTabId = activeTabIdResult.data;
 	if (!activeTabId) {
-		return WhisperingErr({
-			title: 'Unable to automatically paste transcribed text',
-			description:
-				'No active tab ID found to automatically paste the transcribed text. Please try manually pasting from your clipboard',
-		});
+		return Err(
+			WhisperingError({
+				title: 'Unable to automatically paste transcribed text',
+				description:
+					'No active tab ID found to automatically paste the transcribed text. Please try manually pasting from your clipboard',
+			}),
+		);
 	}
 	return injectScript<string, [string]>({
 		tabId: activeTabId,
@@ -98,12 +102,12 @@ const writeTextToCursor = async (
 				if (editables.length === 1) {
 					insertTextIntoEditableElement(editables[0]!, text);
 					return {
-						ok: true,
 						data: text,
+						error: null,
 					};
 				}
 				return {
-					ok: false,
+					data: null,
 					error: {
 						_tag: 'WhisperingError',
 						variant: 'error',
@@ -115,7 +119,7 @@ const writeTextToCursor = async (
 				};
 			}
 			insertTextIntoEditableElement(activeElement, text);
-			return { ok: true, data: text } as const;
+			return { data: text, error: null } as const;
 		},
 		args: [transcribedText],
 	});
@@ -127,10 +131,13 @@ const handler: PlasmoMessaging.MessageHandler<
 > = async ({ body }, res) => {
 	if (!body?.transcribedText) {
 		res.send(
-			WhisperingErr({
-				title: 'Error invoking writeTextToCursor command',
-				description: 'Text must be provided in the request body of the message',
-			}),
+			Err(
+				WhisperingError({
+					title: 'Error invoking writeTextToCursor command',
+					description:
+						'Text must be provided in the request body of the message',
+				}),
+			),
 		);
 		return;
 	}

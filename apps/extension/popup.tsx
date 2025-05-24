@@ -63,10 +63,11 @@ function IndexPage() {
 						tooltipContent="Toggle recording"
 						className="h-full w-full transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 						onClick={async () => {
-							const toggleRecordingResult = await app.toggleRecording();
-							if (!toggleRecordingResult.ok) {
+							const { error: toggleRecordingError } =
+								await app.toggleRecording();
+							if (toggleRecordingError) {
 								await extension.createNotification({
-									notifyOptions: toggleRecordingResult.error,
+									notifyOptions: toggleRecordingError,
 								});
 							}
 						}}
@@ -85,10 +86,11 @@ function IndexPage() {
 							tooltipContent="Cancel recording"
 							className="-right-14 absolute bottom-0 transform text-2xl"
 							onClick={async () => {
-								const cancelRecordingResult = await app.cancelRecording();
-								if (!cancelRecordingResult.ok) {
+								const { error: cancelRecordingError } =
+									await app.cancelRecording();
+								if (cancelRecordingError) {
 									await extension.createNotification({
-										notifyOptions: cancelRecordingResult.error,
+										notifyOptions: cancelRecordingError,
 									});
 								}
 							}}
@@ -103,11 +105,11 @@ function IndexPage() {
 							tooltipContent="End recording session"
 							className="-right-14 absolute bottom-0 transform text-2xl"
 							onClick={async () => {
-								const closeRecordingSessionResult =
+								const {  error: closeRecordingSessionError } =
 									await app.closeRecordingSessionWithToast();
-								if (!closeRecordingSessionResult.ok) {
+								if (closeRecordingSessionError) {
 									await extension.createNotification({
-										notifyOptions: closeRecordingSessionResult.error,
+										notifyOptions: closeRecordingSessionError,
 									});
 								}
 							}}
@@ -194,12 +196,12 @@ function NavItems() {
 			<WhisperingButton
 				tooltipContent="Recordings"
 				onClick={async () => {
-					const whisperingTabIdResult = await getOrCreateWhisperingTabId();
-					if (!whisperingTabIdResult.ok) {
-						createNotification(whisperingTabIdResult.error);
+					const { data: whisperingTabId, error: getOrCreateWhisperingTabIdError } =
+						await getOrCreateWhisperingTabId();
+					if (getOrCreateWhisperingTabIdError) {
+						createNotification(getOrCreateWhisperingTabIdError);
 						return;
 					}
-					const whisperingTabId = whisperingTabIdResult.data;
 					const tab = await chrome.tabs.get(whisperingTabId);
 					if (!tab.url) {
 						createNotification({

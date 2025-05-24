@@ -1,6 +1,6 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
 import type { Command } from '@repo/shared';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingError } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';
@@ -52,7 +52,7 @@ function createShortcutsRegister({
 						});
 					},
 					mapErr: (error) =>
-						WhisperingErr({
+						WhisperingError({
 							title: 'Error registering push to talk local shortcut',
 							description: 'Please make sure it is a valid keyboard shortcut.',
 							action: { type: 'more-details', error },
@@ -69,7 +69,7 @@ function createShortcutsRegister({
 						return false;
 					}),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Error registering local shortcut',
 						description: 'Please make sure it is a valid keyboard shortcut.',
 						action: { type: 'more-details', error },
@@ -98,7 +98,7 @@ function createShortcutsRegister({
 						});
 					},
 					mapErr: (error) =>
-						WhisperingErr({
+						WhisperingError({
 							title: 'Error registering global shortcut.',
 							description:
 								'Please make sure it is a valid Electron keyboard shortcut.',
@@ -121,7 +121,7 @@ function createShortcutsRegister({
 					});
 				},
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Error registering global shortcut.',
 						description:
 							'Please make sure it is a valid Electron keyboard shortcut.',

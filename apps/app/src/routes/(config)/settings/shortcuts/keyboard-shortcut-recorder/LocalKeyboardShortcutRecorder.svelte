@@ -4,7 +4,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { trySync } from '@epicenterhq/result';
 	import type { Command } from '@repo/shared';
-	import { WhisperingErr } from '@repo/shared';
+	import { WhisperingError } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import { createKeyRecorder } from './index.svelte';
 	import { createLocalKeyMapper } from './key-mappers';
@@ -39,28 +39,29 @@
 					settings.value[`shortcuts.local.${command.id}`];
 				if (!currentCommandKey) return;
 
-				const unregisterResult = trySync({
+				const { error: unregisterError } = trySync({
 					try: () => hotkeys.unbind(currentCommandKey),
 					mapErr: (error) =>
-						WhisperingErr({
+						WhisperingError({
 							title: `Error unregistering old command with id ${command.id} locally`,
 							description: 'Please try again.',
 							action: { type: 'more-details', error },
 						}),
 				});
 
-				if (!unregisterResult.ok) {
-					toast.error(unregisterResult.error);
+				if (unregisterError) {
+					toast.error(unregisterError);
 				}
 			},
 			onRegister: (keyCombination) => {
-				const result = shortcutsRegister.registerCommandLocally({
-					command,
-					keyCombination,
-				});
+				const { error: registerError } =
+					shortcutsRegister.registerCommandLocally({
+						command,
+						keyCombination,
+					});
 
-				if (!result.ok) {
-					toast.error(result.error);
+				if (registerError) {
+					toast.error(registerError);
 					return;
 				}
 

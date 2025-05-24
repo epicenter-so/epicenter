@@ -1,7 +1,7 @@
-import { Ok } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
 import type { PlasmoMessaging } from '@plasmohq/messaging';
 import {
-	WhisperingErr,
+	WhisperingError,
 	type WhisperingResult,
 	type WhisperingSoundNames,
 } from '@repo/shared';
@@ -14,31 +14,37 @@ export type PlaySoundResult = WhisperingResult<undefined>;
 
 const playSound = async (sound: WhisperingSoundNames) => {
 	console.info('Playing sound', sound);
-	const getActiveTabIdResult = await getActiveTabId();
-	if (!getActiveTabIdResult.ok) {
-		return WhisperingErr({
-			title: 'Failed to get active tab ID',
-			description: 'Failed to get active tab ID to play sound',
-			action: { type: 'more-details', error: getActiveTabIdResult.error },
-		});
+	const { data: activeTabId, error: getActiveTabIdError } =
+		await getActiveTabId();
+	if (getActiveTabIdError) {
+		return Err(
+			WhisperingError({
+				title: 'Failed to get active tab ID',
+				description: 'Failed to get active tab ID to play sound',
+				action: { type: 'more-details', error: getActiveTabIdError },
+			}),
+		);
 	}
-	const activeTabId = getActiveTabIdResult.data;
 	if (!activeTabId) {
-		return WhisperingErr({
-			title: 'Failed to get active tab ID',
-			description: 'Failed to get active tab ID to play sound',
-		});
+		return Err(
+			WhisperingError({
+				title: 'Failed to get active tab ID',
+				description: 'Failed to get active tab ID to play sound',
+			}),
+		);
 	}
 	const sendMessageResult = await chrome.tabs.sendMessage(activeTabId, {
 		message: 'playSound',
 		sound,
 	});
 	if (!sendMessageResult) {
-		return WhisperingErr({
-			title: `Failed to play ${sound} sound`,
-			description: `Failed to play ${sound} sound in active tab ${activeTabId}`,
-			action: { type: 'more-details', error: sendMessageResult },
-		});
+		return Err(
+			WhisperingError({
+				title: `Failed to play ${sound} sound`,
+				description: `Failed to play ${sound} sound in active tab ${activeTabId}`,
+				action: { type: 'more-details', error: sendMessageResult },
+			}),
+		);
 	}
 	return Ok(undefined);
 };
@@ -49,11 +55,13 @@ const handler: PlasmoMessaging.MessageHandler<
 > = async ({ body }, res) => {
 	if (!body?.sound) {
 		res.send(
-			WhisperingErr({
-				title: 'Error invoking playSound command',
-				description:
-					'Sound must be provided in the request body of the message',
-			}),
+			Err(
+				WhisperingError({
+					title: 'Error invoking playSound command',
+					description:
+						'Sound must be provided in the request body of the message',
+				}),
+			),
 		);
 		return;
 	}

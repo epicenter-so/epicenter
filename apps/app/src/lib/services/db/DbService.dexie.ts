@@ -2,7 +2,7 @@ import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { useDownloadIndexedDbBlobWithToast } from '$lib/query/download/mutations';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type {
@@ -13,7 +13,7 @@ import type {
 	TransformationRun,
 	TransformationStepRun,
 } from './DbService';
-import { DbServiceErr } from './DbService';
+import type { DbServiceErrorProperties } from './DbService';
 import type {
 	RecordingsDbSchemaV1,
 	RecordingsDbSchemaV2,
@@ -166,9 +166,9 @@ class RecordingsDatabase extends Dexie {
 						const blobs = oldRecordings.map(({ id, blob }) => ({ id, blob }));
 
 						await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.bulkAdd(metadata);
 						await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -191,9 +191,9 @@ class RecordingsDatabase extends Dexie {
 					upgrade: async (tx) => {
 						// Get data from both tables
 						const metadata = await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.toArray();
 						const blobs = await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -344,11 +344,12 @@ export function createDbRecordingsServiceDexie() {
 						),
 					);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting all recordings from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting all recordings from Dexie',
+					context: {},
+					cause: error,
+				}),
 			});
 		},
 
@@ -362,11 +363,12 @@ export function createDbRecordingsServiceDexie() {
 					if (!latestRecording) return null;
 					return recordingWithSerializedAudioToRecording(latestRecording);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting latest recording from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting latest recording from Dexie',
+					context: {},
+					cause: error,
+				}),
 			});
 		},
 
@@ -377,11 +379,12 @@ export function createDbRecordingsServiceDexie() {
 						.where('transcriptionStatus')
 						.equals('TRANSCRIBING' satisfies Recording['transcriptionStatus'])
 						.primaryKeys(),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting transcribing recording ids from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting transcribing recording ids from Dexie',
+					context: {},
+					cause: error,
+				}),
 			});
 		},
 
@@ -392,11 +395,12 @@ export function createDbRecordingsServiceDexie() {
 					if (!maybeRecording) return null;
 					return recordingWithSerializedAudioToRecording(maybeRecording);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting recording by id from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting recording by id from Dexie',
+					context: { id },
+					cause: error,
+				}),
 			});
 		},
 
@@ -412,17 +416,18 @@ export function createDbRecordingsServiceDexie() {
 				recordingWithTimestamps,
 			);
 
-			const createRecordingResult = await tryAsync({
+			const { error: createRecordingError } = await tryAsync({
 				try: async () => {
 					await db.recordings.add(dbRecording);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error adding recording to Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error adding recording to Dexie',
+					context: { recording },
+					cause: error,
+				}),
 			});
-			if (!createRecordingResult.ok) return createRecordingResult;
+			if (createRecordingError) return Err(createRecordingError);
 			return Ok(recordingWithTimestamps);
 		},
 
@@ -437,46 +442,49 @@ export function createDbRecordingsServiceDexie() {
 				recordingWithTimestamp,
 			);
 
-			const updateRecordingResult = await tryAsync({
+			const { error: updateRecordingError } = await tryAsync({
 				try: async () => {
 					await db.recordings.put(dbRecording);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error updating recording in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error updating recording in Dexie',
+					context: { recording },
+					cause: error,
+				}),
 			});
-			if (!updateRecordingResult.ok) return updateRecordingResult;
+			if (updateRecordingError) return Err(updateRecordingError);
 			return Ok(recordingWithTimestamp);
 		},
 
 		async deleteRecording(recording: Recording) {
-			const deleteRecordingByIdResult = await tryAsync({
+			const { error: deleteRecordingError } = await tryAsync({
 				try: async () => {
 					await db.recordings.delete(recording.id);
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error deleting recording from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error deleting recording from Dexie',
+					context: { recording },
+					cause: error,
+				}),
 			});
-			if (!deleteRecordingByIdResult.ok) return deleteRecordingByIdResult;
+			if (deleteRecordingError) return Err(deleteRecordingError);
 			return Ok(undefined);
 		},
 
 		async deleteRecordings(recordingsToDelete: Recording[]) {
 			const ids = recordingsToDelete.map((r) => r.id);
-			const deleteRecordingsResult = await tryAsync({
+			const { error: deleteRecordingsError } = await tryAsync({
 				try: () => db.recordings.bulkDelete(ids),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error deleting recordings from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error deleting recordings from Dexie',
+					context: { recordingsToDelete },
+					cause: error,
+				}),
 			});
-			if (!deleteRecordingsResult.ok) return deleteRecordingsResult;
+			if (deleteRecordingsError) return Err(deleteRecordingsError);
 			return Ok(undefined);
 		},
 
@@ -489,17 +497,17 @@ export function createDbRecordingsServiceDexie() {
 					return Ok(undefined);
 				}
 				case 'limit-count': {
-					const countResult = await tryAsync({
+					const { data: count, error: countError } = await tryAsync({
 						try: () => db.recordings.count(),
-						mapErr: (error) =>
-							DbServiceErr({
-								title:
-									'Unable to get recording count while cleaning up old recordings',
-								error,
-							}),
+						mapErr: (error): DbServiceErrorProperties => ({
+							name: 'DbServiceError',
+							message:
+								'Unable to get recording count while cleaning up old recordings',
+							context: {},
+							cause: error,
+						}),
 					});
-					if (!countResult.ok) return countResult;
-					const count = countResult.data;
+					if (countError) return Err(countError);
 					if (count === 0) return Ok(undefined);
 
 					const maxCount = Number.parseInt(maxRecordingCount);
@@ -514,11 +522,12 @@ export function createDbRecordingsServiceDexie() {
 								.primaryKeys();
 							await db.recordings.bulkDelete(idsToDelete);
 						},
-						mapErr: (error) =>
-							DbServiceErr({
-								title: 'Unable to clean up old recordings',
-								error,
-							}),
+						mapErr: (error): DbServiceErrorProperties => ({
+							name: 'DbServiceError',
+							message: 'Unable to clean up old recordings',
+							context: {},
+							cause: error,
+						}),
 					});
 				}
 			}
@@ -531,11 +540,12 @@ export function createDbTransformationsServiceDexie() {
 		async getAllTransformations() {
 			return tryAsync({
 				try: () => db.transformations.toArray(),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting all transformations from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting all transformations from Dexie',
+					context: {},
+					cause: error,
+				}),
 			});
 		},
 
@@ -546,11 +556,12 @@ export function createDbTransformationsServiceDexie() {
 						(await db.transformations.get(id)) ?? null;
 					return maybeTransformation;
 				},
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting transformation by id from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error getting transformation by id from Dexie',
+					context: { id },
+					cause: error,
+				}),
 			});
 		},
 
@@ -561,15 +572,16 @@ export function createDbTransformationsServiceDexie() {
 				createdAt: now,
 				updatedAt: now,
 			} satisfies Transformation;
-			const createTransformationResult = await tryAsync({
+			const { error: createTransformationError } = await tryAsync({
 				try: () => db.transformations.add(transformationWithTimestamps),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error adding transformation to Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error adding transformation to Dexie',
+					context: { transformation },
+					cause: error,
+				}),
 			});
-			if (!createTransformationResult.ok) return createTransformationResult;
+			if (createTransformationError) return Err(createTransformationError);
 			return Ok(transformationWithTimestamps);
 		},
 
@@ -579,56 +591,62 @@ export function createDbTransformationsServiceDexie() {
 				...transformation,
 				updatedAt: now,
 			} satisfies Transformation;
-			const updateTransformationResult = await tryAsync({
+			const { error: updateTransformationError } = await tryAsync({
 				try: () => db.transformations.put(transformationWithTimestamp),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error updating transformation in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error updating transformation in Dexie',
+					context: { transformation },
+					cause: error,
+				}),
 			});
-			if (!updateTransformationResult.ok) return updateTransformationResult;
+			if (updateTransformationError) return Err(updateTransformationError);
 			return Ok(transformationWithTimestamp);
 		},
 
 		async deleteTransformation(transformation) {
-			const deleteTransformationResult = await tryAsync({
+			const { error: deleteTransformationError } = await tryAsync({
 				try: () => db.transformations.delete(transformation.id),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error deleting transformation from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error deleting transformation from Dexie',
+					context: { transformation },
+					cause: error,
+				}),
 			});
-			if (!deleteTransformationResult.ok) return deleteTransformationResult;
+			if (deleteTransformationError) return Err(deleteTransformationError);
 			return Ok(undefined);
 		},
 
 		async deleteTransformations(transformations) {
 			const ids = transformations.map((t) => t.id);
-			const deleteTransformationsResult = await tryAsync({
+			const { error: deleteTransformationsError } = await tryAsync({
 				try: () => db.transformations.bulkDelete(ids),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error deleting transformations from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error deleting transformations from Dexie',
+					context: { transformations },
+					cause: error,
+				}),
 			});
-			if (!deleteTransformationsResult.ok) return deleteTransformationsResult;
+			if (deleteTransformationsError) return Err(deleteTransformationsError);
 			return Ok(undefined);
 		},
 
 		async getTransformationRunById(id) {
-			const result = await tryAsync({
-				try: () => db.transformationRuns.where('id').equals(id).first(),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error getting transformation run by id from Dexie',
-						error,
+			const { data: transformationRun, error: getTransformationRunByIdError } =
+				await tryAsync({
+					try: () => db.transformationRuns.where('id').equals(id).first(),
+					mapErr: (error): DbServiceErrorProperties => ({
+						name: 'DbServiceError',
+						message: 'Error getting transformation run by id from Dexie',
+						context: { id },
+						cause: error,
 					}),
-			});
-			if (!result.ok) return result;
-			return Ok(result.data ?? null);
+				});
+			if (getTransformationRunByIdError)
+				return Err(getTransformationRunByIdError);
+			return Ok(transformationRun ?? null);
 		},
 
 		async getTransformationRunsByTransformationId(transformationId) {
@@ -646,12 +664,13 @@ export function createDbTransformationsServiceDexie() {
 									new Date(a.startedAt).getTime(),
 							),
 						),
-				mapErr: (error) =>
-					DbServiceErr({
-						title:
-							'Error getting transformation runs by transformation id from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message:
+						'Error getting transformation runs by transformation id from Dexie',
+					context: { transformationId },
+					cause: error,
+				}),
 			});
 		},
 
@@ -669,12 +688,13 @@ export function createDbTransformationsServiceDexie() {
 									new Date(a.startedAt).getTime(),
 							),
 						),
-				mapErr: (error) =>
-					DbServiceErr({
-						title:
-							'Error getting transformation runs by recording id from Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message:
+						'Error getting transformation runs by recording id from Dexie',
+					context: { recordingId },
+					cause: error,
+				}),
 			});
 		},
 
@@ -690,16 +710,17 @@ export function createDbTransformationsServiceDexie() {
 				error: null,
 				stepRuns: [],
 			} satisfies TransformationRun;
-			const createTransformationRunResult = await tryAsync({
+			const { error: createTransformationRunError } = await tryAsync({
 				try: () => db.transformationRuns.add(transformationRunWithTimestamps),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error adding transformation run to Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error adding transformation run to Dexie',
+					context: { transformationRun },
+					cause: error,
+				}),
 			});
-			if (!createTransformationRunResult.ok)
-				return createTransformationRunResult;
+			if (createTransformationRunError)
+				return Err(createTransformationRunError);
 			return Ok(transformationRunWithTimestamps);
 		},
 
@@ -726,19 +747,21 @@ export function createDbTransformationsServiceDexie() {
 				transformationRun.stepRuns.push(transformationStepRun);
 			};
 
-			const result = await tryAsync({
+			const { error: addStepRunToTransformationRunError } = await tryAsync({
 				try: () =>
 					db.transformationRuns
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(addStepRunToTransformationRun),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error adding step run to transformation run in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error adding step run to transformation run in Dexie',
+					context: { transformationRun, stepId },
+					cause: error,
+				}),
 			});
-			if (!result.ok) return result;
+			if (addStepRunToTransformationRunError)
+				return Err(addStepRunToTransformationRunError);
 			addStepRunToTransformationRun(transformationRun);
 			return Ok(transformationStepRun);
 		},
@@ -763,20 +786,21 @@ export function createDbTransformationsServiceDexie() {
 				transformationRun.completedAt = now;
 				transformationRun.error = error;
 			};
-			const updateTransformationStepRunResult = await tryAsync({
+			const { error: updateTransformationStepRunError } = await tryAsync({
 				try: () =>
 					db.transformationRuns
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunAndRunStepAsFailed),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error updating transformation step run status in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error updating transformation step run status in Dexie',
+					context: { transformationRun, stepRunId },
+					cause: error,
+				}),
 			});
-			if (!updateTransformationStepRunResult.ok)
-				return updateTransformationStepRunResult;
+			if (updateTransformationStepRunError)
+				return Err(updateTransformationStepRunError);
 
 			markTransformationRunAndRunStepAsFailed(transformationRun);
 			return Ok(transformationRun);
@@ -800,20 +824,21 @@ export function createDbTransformationsServiceDexie() {
 				stepRun.output = output;
 			};
 
-			const updateTransformationStepRunResult = await tryAsync({
+			const { error: updateTransformationStepRunError } = await tryAsync({
 				try: () =>
 					db.transformationRuns
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunStepAsCompleted),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error updating transformation step run status in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error updating transformation step run status in Dexie',
+					context: { transformationRun, stepRunId },
+					cause: error,
+				}),
 			});
-			if (!updateTransformationStepRunResult.ok)
-				return updateTransformationStepRunResult;
+			if (updateTransformationStepRunError)
+				return Err(updateTransformationStepRunError);
 
 			markTransformationRunStepAsCompleted(transformationRun);
 			return Ok(transformationRun);
@@ -828,20 +853,21 @@ export function createDbTransformationsServiceDexie() {
 				transformationRun.completedAt = now;
 				transformationRun.output = output;
 			};
-			const updateTransformationStepRunResult = await tryAsync({
+			const { error: updateTransformationStepRunError } = await tryAsync({
 				try: () =>
 					db.transformationRuns
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunAsCompleted),
-				mapErr: (error) =>
-					DbServiceErr({
-						title: 'Error updating transformation step run status in Dexie',
-						error,
-					}),
+				mapErr: (error): DbServiceErrorProperties => ({
+					name: 'DbServiceError',
+					message: 'Error updating transformation step run status in Dexie',
+					context: { transformationRun, output },
+					cause: error,
+				}),
 			});
-			if (!updateTransformationStepRunResult.ok)
-				return updateTransformationStepRunResult;
+			if (updateTransformationStepRunError)
+				return Err(updateTransformationStepRunError);
 
 			markTransformationRunAsCompleted(transformationRun);
 			return Ok(transformationRun);
