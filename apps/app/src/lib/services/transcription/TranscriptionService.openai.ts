@@ -1,9 +1,7 @@
-import { Ok } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import type { HttpService } from '../http/HttpService';
-import {
-	type TranscriptionService,
-	TranscriptionServiceErr,
-} from './TranscriptionService';
+import type { TranscriptionService } from './TranscriptionService';
 import { createWhisperService } from './createWhisperService';
 
 export function createOpenaiTranscriptionService({
@@ -24,27 +22,31 @@ export function createOpenaiTranscriptionService({
 		},
 		preValidate: async () => {
 			if (!apiKey) {
-				return TranscriptionServiceErr({
-					title: 'OpenAI API Key not provided.',
-					description: 'Please enter your OpenAI API key in the settings',
-					action: {
-						type: 'link',
-						label: 'Go to settings',
-						goto: '/settings/transcription',
-					},
-				});
+				return Err(
+					WhisperingError({
+						title: 'OpenAI API Key not provided.',
+						description: 'Please enter your OpenAI API key in the settings',
+						action: {
+							type: 'link',
+							label: 'Go to settings',
+							goto: '/settings/transcription',
+						},
+					}),
+				);
 			}
 
 			if (!apiKey.startsWith('sk-')) {
-				return TranscriptionServiceErr({
-					title: 'Invalid OpenAI API Key',
-					description: 'The OpenAI API Key must start with "sk-"',
-					action: {
-						type: 'link',
-						label: 'Update OpenAI API Key',
-						goto: '/settings/transcription',
-					},
-				});
+				return Err(
+					WhisperingError({
+						title: 'Invalid OpenAI API Key',
+						description: 'The OpenAI API Key must start with "sk-"',
+						action: {
+							type: 'link',
+							label: 'Update OpenAI API Key',
+							goto: '/settings/transcription',
+						},
+					}),
+				);
 			}
 
 			return Ok(undefined);

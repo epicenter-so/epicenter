@@ -1,35 +1,42 @@
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
-import { WhisperingErr, type WhisperingRecordingState } from '@repo/shared';
+import { WhisperingError, type WhisperingRecordingState } from '@repo/shared';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import type { RecorderService } from './RecorderService';
 
 export function createRecorderServiceTauri(): RecorderService {
 	return {
 		getRecorderState: async () => {
-			const result =
+			const { data: recorderState, error: getRecorderStateError } =
 				await invoke<WhisperingRecordingState>('get_recorder_state');
-			if (!result.ok)
-				return WhisperingErr({
-					title: '🎤 Unable to Get Recorder State',
-					description:
-						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					action: { type: 'more-details', error: result.error },
-				});
-			return Ok(result.data);
+			if (getRecorderStateError)
+				return Err(
+					WhisperingError({
+						title: '🎤 Unable to Get Recorder State',
+						description:
+							'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+						action: { type: 'more-details', error: getRecorderStateError },
+					}),
+				);
+			return Ok(recorderState);
 		},
 		enumerateRecordingDevices: async () => {
-			const invokeResult = await invoke<{ deviceId: string; label: string }[]>(
-				'enumerate_recording_devices',
-			);
-			if (!invokeResult.ok) {
-				return WhisperingErr({
-					title: '🎤 Device Access Error',
-					description:
-						'Oops! We need permission to see your microphones. Check your browser settings and try again!',
-					action: { type: 'more-details', error: invokeResult.error },
-				});
+			const { data: deviceInfos, error: enumerateRecordingDevicesError } =
+				await invoke<{ deviceId: string; label: string }[]>(
+					'enumerate_recording_devices',
+				);
+			if (enumerateRecordingDevicesError) {
+				return Err(
+					WhisperingError({
+						title: '🎤 Device Access Error',
+						description:
+							'Oops! We need permission to see your microphones. Check your browser settings and try again!',
+						action: {
+							type: 'more-details',
+							error: enumerateRecordingDevicesError,
+						},
+					}),
+				);
 			}
-			const deviceInfos = invokeResult.data;
 			return Ok(deviceInfos);
 		},
 		ensureRecordingSession: async (
@@ -41,16 +48,21 @@ export function createRecorderServiceTauri(): RecorderService {
 				description:
 					'Initializing your recording session and checking microphone access...',
 			});
-			const result = await invoke('init_recording_session', {
-				deviceName: settings['recording.tauri.selectedAudioInputName'],
-			});
-			if (!result.ok)
-				return WhisperingErr({
-					title: '🎤 Unable to Start Recording Session',
-					description:
-						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					action: { type: 'more-details', error: result.error },
-				});
+			const { error: initRecordingSessionError } = await invoke(
+				'init_recording_session',
+				{
+					deviceName: settings['recording.tauri.selectedAudioInputName'],
+				},
+			);
+			if (initRecordingSessionError)
+				return Err(
+					WhisperingError({
+						title: '🎤 Unable to Start Recording Session',
+						description:
+							'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+						action: { type: 'more-details', error: initRecordingSessionError },
+					}),
+				);
 			return Ok(undefined);
 		},
 		closeRecordingSession: async ({ sendStatus: sendUpdateStatus }) => {
@@ -59,39 +71,51 @@ export function createRecorderServiceTauri(): RecorderService {
 				description:
 					'Safely closing your recording session and freeing up resources...',
 			});
-			const result = await invoke<void>('close_recording_session');
-			if (!result.ok)
-				return WhisperingErr({
-					title: '⚠️ Session Close Failed',
-					description:
-						'Unable to properly close the recording session. Please try again.',
-					action: { type: 'more-details', error: result.error },
-				});
+			const { error: closeRecordingSessionError } = await invoke<void>(
+				'close_recording_session',
+			);
+			if (closeRecordingSessionError)
+				return Err(
+					WhisperingError({
+						title: '⚠️ Session Close Failed',
+						description:
+							'Unable to properly close the recording session. Please try again.',
+						action: { type: 'more-details', error: closeRecordingSessionError },
+					}),
+				);
 			return Ok(undefined);
 		},
 		startRecording: async (recordingId) => {
-			const result = await invoke<void>('start_recording', {
-				recordingId,
-			});
-			if (!result.ok)
-				return WhisperingErr({
-					title: '🎤 Recording Start Failed',
-					description:
-						'Unable to start recording. Please check your microphone and try again.',
-					action: { type: 'more-details', error: result.error },
-				});
+			const { error: startRecordingError } = await invoke<void>(
+				'start_recording',
+				{
+					recordingId,
+				},
+			);
+			if (startRecordingError)
+				return Err(
+					WhisperingError({
+						title: '🎤 Recording Start Failed',
+						description:
+							'Unable to start recording. Please check your microphone and try again.',
+						action: { type: 'more-details', error: startRecordingError },
+					}),
+				);
 			return Ok(undefined);
 		},
 		stopRecording: async () => {
-			const result = await invoke<number[]>('stop_recording');
-			if (!result.ok)
-				return WhisperingErr({
-					title: '⏹️ Recording Stop Failed',
-					description: 'Unable to save your recording. Please try again.',
-					action: { type: 'more-details', error: result.error },
-				});
+			const { data: float32ArrayRaw, error: stopRecordingError } =
+				await invoke<number[]>('stop_recording');
+			if (stopRecordingError)
+				return Err(
+					WhisperingError({
+						title: '⏹️ Recording Stop Failed',
+						description: 'Unable to save your recording. Please try again.',
+						action: { type: 'more-details', error: stopRecordingError },
+					}),
+				);
 
-			const float32Array = new Float32Array(result.data);
+			const float32Array = new Float32Array(float32ArrayRaw);
 			const blob = createWavFromFloat32(float32Array);
 			return Ok(blob);
 		},
@@ -101,14 +125,16 @@ export function createRecorderServiceTauri(): RecorderService {
 				description:
 					'Safely stopping your recording and cleaning up resources...',
 			});
-			const result = await invoke('cancel_recording');
-			if (!result.ok)
-				return WhisperingErr({
-					title: '⚠️ Cancel Failed',
-					description:
-						'Unable to cancel the recording. Please try closing the app and starting again.',
-					action: { type: 'more-details', error: result.error },
-				});
+			const { error: cancelRecordingError } = await invoke('cancel_recording');
+			if (cancelRecordingError)
+				return Err(
+					WhisperingError({
+						title: '⚠️ Cancel Failed',
+						description:
+							'Unable to cancel the recording. Please try closing the app and starting again.',
+						action: { type: 'more-details', error: cancelRecordingError },
+					}),
+				);
 			return Ok(undefined);
 		},
 	};

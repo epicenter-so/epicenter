@@ -1,12 +1,10 @@
 import type { PlasmoMessaging } from '@plasmohq/messaging';
-import {
-	type Settings,
-	WhisperingErr,
-	type WhisperingResult,
-} from '@repo/shared';
+import { WhisperingError, type WhisperingResult } from '@repo/shared';
+import type { Settings } from '@repo/shared/settings';
 import { injectScript } from '~background/injectScript';
 import { getOrCreateWhisperingTabId } from '~lib/getOrCreateWhisperingTabId';
 import type { WhisperingStorageKey } from '~lib/storage';
+import { Err } from '~node_modules/@epicenterhq/result/dist';
 
 export type SetSettingsRequest = {
 	settings: Settings;
@@ -14,9 +12,10 @@ export type SetSettingsRequest = {
 export type SetSettingsResponse = WhisperingResult<Settings>;
 
 const setSettings = async (settings: Settings) => {
-	const whisperingTabIdResult = await getOrCreateWhisperingTabId();
-	if (!whisperingTabIdResult.ok) return whisperingTabIdResult;
-	const whisperingTabId = whisperingTabIdResult.data;
+	const { data: whisperingTabId, error: getOrCreateWhisperingTabIdError } =
+		await getOrCreateWhisperingTabId();
+	if (getOrCreateWhisperingTabIdError)
+		return Err(getOrCreateWhisperingTabIdError);
 	const returnedSettings = await injectScript<
 		Settings,
 		[WhisperingStorageKey, Settings]
@@ -26,10 +25,10 @@ const setSettings = async (settings: Settings) => {
 		func: (settingsKey, settings) => {
 			try {
 				localStorage.setItem(settingsKey, JSON.stringify(settings));
-				return { ok: true, data: settings } as const;
+				return { data: settings, error: null } as const;
 			} catch (error) {
 				return {
-					ok: false,
+					data: null,
 					error: {
 						_tag: 'WhisperingError',
 						variant: 'error',
@@ -54,10 +53,12 @@ const handler: PlasmoMessaging.MessageHandler<
 > = async ({ body }, res) => {
 	if (!body?.settings) {
 		res.send(
-			WhisperingErr({
-				title: 'Error setting Whispering settings',
-				description: 'Settings must be provided in the message request body',
-			}),
+			Err(
+				WhisperingError({
+					title: 'Error setting Whispering settings',
+					description: 'Settings must be provided in the message request body',
+				}),
+			),
 		);
 		return;
 	}

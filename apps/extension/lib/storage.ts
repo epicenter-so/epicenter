@@ -1,7 +1,7 @@
 import { Storage } from '@plasmohq/storage';
 import { useStorage } from '@plasmohq/storage/hook';
 import type { WhisperingRecordingState } from '@repo/shared';
-import type { Settings } from '@repo/shared/src/settings';
+import type { Settings } from '@repo/shared/settings';
 
 const storage = new Storage({ area: 'local' });
 

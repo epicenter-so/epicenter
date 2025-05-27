@@ -1,5 +1,5 @@
-import { Ok, tryAsync } from '@epicenterhq/result';
-import { WhisperingErr } from '@repo/shared';
+import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import {
 	active,
 	isPermissionGranted,
@@ -12,31 +12,31 @@ import type { NotificationService } from './NotificationService';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (id: number) => {
-		const activeNotificationsResult = await tryAsync({
-			try: async () => await active(),
-			mapErr: (error) =>
-				WhisperingErr({
-					title: 'Unable to remove notification',
-					description: 'Unable to retrieve active notifications.',
-					action: { type: 'more-details', error },
-				}),
-		});
-		if (!activeNotificationsResult.ok) return activeNotificationsResult;
-		const activeNotifications = activeNotificationsResult.data;
+		const { data: activeNotifications, error: activeNotificationsError } =
+			await tryAsync({
+				try: async () => await active(),
+				mapErr: (error) =>
+					WhisperingError({
+						title: 'Unable to remove notification',
+						description: 'Unable to retrieve active notifications.',
+						action: { type: 'more-details', error },
+					}),
+			});
+		if (activeNotificationsError) return Err(activeNotificationsError);
 		const matchingActiveNotification = activeNotifications.find(
 			(notification) => notification.id === id,
 		);
 		if (matchingActiveNotification) {
-			const removeActiveResult = await tryAsync({
+			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Unable to remove notification',
 						description: `An error occurred while trying to remove notification with id ${id}.`,
 						action: { type: 'more-details', error },
 					}),
 			});
-			if (!removeActiveResult.ok) return removeActiveResult;
+			if (removeActiveError) return Err(removeActiveError);
 		}
 		return Ok(undefined);
 	};
@@ -47,7 +47,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 
 			await removeNotificationById(id);
 
-			const notifyResult = await tryAsync({
+			const { error: notifyError } = await tryAsync({
 				try: async () => {
 					let permissionGranted = await isPermissionGranted();
 					if (!permissionGranted) {
@@ -59,7 +59,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 					}
 				},
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Notification error',
 						description: 'Could not send notification',
 						action: {
@@ -68,7 +68,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 						},
 					}),
 			});
-			if (!notifyResult.ok) return notifyResult;
+			if (notifyError) return Err(notifyError);
 			return Ok(idStringified);
 		},
 		clear: async (idStringified) => {

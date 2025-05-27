@@ -1,10 +1,10 @@
-import { Ok } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
 import { ElevenLabsClient } from 'elevenlabs';
-import {
-	type TranscriptionService,
-	TranscriptionServiceErr,
-	type TranscriptionServiceResult,
+import type {
+	TranscriptionService,
+	TranscriptionServiceResult,
 } from './TranscriptionService';
+import { WhisperingError } from '@repo/shared';
 
 type ModelName = 'scribe_v1';
 
@@ -21,15 +21,17 @@ export function createElevenLabsTranscriptionService({
 			options,
 		): Promise<TranscriptionServiceResult<string>> => {
 			if (!apiKey) {
-				return TranscriptionServiceErr({
-					title: 'ElevenLabs API Key not provided',
-					description: 'Please enter your ElevenLabs API key in the settings',
-					action: {
-						type: 'link',
-						label: 'Go to settings',
-						goto: '/settings/transcription',
-					},
-				});
+				return Err(
+					WhisperingError({
+						title: 'ElevenLabs API Key not provided',
+						description: 'Please enter your ElevenLabs API key in the settings',
+						action: {
+							type: 'link',
+							label: 'Go to settings',
+							goto: '/settings/transcription',
+						},
+					}),
+				);
 			}
 
 			try {
@@ -42,10 +44,12 @@ export function createElevenLabsTranscriptionService({
 				const MAX_FILE_SIZE_MB = 1000; // ElevenLabs allows files up to 1GB
 
 				if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-					return TranscriptionServiceErr({
-						title: `The file size (${blobSizeInMb.toFixed(1)}MB) is too large`,
-						description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-					});
+					return Err(
+						WhisperingError({
+							title: `The file size (${blobSizeInMb.toFixed(1)}MB) is too large`,
+							description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
+						}),
+					);
 				}
 
 				// Use the client's speechToText functionality
@@ -65,14 +69,16 @@ export function createElevenLabsTranscriptionService({
 				return Ok(transcription.text.trim());
 			} catch (error) {
 				// Handle errors from the ElevenLabs client
-				return TranscriptionServiceErr({
-					title: 'Error with ElevenLabs Speech-to-Text',
-					description:
-						error instanceof Error
-							? error.message
-							: 'Failed to transcribe audio',
-					action: { type: 'more-details', error },
-				});
+				return Err(
+					WhisperingError({
+						title: 'Error with ElevenLabs Speech-to-Text',
+						description:
+							error instanceof Error
+								? error.message
+								: 'Failed to transcribe audio',
+						action: { type: 'more-details', error },
+					}),
+				);
 			}
 		},
 	};

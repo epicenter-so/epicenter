@@ -6,21 +6,23 @@ import {
 } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { Ok } from '@epicenterhq/result';
-import { WhisperingErr } from '@repo/shared';
-import { createMutation } from '@tanstack/svelte-query';
+import { WhisperingError } from '@repo/shared';
 import { recordingsKeys } from './queries';
 
 export function useCreateRecording() {
 	return {
 		createRecording: createResultMutation(() => ({
 			mutationFn: async (recording: Recording) => {
-				const result = await DbRecordingsService.createRecording(recording);
-				if (!result.ok) {
-					return WhisperingErr({
-						title: 'Failed to update recording!',
-						description: 'Your recording could not be updated.',
-						action: { type: 'more-details', error: result.error },
-					});
+				const { error: createRecordingError } =
+					await DbRecordingsService.createRecording(recording);
+				if (createRecordingError) {
+					return Err(
+						WhisperingError({
+							title: 'Failed to update recording!',
+							description: 'Your recording could not be updated.',
+							action: { type: 'more-details', error: createRecordingError },
+						}),
+					);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
@@ -45,9 +47,16 @@ export function useUpdateRecording() {
 	return {
 		updateRecording: createResultMutation(() => ({
 			mutationFn: async (recording: Recording) => {
-				const result = await DbRecordingsService.updateRecording(recording);
-				if (!result.ok) {
-					return result;
+				const { error: updateRecordingError } =
+					await DbRecordingsService.updateRecording(recording);
+				if (updateRecordingError) {
+					return Err(
+						WhisperingError({
+							title: 'Failed to update recording!',
+							description: 'Your recording could not be updated.',
+							action: { type: 'more-details', error: updateRecordingError },
+						}),
+					);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
@@ -74,12 +83,13 @@ export function useUpdateRecordingWithToast() {
 	return {
 		updateRecordingWithToast: createResultMutation(() => ({
 			mutationFn: async (recording: Recording) => {
-				const result = await DbRecordingsService.updateRecording(recording);
-				if (!result.ok) {
-					const e = WhisperingErr({
+				const { error: updateRecordingError } =
+					await DbRecordingsService.updateRecording(recording);
+				if (updateRecordingError) {
+					const e = WhisperingError({
 						title: 'Failed to update recording!',
 						description: 'Your recording could not be updated.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: updateRecordingError },
 					});
 					toast.error(e.error);
 					return e;
@@ -114,12 +124,13 @@ export function useDeleteRecordingWithToast() {
 	return {
 		deleteRecordingWithToast: createResultMutation(() => ({
 			mutationFn: async (recording: Recording) => {
-				const result = await DbRecordingsService.deleteRecording(recording);
-				if (!result.ok) {
-					const e = WhisperingErr({
+				const { error: deleteRecordingError } =
+					await DbRecordingsService.deleteRecording(recording);
+				if (deleteRecordingError) {
+					const e = WhisperingError({
 						title: 'Failed to delete recording!',
 						description: 'Your recording could not be deleted.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: deleteRecordingError },
 					});
 					toast.error(e.error);
 					return e;
@@ -150,12 +161,13 @@ export function useDeleteRecordingsWithToast() {
 	return {
 		deleteRecordingsWithToast: createResultMutation(() => ({
 			mutationFn: async (recordings: Recording[]) => {
-				const result = await DbRecordingsService.deleteRecordings(recordings);
-				if (!result.ok) {
-					const e = WhisperingErr({
+				const { error: deleteRecordingsError } =
+					await DbRecordingsService.deleteRecordings(recordings);
+				if (deleteRecordingsError) {
+					const e = WhisperingError({
 						title: 'Failed to delete recordings!',
 						description: 'Your recordings could not be deleted.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: deleteRecordingsError },
 					});
 					toast.error(e.error);
 					return e;

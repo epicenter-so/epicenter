@@ -1,13 +1,12 @@
 import { Err, type Ok } from '@epicenterhq/result';
-import type {
-	Settings,
-	WhisperingErr,
-	WhisperingErrProperties,
-} from '@repo/shared';
-import type { HttpServiceErr } from '../http/HttpService';
+import type { WhisperingError } from '@repo/shared';
+import type { Settings } from '@repo/shared/settings';
+import type { HttpServiceError } from '../http/HttpService';
 
-export type TranscriptionServiceErr = WhisperingErr;
-export type TranscriptionServiceResult<T> = Ok<T> | WhisperingErr;
+export type TranscriptionServiceError = WhisperingError;
+export type TranscriptionServiceResult<T> =
+	| Ok<T>
+	| Err<TranscriptionServiceError>;
 
 export type TranscriptionService = {
 	transcribe: (
@@ -20,22 +19,15 @@ export type TranscriptionService = {
 	) => Promise<TranscriptionServiceResult<string>>;
 };
 
-export const TranscriptionServiceErr = (
-	args: Pick<WhisperingErrProperties, 'title' | 'description' | 'action'>,
-): TranscriptionServiceErr =>
-	Err({
-		...args,
-		variant: 'error',
-		_tag: 'WhisperingError',
-	});
-
-export function HttpServiceErrIntoTranscriptionServiceErr({
-	error,
-}: HttpServiceErr): TranscriptionServiceErr {
+export function HttpServiceErrIntoTranscriptionServiceErr(
+	error: HttpServiceError,
+): Err<WhisperingError> {
 	switch (error.code) {
 		case 'NetworkError': {
 			const { error: origErr, code } = error;
-			return TranscriptionServiceErr({
+			return Err({
+				_tag: 'WhisperingError',
+				variant: 'error',
 				title: '🌐 Network Connection Failed',
 				description:
 					origErr instanceof Error
@@ -49,7 +41,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			const status = error.status;
 
 			if (status === 401) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '🔑 Authentication Failed',
 					description:
 						'Your current API key is invalid or has expired. Head to settings to enter a valid key and continue transcribing!',
@@ -63,7 +57,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			}
 
 			if (status === 403) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '⛔ Access Denied',
 					description:
 						"You don't have permission to use this service. This could be due to account restrictions or exceeded usage limits.",
@@ -72,7 +68,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			}
 
 			if (status === 413) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '📦 Audio File Too Large',
 					description:
 						'The audio file exceeds the maximum size limit. Try splitting it into smaller segments or reducing the audio quality.',
@@ -81,7 +79,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			}
 
 			if (status === 415) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '🎵 Unsupported Audio Format',
 					description:
 						'The audio file format is not supported. Please use MP3, WAV, or other common audio formats.',
@@ -91,7 +91,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 
 			// Rate limiting
 			if (status === 429) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '⏳ Rate Limit Exceeded',
 					description:
 						"You've made too many requests. Please wait a moment before trying again or upgrade your plan for higher limits.",
@@ -100,14 +102,18 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			}
 
 			if (status >= 500) {
-				return TranscriptionServiceErr({
+				return Err({
+					_tag: 'WhisperingError',
+					variant: 'error',
 					title: '🔧 Server Error',
 					description: `The transcription service is experiencing technical difficulties (Error ${status}).`,
 					action: { type: 'more-details', error: error.error },
 				});
 			}
 
-			return TranscriptionServiceErr({
+			return Err({
+				_tag: 'WhisperingError',
+				variant: 'error',
 				title: '❌ Request Failed',
 				description: `The transcription request failed with status ${status}. This might be temporary - please try again.`,
 				action: { type: 'more-details', error: error.error },
@@ -115,7 +121,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 		}
 
 		case 'ParseError':
-			return TranscriptionServiceErr({
+			return Err({
+				_tag: 'WhisperingError',
+				variant: 'error',
 				title: '🔍 Invalid Response',
 				description:
 					error.error instanceof Error
@@ -125,7 +133,9 @@ export function HttpServiceErrIntoTranscriptionServiceErr({
 			});
 
 		default:
-			return TranscriptionServiceErr({
+			return Err({
+				_tag: 'WhisperingError',
+				variant: 'error',
 				title: '❓ Unexpected Error',
 				description:
 					'An unexpected error occurred during transcription. Please try again or contact support if the issue persists.',

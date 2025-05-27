@@ -27,12 +27,12 @@ function createToastService() {
 
 			(async () => {
 				if (toastVariant !== 'loading' && !(await isFocused())) {
-					const notifyResult = await NotificationService.notify({
+					const { error: notifyError } = await NotificationService.notify({
 						variant: toastVariant,
 						...toastOptions,
 					});
-					if (!notifyResult.ok) {
-						console.error('[Toast]', notifyResult.error);
+					if (notifyError) {
+						console.error('[Toast]', notifyError);
 					}
 				}
 			})();

@@ -108,9 +108,10 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 			const isEmpty = valueFromStorageUnparsed === null;
 			if (isEmpty) return defaultValue;
 
-			const parseJsonResult = parseJson(valueFromStorageUnparsed);
-			if (!parseJsonResult.ok) return defaultValue;
-			const valueFromStorageJson = parseJsonResult.data;
+			const { data: valueFromStorageJson, error: parseJsonError } = parseJson(
+				valueFromStorageUnparsed,
+			);
+			if (parseJsonError) return defaultValue;
 
 			const valueFromStorageResult = schema.safeParse(valueFromStorageJson);
 			if (valueFromStorageResult.success) return valueFromStorageResult.data;

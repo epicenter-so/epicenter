@@ -17,16 +17,17 @@ export function useRecordingsQuery() {
 		recordingsQuery: createQuery(() => ({
 			queryKey: recordingsKeys.all,
 			queryFn: async () => {
-				const result = await DbRecordingsService.getAllRecordings();
-				if (!result.ok) {
+				const { data: recordings, error: getAllRecordingsError } =
+					await DbRecordingsService.getAllRecordings();
+				if (getAllRecordingsError) {
 					toast.error({
 						title: 'Failed to fetch recordings!',
 						description: 'Your recordings could not be fetched.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: getAllRecordingsError },
 					});
-					throw result.error;
+					throw getAllRecordingsError;
 				}
-				return result.data;
+				return recordings;
 			},
 		})),
 	};
@@ -37,16 +38,17 @@ export function useLatestRecording() {
 		latestRecordingQuery: createQuery(() => ({
 			queryKey: recordingsKeys.latest,
 			queryFn: async () => {
-				const result = await DbRecordingsService.getLatestRecording();
-				if (!result.ok) {
+				const { data: latestRecording, error: getLatestRecordingError } =
+					await DbRecordingsService.getLatestRecording();
+				if (getLatestRecordingError) {
 					toast.error({
 						title: 'Failed to fetch latest recording!',
 						description: 'Your latest recording could not be fetched.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: getLatestRecordingError },
 					});
-					throw result.error;
+					throw getLatestRecordingError;
 				}
-				return result.data;
+				return latestRecording;
 			},
 		})),
 	};
@@ -57,16 +59,17 @@ export function useRecordingQuery(id: Accessor<string>) {
 		recordingQuery: createQuery(() => ({
 			queryKey: recordingsKeys.byId(id()),
 			queryFn: async () => {
-				const result = await DbRecordingsService.getRecordingById(id());
-				if (!result.ok) {
+				const { data: recording, error: getRecordingByIdError } =
+					await DbRecordingsService.getRecordingById(id());
+				if (getRecordingByIdError) {
 					toast.error({
 						title: 'Failed to fetch recording!',
 						description: 'Your recording could not be fetched.',
-						action: { type: 'more-details', error: result.error },
+						action: { type: 'more-details', error: getRecordingByIdError },
 					});
-					throw result.error;
+					throw getRecordingByIdError;
 				}
-				return result.data;
+				return recording;
 			},
 			initialData: () =>
 				queryClient

@@ -66,9 +66,9 @@ export function createResultQuery<
 			...optionValues,
 
 			queryFn: async () => {
-				const result = await queryFn();
-				if (!result.ok) throw result.error;
-				return result.data;
+				const { data, error } = await queryFn();
+				if (error) throw error;
+				return data;
 			},
 		};
 	});
@@ -96,9 +96,9 @@ export function createResultMutation<
 		return {
 			...optionValues,
 			mutationFn: async (args) => {
-				const result = await mutationFn(args);
-				if (!result.ok) throw result.error;
-				return result.data;
+				const { data, error } = await mutationFn(args);
+				if (error) throw error;
+				return data;
 			},
 		};
 	});

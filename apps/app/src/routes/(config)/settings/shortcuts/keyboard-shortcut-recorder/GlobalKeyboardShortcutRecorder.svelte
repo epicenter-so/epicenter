@@ -3,7 +3,7 @@
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync } from '@epicenterhq/result';
-	import { type Command, WhisperingErr } from '@repo/shared';
+	import { type Command, WhisperingError } from '@repo/shared';
 	import { createKeyRecorder } from './index.svelte';
 	import { createGlobalKeyMapper } from './key-mappers';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
@@ -36,7 +36,7 @@
 				const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
 				if (!oldShortcutKey) return;
 
-				const unregisterResult = await tryAsync({
+				const { error: unregisterError } = await tryAsync({
 					try: async () => {
 						if (!window.__TAURI_INTERNALS__) return;
 						const { unregister } = await import(
@@ -45,25 +45,26 @@
 						return await unregister(oldShortcutKey);
 					},
 					mapErr: (error) =>
-						WhisperingErr({
+						WhisperingError({
 							title: `Error unregistering command with id ${command.id} globally`,
 							description: 'Please try again.',
 							action: { type: 'more-details', error },
 						}),
 				});
 
-				if (!unregisterResult.ok) {
-					toast.error(unregisterResult.error);
+				if (unregisterError) {
+					toast.error(unregisterError);
 				}
 			},
 			onRegister: async (keyCombination) => {
-				const result = await shortcutsRegister.registerCommandGlobally({
-					command,
-					keyCombination,
-				});
+				const { error: registerError } =
+					await shortcutsRegister.registerCommandGlobally({
+						command,
+						keyCombination,
+					});
 
-				if (!result.ok) {
-					toast.error(result.error);
+				if (registerError) {
+					toast.error(registerError);
 					return;
 				}
 

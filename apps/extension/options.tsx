@@ -62,16 +62,17 @@ function SettingsCard() {
 	} = useQuery({
 		queryKey: ['settings'],
 		queryFn: async () => {
-			const response = await app.getSettings();
-			if (!response.ok) throw response.error;
-			return response.data;
+			const { data: settings, error: getSettingsError } =
+				await app.getSettings();
+			if (getSettingsError) throw getSettingsError;
+			return settings;
 		},
 	});
 
 	const { mutate: setSettings } = useMutation({
 		mutationFn: async (settings: Settings) => {
-			const response = await app.setSettings(settings);
-			if (!response.ok) throw response.error;
+			const { error: setSettingsError } = await app.setSettings(settings);
+			if (setSettingsError) throw setSettingsError;
 		},
 		onSuccess: () => {
 			toast.success('Settings updated!');

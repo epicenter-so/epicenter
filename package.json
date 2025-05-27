@@ -13,7 +13,7 @@
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint --filter=@repo/app\"",
 		"format-and-lint": "concurrently \"biome check --write --unsafe .\" \"turbo run format --filter=@repo/app && turbo run lint --filter=@repo/app\""
 	},
-	"packageManager": "pnpm@8.6.5",
+	"packageManager": "pnpm@10.11.0",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"concurrently": "latest",

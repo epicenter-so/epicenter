@@ -2,23 +2,25 @@ import type { PlasmoMessaging } from '@plasmohq/messaging';
 import type { WhisperingResult } from '@repo/shared';
 import { injectScript } from '~background/injectScript';
 import { getOrCreateWhisperingTabId } from '~lib/getOrCreateWhisperingTabId';
+import { Err } from '@epicenterhq/result';
 
 export type ToggleRecordingResponse = WhisperingResult<void>;
 
 export const toggleRecording = async () => {
-	const whisperingTabIdResult = await getOrCreateWhisperingTabId();
-	if (!whisperingTabIdResult.ok) return whisperingTabIdResult;
-	const whisperingTabId = whisperingTabIdResult.data;
+	const { data: whisperingTabId, error: getOrCreateWhisperingTabIdError } =
+		await getOrCreateWhisperingTabId();
+	if (getOrCreateWhisperingTabIdError)
+		return Err(getOrCreateWhisperingTabIdError);
 	return await injectScript<undefined, []>({
 		tabId: whisperingTabId,
 		commandName: 'toggleRecording',
 		func: () => {
 			try {
 				window.commands.toggleManualRecording();
-				return { ok: true, data: undefined } as const;
+				return { data: undefined, error: null } as const;
 			} catch (error) {
 				return {
-					ok: false,
+					data: null,
 					error: {
 						_tag: 'WhisperingError',
 						variant: 'error',

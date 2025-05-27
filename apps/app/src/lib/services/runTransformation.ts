@@ -1,8 +1,8 @@
 import { settings } from '$lib/stores/settings.svelte';
 import { getErrorMessage } from '$lib/utils';
-import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
+import { Err, isErr, Ok, type Result, tryAsync } from '@epicenterhq/result';
 import { GoogleGenerativeAI, Outcome } from '@google/generative-ai';
-import { WhisperingErr, type WhisperingResult } from '@repo/shared';
+import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import { z } from 'zod';
 import { DbRecordingsService } from '.';
 import type {
@@ -32,51 +32,70 @@ export type TransformResult<T> = Ok<T> | TransformError;
 export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 	switch (error.code) {
 		case 'NO_INPUT':
-			return WhisperingErr({
-				title: '⚠️ Empty input',
-				description: 'Please enter some text to transform',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Empty input',
+					description: 'Please enter some text to transform',
+				}),
+			);
 		case 'RECORDING_NOT_FOUND':
-			return WhisperingErr({
-				title: '⚠️ Recording not found',
-				description: 'Could not find the selected recording.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Recording not found',
+					description: 'Could not find the selected recording.',
+				}),
+			);
 		case 'TRANSFORMATION_NOT_FOUND':
-			return WhisperingErr({
-				title: '⚠️ Transformation not found',
-				description: 'Could not find the selected transformation.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Transformation not found',
+					description: 'Could not find the selected transformation.',
+				}),
+			);
 		case 'NO_STEPS_CONFIGURED':
-			return WhisperingErr({
-				title: 'No steps configured',
-				description: 'Please add at least one transformation step',
-			});
+			return Err(
+				WhisperingError({
+					title: 'No steps configured',
+					description: 'Please add at least one transformation step',
+				}),
+			);
 		case 'FAILED_TO_CREATE_TRANSFORMATION_RUN':
-			return WhisperingErr({
-				title: '⚠️ Failed to create transformation run',
-				description: 'Could not create the transformation run.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Failed to create transformation run',
+					description: 'Could not create the transformation run.',
+				}),
+			);
 		case 'FAILED_TO_ADD_TRANSFORMATION_STEP_RUN':
-			return WhisperingErr({
-				title: '⚠️ Failed to add transformation step run',
-				description: 'Could not add the transformation step run.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Failed to add transformation step run',
+					description: 'Could not add the transformation step run.',
+				}),
+			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_AND_STEP_AS_FAILED':
-			return WhisperingErr({
-				title: '⚠️ Failed to mark transformation run and step as failed',
-				description:
-					'Could not mark the transformation run and step as failed.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Failed to mark transformation run and step as failed',
+					description:
+						'Could not mark the transformation run and step as failed.',
+				}),
+			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_STEP_AS_COMPLETED':
-			return WhisperingErr({
-				title: '⚠️ Failed to mark transformation run step as completed',
-				description: 'Could not mark the transformation run step as completed.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Failed to mark transformation run step as completed',
+					description:
+						'Could not mark the transformation run step as completed.',
+				}),
+			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_AS_COMPLETED':
-			return WhisperingErr({
-				title: '⚠️ Failed to mark transformation run as completed',
-				description: 'Could not mark the transformation run as completed.',
-			});
+			return Err(
+				WhisperingError({
+					title: '⚠️ Failed to mark transformation run as completed',
+					description: 'Could not mark the transformation run as completed.',
+				}),
+			);
 	}
 };
 
@@ -138,38 +157,40 @@ export function createRunTransformationService({
 					case 'OpenAI': {
 						const model =
 							step['prompt_transform.inference.provider.OpenAI.model'];
-						const result = await HttpService.post({
-							url: 'https://api.openai.com/v1/chat/completions',
-							headers: {
-								'Content-Type': 'application/json',
-								Authorization: `Bearer ${settings.value['apiKeys.openai']}`,
-							},
-							body: JSON.stringify({
-								model,
-								messages: [
-									{ role: 'system', content: systemPrompt },
-									{ role: 'user', content: userPrompt },
-								],
-							}),
-							schema: z.object({
-								choices: z.array(
-									z.object({
-										message: z.object({
-											content: z.string(),
+						const { data: completionResponse, error: completionError } =
+							await HttpService.post({
+								url: 'https://api.openai.com/v1/chat/completions',
+								headers: {
+									'Content-Type': 'application/json',
+									Authorization: `Bearer ${settings.value['apiKeys.openai']}`,
+								},
+								body: JSON.stringify({
+									model,
+									messages: [
+										{ role: 'system', content: systemPrompt },
+										{ role: 'user', content: userPrompt },
+									],
+								}),
+								schema: z.object({
+									choices: z.array(
+										z.object({
+											message: z.object({
+												content: z.string(),
+											}),
 										}),
-									}),
-								),
-							}),
-						});
+									),
+								}),
+							});
 
-						if (!result.ok) {
-							const { error, code } = result.error;
+						if (completionError) {
+							const { error, code } = completionError;
 							return Err(
 								`OpenAI API Error: ${getErrorMessage(error)} (${code})`,
 							);
 						}
 
-						const responseText = result.data.choices[0]?.message?.content;
+						const responseText =
+							completionResponse.choices[0]?.message?.content;
 						if (!responseText) {
 							return Err('OpenAI API returned an empty response');
 						}
@@ -180,36 +201,38 @@ export function createRunTransformationService({
 					case 'Groq': {
 						const model =
 							step['prompt_transform.inference.provider.Groq.model'];
-						const result = await HttpService.post({
-							url: 'https://api.groq.com/openai/v1/chat/completions',
-							headers: {
-								'Content-Type': 'application/json',
-								Authorization: `Bearer ${settings.value['apiKeys.groq']}`,
-							},
-							body: JSON.stringify({
-								model,
-								messages: [
-									{ role: 'system', content: systemPrompt },
-									{ role: 'user', content: userPrompt },
-								],
-							}),
-							schema: z.object({
-								choices: z.array(
-									z.object({
-										message: z.object({
-											content: z.string(),
+						const { data: completionResponse, error: completionError } =
+							await HttpService.post({
+								url: 'https://api.groq.com/openai/v1/chat/completions',
+								headers: {
+									'Content-Type': 'application/json',
+									Authorization: `Bearer ${settings.value['apiKeys.groq']}`,
+								},
+								body: JSON.stringify({
+									model,
+									messages: [
+										{ role: 'system', content: systemPrompt },
+										{ role: 'user', content: userPrompt },
+									],
+								}),
+								schema: z.object({
+									choices: z.array(
+										z.object({
+											message: z.object({
+												content: z.string(),
+											}),
 										}),
-									}),
-								),
-							}),
-						});
+									),
+								}),
+							});
 
-						if (!result.ok) {
-							const { error, code } = result.error;
+						if (completionError) {
+							const { error, code } = completionError;
 							return Err(`Groq API Error: ${getErrorMessage(error)} (${code})`);
 						}
 
-						const responseText = result.data.choices[0]?.message?.content;
+						const responseText =
+							completionResponse.choices[0]?.message?.content;
 						if (!responseText) {
 							return Err('Groq API returned an empty response');
 						}
@@ -220,38 +243,39 @@ export function createRunTransformationService({
 					case 'Anthropic': {
 						const model =
 							step['prompt_transform.inference.provider.Anthropic.model'];
-						const result = await HttpService.post({
-							url: 'https://api.anthropic.com/v1/messages',
-							headers: {
-								'Content-Type': 'application/json',
-								'anthropic-version': '2023-06-01',
-								'x-api-key': settings.value['apiKeys.anthropic'],
-								'anthropic-dangerous-direct-browser-access': 'true',
-							},
-							body: JSON.stringify({
-								model,
-								system: systemPrompt,
-								messages: [{ role: 'user', content: userPrompt }],
-								max_tokens: 1024,
-							}),
-							schema: z.object({
-								content: z.array(
-									z.object({
-										type: z.literal('text'),
-										text: z.string(),
-									}),
-								),
-							}),
-						});
+						const { data: completionResponse, error: completionError } =
+							await HttpService.post({
+								url: 'https://api.anthropic.com/v1/messages',
+								headers: {
+									'Content-Type': 'application/json',
+									'anthropic-version': '2023-06-01',
+									'x-api-key': settings.value['apiKeys.anthropic'],
+									'anthropic-dangerous-direct-browser-access': 'true',
+								},
+								body: JSON.stringify({
+									model,
+									system: systemPrompt,
+									messages: [{ role: 'user', content: userPrompt }],
+									max_tokens: 1024,
+								}),
+								schema: z.object({
+									content: z.array(
+										z.object({
+											type: z.literal('text'),
+											text: z.string(),
+										}),
+									),
+								}),
+							});
 
-						if (!result.ok) {
-							const { error, code } = result.error;
+						if (completionError) {
+							const { error, code } = completionError;
 							return Err(
 								`Anthropic API Error: ${getErrorMessage(error)} (${code})`,
 							);
 						}
 
-						const responseText = result.data.content[0]?.text;
+						const responseText = completionResponse.content[0]?.text;
 						if (!responseText) {
 							return Err('Anthropic API returned an empty response');
 						}
@@ -262,26 +286,27 @@ export function createRunTransformationService({
 					case 'Google': {
 						const combinedPrompt = `${systemPrompt}\n${userPrompt}`;
 
-						const result = await tryAsync({
-							try: async () => {
-								const genAI = new GoogleGenerativeAI(
-									settings.value['apiKeys.google'],
-								);
+						const { data: completionResponse, error: completionError } =
+							await tryAsync({
+								try: async () => {
+									const genAI = new GoogleGenerativeAI(
+										settings.value['apiKeys.google'],
+									);
 
-								const model = genAI.getGenerativeModel({
-									model:
-										step['prompt_transform.inference.provider.Google.model'],
-									generationConfig: { temperature: 0 },
-								});
-								return await model.generateContent(combinedPrompt);
-							},
-							mapErr: (error) => {
-								return Err(getErrorMessage(error));
-							},
-						});
-						if (!result.ok) return result;
+									const model = genAI.getGenerativeModel({
+										model:
+											step['prompt_transform.inference.provider.Google.model'],
+										generationConfig: { temperature: 0 },
+									});
+									return await model.generateContent(combinedPrompt);
+								},
+								mapErr: (error) => {
+									return Err(getErrorMessage(error));
+								},
+							});
+						if (completionError) return completionError;
 
-						const responseText = result.data.response.text();
+						const responseText = completionResponse.response.text();
 
 						if (!responseText) {
 							return Err('Google API returned an empty response');
@@ -309,46 +334,43 @@ export function createRunTransformationService({
 		transformationId: string;
 		recordingId: string | null;
 	}): Promise<TransformResult<TransformationRun>> => {
-		const getTransformationResult =
+		const { data: transformation, error: getTransformationError } =
 			await DbTransformationsService.getTransformationById(transformationId);
-		if (!getTransformationResult.ok || !getTransformationResult.data) {
+		if (getTransformationError || !transformation) {
 			return TransformError({ code: 'TRANSFORMATION_NOT_FOUND' });
 		}
-
-		const transformation = getTransformationResult.data;
 
 		if (transformation.steps.length === 0) {
 			return TransformError({ code: 'NO_STEPS_CONFIGURED' });
 		}
 
-		const createTransformationRunResult =
+		const { data: transformationRun, error: createTransformationRunError } =
 			await DbTransformationsService.createTransformationRun({
 				transformationId: transformation.id,
 				recordingId,
 				input,
 			});
 
-		if (!createTransformationRunResult.ok)
+		if (createTransformationRunError)
 			return TransformError({
 				code: 'FAILED_TO_CREATE_TRANSFORMATION_RUN',
 			});
 
-		const transformationRun = createTransformationRunResult.data;
-
 		let currentInput = input;
 
 		for (const step of transformation.steps) {
-			const newTransformationStepRunResult =
+			const {
+				data: newTransformationStepRun,
+				error: addTransformationStepRunError,
+			} =
 				await DbTransformationsService.addTransformationStepRunToTransformationRun(
 					{ transformationRun, stepId: step.id, input: currentInput },
 				);
 
-			if (!newTransformationStepRunResult.ok)
+			if (addTransformationStepRunError)
 				return TransformError({
 					code: 'FAILED_TO_ADD_TRANSFORMATION_STEP_RUN',
 				});
-
-			const newTransformationStepRun = newTransformationStepRunResult.data;
 
 			const handleStepResult = await handleStep({
 				input: currentInput,
@@ -356,8 +378,11 @@ export function createRunTransformationService({
 				HttpService,
 			});
 
-			if (!handleStepResult.ok) {
-				const dbResult =
+			if (isErr(handleStepResult)) {
+				const {
+					data: markedFailedTransformationRun,
+					error: markTransformationRunAndRunStepAsFailedError,
+				} =
 					await DbTransformationsService.markTransformationRunAndRunStepAsFailed(
 						{
 							transformationRun,
@@ -365,39 +390,43 @@ export function createRunTransformationService({
 							error: handleStepResult.error,
 						},
 					);
-				if (!dbResult.ok)
+				if (markTransformationRunAndRunStepAsFailedError)
 					return TransformError({
 						code: 'FAILED_TO_MARK_TRANSFORMATION_RUN_AND_STEP_AS_FAILED',
 					});
-				return dbResult;
+				return Ok(markedFailedTransformationRun);
 			}
 
-			const dbResult =
+			const handleStepOutput = handleStepResult.data;
+
+			const { error: markTransformationRunStepAsCompletedError } =
 				await DbTransformationsService.markTransformationRunStepAsCompleted({
 					transformationRun,
 					stepRunId: newTransformationStepRun.id,
-					output: handleStepResult.data,
+					output: handleStepOutput,
 				});
 
-			if (!dbResult.ok)
+			if (markTransformationRunStepAsCompletedError)
 				return TransformError({
 					code: 'FAILED_TO_MARK_TRANSFORMATION_RUN_STEP_AS_COMPLETED',
 				});
 
-			currentInput = handleStepResult.data;
+			currentInput = handleStepOutput;
 		}
 
-		const dbResult =
-			await DbTransformationsService.markTransformationRunAsCompleted({
-				transformationRun,
-				output: currentInput,
-			});
+		const {
+			data: markedCompletedTransformationRun,
+			error: markTransformationRunAsCompletedError,
+		} = await DbTransformationsService.markTransformationRunAsCompleted({
+			transformationRun,
+			output: currentInput,
+		});
 
-		if (!dbResult.ok)
+		if (markTransformationRunAsCompletedError)
 			return TransformError({
 				code: 'FAILED_TO_MARK_TRANSFORMATION_RUN_AS_COMPLETED',
 			});
-		return dbResult;
+		return Ok(markedCompletedTransformationRun);
 	};
 
 	return {
@@ -424,12 +453,11 @@ export function createRunTransformationService({
 			transformationId: string;
 			recordingId: string;
 		}): Promise<TransformResult<TransformationRun>> => {
-			const getRecordingResult =
+			const { data: recording, error: getRecordingError } =
 				await DbRecordingsService.getRecordingById(recordingId);
-			if (!getRecordingResult.ok || !getRecordingResult.data) {
+			if (getRecordingError || !recording) {
 				return TransformError({ code: 'RECORDING_NOT_FOUND' });
 			}
-			const recording = getRecordingResult.data;
 
 			return runTransformation({
 				input: recording.transcribedText,

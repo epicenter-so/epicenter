@@ -1,15 +1,15 @@
-import { Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingError } from '@repo/shared';
 import type { ClipboardService } from './ClipboardService';
 
 export function createClipboardServiceWeb(): ClipboardService {
 	return {
 		setClipboardText: async (text) => {
-			const setClipboardResult = await tryAsync({
+			const { error: setClipboardError } = await tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: '⚠️ Unable to copy to clipboard',
 						description:
 							'There was an error copying to the clipboard using the browser Clipboard API. Please try again.',
@@ -17,15 +17,16 @@ export function createClipboardServiceWeb(): ClipboardService {
 					}),
 			});
 
-			if (!setClipboardResult.ok) {
-				const extensionSetClipboardResult = await extension.setClipboardText({
-					transcribedText: text,
-				});
-				if (!extensionSetClipboardResult.ok) {
-					const errProperties = extensionSetClipboardResult.error;
-					return errProperties._tag === 'ExtensionNotAvailableError'
-						? setClipboardResult
-						: WhisperingErr(errProperties);
+			if (setClipboardError) {
+				const { error: extensionSetClipboardError } =
+					await extension.setClipboardText({
+						transcribedText: text,
+					});
+				if (extensionSetClipboardError) {
+					return extensionSetClipboardError._tag ===
+						'ExtensionNotAvailableError'
+						? Err(setClipboardError)
+						: Err(WhisperingError(extensionSetClipboardError));
 				}
 				return Ok(undefined);
 			}
@@ -33,20 +34,22 @@ export function createClipboardServiceWeb(): ClipboardService {
 		},
 
 		writeTextToCursor: async (text) => {
-			const writeTextToCursorResult = await extension.writeTextToCursor({
-				transcribedText: text,
-			});
-			if (!writeTextToCursorResult.ok) {
-				const errProperties = writeTextToCursorResult.error;
-				if (errProperties._tag === 'ExtensionNotAvailableError') {
-					return WhisperingErr({
-						title: '⚠️ Extension Not Available',
-						description:
-							'The Whispering extension is not available. Please install it to enable writing transcribed text to the cursor.',
-						action: { type: 'more-details', error: errProperties },
-					});
+			const { error: writeTextToCursorError } =
+				await extension.writeTextToCursor({
+					transcribedText: text,
+				});
+			if (writeTextToCursorError) {
+				if (writeTextToCursorError._tag === 'ExtensionNotAvailableError') {
+					return Err(
+						WhisperingError({
+							title: '⚠️ Extension Not Available',
+							description:
+								'The Whispering extension is not available. Please install it to enable writing transcribed text to the cursor.',
+							action: { type: 'more-details', error: writeTextToCursorError },
+						}),
+					);
 				}
-				return WhisperingErr(errProperties);
+				return Err(WhisperingError(writeTextToCursorError));
 			}
 			return Ok(undefined);
 		},

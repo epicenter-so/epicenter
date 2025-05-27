@@ -1,5 +1,5 @@
-import { Ok, trySync } from '@epicenterhq/result';
-import { WhisperingErr, type WhisperingRecordingState } from '@repo/shared';
+import { Err, Ok, trySync } from '@epicenterhq/result';
+import { WhisperingError, type WhisperingRecordingState } from '@repo/shared';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 import { toast } from '../toast';
 
@@ -45,32 +45,34 @@ export function createVadServiceWeb() {
 		closeVad: async () => {
 			if (!maybeVad) return Ok(undefined);
 			const vad = maybeVad;
-			const destroyResult = trySync({
+			const { error: destroyError } = trySync({
 				try: () => vad.destroy(),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Failed to destroy Voice Activity Detector',
 						description:
 							error instanceof Error ? error.message : 'Failed to destroy VAD',
 					}),
 			});
-			if (!destroyResult.ok) return destroyResult;
+			if (destroyError) return Err(destroyError);
 			maybeVad = null;
 			isActivelyListening = false;
 			return Ok(undefined);
 		},
 		startVad: async () => {
 			if (!maybeVad)
-				return WhisperingErr({
-					title: 'Voice Activity Detector not initialized',
-					description:
-						'The voice activity detector has not been initialized. Please ensure that the VAD is initialized before starting it.',
-				});
+				return Err(
+					WhisperingError({
+						title: 'Voice Activity Detector not initialized',
+						description:
+							'The voice activity detector has not been initialized. Please ensure that the VAD is initialized before starting it.',
+					}),
+				);
 			const vad = maybeVad;
-			const startResult = trySync({
+			const { error: startError } = trySync({
 				try: () => vad.start(),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Failed to start Voice Activity Detector',
 						description:
 							error instanceof Error
@@ -78,21 +80,23 @@ export function createVadServiceWeb() {
 								: 'An unknown error occurred while starting the VAD.',
 					}),
 			});
-			if (!startResult.ok) return startResult;
+			if (startError) return Err(startError);
 			isActivelyListening = true;
-			return startResult;
+			return Ok(undefined);
 		},
 		pauseVad: async () => {
 			if (!maybeVad)
-				return WhisperingErr({
-					title: 'Voice Activity Detector not initialized',
-					description: 'VAD not initialized',
-				});
+				return Err(
+					WhisperingError({
+						title: 'Voice Activity Detector not initialized',
+						description: 'VAD not initialized',
+					}),
+				);
 			const vad = maybeVad;
-			const pauseResult = trySync({
+			const { error: pauseError } = trySync({
 				try: () => vad.pause(),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Failed to pause Voice Activity Detector',
 						description:
 							error instanceof Error
@@ -100,21 +104,23 @@ export function createVadServiceWeb() {
 								: 'An unknown error occurred while pausing the VAD.',
 					}),
 			});
-			if (!pauseResult.ok) return pauseResult;
+			if (pauseError) return Err(pauseError);
 			isActivelyListening = false;
-			return pauseResult;
+			return Ok(undefined);
 		},
 		destroyVad: async () => {
 			if (!maybeVad)
-				return WhisperingErr({
-					title: 'Voice Activity Detector not initialized',
-					description: 'VAD not initialized',
-				});
+				return Err(
+					WhisperingError({
+						title: 'Voice Activity Detector not initialized',
+						description: 'VAD not initialized',
+					}),
+				);
 			const vad = maybeVad;
-			const destroyResult = trySync({
+			const { error: destroyError } = trySync({
 				try: () => vad.destroy(),
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Failed to destroy Voice Activity Detector',
 						description:
 							error instanceof Error
@@ -122,7 +128,7 @@ export function createVadServiceWeb() {
 								: 'An unknown error occurred while destroying the VAD.',
 					}),
 			});
-			if (!destroyResult.ok) return destroyResult;
+			if (destroyError) return Err(destroyError);
 			maybeVad = null;
 			isActivelyListening = false;
 			return Ok(undefined);

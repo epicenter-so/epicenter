@@ -1,5 +1,5 @@
 import { tryAsync } from '@epicenterhq/result';
-import { WhisperingErr } from '@repo/shared';
+import { WhisperingError } from '@repo/shared';
 import type { DownloadService } from './DownloadService';
 
 export function createDownloadServiceWeb(): DownloadService {
@@ -18,7 +18,7 @@ export function createDownloadServiceWeb(): DownloadService {
 					URL.revokeObjectURL(url);
 				},
 				mapErr: (error) =>
-					WhisperingErr({
+					WhisperingError({
 						title: 'Error saving recording',
 						description:
 							'There was an error saving the recording in your browser. Please try again.',
