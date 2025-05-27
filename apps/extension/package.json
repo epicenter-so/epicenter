@@ -14,7 +14,7 @@
 		"package": "plasmo package"
 	},
 	"dependencies": {
-		"@epicenterhq/result": "^0.7.1",
+		"@epicenterhq/result": "^0.9.1",
 		"@plasmohq/messaging": "^0.6.2",
 		"@plasmohq/storage": "^1.13.0",
 		"@radix-ui/react-label": "^2.1.1",

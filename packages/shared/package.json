@@ -14,7 +14,7 @@
 		"typescript": "^5.7.2"
 	},
 	"dependencies": {
-		"@epicenterhq/result": "^0.7.1",
+		"@epicenterhq/result": "^0.9.1",
 		"arktype": "^2.1.20",
 		"zod": "^3.24.1"
 	}

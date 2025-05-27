@@ -1,3 +1,14 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
+  - packages/*
+  - apps/*
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - lmdb
+  - msgpackr-extract
+  - protobufjs
+  - sharp
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@sveltejs/kit'
+  - esbuild
