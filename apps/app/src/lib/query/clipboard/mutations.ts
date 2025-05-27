@@ -1,6 +1,5 @@
 import { ClipboardService } from '$lib/services';
 import { toast } from '$lib/services/toast';
-import { createMutation } from '@epicenterhq/result';
 
 export type CopyToClipboardLabel =
 	| 'transcribed text'
@@ -12,27 +11,22 @@ export type CopyToClipboardLabel =
 	| 'key'
 	| 'key combination';
 
-export const copyTextToClipboardWithToast = createMutation({
-	mutationFn: async ({
-		text,
-	}: {
-		label: CopyToClipboardLabel;
-		text: string;
-	}) => {
-		const copyResult = await ClipboardService.setClipboardText(text);
-		return copyResult;
-	},
-	onSuccess: (_data, { input: { label, text } }) => {
+export const copyTextToClipboardWithToast = async (
+	{ label, text }: { label: CopyToClipboardLabel; text: string },
+	{ onSuccess }: { onSuccess?: () => void } = {},
+) => {
+	const { error } = await ClipboardService.setClipboardText(text);
+	if (error) {
+		toast.error({
+			title: `Error copying ${label} to clipboard`,
+			description: error.description,
+		});
+	} else {
 		toast.success({
 			title: `Copied ${label} to clipboard!`,
 			description: text,
 			descriptionClass: 'line-clamp-2',
 		});
-	},
-	onError: (error, { input: { label } }) => {
-		toast.error({
-			title: `Error copying ${label} to clipboard`,
-			description: error.description,
-		});
-	},
-});
+		onSuccess?.();
+	}
+};

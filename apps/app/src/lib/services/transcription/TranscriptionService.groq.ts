@@ -1,9 +1,7 @@
-import { Ok } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import type { HttpService } from '../http/HttpService';
-import {
-	type TranscriptionService,
-	TranscriptionServiceErr,
-} from './TranscriptionService';
+import type { TranscriptionService } from './TranscriptionService';
 import { createWhisperService } from './createWhisperService';
 
 type ModelName =
@@ -46,27 +44,31 @@ export function createGroqTranscriptionService({
 		},
 		preValidate: async () => {
 			if (!apiKey) {
-				return TranscriptionServiceErr({
-					title: 'Groq API Key not provided.',
-					description: 'Please enter your Groq API key in the settings',
-					action: {
-						type: 'link',
-						label: 'Go to settings',
-						goto: '/settings/transcription',
-					},
-				});
+				return Err(
+					WhisperingError({
+						title: 'Groq API Key not provided.',
+						description: 'Please enter your Groq API key in the settings',
+						action: {
+							type: 'link',
+							label: 'Go to settings',
+							goto: '/settings/transcription',
+						},
+					}),
+				);
 			}
 
 			if (!apiKey.startsWith('gsk_')) {
-				return TranscriptionServiceErr({
-					title: 'Invalid Groq API Key',
-					description: 'The Groq API Key must start with "gsk_"',
-					action: {
-						type: 'link',
-						label: 'Update API Key',
-						goto: '/settings/transcription',
-					},
-				});
+				return Err(
+					WhisperingError({
+						title: 'Invalid Groq API Key',
+						description: 'The Groq API Key must start with "gsk_"',
+						action: {
+							type: 'link',
+							label: 'Update API Key',
+							goto: '/settings/transcription',
+						},
+					}),
+				);
 			}
 
 			return Ok(undefined);
