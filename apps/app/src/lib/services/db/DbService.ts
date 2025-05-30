@@ -1,5 +1,4 @@
 import type { Err, Ok } from '@epicenterhq/result';
-import type { BrandError } from '@repo/shared/errors';
 import type {
 	ANTHROPIC_INFERENCE_MODELS,
 	GOOGLE_INFERENCE_MODELS,
@@ -7,6 +6,7 @@ import type {
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
 } from '@repo/shared';
+import type { BrandError } from '@repo/shared/errors';
 import { nanoid } from 'nanoid/non-secure';
 
 export type DbServiceErrorProperties = BrandError<'DbServiceError'>;

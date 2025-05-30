@@ -13,9 +13,9 @@
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
+	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
-	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 
 	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();

@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { LabeledInput } from '$lib/components/labeled';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { commands } from '@repo/shared';
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
-	import { LabeledInput } from '$lib/components/labeled';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	let searchQuery = $state('');
 
@@ -54,7 +54,7 @@
 							oninput={({ currentTarget: { value } }) => {
 								settings.value = {
 									...settings.value,
-									[`shortcuts.global.${command.id}`]: !!value ? value : null,
+									[`shortcuts.global.${command.id}`]: value ? value : null,
 								};
 							}}
 						/>

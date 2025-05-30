@@ -1,6 +1,6 @@
 import { settings } from '$lib/stores/settings.svelte';
 import { getErrorMessage } from '$lib/utils';
-import { Err, isErr, Ok, type Result, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, type Result, isErr, tryAsync } from '@epicenterhq/result';
 import { GoogleGenerativeAI, Outcome } from '@google/generative-ai';
 import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import { z } from 'zod';

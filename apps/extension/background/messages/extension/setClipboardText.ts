@@ -1,9 +1,9 @@
+import { Err } from '@epicenterhq/result';
 import type { PlasmoMessaging } from '@plasmohq/messaging';
 import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import { injectScript } from '~background/injectScript';
 import { getActiveTabId } from '~lib/getActiveTabId';
 import { whisperingStorage } from '~lib/storage';
-import { Err } from '@epicenterhq/result';
 
 export type SetClipboardTextMessage = {
 	transcribedText: string;

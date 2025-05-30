@@ -1,9 +1,9 @@
+import { Err } from '@epicenterhq/result';
 import type { PlasmoMessaging } from '@plasmohq/messaging';
 import type { WhisperingResult } from '@repo/shared';
 import { WhisperingError } from '@repo/shared';
 import { injectScript } from '~background/injectScript';
 import { getActiveTabId } from '~lib/getActiveTabId';
-import { Err } from '@epicenterhq/result';
 
 export type WriteTextToCursorMessage = {
 	transcribedText: string;

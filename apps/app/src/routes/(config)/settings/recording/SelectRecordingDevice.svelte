@@ -29,7 +29,7 @@
 		label="Recording Device"
 		placeholder="Loading devices..."
 		items={[]}
-		selected={''}
+		selected=""
 		onSelectedChange={() => {}}
 		disabled
 	/>

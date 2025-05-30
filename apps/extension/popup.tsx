@@ -105,7 +105,7 @@ function IndexPage() {
 							tooltipContent="End recording session"
 							className="-right-14 absolute bottom-0 transform text-2xl"
 							onClick={async () => {
-								const {  error: closeRecordingSessionError } =
+								const { error: closeRecordingSessionError } =
 									await app.closeRecordingSessionWithToast();
 								if (closeRecordingSessionError) {
 									await extension.createNotification({
@@ -196,8 +196,10 @@ function NavItems() {
 			<WhisperingButton
 				tooltipContent="Recordings"
 				onClick={async () => {
-					const { data: whisperingTabId, error: getOrCreateWhisperingTabIdError } =
-						await getOrCreateWhisperingTabId();
+					const {
+						data: whisperingTabId,
+						error: getOrCreateWhisperingTabIdError,
+					} = await getOrCreateWhisperingTabId();
 					if (getOrCreateWhisperingTabIdError) {
 						createNotification(getOrCreateWhisperingTabIdError);
 						return;

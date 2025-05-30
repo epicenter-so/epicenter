@@ -24,7 +24,9 @@ export const getShortcutsRegisterFromContext = () => {
 
 function createShortcutsRegister({
 	commandCallbacks,
-}: { commandCallbacks: CommandCallbacks }) {
+}: {
+	commandCallbacks: CommandCallbacks;
+}) {
 	return {
 		registerCommandLocally: ({
 			command,

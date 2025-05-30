@@ -48,12 +48,14 @@ export const app = {
 				name: 'app/cancelRecording',
 			})) as CancelRecordingResponse;
 		if (cancelRecordingError) {
-			return Err(WhisperingError({
-				title: 'Unable to cancel recording via background service worker',
-				description:
-					'There was likely an issue sending the message to the background service worker from the popup.',
-				action: { type: 'more-details', error: cancelRecordingError },
-			}));
+			return Err(
+				WhisperingError({
+					title: 'Unable to cancel recording via background service worker',
+					description:
+						'There was likely an issue sending the message to the background service worker from the popup.',
+					action: { type: 'more-details', error: cancelRecordingError },
+				}),
+			);
 		}
 		return Ok(cancelRecording);
 	},

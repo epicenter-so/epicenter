@@ -6,9 +6,9 @@
 	import type { Command } from '@repo/shared';
 	import { WhisperingError } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
+	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 	import { createLocalKeyMapper } from './key-mappers';
-	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 
 	const {
 		command,

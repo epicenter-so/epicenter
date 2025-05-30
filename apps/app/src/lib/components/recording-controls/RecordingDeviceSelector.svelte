@@ -2,9 +2,9 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { MicIcon } from 'lucide-svelte';
-	import { combobox } from './index';
-	import RecordingDeviceSelectorCommand from './RecordingDeviceSelectorCommand.svelte';
 	import WhisperingButton from '../WhisperingButton.svelte';
+	import RecordingDeviceSelectorCommand from './RecordingDeviceSelectorCommand.svelte';
+	import { combobox } from './index';
 
 	let { class: className }: { class?: string } = $props();
 

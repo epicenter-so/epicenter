@@ -6,12 +6,12 @@ import {
 } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
+import { Err, Ok } from '@epicenterhq/result';
 import { WhisperingError } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
 import { useUpdateRecording } from '../recordings/mutations';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
-import { Err, Ok } from '@epicenterhq/result';
 
 export type Transcriber = ReturnType<typeof createTranscriber>;
 
@@ -106,7 +106,8 @@ function createTranscriber() {
 				{
 					onError: (error) => {
 						toast.error({
-							title: '⚠️ Unable to set recording transcription status to failed',
+							title:
+								'⚠️ Unable to set recording transcription status to failed',
 							description:
 								'Transcription failed and failed again to update recording transcription status to failed',
 							action: { type: 'more-details', error },

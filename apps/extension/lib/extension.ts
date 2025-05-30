@@ -1,8 +1,8 @@
 import { Err, type Ok, tryAsync } from '@epicenterhq/result';
 import { sendToBackgroundViaRelay } from '@plasmohq/messaging';
 import {
-	WhisperingError,
 	type WhisperingErr,
+	WhisperingError,
 	type WhisperingResult,
 } from '@repo/shared';
 import type {

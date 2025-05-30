@@ -1,10 +1,10 @@
 import { Err, Ok } from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import { ElevenLabsClient } from 'elevenlabs';
 import type {
 	TranscriptionService,
 	TranscriptionServiceResult,
 } from './TranscriptionService';
-import { WhisperingError } from '@repo/shared';
 
 type ModelName = 'scribe_v1';
 

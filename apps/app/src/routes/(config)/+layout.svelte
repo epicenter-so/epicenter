@@ -1,7 +1,7 @@
 <script lang="ts">
 	import NavItems from '$lib/components/NavItems.svelte';
-	import { RecordingControls } from '$lib/components/recording-controls';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { RecordingControls } from '$lib/components/recording-controls';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { cn } from '$lib/utils.js';

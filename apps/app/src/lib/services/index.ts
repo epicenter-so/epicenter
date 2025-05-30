@@ -36,10 +36,10 @@ import { createRecorderServiceWeb } from './recorder/RecorderService.web';
 import { createRunTransformationService } from './runTransformation';
 import { createPlaySoundServiceDesktop } from './sound/PlaySoundService.desktop';
 import { createPlaySoundServiceWeb } from './sound/PlaySoundService.web';
+import { createElevenLabsTranscriptionService } from './transcription/TranscriptionService.elevenlabs';
 import { createFasterWhisperServerTranscriptionService } from './transcription/TranscriptionService.fasterWhisperServer';
 import { createGroqTranscriptionService } from './transcription/TranscriptionService.groq';
 import { createOpenaiTranscriptionService } from './transcription/TranscriptionService.openai';
-import { createElevenLabsTranscriptionService } from './transcription/TranscriptionService.elevenlabs';
 
 type QueryResultFunction<TData, TError> = () => MaybePromise<
 	Result<TData, TError>

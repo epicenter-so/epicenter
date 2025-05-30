@@ -4,9 +4,9 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync } from '@epicenterhq/result';
 	import { type Command, WhisperingError } from '@repo/shared';
+	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 	import { createGlobalKeyMapper } from './key-mappers';
-	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 
 	const {
 		command,
