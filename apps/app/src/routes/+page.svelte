@@ -103,7 +103,7 @@
 					: 'Start recording'}
 				onclick={commands.toggleManualRecording}
 				variant="ghost"
-				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
@@ -123,7 +123,7 @@
 					: 'Start voice activated session'}
 				onclick={commands.toggleVadRecording}
 				variant="ghost"
-				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"

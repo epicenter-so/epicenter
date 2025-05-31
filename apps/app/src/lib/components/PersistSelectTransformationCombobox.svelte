@@ -39,7 +39,7 @@
 
 {#snippet renderTransformationIdTitle(transformation: Transformation)}
 	<div class="flex items-center gap-2">
-		<Badge variant="id" class="flex-shrink-0 max-w-16 truncate">
+		<Badge variant="id" class="shrink-0 max-w-16 truncate">
 			{transformation.id}
 		</Badge>
 		<span class="font-medium truncate">
@@ -95,7 +95,7 @@
 						class="flex items-center gap-2 p-2"
 					>
 						<CheckIcon
-							class={cn('h-4 w-4 flex-shrink-0 mx-2', {
+							class={cn('h-4 w-4 shrink-0 mx-2', {
 								'text-transparent': !isSelectedTransformation,
 							})}
 						/>

@@ -45,7 +45,7 @@
 				</div>
 				<Separator class="my-6" />
 
-				<div class="bg-card rounded-lg border p-4 shadow-sm mb-6">
+				<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
 					<HotkeysJsFormatGuide />
 				</div>
 
@@ -68,13 +68,13 @@
 				<Separator class="my-6" />
 
 				{#if window.__TAURI_INTERNALS__}
-					<div class="bg-card rounded-lg border p-4 shadow-sm mb-6">
+					<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
 						<TauriGlobalShortcutFormatGuide />
 					</div>
 
 					<GlobalShortcutTable />
 				{:else}
-					<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+					<div class="rounded-lg border bg-card text-card-foreground shadow-xs">
 						<div
 							class="p-8 flex flex-col items-center justify-center text-center"
 						>
@@ -87,7 +87,7 @@
 							</p>
 							<a
 								href="/global-shortcut"
-								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 font-medium"
+								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 font-medium"
 							>
 								Enable Global Shortcuts
 							</a>

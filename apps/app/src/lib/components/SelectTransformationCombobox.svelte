@@ -26,7 +26,7 @@
 
 {#snippet renderTransformationIdTitle(transformation: Transformation)}
 	<div class="flex items-center gap-2">
-		<Badge variant="id" class="flex-shrink-0 max-w-16 truncate">
+		<Badge variant="id" class="shrink-0 max-w-16 truncate">
 			{transformation.id}
 		</Badge>
 		<span class="font-medium truncate">

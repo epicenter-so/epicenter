@@ -52,7 +52,7 @@
 				>
 					<CheckIcon
 						class={cn(
-							'h-4 w-4 flex-shrink-0 mx-2',
+							'h-4 w-4 shrink-0 mx-2',
 							settings.value[
 								'recording.navigator.selectedAudioInputDeviceId'
 							] !== device.deviceId && 'text-transparent',

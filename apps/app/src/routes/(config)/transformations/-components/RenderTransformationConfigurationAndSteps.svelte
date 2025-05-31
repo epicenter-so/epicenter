@@ -127,7 +127,7 @@
 			<div class="space-y-4">
 				{#each transformation.steps as step, index (index)}
 					<div
-						class="bg-muted/25 text-card-foreground rounded-lg border shadow-sm"
+						class="bg-muted/25 text-card-foreground rounded-lg border shadow-xs"
 						transition:slide
 					>
 						<Card.Header class="space-y-3">
