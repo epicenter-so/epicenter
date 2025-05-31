@@ -39,7 +39,7 @@ importers:
         specifier: ^0.0.24
         version: 0.0.24
       '@tanstack/query-core':
-        specifier: ^5.79.0
+        specifier: ^5.77.2
         version: 5.79.0
       '@tanstack/svelte-query':
         specifier: https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb
@@ -111,7 +111,7 @@ importers:
         specifier: ^5.1.5
         version: 5.1.5
       zod:
-        specifier: ^3.25.42
+        specifier: ^3.25.31
         version: 3.25.42
     devDependencies:
       '@eslint/compat':
@@ -169,7 +169,7 @@ importers:
         specifier: 1.0.0-next.2
         version: 1.0.0-next.2(svelte@5.33.10)
       postcss:
-        specifier: ^8.5.4
+        specifier: ^8.5.3
         version: 8.5.4
       prettier:
         specifier: ^3.5.3
@@ -178,7 +178,7 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(prettier@3.5.3)(svelte@5.33.10)
       svelte:
-        specifier: ^5.33.10
+        specifier: ^5.33.4
         version: 5.33.10
       svelte-check:
         specifier: ^4.2.1
@@ -202,7 +202,7 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       typescript-eslint:
-        specifier: ^8.33.0
+        specifier: ^8.32.1
         version: 8.33.0(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
       vite:
         specifier: ^6.3.5
