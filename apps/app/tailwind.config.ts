@@ -69,10 +69,6 @@ const config: Config = {
 			fontFamily: {
 				sans: [...fontFamily.sans],
 			},
-			screens: {
-				xxs: '196px',
-				xs: '320px',
-			},
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
