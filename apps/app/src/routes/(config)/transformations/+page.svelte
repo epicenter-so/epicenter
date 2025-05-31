@@ -17,9 +17,9 @@
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
 	import {
 		FlexRender,
-		createTable,
+		createSvelteTable,
 		renderComponent,
-	} from '@tanstack/svelte-table';
+	} from '$lib/components/ui/data-table/index.js';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -118,7 +118,7 @@
 	});
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
-	const table = createTable({
+	const table = createSvelteTable({
 		getRowId: (originalRow) => originalRow.id,
 		get data() {
 			return transformationsQuery.data ?? [];

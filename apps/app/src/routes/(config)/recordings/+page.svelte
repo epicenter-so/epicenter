@@ -24,9 +24,9 @@
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import {
 		FlexRender,
-		createTable,
+		createSvelteTable,
 		renderComponent,
-	} from '@tanstack/svelte-table';
+	} from '$lib/components/ui/data-table/index.js';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -224,10 +224,11 @@
 		schema: z.record(z.string(), z.boolean()),
 	});
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
+	let globalFilter = $state('');
 
 	const { recordingsQuery } = useRecordingsQuery();
 
-	const table = createTable({
+	const table = createSvelteTable({
 		getRowId: (originalRow) => originalRow.id,
 		get data() {
 			return recordingsQuery.data ?? [];
@@ -272,6 +273,13 @@
 				pagination = updater;
 			}
 		},
+		onGlobalFilterChange: (updater) => {
+			if (typeof updater === 'function') {
+				globalFilter = updater(globalFilter);
+			} else {
+				globalFilter = updater;
+			}
+		},
 		state: {
 			get sorting() {
 				return sorting.value;
@@ -288,21 +296,15 @@
 			get pagination() {
 				return pagination;
 			},
+			get globalFilter() {
+				return globalFilter;
+			},
 		},
 	});
 
 	const selectedRecordingRows = $derived(
 		table.getFilteredSelectedRowModel().rows,
 	);
-
-	const filterQuery = {
-		get value() {
-			return table.getColumn('select')?.getFilterValue() as string;
-		},
-		set value(value) {
-			table.getColumn('select')?.setFilterValue(value);
-		},
-	};
 
 	let template = $state('{{timestamp}} {{transcribedText}}');
 	let delimiter = $state('\n\n');
@@ -343,8 +345,8 @@
 				placeholder="Filter transcripts..."
 				type="text"
 				class="w-full md:max-w-sm"
-				value={filterQuery.value}
-				oninput={(e) => (filterQuery.value = e.currentTarget.value)}
+				value={globalFilter}
+				oninput={(e) => (globalFilter = e.currentTarget.value)}
 			/>
 			<div class="flex w-full items-center justify-between gap-2">
 				{#if selectedRecordingRows.length > 0}
@@ -538,7 +540,7 @@
 					{:else}
 						<Table.Row>
 							<Table.Cell colspan={columns.length} class="h-24 text-center">
-								{#if filterQuery.value}
+								{#if globalFilter}
 									No recordings found.
 								{:else}
 									No recordings yet. Start recording to add one.
