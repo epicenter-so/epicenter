@@ -14,7 +14,7 @@
 		"package": "plasmo package"
 	},
 	"dependencies": {
-		"@epicenterhq/result": "^0.9.1",
+		"@epicenterhq/result": "^0.9.5",
 		"@plasmohq/messaging": "^0.6.2",
 		"@plasmohq/storage": "^1.15.0",
 		"@radix-ui/react-label": "^2.1.7",
@@ -23,7 +23,7 @@
 		"@radix-ui/react-switch": "^1.2.5",
 		"@radix-ui/react-tooltip": "^1.2.7",
 		"@repo/shared": "workspace:*",
-		"@tanstack/react-query": "^5.77.2",
+		"@tanstack/react-query": "^5.79.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"idb": "^8.0.3",
@@ -37,15 +37,15 @@
 		"tailwind-merge": "^2.6.0",
 		"tailwindcss": "^3.4.17",
 		"tailwindcss-animate": "^1.0.7",
-		"zod": "^3.25.30"
+		"zod": "^3.25.42"
 	},
 	"devDependencies": {
 		"@types/chrome": "^0.0.287",
-		"@types/node": "^22.15.21",
+		"@types/node": "^22.15.29",
 		"@types/react": "^19.1.6",
 		"@types/react-dom": "^19.1.5",
 		"autoprefixer": "^10.4.21",
-		"postcss": "^8.5.3",
+		"postcss": "^8.5.4",
 		"typescript": "^5.8.3"
 	},
 	"manifest": {

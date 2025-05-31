@@ -7,6 +7,7 @@
 		"dev": "pnpm tauri dev",
 		"build": "vite build",
 		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"tauri": "cross-env BUILD_TARGET=native tauri",
@@ -16,14 +17,14 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.2.9",
 		"@eslint/js": "^9.27.0",
-		"@sveltejs/adapter-static": "3.0.6",
+		"@sveltejs/adapter-static": "3.0.8",
 		"@sveltejs/adapter-vercel": "^5.7.2",
 		"@sveltejs/kit": "^2.21.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
 		"@tauri-apps/cli": "^2.5.0",
 		"@types/chrome": "^0.0.287",
 		"autoprefixer": "^10.4.21",
-		"bits-ui": "1.0.0-next.89",
+		"bits-ui": "1.8.0",
 		"clsx": "^2.1.1",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^9.1.0",
@@ -48,12 +49,12 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@epicenterhq/result": "^0.9.1",
-		"@google/generative-ai": "^0.21.0",
-		"@plasmohq/messaging": "^0.6.2",
+		"@epicenterhq/result": "^0.9.5",
+		"@google/generative-ai": "^0.24.1",
+		"@plasmohq/messaging": "^0.7.1",
 		"@repo/extension": "workspace:*",
 		"@repo/shared": "workspace:*",
-		"@ricky0123/vad-web": "^0.0.22",
+		"@ricky0123/vad-web": "^0.0.24",
 		"@tanstack/query-core": "^5.77.2",
 		"@tanstack/svelte-query": "https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb",
 		"@tanstack/svelte-query-devtools": "https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb",
@@ -78,6 +79,6 @@
 		"hotkeys-js": "^3.13.10",
 		"idb": "^8.0.3",
 		"nanoid": "^5.1.5",
-		"zod": "^3.25.30"
+		"zod": "^3.25.31"
 	}
 }

@@ -10,12 +10,12 @@
 		"./errors": "./src/errors.ts"
 	},
 	"devDependencies": {
-		"@types/node": "^22.15.21",
+		"@types/node": "^22.15.29",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@epicenterhq/result": "^0.9.1",
+		"@epicenterhq/result": "^0.9.5",
 		"arktype": "^2.1.20",
-		"zod": "^3.25.30"
+		"zod": "^3.25.42"
 	}
 }
