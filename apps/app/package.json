@@ -31,7 +31,7 @@
 		"eslint-plugin-svelte": "^3.9.0",
 		"globals": "^15.15.0",
 		"lucide-svelte": "^0.468.0",
-		"mode-watcher": "^0.5.1",
+		"mode-watcher": "^1.0.7",
 		"paneforge": "1.0.0-next.5",
 		"postcss": "^8.5.3",
 		"prettier": "^3.5.3",

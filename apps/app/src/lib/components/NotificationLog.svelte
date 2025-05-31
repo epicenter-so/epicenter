@@ -69,7 +69,7 @@
 		<ScrollArea
 			class="mt-4 h-[60vh] overflow-y-auto rounded-md border bg-background p-4"
 			data-sonner-toaster
-			data-theme={$mode}
+			data-theme={mode.current}
 			data-rich-colors="true"
 		>
 			{#each notificationLog.logs as log}
