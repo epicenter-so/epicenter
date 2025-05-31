@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { WithElementRef } from 'bits-ui';
+	import type { WithElementRef } from '$lib/utils.js';
 	import type {
 		HTMLAnchorAttributes,
 		HTMLButtonAttributes,
