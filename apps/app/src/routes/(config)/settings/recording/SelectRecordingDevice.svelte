@@ -3,7 +3,6 @@
 	import { useGetMediaDevices } from '$lib/query/audio/queries';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { toast } from '$lib/services/toast';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	let {
 		selected,
