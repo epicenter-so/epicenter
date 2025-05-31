@@ -23,7 +23,7 @@
 				size="icon"
 				tooltipContent="View Transformation Runs"
 			>
-				<HistoryIcon class="h-4 w-4" />
+				<HistoryIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>

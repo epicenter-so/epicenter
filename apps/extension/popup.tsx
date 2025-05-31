@@ -140,9 +140,9 @@ function IndexPage() {
 							}}
 						>
 							{recorderState === 'LOADING' ? (
-								<Loader2Icon className="h-6 w-6 animate-spin" />
+								<Loader2Icon className="size-6 animate-spin" />
 							) : (
-								<ClipboardIcon className="h-6 w-6" />
+								<ClipboardIcon className="size-6" />
 							)}
 						</WhisperingButton>
 					</div>
@@ -229,7 +229,7 @@ function NavItems() {
 				variant="ghost"
 				size="icon"
 			>
-				<ListIcon className="h-4 w-4" aria-hidden="true" />
+				<ListIcon className="size-4" aria-hidden="true" />
 			</WhisperingButton>
 
 			<WhisperingButton
@@ -238,7 +238,7 @@ function NavItems() {
 				variant="ghost"
 				size="icon"
 			>
-				<SlidersVerticalIcon className="h-4 w-4" aria-hidden="true" />
+				<SlidersVerticalIcon className="size-4" aria-hidden="true" />
 			</WhisperingButton>
 
 			<WhisperingButton
@@ -250,7 +250,7 @@ function NavItems() {
 				size="icon"
 			>
 				<GithubIcon
-					className="h-4 w-4 fill-current text-foreground"
+					className="size-4 fill-current text-foreground"
 					aria-hidden="true"
 				/>
 			</WhisperingButton>

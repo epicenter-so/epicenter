@@ -26,7 +26,7 @@
 				variant="default"
 				size="lg"
 			>
-				<DesktopIcon class="mr-2 h-6 w-6" />
+				<DesktopIcon class="mr-2 size-6" />
 				Download for Desktop
 			</WhisperingButton>
 			<WhisperingButton
@@ -37,7 +37,7 @@
 				variant="outline"
 				size="lg"
 			>
-				<ChromeWebStoreIcon class="mr-2 h-6 w-6" />
+				<ChromeWebStoreIcon class="mr-2 size-6" />
 				Get Chrome Extension
 			</WhisperingButton>
 		</div>

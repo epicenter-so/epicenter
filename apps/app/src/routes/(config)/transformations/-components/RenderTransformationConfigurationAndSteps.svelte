@@ -165,19 +165,19 @@
 										tooltipContent="Duplicate step"
 										variant="ghost"
 										size="icon"
-										class="h-8 w-8"
+										class="size-8"
 										onclick={() => duplicateStep(index)}
 									>
-										<CopyIcon class="h-4 w-4" />
+										<CopyIcon class="size-4" />
 									</WhisperingButton>
 									<WhisperingButton
 										tooltipContent="Delete step"
 										variant="ghost"
 										size="icon"
-										class="h-8 w-8"
+										class="size-8"
 										onclick={() => removeStep(index)}
 									>
-										<TrashIcon class="h-4 w-4" />
+										<TrashIcon class="size-4" />
 									</WhisperingButton>
 								</div>
 							</div>
@@ -465,7 +465,7 @@
 				variant={transformation.steps.length === 0 ? 'default' : 'outline'}
 				class="w-full mt-2"
 			>
-				<PlusIcon class="mr-2 h-4 w-4" />
+				<PlusIcon class="mr-2 size-4" />
 				{transformation.steps.length === 0
 					? 'Add Your First Step'
 					: 'Add Another Step'}

@@ -82,14 +82,14 @@
 		}}
 	>
 		<ToggleGroup.Item value="manual" aria-label="Switch to manual mode">
-			<MicIcon class="h-4 w-4" />
+			<MicIcon class="size-4" />
 			Record
 		</ToggleGroup.Item>
 		<ToggleGroup.Item
 			value="voice-activated"
 			aria-label="Switch to voice activated mode"
 		>
-			<AudioLinesIcon class="h-4 w-4" />
+			<AudioLinesIcon class="size-4" />
 			Voice Activated
 		</ToggleGroup.Item>
 	</ToggleGroup.Root>
@@ -199,9 +199,9 @@
 				>
 					{#snippet copyIcon()}
 						{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-							<Loader2Icon class="h-6 w-6 animate-spin" />
+							<Loader2Icon class="size-6 animate-spin" />
 						{:else}
-							<ClipboardIcon class="h-6 w-6" />
+							<ClipboardIcon class="size-6" />
 						{/if}
 					{/snippet}
 				</CopyToClipboardButton>

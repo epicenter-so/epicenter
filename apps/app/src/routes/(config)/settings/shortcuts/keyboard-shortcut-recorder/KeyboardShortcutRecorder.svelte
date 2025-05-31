@@ -140,7 +140,7 @@
 				}}
 				tooltipContent="Clear shortcut"
 			>
-				<XIcon class="h-4 w-4" />
+				<XIcon class="size-4" />
 			</WhisperingButton>
 		{:else}
 			<button

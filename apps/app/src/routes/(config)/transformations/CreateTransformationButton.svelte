@@ -29,7 +29,7 @@
 	<Dialog.Trigger>
 		{#snippet child({ props })}
 			<Button {...props}>
-				<PlusIcon class="h-4 w-4 mr-2" />
+				<PlusIcon class="size-4 mr-2" />
 				Create Transformation
 			</Button>
 		{/snippet}

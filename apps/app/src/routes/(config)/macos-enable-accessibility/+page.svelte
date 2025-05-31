@@ -70,7 +70,7 @@
 				size="sm"
 				class="w-full text-sm"
 			>
-				<SettingsIcon class="mr-2 h-4 w-4" />
+				<SettingsIcon class="mr-2 size-4" />
 				Open MacOS Accessibility Settings
 			</Button>
 		</Card.Footer>

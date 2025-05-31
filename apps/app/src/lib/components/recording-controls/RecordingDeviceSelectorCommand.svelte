@@ -52,7 +52,7 @@
 				>
 					<CheckIcon
 						class={cn(
-							'h-4 w-4 shrink-0 mx-2',
+							'size-4 shrink-0 mx-2',
 							settings.value[
 								'recording.navigator.selectedAudioInputDeviceId'
 							] !== device.deviceId && 'text-transparent',
@@ -75,7 +75,7 @@
 		}}
 		class="rounded-none p-2 bg-muted/50 text-muted-foreground"
 	>
-		<RefreshCwIcon class="h-4 w-4 mx-2.5" />
+		<RefreshCwIcon class="size-4 mx-2.5" />
 		Refresh devices
 	</Command.Item>
 </Command.Root>

@@ -66,13 +66,13 @@
 				})}"
 			>
 				{#if selectedTransformation}
-					<FilterIcon class="h-4 w-4 text-green-500" />
+					<FilterIcon class="size-4 text-green-500" />
 				{:else}
-					<FilterXIcon class="h-4 w-4 text-amber-500" />
+					<FilterXIcon class="size-4 text-amber-500" />
 				{/if}
 				{#if !selectedTransformation}
 					<span
-						class="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-full before:bg-primary/50 before:animate-ping"
+						class="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-full before:bg-primary/50 before:animate-ping"
 					></span>
 				{/if}
 			</WhisperingButton>
@@ -95,7 +95,7 @@
 						class="flex items-center gap-2 p-2"
 					>
 						<CheckIcon
-							class={cn('h-4 w-4 shrink-0 mx-2', {
+							class={cn('size-4 shrink-0 mx-2', {
 								'text-transparent': !isSelectedTransformation,
 							})}
 						/>
@@ -118,7 +118,7 @@
 				}}
 				class="rounded-none p-2 bg-muted/50 text-muted-foreground"
 			>
-				<LayersIcon class="h-4 w-4 mx-2.5" />
+				<LayersIcon class="size-4 mx-2.5" />
 				Manage transformations
 			</Command.Item>
 		</Command.Root>

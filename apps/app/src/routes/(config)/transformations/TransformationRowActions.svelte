@@ -19,8 +19,8 @@
 
 <div class="flex items-center gap-1">
 	{#if !transformation}
-		<Skeleton class="h-8 w-8 md:hidden" />
-		<Skeleton class="h-8 w-8" />
+		<Skeleton class="size-8 md:hidden" />
+		<Skeleton class="size-8" />
 	{:else}
 		<EditTransformationDialog {transformation} />
 
@@ -37,7 +37,7 @@
 			variant="ghost"
 			size="icon"
 		>
-			<TrashIcon class="h-4 w-4" />
+			<TrashIcon class="size-4" />
 		</WhisperingButton>
 	{/if}
 </div>

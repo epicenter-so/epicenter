@@ -66,7 +66,7 @@
 
 <div class="bg-muted/50 p-4 rounded-md mb-4">
 	<div class="flex items-start gap-3">
-		<MonitorIcon class="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+		<MonitorIcon class="size-5 text-green-500 mt-0.5 shrink-0" />
 		<div>
 			<h4 class="font-medium text-sm mb-1">
 				Tauri Global Shortcut Format Guide

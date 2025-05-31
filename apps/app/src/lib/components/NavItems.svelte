@@ -27,7 +27,7 @@
 		variant="ghost"
 		size="icon"
 	>
-		<ListIcon class="h-4 w-4" aria-hidden="true" />
+		<ListIcon class="size-4" aria-hidden="true" />
 	</WhisperingButton>
 	<WhisperingButton
 		tooltipContent="Transformations"
@@ -36,7 +36,7 @@
 		size="icon"
 		class="relative"
 	>
-		<LayersIcon class="h-4 w-4" aria-hidden="true" />
+		<LayersIcon class="size-4" aria-hidden="true" />
 	</WhisperingButton>
 	<WhisperingButton
 		tooltipContent="Settings"
@@ -44,7 +44,7 @@
 		variant="ghost"
 		size="icon"
 	>
-		<SettingsIcon class="h-4 w-4" aria-hidden="true" />
+		<SettingsIcon class="size-4" aria-hidden="true" />
 	</WhisperingButton>
 	<WhisperingButton
 		tooltipContent="View project on GitHub"
@@ -54,7 +54,7 @@
 		variant="ghost"
 		size="icon"
 	>
-		<GithubIcon class="h-4 w-4" aria-hidden="true" />
+		<GithubIcon class="size-4" aria-hidden="true" />
 	</WhisperingButton>
 	<WhisperingButton
 		tooltipContent="Toggle dark mode"
@@ -76,7 +76,7 @@
 			variant="ghost"
 			size="icon"
 		>
-			<Minimize2Icon class="h-4 w-4" aria-hidden="true" />
+			<Minimize2Icon class="size-4" aria-hidden="true" />
 		</WhisperingButton>
 	{/if}
 </nav>

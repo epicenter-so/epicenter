@@ -51,9 +51,9 @@
 		class="w-full"
 	>
 		{#if transformer.transformInput.isPending}
-			<Loader2Icon class="mr-2 h-4 w-4 animate-spin" />
+			<Loader2Icon class="mr-2 size-4 animate-spin" />
 		{:else}
-			<PlayIcon class="mr-2 h-4 w-4" />
+			<PlayIcon class="mr-2 size-4" />
 		{/if}
 		{transformer.transformInput.isPending
 			? 'Running Transformation...'
