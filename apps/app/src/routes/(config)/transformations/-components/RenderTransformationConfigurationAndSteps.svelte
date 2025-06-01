@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as SectionHeader from '$lib/components/ui/section-header';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		LabeledInput,
@@ -72,206 +73,231 @@
 	}
 </script>
 
-<div class="overflow-y-auto h-full">
-	<Card.Header>
-		<Card.Title>Configuration</Card.Title>
-		<Card.Description>
+<div class="flex flex-col gap-6 overflow-y-auto h-full px-2">
+	<SectionHeader.Root>
+		<SectionHeader.Title>Configuration</SectionHeader.Title>
+		<SectionHeader.Description>
 			Configure the title, description, and steps for how your transformation
 			will process your text
-		</Card.Description>
-	</Card.Header>
-	<Card.Content class="space-y-8">
-		<section class="space-y-4">
-			<LabeledInput
-				id="title"
-				label="Title"
-				value={transformation.title}
-				oninput={(e) => {
-					setTransformationDebounced({
-						...transformation,
-						title: e.currentTarget.value,
-					});
-				}}
-				placeholder="e.g., Format Meeting Notes"
-				description="A clear, concise name that describes what this transformation does"
-			/>
-			<LabeledTextarea
-				id="description"
-				label="Description"
-				value={transformation.description}
-				oninput={(e) => {
-					setTransformationDebounced({
-						...transformation,
-						description: e.currentTarget.value,
-					});
-				}}
-				placeholder="e.g., Converts meeting transcripts into bullet points and highlights action items"
-				description="Describe what this transformation does, its purpose, and how it will be used"
-			/>
-		</section>
+		</SectionHeader.Description>
+	</SectionHeader.Root>
 
-		<Separator />
+	<Separator />
 
-		<section class="space-y-4">
-			<h3 class="font-medium mb-4">Processing Steps</h3>
-			{#if transformation.steps.length === 0}
-				<Alert.Root variant="warning">
-					<Alert.Title>Add your first processing step</Alert.Title>
-					<Alert.Description>
-						Each step will process your transcribed text in sequence. Start by
-						adding a step below to define how your text should be transformed.
-					</Alert.Description>
-				</Alert.Root>
-			{/if}
+	<section class="space-y-4">
+		<LabeledInput
+			id="title"
+			label="Title"
+			value={transformation.title}
+			oninput={(e) => {
+				setTransformationDebounced({
+					...transformation,
+					title: e.currentTarget.value,
+				});
+			}}
+			placeholder="e.g., Format Meeting Notes"
+			description="A clear, concise name that describes what this transformation does"
+		/>
+		<LabeledTextarea
+			id="description"
+			label="Description"
+			value={transformation.description}
+			oninput={(e) => {
+				setTransformationDebounced({
+					...transformation,
+					description: e.currentTarget.value,
+				});
+			}}
+			placeholder="e.g., Converts meeting transcripts into bullet points and highlights action items"
+			description="Describe what this transformation does, its purpose, and how it will be used"
+		/>
+	</section>
 
-			<div class="space-y-4">
-				{#each transformation.steps as step, index (index)}
-					<div
-						class="bg-muted/25 text-card-foreground rounded-lg border shadow-xs"
-						transition:slide
-					>
-						<Card.Header class="space-y-3">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<Card.Title class="text-xl">
-										Step {index + 1}:
-									</Card.Title>
+	<Separator />
+
+	<section class="space-y-6">
+		<h3 class="font-medium">Processing Steps</h3>
+		{#if transformation.steps.length === 0}
+			<Alert.Root variant="warning">
+				<Alert.Title>Add your first processing step</Alert.Title>
+				<Alert.Description>
+					Each step will process your transcribed text in sequence. Start by
+					adding a step below to define how your text should be transformed.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
+
+		<div class="space-y-4">
+			{#each transformation.steps as step, index (index)}
+				<div
+					class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+					transition:slide
+				>
+					<Card.Header class="space-y-4">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<Card.Title class="text-xl">
+									Step {index + 1}:
+								</Card.Title>
+								<LabeledSelect
+									id="step-type"
+									label="Type"
+									selected={step.type}
+									items={TRANSFORMATION_STEP_TYPES.map(
+										(type) =>
+											({
+												value: type,
+												label: TRANSFORMATION_STEP_TYPES_TO_LABELS[type],
+											}) as const,
+									)}
+									onSelectedChange={(value) => {
+										setTransformation({
+											...transformation,
+											steps: transformation.steps.map((s, i) =>
+												i === index ? { ...s, type: value } : s,
+											),
+										});
+									}}
+									hideLabel
+									class="h-8"
+									placeholder="Select a step type"
+								/>
+							</div>
+							<div class="flex items-center gap-2">
+								<WhisperingButton
+									tooltipContent="Duplicate step"
+									variant="ghost"
+									size="icon"
+									class="size-8"
+									onclick={() => duplicateStep(index)}
+								>
+									<CopyIcon class="size-4" />
+								</WhisperingButton>
+								<WhisperingButton
+									tooltipContent="Delete step"
+									variant="ghost"
+									size="icon"
+									class="size-8"
+									onclick={() => removeStep(index)}
+								>
+									<TrashIcon class="size-4" />
+								</WhisperingButton>
+							</div>
+						</div>
+						{#if step.type === 'prompt_transform'}
+							<Card.Description>
+								{index === 0
+									? `Use '{{input}}' to refer to the original text`
+									: `Use '{{input}}' to refer to the text from step ${index}`}
+							</Card.Description>
+						{/if}
+					</Card.Header>
+					<Card.Content>
+						{#if step.type === 'find_replace'}
+							<div class="space-y-6">
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<LabeledInput
+										id="find_replace.findText"
+										label="Find Text"
+										value={step['find_replace.findText']}
+										oninput={(e) => {
+											setTransformationDebounced({
+												...transformation,
+												steps: transformation.steps.map((s, i) =>
+													i === index
+														? {
+																...s,
+																'find_replace.findText': e.currentTarget.value,
+															}
+														: s,
+												),
+											});
+										}}
+										placeholder="Text or pattern to search for in the transcript"
+									/>
+									<LabeledInput
+										id="find_replace.replaceText"
+										label="Replace Text"
+										value={step['find_replace.replaceText']}
+										oninput={(e) => {
+											setTransformationDebounced({
+												...transformation,
+												steps: transformation.steps.map((s, i) =>
+													i === index
+														? {
+																...s,
+																'find_replace.replaceText':
+																	e.currentTarget.value,
+															}
+														: s,
+												),
+											});
+										}}
+										placeholder="Text to use as the replacement"
+									/>
+								</div>
+								<Accordion.Root type="single" class="w-full">
+									<Accordion.Item class="border-none" value="advanced">
+										<Accordion.Trigger class="text-sm">
+											Advanced Options
+										</Accordion.Trigger>
+										<Accordion.Content>
+											<LabeledSwitch
+												id="find_replace.useRegex"
+												label="Use Regex"
+												checked={step['find_replace.useRegex']}
+												onCheckedChange={(v) => {
+													setTransformation({
+														...transformation,
+														steps: transformation.steps.map((s, i) =>
+															i === index
+																? {
+																		...s,
+																		'find_replace.useRegex': v,
+																	}
+																: s,
+														),
+													});
+												}}
+												description="Enable advanced pattern matching using regular expressions (for power users)"
+											/>
+										</Accordion.Content>
+									</Accordion.Item>
+								</Accordion.Root>
+							</div>
+						{:else if step.type === 'prompt_transform'}
+							<div class="space-y-6">
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<LabeledSelect
-										id="step-type"
-										label="Type"
-										selected={step.type}
-										items={TRANSFORMATION_STEP_TYPES.map(
-											(type) =>
-												({
-													value: type,
-													label: TRANSFORMATION_STEP_TYPES_TO_LABELS[type],
-												}) as const,
-										)}
+										id="prompt_transform.inference.provider"
+										label="Provider"
+										items={INFERENCE_PROVIDER_OPTIONS}
+										selected={step['prompt_transform.inference.provider']}
+										placeholder="Select a provider"
 										onSelectedChange={(value) => {
 											setTransformation({
 												...transformation,
 												steps: transformation.steps.map((s, i) =>
-													i === index ? { ...s, type: value } : s,
+													i === index
+														? {
+																...s,
+																'prompt_transform.inference.provider': value,
+															}
+														: s,
 												),
 											});
 										}}
-										hideLabel
-										class="h-8"
-										placeholder="Select a step type"
 									/>
-								</div>
-								<div class="flex gap-1 items-center">
-									<WhisperingButton
-										tooltipContent="Duplicate step"
-										variant="ghost"
-										size="icon"
-										class="size-8"
-										onclick={() => duplicateStep(index)}
-									>
-										<CopyIcon class="size-4" />
-									</WhisperingButton>
-									<WhisperingButton
-										tooltipContent="Delete step"
-										variant="ghost"
-										size="icon"
-										class="size-8"
-										onclick={() => removeStep(index)}
-									>
-										<TrashIcon class="size-4" />
-									</WhisperingButton>
-								</div>
-							</div>
-							{#if step.type === 'prompt_transform'}
-								<Card.Description>
-									{index === 0
-										? `Use '{{input}}' to refer to the original text`
-										: `Use '{{input}}' to refer to the text from step ${index}`}
-								</Card.Description>
-							{/if}
-						</Card.Header>
-						<Card.Content>
-							{#if step.type === 'find_replace'}
-								<div class="space-y-4">
-									<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<LabeledInput
-											id="find_replace.findText"
-											label="Find Text"
-											value={step['find_replace.findText']}
-											oninput={(e) => {
-												setTransformationDebounced({
-													...transformation,
-													steps: transformation.steps.map((s, i) =>
-														i === index
-															? {
-																	...s,
-																	'find_replace.findText':
-																		e.currentTarget.value,
-																}
-															: s,
-													),
-												});
-											}}
-											placeholder="Text or pattern to search for in the transcript"
-										/>
-										<LabeledInput
-											id="find_replace.replaceText"
-											label="Replace Text"
-											value={step['find_replace.replaceText']}
-											oninput={(e) => {
-												setTransformationDebounced({
-													...transformation,
-													steps: transformation.steps.map((s, i) =>
-														i === index
-															? {
-																	...s,
-																	'find_replace.replaceText':
-																		e.currentTarget.value,
-																}
-															: s,
-													),
-												});
-											}}
-											placeholder="Text to use as the replacement"
-										/>
-									</div>
-									<Accordion.Root type="single" class="w-full">
-										<Accordion.Item class="border-none" value="advanced">
-											<Accordion.Trigger class="text-sm">
-												Advanced Options
-											</Accordion.Trigger>
-											<Accordion.Content>
-												<LabeledSwitch
-													id="find_replace.useRegex"
-													label="Use Regex"
-													checked={step['find_replace.useRegex']}
-													onCheckedChange={(v) => {
-														setTransformation({
-															...transformation,
-															steps: transformation.steps.map((s, i) =>
-																i === index
-																	? {
-																			...s,
-																			'find_replace.useRegex': v,
-																		}
-																	: s,
-															),
-														});
-													}}
-													description="Enable advanced pattern matching using regular expressions (for power users)"
-												/>
-											</Accordion.Content>
-										</Accordion.Item>
-									</Accordion.Root>
-								</div>
-							{:else if step.type === 'prompt_transform'}
-								<div class="space-y-4">
-									<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+									{#if step['prompt_transform.inference.provider'] === 'OpenAI'}
 										<LabeledSelect
-											id="prompt_transform.inference.provider"
-											label="Provider"
-											items={INFERENCE_PROVIDER_OPTIONS}
-											selected={step['prompt_transform.inference.provider']}
-											placeholder="Select a provider"
+											id="prompt_transform.inference.provider.OpenAI.model"
+											label="Model"
+											items={OPENAI_INFERENCE_MODEL_OPTIONS}
+											selected={step[
+												'prompt_transform.inference.provider.OpenAI.model'
+											]}
+											placeholder="Select a model"
 											onSelectedChange={(value) => {
 												setTransformation({
 													...transformation,
@@ -279,197 +305,172 @@
 														i === index
 															? {
 																	...s,
-																	'prompt_transform.inference.provider': value,
+																	'prompt_transform.inference.provider.OpenAI.model':
+																		value,
 																}
 															: s,
 													),
 												});
 											}}
 										/>
-
-										{#if step['prompt_transform.inference.provider'] === 'OpenAI'}
-											<LabeledSelect
-												id="prompt_transform.inference.provider.OpenAI.model"
-												label="Model"
-												items={OPENAI_INFERENCE_MODEL_OPTIONS}
-												selected={step[
-													'prompt_transform.inference.provider.OpenAI.model'
-												]}
-												placeholder="Select a model"
-												onSelectedChange={(value) => {
-													setTransformation({
-														...transformation,
-														steps: transformation.steps.map((s, i) =>
-															i === index
-																? {
-																		...s,
-																		'prompt_transform.inference.provider.OpenAI.model':
-																			value,
-																	}
-																: s,
-														),
-													});
-												}}
-											/>
-										{:else if step['prompt_transform.inference.provider'] === 'Groq'}
-											<LabeledSelect
-												id="prompt_transform.inference.provider.Groq.model"
-												label="Model"
-												items={GROQ_INFERENCE_MODEL_OPTIONS}
-												selected={step[
-													'prompt_transform.inference.provider.Groq.model'
-												]}
-												placeholder="Select a model"
-												onSelectedChange={(value) => {
-													setTransformation({
-														...transformation,
-														steps: transformation.steps.map((s, i) =>
-															i === index
-																? {
-																		...s,
-																		'prompt_transform.inference.provider.Groq.model':
-																			value,
-																	}
-																: s,
-														),
-													});
-												}}
-											/>
-										{:else if step['prompt_transform.inference.provider'] === 'Anthropic'}
-											<LabeledSelect
-												id="prompt_transform.inference.provider.Anthropic.model"
-												label="Model"
-												items={ANTHROPIC_INFERENCE_MODEL_OPTIONS}
-												selected={step[
-													'prompt_transform.inference.provider.Anthropic.model'
-												]}
-												placeholder="Select a model"
-												onSelectedChange={(value) => {
-													setTransformation({
-														...transformation,
-														steps: transformation.steps.map((s, i) =>
-															i === index
-																? {
-																		...s,
-																		'prompt_transform.inference.provider.Anthropic.model':
-																			value,
-																	}
-																: s,
-														),
-													});
-												}}
-											/>
-										{:else if step['prompt_transform.inference.provider'] === 'Google'}
-											<LabeledSelect
-												id="prompt_transform.inference.provider.Google.model"
-												label="Model"
-												items={GOOGLE_INFERENCE_MODEL_OPTIONS}
-												selected={step[
-													'prompt_transform.inference.provider.Google.model'
-												]}
-												placeholder="Select a model"
-												onSelectedChange={(value) => {
-													setTransformation({
-														...transformation,
-														steps: transformation.steps.map((s, i) =>
-															i === index
-																? {
-																		...s,
-																		'prompt_transform.inference.provider.Google.model':
-																			value,
-																	}
-																: s,
-														),
-													});
-												}}
-											/>
-										{/if}
-									</div>
-
-									<LabeledTextarea
-										id="prompt_transform.systemPromptTemplate"
-										label="System Prompt Template"
-										value={step['prompt_transform.systemPromptTemplate']}
-										oninput={(e) => {
-											setTransformationDebounced({
-												...transformation,
-												steps: transformation.steps.map((s, i) =>
-													i === index
-														? {
-																...s,
-																'prompt_transform.systemPromptTemplate':
-																	e.currentTarget.value,
-															}
-														: s,
-												),
-											});
-										}}
-										placeholder="Define the AI's role and expertise, e.g., 'You are an expert at formatting meeting notes. Structure the text into clear sections with bullet points.'"
-									/>
-									<LabeledTextarea
-										id="prompt_transform.userPromptTemplate"
-										label="User Prompt Template"
-										value={step['prompt_transform.userPromptTemplate']}
-										oninput={(e) => {
-											setTransformationDebounced({
-												...transformation,
-												steps: transformation.steps.map((s, i) =>
-													i === index
-														? {
-																...s,
-																'prompt_transform.userPromptTemplate':
-																	e.currentTarget.value,
-															}
-														: s,
-												),
-											});
-										}}
-										placeholder="Tell the AI what to do with your text. Use {'{{input}}'} where you want your text to appear, e.g., 'Format this transcript into clear sections: {'{{input}}'}'"
-									>
-										{#snippet description()}
-											{#if step['prompt_transform.userPromptTemplate'] && !step['prompt_transform.userPromptTemplate'].includes('{{input}}')}
-												<p class="text-amber-500 text-sm font-semibold">
-													Remember to include {'{{input}}'} in your prompt - this
-													is where your text will be inserted!
-												</p>
-											{/if}
-										{/snippet}
-									</LabeledTextarea>
-									<Accordion.Root type="single" class="w-full">
-										<Accordion.Item class="border-none" value="advanced">
-											<Accordion.Trigger class="text-sm">
-												Advanced Options
-											</Accordion.Trigger>
-											<Accordion.Content>
-												{#if step['prompt_transform.inference.provider'] === 'OpenAI'}
-													<OpenAiApiKeyInput />
-												{:else if step['prompt_transform.inference.provider'] === 'Groq'}
-													<GroqApiKeyInput />
-												{:else if step['prompt_transform.inference.provider'] === 'Anthropic'}
-													<AnthropicApiKeyInput />
-												{:else if step['prompt_transform.inference.provider'] === 'Google'}
-													<GoogleApiKeyInput />
-												{/if}
-											</Accordion.Content>
-										</Accordion.Item>
-									</Accordion.Root>
+									{:else if step['prompt_transform.inference.provider'] === 'Groq'}
+										<LabeledSelect
+											id="prompt_transform.inference.provider.Groq.model"
+											label="Model"
+											items={GROQ_INFERENCE_MODEL_OPTIONS}
+											selected={step[
+												'prompt_transform.inference.provider.Groq.model'
+											]}
+											placeholder="Select a model"
+											onSelectedChange={(value) => {
+												setTransformation({
+													...transformation,
+													steps: transformation.steps.map((s, i) =>
+														i === index
+															? {
+																	...s,
+																	'prompt_transform.inference.provider.Groq.model':
+																		value,
+																}
+															: s,
+													),
+												});
+											}}
+										/>
+									{:else if step['prompt_transform.inference.provider'] === 'Anthropic'}
+										<LabeledSelect
+											id="prompt_transform.inference.provider.Anthropic.model"
+											label="Model"
+											items={ANTHROPIC_INFERENCE_MODEL_OPTIONS}
+											selected={step[
+												'prompt_transform.inference.provider.Anthropic.model'
+											]}
+											placeholder="Select a model"
+											onSelectedChange={(value) => {
+												setTransformation({
+													...transformation,
+													steps: transformation.steps.map((s, i) =>
+														i === index
+															? {
+																	...s,
+																	'prompt_transform.inference.provider.Anthropic.model':
+																		value,
+																}
+															: s,
+													),
+												});
+											}}
+										/>
+									{:else if step['prompt_transform.inference.provider'] === 'Google'}
+										<LabeledSelect
+											id="prompt_transform.inference.provider.Google.model"
+											label="Model"
+											items={GOOGLE_INFERENCE_MODEL_OPTIONS}
+											selected={step[
+												'prompt_transform.inference.provider.Google.model'
+											]}
+											placeholder="Select a model"
+											onSelectedChange={(value) => {
+												setTransformation({
+													...transformation,
+													steps: transformation.steps.map((s, i) =>
+														i === index
+															? {
+																	...s,
+																	'prompt_transform.inference.provider.Google.model':
+																		value,
+																}
+															: s,
+													),
+												});
+											}}
+										/>
+									{/if}
 								</div>
-							{/if}
-						</Card.Content>
-					</div>
-				{/each}
-			</div>
 
-			<Button
-				onclick={addStep}
-				variant={transformation.steps.length === 0 ? 'default' : 'outline'}
-				class="w-full mt-2"
-			>
-				<PlusIcon class="mr-2 size-4" />
-				{transformation.steps.length === 0
-					? 'Add Your First Step'
-					: 'Add Another Step'}
-			</Button>
-		</section>
-	</Card.Content>
+								<LabeledTextarea
+									id="prompt_transform.systemPromptTemplate"
+									label="System Prompt Template"
+									value={step['prompt_transform.systemPromptTemplate']}
+									oninput={(e) => {
+										setTransformationDebounced({
+											...transformation,
+											steps: transformation.steps.map((s, i) =>
+												i === index
+													? {
+															...s,
+															'prompt_transform.systemPromptTemplate':
+																e.currentTarget.value,
+														}
+													: s,
+											),
+										});
+									}}
+									placeholder="Define the AI's role and expertise, e.g., 'You are an expert at formatting meeting notes. Structure the text into clear sections with bullet points.'"
+								/>
+								<LabeledTextarea
+									id="prompt_transform.userPromptTemplate"
+									label="User Prompt Template"
+									value={step['prompt_transform.userPromptTemplate']}
+									oninput={(e) => {
+										setTransformationDebounced({
+											...transformation,
+											steps: transformation.steps.map((s, i) =>
+												i === index
+													? {
+															...s,
+															'prompt_transform.userPromptTemplate':
+																e.currentTarget.value,
+														}
+													: s,
+											),
+										});
+									}}
+									placeholder="Tell the AI what to do with your text. Use {'{{input}}'} where you want your text to appear, e.g., 'Format this transcript into clear sections: {'{{input}}'}'"
+								>
+									{#snippet description()}
+										{#if step['prompt_transform.userPromptTemplate'] && !step['prompt_transform.userPromptTemplate'].includes('{{input}}')}
+											<p class="text-amber-500 text-sm font-semibold">
+												Remember to include {'{{input}}'} in your prompt - this is
+												where your text will be inserted!
+											</p>
+										{/if}
+									{/snippet}
+								</LabeledTextarea>
+								<Accordion.Root type="single" class="w-full">
+									<Accordion.Item class="border-none" value="advanced">
+										<Accordion.Trigger class="text-sm">
+											Advanced Options
+										</Accordion.Trigger>
+										<Accordion.Content>
+											{#if step['prompt_transform.inference.provider'] === 'OpenAI'}
+												<OpenAiApiKeyInput />
+											{:else if step['prompt_transform.inference.provider'] === 'Groq'}
+												<GroqApiKeyInput />
+											{:else if step['prompt_transform.inference.provider'] === 'Anthropic'}
+												<AnthropicApiKeyInput />
+											{:else if step['prompt_transform.inference.provider'] === 'Google'}
+												<GoogleApiKeyInput />
+											{/if}
+										</Accordion.Content>
+									</Accordion.Item>
+								</Accordion.Root>
+							</div>
+						{/if}
+					</Card.Content>
+				</div>
+			{/each}
+		</div>
+
+		<Button
+			onclick={addStep}
+			variant={transformation.steps.length === 0 ? 'default' : 'outline'}
+			class="w-full"
+		>
+			<PlusIcon class="mr-2 size-4" />
+			{transformation.steps.length === 0
+				? 'Add Your First Step'
+				: 'Add Another Step'}
+		</Button>
+	</section>
 </div>

@@ -39,7 +39,7 @@
 		</div>
 	</div>
 {:else}
-	<div class="h-full overflow-y-auto">
+	<div class="h-full overflow-y-auto px-2">
 		<Table.Root>
 			<Table.Header>
 				<Table.Row>
