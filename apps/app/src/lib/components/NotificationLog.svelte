@@ -52,7 +52,7 @@
 				size="icon"
 				{...props}
 			>
-				<LogsIcon />
+				<LogsIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
