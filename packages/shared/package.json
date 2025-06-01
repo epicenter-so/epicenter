@@ -6,8 +6,7 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./settings": "./src/settings/index.ts",
-		"./errors": "./src/errors.ts"
+		"./settings": "./src/settings/index.ts"
 	},
 	"devDependencies": {
 		"@types/node": "^22.15.29",
