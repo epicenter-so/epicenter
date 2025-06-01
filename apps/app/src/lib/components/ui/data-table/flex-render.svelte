@@ -1,19 +1,12 @@
-<script lang="ts" module>
+<script
+	lang="ts"
+	generics="TData, TValue, TContext extends HeaderContext<TData, TValue> | CellContext<TData, TValue>"
+>
 	import type {
 		CellContext,
 		ColumnDefTemplate,
 		HeaderContext,
 	} from '@tanstack/table-core';
-
-	type TData = unknown;
-	type TValue = unknown;
-	type TContext = unknown;
-</script>
-
-<script
-	lang="ts"
-	generics="TData, TValue, TContext extends HeaderContext<TData, TValue> | CellContext<TData, TValue>"
->
 	import {
 		RenderComponentConfig,
 		RenderSnippetConfig,

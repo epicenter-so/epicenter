@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { cn } from '$lib/utils.js';
 	import { Tabs as TabsPrimitive } from 'bits-ui';
+	import { cn } from '$lib/utils.js';
 
 	let {
 		ref = $bindable(null),
@@ -11,9 +11,7 @@
 
 <TabsPrimitive.Content
 	bind:ref
-	class={cn(
-		'ring-offset-background focus-visible:ring-ring mt-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2',
-		className,
-	)}
+	data-slot="tabs-content"
+	class={cn('flex-1 outline-none', className)}
 	{...restProps}
 />

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { cn } from '$lib/utils.js';
-	import { Select as SelectPrimitive, type WithoutChild } from 'bits-ui';
-	import Check from 'lucide-svelte/icons/check';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import { Select as SelectPrimitive } from 'bits-ui';
+	import { cn, type WithoutChild } from '$lib/utils.js';
 
 	let {
 		ref = $bindable(null),
@@ -16,16 +16,17 @@
 <SelectPrimitive.Item
 	bind:ref
 	{value}
+	data-slot="select-item"
 	class={cn(
-		'data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50',
+		"data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground outline-hidden *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 relative flex w-full cursor-default select-none items-center gap-2 rounded-sm py-1.5 pl-2 pr-8 text-sm data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		className,
 	)}
 	{...restProps}
 >
 	{#snippet children({ selected, highlighted })}
-		<span class="absolute left-2 flex size-3.5 items-center justify-center">
+		<span class="absolute right-2 flex size-3.5 items-center justify-center">
 			{#if selected}
-				<Check class="size-4" />
+				<CheckIcon class="size-4" />
 			{/if}
 		</span>
 		{#if childrenProp}
