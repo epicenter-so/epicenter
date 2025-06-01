@@ -54,7 +54,7 @@
 >
 	<span class="sr-only">Copy</span>
 	{#if hasCopied}
-		<CheckIcon />
+		<CheckIcon class="size-4" />
 	{:else}
 		{@render copyIcon()}
 	{/if}
@@ -64,6 +64,6 @@
 	{#if providedCopyIcon}
 		{@render providedCopyIcon()}
 	{:else}
-		<ClipboardIcon />
+		<ClipboardIcon class="size-4" />
 	{/if}
 {/snippet}

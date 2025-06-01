@@ -28,9 +28,9 @@
 				size="icon"
 			>
 				{#if isDeviceSelected}
-					<MicIcon class="h-4 w-4 text-green-500" />
+					<MicIcon class="size-4 text-green-500" />
 				{:else}
-					<MicIcon class="h-4 w-4 text-amber-500" />
+					<MicIcon class="size-4 text-amber-500" />
 				{/if}
 			</WhisperingButton>
 		{/snippet}

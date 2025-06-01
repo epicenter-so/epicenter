@@ -26,7 +26,7 @@
 
 {#snippet renderTransformationIdTitle(transformation: Transformation)}
 	<div class="flex items-center gap-2">
-		<Badge variant="id" class="flex-shrink-0 max-w-16 truncate">
+		<Badge variant="id" class="shrink-0 max-w-16 truncate">
 			{transformation.id}
 		</Badge>
 		<span class="font-medium truncate">
@@ -47,7 +47,7 @@
 				variant="ghost"
 				size="icon"
 			>
-				<LayersIcon class="h-4 w-4" />
+				<LayersIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
@@ -84,7 +84,7 @@
 				}}
 				class="rounded-none p-2 bg-muted/50 text-muted-foreground"
 			>
-				<LayersIcon class="h-4 w-4 mx-2.5" />
+				<LayersIcon class="size-4 mx-2.5" />
 				Manage transformations
 			</Command.Item>
 		</Command.Root>

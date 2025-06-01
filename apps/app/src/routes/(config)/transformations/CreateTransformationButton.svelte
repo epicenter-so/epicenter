@@ -29,14 +29,14 @@
 	<Dialog.Trigger>
 		{#snippet child({ props })}
 			<Button {...props}>
-				<PlusIcon class="h-4 w-4 mr-2" />
+				<PlusIcon class="size-4 mr-2" />
 				Create Transformation
 			</Button>
 		{/snippet}
 	</Dialog.Trigger>
 
 	<Dialog.Content
-		class="max-h-[80vh] max-w-7xl h-[80vh]"
+		class="max-h-[80vh] sm:max-w-7xl h-[80vh]"
 		onEscapeKeydown={(e) => {
 			e.preventDefault();
 			if (isDialogOpen) {

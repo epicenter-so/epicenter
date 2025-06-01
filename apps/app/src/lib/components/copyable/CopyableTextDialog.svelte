@@ -62,7 +62,7 @@
 					);
 				}}
 			>
-				<ClipboardIcon class="h-4 w-4" />
+				<ClipboardIcon class="size-4" />
 				Copy Text
 			</Button>
 		</Dialog.Footer>

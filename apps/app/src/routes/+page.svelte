@@ -82,14 +82,14 @@
 		}}
 	>
 		<ToggleGroup.Item value="manual" aria-label="Switch to manual mode">
-			<MicIcon class="h-4 w-4" />
+			<MicIcon class="size-4" />
 			Record
 		</ToggleGroup.Item>
 		<ToggleGroup.Item
 			value="voice-activated"
 			aria-label="Switch to voice activated mode"
 		>
-			<AudioLinesIcon class="h-4 w-4" />
+			<AudioLinesIcon class="size-4" />
 			Voice Activated
 		</ToggleGroup.Item>
 	</ToggleGroup.Root>
@@ -103,7 +103,7 @@
 					: 'Start recording'}
 				onclick={commands.toggleManualRecording}
 				variant="ghost"
-				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
@@ -123,7 +123,7 @@
 					: 'Start voice activated session'}
 				onclick={commands.toggleVadRecording}
 				variant="ghost"
-				class="flex-shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
@@ -199,9 +199,9 @@
 				>
 					{#snippet copyIcon()}
 						{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-							<Loader2Icon class="h-6 w-6 animate-spin" />
+							<Loader2Icon class="size-6 animate-spin" />
 						{:else}
-							<ClipboardIcon class="h-6 w-6" />
+							<ClipboardIcon class="size-6" />
 						{/if}
 					{/snippet}
 				</CopyToClipboardButton>

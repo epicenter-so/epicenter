@@ -48,13 +48,13 @@
 				variant="ghost"
 				class={className}
 			>
-				<EditIcon class="h-4 w-4" />
-				<PlayIcon class="h-4 w-4" />
-				<HistoryIcon class="h-4 w-4" />
+				<EditIcon class="size-4" />
+				<PlayIcon class="size-4" />
+				<HistoryIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="max-h-[80vh] max-w-7xl h-[80vh]">
+	<Dialog.Content class="max-h-[80vh] sm:max-w-7xl flex flex-col">
 		<Dialog.Header>
 			<Dialog.Title>Transformation Settings</Dialog.Title>
 			<Separator />
@@ -95,9 +95,9 @@
 				disabled={deleteTransformationWithToast.isPending}
 			>
 				{#if deleteTransformationWithToast.isPending}
-					<Loader2Icon class="mr-2 h-4 w-4 animate-spin" />
+					<Loader2Icon class="mr-2 size-4 animate-spin" />
 				{:else}
-					<TrashIcon class="h-4 w-4 mr-1" />
+					<TrashIcon class="size-4 mr-1" />
 				{/if}
 				Delete
 			</Button>

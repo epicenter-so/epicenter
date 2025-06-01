@@ -42,7 +42,7 @@
 				size="icon"
 				{...props}
 			>
-				<EditIcon class="h-4 w-4" />
+				<EditIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
@@ -115,7 +115,7 @@
 				disabled={deleteRecordingWithToast.isPending}
 			>
 				{#if deleteRecordingWithToast.isPending}
-					<Loader2Icon class="mr-2 h-4 w-4 animate-spin" />
+					<Loader2Icon class="mr-2 size-4 animate-spin" />
 				{/if}
 				Delete
 			</Button>

@@ -49,8 +49,8 @@
 		{displayText}
 	{/if}
 	{#if isTransformationActive}
-		<CheckCircleIcon class="h-4 w-4 text-green-500" />
+		<CheckCircleIcon class="size-4 text-green-500" />
 	{:else}
-		<CircleIcon class="h-4 w-4" />
+		<CircleIcon class="size-4" />
 	{/if}
 </WhisperingButton>

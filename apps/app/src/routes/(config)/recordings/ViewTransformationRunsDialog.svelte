@@ -23,11 +23,11 @@
 				size="icon"
 				tooltipContent="View Transformation Runs"
 			>
-				<HistoryIcon class="h-4 w-4" />
+				<HistoryIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="max-w-4xl">
+	<Dialog.Content class="sm:max-w-4xl">
 		<Dialog.Header>
 			<Dialog.Title>Transformation Runs</Dialog.Title>
 			<Dialog.Description>

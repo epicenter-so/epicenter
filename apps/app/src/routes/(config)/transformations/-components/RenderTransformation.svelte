@@ -37,11 +37,11 @@
 			<Resizable.Handle withHandle />
 			<Resizable.Pane>
 				{#if transformationRunsByTransformationIdQuery.isPending}
-					<div class="text-muted-foreground text-sm">Loading runs...</div>
+					<div class="text-muted-foreground text-sm p-4">Loading runs...</div>
 				{:else if transformationRunsByTransformationIdQuery.error}
-					<div class="text-destructive text-sm">
-						{transformationRunsByTransformationIdQuery.error.title}:
-						{transformationRunsByTransformationIdQuery.error.description}
+					<div class="text-destructive text-sm p-4">
+						Error loading transformation runs: {transformationRunsByTransformationIdQuery
+							.error.message}
 					</div>
 				{:else if transformationRunsByTransformationIdQuery.data}
 					<RenderTransformationRuns

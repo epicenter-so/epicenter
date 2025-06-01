@@ -52,7 +52,7 @@
 				size="icon"
 				{...props}
 			>
-				<LogsIcon />
+				<LogsIcon class="size-4" />
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
@@ -69,7 +69,7 @@
 		<ScrollArea
 			class="mt-4 h-[60vh] overflow-y-auto rounded-md border bg-background p-4"
 			data-sonner-toaster
-			data-theme={$mode}
+			data-theme={mode.current}
 			data-rich-colors="true"
 		>
 			{#each notificationLog.logs as log}
@@ -83,21 +83,21 @@
 					<div class="flex items-center gap-3">
 						{#if log.variant === 'error'}
 							<div data-icon class="text-destructive">
-								<AlertCircle class="h-4 w-4" />
+								<AlertCircle class="size-4" />
 							</div>
 						{:else if log.variant === 'warning'}
 							<div data-icon class="text-warning">
-								<AlertTriangle class="h-4 w-4" />
+								<AlertTriangle class="size-4" />
 							</div>
 						{:else if log.variant === 'success'}
 							<div data-icon class="text-success">
-								<CheckCircle2 class="h-4 w-4" />
+								<CheckCircle2 class="size-4" />
 							</div>
 						{:else if log.variant === 'info'}
-							<div data-icon class="text-info"><Info class="h-4 w-4" /></div>
+							<div data-icon class="text-info"><Info class="size-4" /></div>
 						{:else if log.variant === 'loading'}
 							<div data-icon class="text-muted-foreground">
-								<Loader class="h-4 w-4 animate-spin" />
+								<Loader class="size-4 animate-spin" />
 							</div>
 						{/if}
 						<div class="flex-1">

@@ -1,68 +1,124 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
 @layer base {
-	:root {
-		--background: 0 0% 100%;
-		--foreground: 222.2 84% 4.9%;
-		--muted: 210 40% 96.1%;
-		--muted-foreground: 215.4 16.3% 46.9%;
-		--popover: 0 0% 100%;
-		--popover-foreground: 222.2 84% 4.9%;
-		--card: 0 0% 100%;
-		--card-foreground: 222.2 84% 4.9%;
-		--border: 214.3 31.8% 91.4%;
-		--input: 214.3 31.8% 91.4%;
-		--primary: 222.2 47.4% 11.2%;
-		--primary-foreground: 210 40% 98%;
-		--secondary: 210 40% 96.1%;
-		--secondary-foreground: 222.2 47.4% 11.2%;
-		--accent: 210 40% 96.1%;
-		--accent-foreground: 222.2 47.4% 11.2%;
-		--destructive: 0 72.2% 50.6%;
-		--destructive-foreground: 210 40% 98%;
-		--ring: 222.2 84% 4.9%;
-		--radius: 0.5rem;
-		--sidebar-background: 0 0% 98%;
-		--sidebar-foreground: 240 5.3% 26.1%;
-		--sidebar-primary: 240 5.9% 10%;
-		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 240 4.8% 95.9%;
-		--sidebar-accent-foreground: 240 5.9% 10%;
-		--sidebar-border: 220 13% 91%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
 	}
+}
 
-	.dark {
-		--background: 222.2 84% 4.9%;
-		--foreground: 210 40% 98%;
-		--muted: 217.2 32.6% 17.5%;
-		--muted-foreground: 215 20.2% 65.1%;
-		--popover: 222.2 84% 4.9%;
-		--popover-foreground: 210 40% 98%;
-		--card: 222.2 84% 4.9%;
-		--card-foreground: 210 40% 98%;
-		--border: 217.2 32.6% 17.5%;
-		--input: 217.2 32.6% 17.5%;
-		--primary: 210 40% 98%;
-		--primary-foreground: 222.2 47.4% 11.2%;
-		--secondary: 217.2 32.6% 17.5%;
-		--secondary-foreground: 210 40% 98%;
-		--accent: 217.2 32.6% 17.5%;
-		--accent-foreground: 210 40% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 210 40% 98%;
-		--ring: 212.7 26.8% 83.9%;
-		--sidebar-background: 240 5.9% 10%;
-		--sidebar-foreground: 240 4.8% 95.9%;
-		--sidebar-primary: 224.3 76.3% 48%;
-		--sidebar-primary-foreground: 0 0% 100%;
-		--sidebar-accent: 240 3.7% 15.9%;
-		--sidebar-accent-foreground: 240 4.8% 95.9%;
-		--sidebar-border: 240 3.7% 15.9%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
-	}
+:root {
+	--background: hsl(0 0% 100%);
+	--foreground: hsl(222.2 84% 4.9%);
+	--muted: hsl(210 40% 96.1%);
+	--muted-foreground: hsl(215.4 16.3% 46.9%);
+	--popover: hsl(0 0% 100%);
+	--popover-foreground: hsl(222.2 84% 4.9%);
+	--card: hsl(0 0% 100%);
+	--card-foreground: hsl(222.2 84% 4.9%);
+	--border: hsl(214.3 31.8% 91.4%);
+	--input: hsl(214.3 31.8% 91.4%);
+	--primary: hsl(222.2 47.4% 11.2%);
+	--primary-foreground: hsl(210 40% 98%);
+	--secondary: hsl(210 40% 96.1%);
+	--secondary-foreground: hsl(222.2 47.4% 11.2%);
+	--accent: hsl(210 40% 96.1%);
+	--accent-foreground: hsl(222.2 47.4% 11.2%);
+	--destructive: hsl(0 72.2% 50.6%);
+	--destructive-foreground: hsl(210 40% 98%);
+	--ring: hsl(222.2 84% 4.9%);
+	--radius: 0.5rem;
+	--sidebar: hsl(0 0% 98%);
+	--sidebar-foreground: hsl(240 5.3% 26.1%);
+	--sidebar-primary: hsl(240 5.9% 10%);
+	--sidebar-primary-foreground: hsl(0 0% 98%);
+	--sidebar-accent: hsl(240 4.8% 95.9%);
+	--sidebar-accent-foreground: hsl(240 5.9% 10%);
+	--sidebar-border: hsl(220 13% 91%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+	--background: hsl(222.2 84% 4.9%);
+	--foreground: hsl(210 40% 98%);
+	--muted: hsl(217.2 32.6% 17.5%);
+	--muted-foreground: hsl(215 20.2% 65.1%);
+	--popover: hsl(222.2 84% 4.9%);
+	--popover-foreground: hsl(210 40% 98%);
+	--card: hsl(222.2 84% 4.9%);
+	--card-foreground: hsl(210 40% 98%);
+	--border: hsl(217.2 32.6% 17.5%);
+	--input: hsl(217.2 32.6% 17.5%);
+	--primary: hsl(210 40% 98%);
+	--primary-foreground: hsl(222.2 47.4% 11.2%);
+	--secondary: hsl(217.2 32.6% 17.5%);
+	--secondary-foreground: hsl(210 40% 98%);
+	--accent: hsl(217.2 32.6% 17.5%);
+	--accent-foreground: hsl(210 40% 98%);
+	--destructive: hsl(0 62.8% 30.6%);
+	--destructive-foreground: hsl(210 40% 98%);
+	--ring: hsl(212.7 26.8% 83.9%);
+	--sidebar: hsl(240 5.9% 10%);
+	--sidebar-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-primary: hsl(224.3 76.3% 48%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
+	--sidebar-accent: hsl(240 3.7% 15.9%);
+	--sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-border: hsl(240 3.7% 15.9%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+	/* Radius (for rounded-*) */
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	/* Colors */
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-ring: var(--ring);
+	--color-radius: var(--radius);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	/* Custom breakpoints */
+	--breakpoint-xxs: 196px;
+	--breakpoint-xs: 320px;
 }
 
 @layer base {

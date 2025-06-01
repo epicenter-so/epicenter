@@ -77,7 +77,7 @@
 <Toaster
 	offset={16}
 	class="xs:block hidden"
-	theme={$mode}
+	theme={mode.current}
 	{...TOASTER_SETTINGS}
 />
 <ModeWatcher />

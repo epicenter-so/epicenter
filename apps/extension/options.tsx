@@ -110,7 +110,7 @@ function SettingsCard() {
 						// biome-ignore lint/suspicious/noArrayIndexKey: Use index as key for skeleton
 						<div key={i} className="flex items-center gap-2">
 							<Skeleton className="h-6 w-10" />
-							<Skeleton className="h-4 w-48" />
+							<Skeleton className="size-48" />
 						</div>
 					))}
 

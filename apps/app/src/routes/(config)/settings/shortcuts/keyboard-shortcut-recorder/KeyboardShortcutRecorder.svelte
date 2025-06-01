@@ -140,7 +140,7 @@
 				}}
 				tooltipContent="Clear shortcut"
 			>
-				<XIcon class="h-4 w-4" />
+				<XIcon class="size-4" />
 			</WhisperingButton>
 		{:else}
 			<button
@@ -161,7 +161,7 @@
 			<button
 				type="button"
 				class={cn(
-					'relative flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+					'relative flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 					isListening && 'ring-2 ring-ring ring-offset-2',
 				)}
 				onclick={(e) => {
@@ -193,7 +193,7 @@
 
 				{#if isListening}
 					<div
-						class="absolute inset-0 z-10 flex animate-in fade-in-0 zoom-in-95 items-center justify-center rounded-md border border-input bg-background/80 backdrop-blur-sm"
+						class="absolute inset-0 z-10 flex animate-in fade-in-0 zoom-in-95 items-center justify-center rounded-md border border-input bg-background/80 backdrop-blur-xs"
 						aria-live="polite"
 					>
 						<div class="flex flex-col items-center gap-1 px-4 py-2">

@@ -224,7 +224,7 @@
 					});
 				}}
 			>
-				<TrashIcon class="h-4 w-4" />
+				<TrashIcon class="size-4" />
 			</WhisperingButton>
 		{/if}
 
@@ -254,7 +254,7 @@
 					{#each { length: 5 }}
 						<Table.Row>
 							<Table.Cell>
-								<Skeleton class="h-4 w-4" />
+								<Skeleton class="size-4" />
 							</Table.Cell>
 							<Table.Cell colspan={columns.length - 1}>
 								<Skeleton class="h-4 w-full" />

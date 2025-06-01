@@ -71,9 +71,12 @@
 		</p>
 	</div>
 	<Separator class="my-6" />
-	<div class="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-		<aside class="-mx-4 lg:w-1/5">
-			<SidebarNav items={sidebarNavItems} />
+	<div class="flex flex-col space-y-8 lg:flex-row lg:gap-8">
+		<aside class="lg:w-1/5 lg:mx-0">
+			<SidebarNav
+				items={sidebarNavItems}
+				class="lg:bg-sidebar/30 lg:rounded-lg"
+			/>
 		</aside>
 		<div class="flex-1 lg:max-w-2xl">
 			{@render children()}

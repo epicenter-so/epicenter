@@ -60,11 +60,11 @@
 
 <div class="flex items-center gap-1">
 	{#if !recording}
-		<Skeleton class="h-8 w-8" />
-		<Skeleton class="h-8 w-8" />
-		<Skeleton class="h-8 w-8" />
-		<Skeleton class="h-8 w-8" />
-		<Skeleton class="h-8 w-8" />
+		<Skeleton class="size-8" />
+		<Skeleton class="size-8" />
+		<Skeleton class="size-8" />
+		<Skeleton class="size-8" />
+		<Skeleton class="size-8" />
 	{:else}
 		<WhisperingButton
 			tooltipContent={recording.transcriptionStatus === 'UNPROCESSED'
@@ -83,13 +83,13 @@
 			size="icon"
 		>
 			{#if recording.transcriptionStatus === 'UNPROCESSED'}
-				<PlayIcon class="h-4 w-4" />
+				<PlayIcon class="size-4" />
 			{:else if recording.transcriptionStatus === 'TRANSCRIBING'}
-				<EllipsisIcon class="h-4 w-4" />
+				<EllipsisIcon class="size-4" />
 			{:else if recording.transcriptionStatus === 'DONE'}
-				<RepeatIcon class="h-4 w-4 text-green-500" />
+				<RepeatIcon class="size-4 text-green-500" />
 			{:else if recording.transcriptionStatus === 'FAILED'}
-				<AlertCircleIcon class="h-4 w-4 text-red-500" />
+				<AlertCircleIcon class="size-4 text-red-500" />
 			{/if}
 		</WhisperingButton>
 
@@ -119,7 +119,7 @@
 		/>
 
 		{#if latestTransformationRunByRecordingIdQuery.isPending}
-			<Loader2Icon class="h-4 w-4 animate-spin" />
+			<Loader2Icon class="size-4 animate-spin" />
 		{:else if latestTransformationRunByRecordingIdQuery.isError}
 			<WhisperingTooltip
 				id={getRecordingTransitionId({
@@ -146,7 +146,7 @@
 				})}
 			>
 				{#snippet copyIcon()}
-					<FileStackIcon />
+					<FileStackIcon class="size-4" />
 				{/snippet}
 			</CopyToClipboardButton>
 		{/if}
@@ -160,9 +160,9 @@
 			size="icon"
 		>
 			{#if downloadRecordingWithToast.isPending}
-				<Loader2Icon class="h-4 w-4 animate-spin" />
+				<Loader2Icon class="size-4 animate-spin" />
 			{:else}
-				<DownloadIcon class="h-4 w-4" />
+				<DownloadIcon class="size-4" />
 			{/if}
 		</WhisperingButton>
 
@@ -179,7 +179,7 @@
 			variant="ghost"
 			size="icon"
 		>
-			<TrashIcon class="h-4 w-4" />
+			<TrashIcon class="size-4" />
 		</WhisperingButton>
 	{/if}
 </div>

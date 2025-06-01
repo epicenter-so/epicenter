@@ -368,14 +368,14 @@
 							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'TRANSCRIBING';
 						})}
-							<LoadingTranscriptionIcon class="h-4 w-4" />
+							<LoadingTranscriptionIcon class="size-4" />
 						{:else if selectedRecordingRows.some(({ id }) => {
 							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'DONE';
 						})}
-							<RetryTranscriptionIcon class="h-4 w-4" />
+							<RetryTranscriptionIcon class="size-4" />
 						{:else}
-							<StartTranscriptionIcon class="h-4 w-4" />
+							<StartTranscriptionIcon class="size-4" />
 						{/if}
 					</WhisperingButton>
 
@@ -389,7 +389,7 @@
 								variant="outline"
 								size="icon"
 							>
-								<ClipboardIcon class="h-4 w-4" />
+								<ClipboardIcon class="size-4" />
 							</WhisperingButton>
 						</Dialog.Trigger>
 						<Dialog.Content>
@@ -463,7 +463,7 @@
 							});
 						}}
 					>
-						<TrashIcon class="h-4 w-4" />
+						<TrashIcon class="size-4" />
 					</WhisperingButton>
 				{/if}
 
@@ -475,7 +475,7 @@
 						)}
 					>
 						Columns <ChevronDownIcon
-							class="ml-2 h-4 w-4 transition-transform duration-200"
+							class="ml-2 size-4 transition-transform duration-200"
 						/>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content>
@@ -517,7 +517,7 @@
 						{#each { length: 5 }}
 							<Table.Row>
 								<Table.Cell>
-									<Skeleton class="h-4 w-4" />
+									<Skeleton class="size-4" />
 								</Table.Cell>
 								<Table.Cell colspan={columns.length - 1}>
 									<Skeleton class="h-4 w-full" />

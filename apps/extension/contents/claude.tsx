@@ -35,7 +35,7 @@ function RecorderStateAsIcon() {
 	const recorderStateAsIcon = recorderStateToIcons[recorderState];
 	return (
 		<button
-			className="group relative z-10 h-8 w-8 rounded-md text-xl"
+			className="group relative z-10 size-8 rounded-md text-xl"
 			onClick={app.toggleRecording}
 		>
 			<div className="absolute inset-0 rounded-md bg-black bg-opacity-0 transition-opacity duration-300 group-hover:bg-opacity-10" />
