@@ -20,33 +20,34 @@
 </script>
 
 <nav
-	class={cn(
-		'flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1 overflow-auto',
-		className,
-	)}
+	class={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1', className)}
+	aria-label="Settings navigation"
 >
-	{#each items as item}
+	{#each items as item (item.href)}
 		{@const isActive = $page.url.pathname === item.href}
 
 		<Button
 			href={item.href}
 			variant="ghost"
 			class={cn(
-				!isActive && 'hover:underline',
-				'relative justify-start hover:bg-transparent',
+				'relative justify-start text-left font-normal transition-colors',
+				isActive
+					? 'text-sidebar-accent-foreground hover:bg-sidebar-accent/50'
+					: 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
 			)}
+			aria-current={isActive ? 'page' : undefined}
 			data-sveltekit-noscroll
 		>
 			{#if isActive}
 				<div
-					class="bg-muted absolute inset-0 rounded-md"
+					class="bg-sidebar-accent absolute inset-0 rounded-md"
 					in:send={{ key: 'active-sidebar-tab' }}
 					out:receive={{ key: 'active-sidebar-tab' }}
 				></div>
 			{/if}
-			<div class="relative">
+			<span class="relative z-10">
 				{item.title}
-			</div>
+			</span>
 		</Button>
 	{/each}
 </nav>
