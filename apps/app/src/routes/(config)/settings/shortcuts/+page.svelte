@@ -78,7 +78,7 @@
 						<div
 							class="p-8 flex flex-col items-center justify-center text-center"
 						>
-							<Layers2Icon />
+							<Layers2Icon class="size-10" />
 							<h3 class="text-xl font-medium my-3">Global Shortcuts</h3>
 							<p class="text-muted-foreground mb-8 max-w-md">
 								Global shortcuts allow you to use Whispering from any

@@ -54,7 +54,7 @@
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="max-h-[80vh] max-w-7xl h-[80vh]">
+	<Dialog.Content class="max-h-[80vh] sm:max-w-7xl flex flex-col">
 		<Dialog.Header>
 			<Dialog.Title>Transformation Settings</Dialog.Title>
 			<Separator />

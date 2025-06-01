@@ -27,7 +27,7 @@
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="max-w-4xl">
+	<Dialog.Content class="sm:max-w-4xl">
 		<Dialog.Header>
 			<Dialog.Title>Transformation Runs</Dialog.Title>
 			<Dialog.Description>

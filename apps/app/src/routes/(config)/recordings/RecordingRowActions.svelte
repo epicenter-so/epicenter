@@ -146,7 +146,7 @@
 				})}
 			>
 				{#snippet copyIcon()}
-					<FileStackIcon />
+					<FileStackIcon class="size-4" />
 				{/snippet}
 			</CopyToClipboardButton>
 		{/if}
