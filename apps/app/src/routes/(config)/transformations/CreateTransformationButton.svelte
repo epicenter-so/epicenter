@@ -36,7 +36,7 @@
 	</Dialog.Trigger>
 
 	<Dialog.Content
-		class="max-h-[80vh] max-w-7xl h-[80vh]"
+		class="max-h-[80vh] sm:max-w-7xl h-[80vh]"
 		onEscapeKeydown={(e) => {
 			e.preventDefault();
 			if (isDialogOpen) {
