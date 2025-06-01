@@ -1,17 +1,3 @@
-import { type } from 'arktype';
-
-const BaseErrorSchema = type({
-	name: 'string',
-	message: 'string',
-	context: 'Record<string, unknown>',
-	cause: 'unknown',
-});
-type BaseError = typeof BaseErrorSchema.infer;
-
-export type BrandError<T extends string> = BaseError & {
-	readonly name: T;
-};
-
 /**
  * Extracts a string message from any thrown value.
  * Handles various error types and formats to ensure a string is always returned.

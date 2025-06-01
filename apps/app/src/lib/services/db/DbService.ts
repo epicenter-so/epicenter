@@ -6,10 +6,10 @@ import type {
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
 } from '@repo/shared';
-import type { BrandError } from '@repo/shared/errors';
+import type { TaggedError } from '@epicenterhq/result';
 import { nanoid } from 'nanoid/non-secure';
 
-export type DbServiceErrorProperties = BrandError<'DbServiceError'>;
+export type DbServiceErrorProperties = TaggedError<'DbServiceError'>;
 
 export type DbServiceResult<T> = Ok<T> | Err<DbServiceErrorProperties>;
 

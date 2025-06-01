@@ -1,13 +1,12 @@
 import { goto } from '$app/navigation';
 import { getCommandsFromContext } from '$lib/query/singletons/commands';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type TaggedError } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	type WhisperingRecordingState,
 } from '@repo/shared';
-import type { BrandError } from '@repo/shared/errors';
 import { CheckMenuItem, Menu, MenuItem } from '@tauri-apps/api/menu';
 import { resolveResource } from '@tauri-apps/api/path';
 import { TrayIcon } from '@tauri-apps/api/tray';
@@ -17,7 +16,7 @@ import { exit } from '@tauri-apps/plugin-process';
 const TRAY_ID = 'whispering-tray';
 
 export type SetTrayIconServiceErrorProperties =
-	BrandError<'SetTrayIconServiceError'>;
+	TaggedError<'SetTrayIconServiceError'>;
 
 export type SetTrayIconServiceResult<T> =
 	| Ok<T>
