@@ -1,8 +1,7 @@
 import { Err, Ok } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import { WhisperingError } from '@repo/shared';
 import type { PlaySoundService } from './PlaySoundService';
-import { audioElements } from './audioElements';
+import { audioElements } from './_audioElements';
 
 export function createPlaySoundServiceWeb(): PlaySoundService {
 	return {
@@ -15,16 +14,12 @@ export function createPlaySoundServiceWeb(): PlaySoundService {
 				sound: soundName,
 			});
 			if (playSoundError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to Play Sound',
-						description: `We encountered an issue while playing the ${soundName} sound`,
-						action: {
-							type: 'more-details',
-							error: playSoundError,
-						},
-					}),
-				);
+				return Err({
+					name: 'PlaySoundServiceError',
+					message: `We encountered an issue while playing the ${soundName} sound`,
+					context: { soundName },
+					cause: playSoundError,
+				});
 			}
 			return Ok(undefined);
 		},
