@@ -1,10 +1,14 @@
-import type { Err, Ok } from '@epicenterhq/result';
+import type { Err, Ok, TaggedError } from '@epicenterhq/result';
 import type { ToastAndNotifyOptions } from './toasts.js';
 
-export type WhisperingError = {
-	_tag: 'WhisperingError';
-	variant: 'error' | 'warning';
-} & Omit<ToastAndNotifyOptions, 'variant'>;
+export type WhisperingWarning = Omit<
+	TaggedError<'WhisperingWarning'>,
+	'message'
+> &
+	Omit<ToastAndNotifyOptions, 'variant'>;
+
+export type WhisperingError = Omit<TaggedError<'WhisperingError'>, 'message'> &
+	Omit<ToastAndNotifyOptions, 'variant'>;
 
 export type WhisperingErr = Err<WhisperingError>;
 export type WhisperingResult<T> = Ok<T> | WhisperingErr;
@@ -12,17 +16,15 @@ export type WhisperingResult<T> = Ok<T> | WhisperingErr;
 export type MaybePromise<T> = T | Promise<T>;
 
 export const WhisperingWarningProperties = (
-	args: Omit<WhisperingError, '_tag' | 'variant'>,
-): WhisperingError => ({
-	_tag: 'WhisperingError',
-	variant: 'warning',
+	args: Omit<WhisperingWarning, 'name'>,
+): WhisperingWarning => ({
+	name: 'WhisperingWarning',
 	...args,
 });
 
 export const WhisperingError = (
-	args: Omit<WhisperingError, '_tag' | 'variant'>,
+	args: Omit<WhisperingError, 'name'>,
 ): WhisperingError => ({
-	_tag: 'WhisperingError',
-	variant: 'error',
+	name: 'WhisperingError',
 	...args,
 });
