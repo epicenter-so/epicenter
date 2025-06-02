@@ -1,10 +1,7 @@
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import { ElevenLabsClient } from 'elevenlabs';
-import type {
-	TranscriptionService,
-	TranscriptionServiceResult,
-} from './TranscriptionService';
+import type { TranscriptionService } from './TranscriptionService';
 
 type ModelName = 'scribe_v1';
 
@@ -16,22 +13,21 @@ export function createElevenLabsTranscriptionService({
 	modelName?: ModelName;
 }): TranscriptionService {
 	return {
-		transcribe: async (
-			audioBlob,
-			options,
-		): Promise<TranscriptionServiceResult<string>> => {
+		transcribe: async (audioBlob, options) => {
 			if (!apiKey) {
-				return Err(
-					WhisperingError({
-						title: 'ElevenLabs API Key not provided',
-						description: 'Please enter your ElevenLabs API key in the settings',
-						action: {
-							type: 'link',
-							label: 'Go to settings',
-							goto: '/settings/transcription',
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔑 API Key Required',
+					description:
+						'Please enter your ElevenLabs API key in settings to use speech-to-text transcription.',
+					action: {
+						type: 'link',
+						label: 'Add API key',
+						goto: '/settings/transcription',
+					},
+					context: {},
+					cause: undefined,
+				} satisfies WhisperingError);
 			}
 
 			try {
@@ -44,12 +40,13 @@ export function createElevenLabsTranscriptionService({
 				const MAX_FILE_SIZE_MB = 1000; // ElevenLabs allows files up to 1GB
 
 				if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-					return Err(
-						WhisperingError({
-							title: `The file size (${blobSizeInMb.toFixed(1)}MB) is too large`,
-							description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-						}),
-					);
+					return Err({
+						name: 'WhisperingError',
+						title: '📁 File Size Too Large',
+						description: `Your audio file (${blobSizeInMb.toFixed(1)}MB) exceeds the ${MAX_FILE_SIZE_MB}MB limit. Please use a smaller file or compress the audio.`,
+						context: {},
+						cause: undefined,
+					} satisfies WhisperingError);
 				}
 
 				// Use the client's speechToText functionality
@@ -68,17 +65,15 @@ export function createElevenLabsTranscriptionService({
 				// Return the transcribed text
 				return Ok(transcription.text.trim());
 			} catch (error) {
-				// Handle errors from the ElevenLabs client
-				return Err(
-					WhisperingError({
-						title: 'Error with ElevenLabs Speech-to-Text',
-						description:
-							error instanceof Error
-								? error.message
-								: 'Failed to transcribe audio',
-						action: { type: 'more-details', error },
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔧 Transcription Failed',
+					description:
+						'Unable to complete the transcription using ElevenLabs. This may be due to a service issue or unsupported audio format. Please try again.',
+					action: { type: 'more-details', error },
+					context: {},
+					cause: error,
+				} satisfies WhisperingError);
 			}
 		},
 	};

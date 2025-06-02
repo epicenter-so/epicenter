@@ -1,5 +1,5 @@
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import type { HttpService } from '../http/HttpService';
 import type { TranscriptionService } from './TranscriptionService';
 import { createWhisperService } from './createWhisperService';
@@ -22,38 +22,43 @@ export function createOpenaiTranscriptionService({
 		},
 		preValidate: async () => {
 			if (!apiKey) {
-				return Err(
-					WhisperingError({
-						title: 'OpenAI API Key not provided.',
-						description: 'Please enter your OpenAI API key in the settings',
-						action: {
-							type: 'link',
-							label: 'Go to settings',
-							goto: '/settings/transcription',
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔑 API Key Required',
+					description:
+						'Please enter your OpenAI API key in settings to use Whisper transcription.',
+					action: {
+						type: 'link',
+						label: 'Add API key',
+						goto: '/settings/transcription',
+					},
+					context: {},
+					cause: undefined,
+				} satisfies WhisperingError);
 			}
 
 			if (!apiKey.startsWith('sk-')) {
-				return Err(
-					WhisperingError({
-						title: 'Invalid OpenAI API Key',
-						description: 'The OpenAI API Key must start with "sk-"',
-						action: {
-							type: 'link',
-							label: 'Update OpenAI API Key',
-							goto: '/settings/transcription',
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔑 Invalid API Key Format',
+					description:
+						'Your OpenAI API key should start with "sk-". Please check and update your API key.',
+					action: {
+						type: 'link',
+						label: 'Update API key',
+						goto: '/settings/transcription',
+					},
+					context: {},
+					cause: undefined,
+				} satisfies WhisperingError);
 			}
 
 			return Ok(undefined);
 		},
 		errorConfig: {
-			title: 'Server error from Whisper API',
-			description: 'This is likely a problem with OpenAI, not you.',
+			title: '🔧 OpenAI Service Error',
+			description:
+				'The OpenAI Whisper service encountered an issue. This is typically a temporary problem on their end.',
 		},
 	});
 }

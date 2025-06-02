@@ -20,8 +20,9 @@ export function createFasterWhisperServerTranscriptionService({
 		},
 		preValidate: async () => Ok(undefined),
 		errorConfig: {
-			title: 'faster-whisper-server error',
-			description: 'Please check your faster-whisper-server server settings',
+			title: '🔧 Server Connection Issue',
+			description:
+				'Unable to connect to your faster-whisper server. Please check that the server is running and your settings are correct.',
 		},
 	});
 }
