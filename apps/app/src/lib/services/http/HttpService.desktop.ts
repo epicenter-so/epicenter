@@ -1,6 +1,6 @@
 import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { fetch } from '@tauri-apps/plugin-http';
-import type { HttpService, NetworkError, ParseError } from './HttpService';
+import type { HttpService, ConnectionError, ParseError } from './HttpService';
 
 export function createHttpServiceDesktop(): HttpService {
 	return {
@@ -12,9 +12,9 @@ export function createHttpServiceDesktop(): HttpService {
 						body,
 						headers: headers,
 					}),
-				mapErr: (error): NetworkError => ({
-					name: 'NetworkError',
-					message: 'Network error',
+				mapErr: (error): ConnectionError => ({
+					name: 'ConnectionError',
+					message: 'Failed to establish connection',
 					context: { url, body, headers },
 					cause: error,
 				}),
@@ -23,13 +23,14 @@ export function createHttpServiceDesktop(): HttpService {
 
 			if (!response.ok) {
 				return Err({
-					name: 'HttpError',
+					name: 'ResponseError',
 					status: response.status,
 					message: extractErrorMessage(await response.json()),
 					context: { url, body, headers },
 					cause: responseError,
 				});
 			}
+
 			const parseResult = await tryAsync({
 				try: async () => {
 					const json = await response.json();
@@ -37,7 +38,7 @@ export function createHttpServiceDesktop(): HttpService {
 				},
 				mapErr: (error): ParseError => ({
 					name: 'ParseError',
-					message: 'Parse error',
+					message: 'Failed to parse response',
 					context: { url, body, headers },
 					cause: error,
 				}),

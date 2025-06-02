@@ -1,5 +1,5 @@
 import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
-import type { HttpService, NetworkError, ParseError } from './HttpService';
+import type { HttpService, ConnectionError, ParseError } from './HttpService';
 
 export function createHttpServiceWeb(): HttpService {
 	return {
@@ -11,9 +11,9 @@ export function createHttpServiceWeb(): HttpService {
 						body,
 						headers,
 					}),
-				mapErr: (error): NetworkError => ({
-					name: 'NetworkError',
-					message: 'Network error',
+				mapErr: (error): ConnectionError => ({
+					name: 'ConnectionError',
+					message: 'Failed to establish connection',
 					context: { url, body, headers },
 					cause: error,
 				}),
@@ -22,13 +22,14 @@ export function createHttpServiceWeb(): HttpService {
 
 			if (!response.ok) {
 				return Err({
-					name: 'HttpError',
+					name: 'ResponseError',
 					status: response.status,
 					message: extractErrorMessage(await response.json()),
 					context: { url, body, headers },
 					cause: responseError,
 				});
 			}
+
 			const parseResult = await tryAsync({
 				try: async () => {
 					const json = await response.json();
@@ -36,7 +37,7 @@ export function createHttpServiceWeb(): HttpService {
 				},
 				mapErr: (error): ParseError => ({
 					name: 'ParseError',
-					message: 'Parse error',
+					message: 'Failed to parse response',
 					context: { url, body, headers },
 					cause: error,
 				}),
