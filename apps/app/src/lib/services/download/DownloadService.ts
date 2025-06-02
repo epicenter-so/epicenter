@@ -1,8 +1,10 @@
-import type { WhisperingResult } from '@repo/shared';
+import type { Result, TaggedError } from '@epicenterhq/result';
+
+export type DownloadServiceError = TaggedError<'DownloadServiceError'>;
 
 export type DownloadService = {
 	downloadBlob: (args: {
 		name: string;
 		blob: Blob;
-	}) => Promise<WhisperingResult<void>>;
+	}) => Promise<Result<void, DownloadServiceError>>;
 };

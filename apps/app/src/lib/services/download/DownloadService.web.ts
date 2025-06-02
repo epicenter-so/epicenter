@@ -1,6 +1,5 @@
 import { tryAsync } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
-import type { DownloadService } from './DownloadService';
+import type { DownloadService, DownloadServiceError } from './DownloadService';
 
 export function createDownloadServiceWeb(): DownloadService {
 	return {
@@ -17,13 +16,13 @@ export function createDownloadServiceWeb(): DownloadService {
 					document.body.removeChild(a);
 					URL.revokeObjectURL(url);
 				},
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Error saving recording',
-						description:
-							'There was an error saving the recording in your browser. Please try again.',
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): DownloadServiceError => ({
+					name: 'DownloadServiceError',
+					message:
+						'There was an error saving the recording in your browser. Please try again.',
+					context: { name, blob },
+					cause: error,
+				}),
 			}),
 	};
 }
