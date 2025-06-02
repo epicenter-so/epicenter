@@ -1,27 +1,15 @@
-import type { Ok } from '@epicenterhq/result';
-import type { Err } from '@epicenterhq/result';
+import type { Result, TaggedError } from '@epicenterhq/result';
 import type { z } from 'zod';
 
-type HttpServiceErrCodes =
-	| { code: 'NetworkError'; error: unknown }
-	| { code: 'HttpError'; error: unknown; status: number }
-	| { code: 'ParseError'; error: unknown };
+export type NetworkError = TaggedError<'NetworkError'>;
 
-export type HttpServiceError = {
-	_tag: 'HttpServiceErr';
-	error: unknown;
-} & HttpServiceErrCodes;
+export type HttpError = TaggedError<'HttpError'> & {
+	status: number;
+};
 
-export type HttpServiceResult<T> = Ok<T> | Err<HttpServiceError>;
+export type ParseError = TaggedError<'ParseError'>;
 
-export const HttpServiceError = (
-	args: {
-		error: unknown;
-	} & HttpServiceErrCodes,
-): HttpServiceError => ({
-	_tag: 'HttpServiceErr',
-	...args,
-});
+export type HttpServiceError = NetworkError | HttpError | ParseError;
 
 export type HttpService = {
 	post: <TSchema extends z.ZodTypeAny>(config: {
@@ -29,5 +17,5 @@ export type HttpService = {
 		body: BodyInit | FormData;
 		schema: TSchema;
 		headers?: Record<string, string>;
-	}) => Promise<HttpServiceResult<z.infer<TSchema>>>;
+	}) => Promise<Result<z.infer<TSchema>, HttpServiceError>>;
 };

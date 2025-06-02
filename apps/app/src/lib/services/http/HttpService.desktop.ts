@@ -1,8 +1,6 @@
-import { getErrorMessage } from '$lib/utils';
-import { Err, tryAsync } from '@epicenterhq/result';
+import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { fetch } from '@tauri-apps/plugin-http';
-import type { HttpService } from './HttpService';
-import { HttpServiceError } from './HttpService';
+import type { HttpService, NetworkError, ParseError } from './HttpService';
 
 export function createHttpServiceDesktop(): HttpService {
 	return {
@@ -14,25 +12,35 @@ export function createHttpServiceDesktop(): HttpService {
 						body,
 						headers: headers,
 					}),
-				mapErr: (error) => HttpServiceError({ code: 'NetworkError', error }),
+				mapErr: (error): NetworkError => ({
+					name: 'NetworkError',
+					message: 'Network error',
+					context: { url, body, headers },
+					cause: error,
+				}),
 			});
 			if (responseError) return Err(responseError);
 
 			if (!response.ok) {
-				return Err(
-					HttpServiceError({
-						code: 'HttpError',
-						status: response.status,
-						error: getErrorMessage(await response.json()),
-					}),
-				);
+				return Err({
+					name: 'HttpError',
+					status: response.status,
+					message: extractErrorMessage(await response.json()),
+					context: { url, body, headers },
+					cause: responseError,
+				});
 			}
 			const parseResult = await tryAsync({
 				try: async () => {
 					const json = await response.json();
 					return schema.parse(json);
 				},
-				mapErr: (error) => HttpServiceError({ code: 'ParseError', error }),
+				mapErr: (error): ParseError => ({
+					name: 'ParseError',
+					message: 'Parse error',
+					context: { url, body, headers },
+					cause: error,
+				}),
 			});
 			return parseResult;
 		},
