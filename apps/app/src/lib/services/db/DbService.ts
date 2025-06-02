@@ -1,4 +1,4 @@
-import type { Err, Ok } from '@epicenterhq/result';
+import type { Result, TaggedError } from '@epicenterhq/result';
 import type {
 	ANTHROPIC_INFERENCE_MODELS,
 	GOOGLE_INFERENCE_MODELS,
@@ -6,12 +6,9 @@ import type {
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
 } from '@repo/shared';
-import type { TaggedError } from '@epicenterhq/result';
 import { nanoid } from 'nanoid/non-secure';
 
 export type DbServiceErrorProperties = TaggedError<'DbServiceError'>;
-
-export type DbServiceResult<T> = Ok<T> | Err<DbServiceErrorProperties>;
 
 export function generateDefaultTransformation(): Transformation {
 	const now = new Date().toISOString();
@@ -46,18 +43,30 @@ export function generateDefaultTransformationStep(): TransformationStep {
 }
 
 export type DbRecordingsService = {
-	getAllRecordings: () => Promise<DbServiceResult<Recording[]>>;
-	getLatestRecording: () => Promise<DbServiceResult<Recording | null>>;
-	getTranscribingRecordingIds: () => Promise<DbServiceResult<string[]>>;
-	getRecordingById: (id: string) => Promise<DbServiceResult<Recording | null>>;
+	getAllRecordings: () => Promise<
+		Result<Recording[], DbServiceErrorProperties>
+	>;
+	getLatestRecording: () => Promise<
+		Result<Recording | null, DbServiceErrorProperties>
+	>;
+	getTranscribingRecordingIds: () => Promise<
+		Result<string[], DbServiceErrorProperties>
+	>;
+	getRecordingById: (
+		id: string,
+	) => Promise<Result<Recording | null, DbServiceErrorProperties>>;
 	createRecording: (
 		recording: InsertRecording,
-	) => Promise<DbServiceResult<Recording>>;
+	) => Promise<Result<Recording, DbServiceErrorProperties>>;
 	updateRecording: (
 		recording: Recording,
-	) => Promise<DbServiceResult<Recording>>;
-	deleteRecording: (recording: Recording) => Promise<DbServiceResult<void>>;
-	deleteRecordings: (recordings: Recording[]) => Promise<DbServiceResult<void>>;
+	) => Promise<Result<Recording, DbServiceErrorProperties>>;
+	deleteRecording: (
+		recording: Recording,
+	) => Promise<Result<void, DbServiceErrorProperties>>;
+	deleteRecordings: (
+		recordings: Recording[],
+	) => Promise<Result<void, DbServiceErrorProperties>>;
 	/**
 	 * Checks and deletes expired recordings based on current settings.
 	 * This should be called:
@@ -65,61 +74,65 @@ export type DbRecordingsService = {
 	 * 2. Before adding new recordings
 	 * 3. When retention settings change
 	 */
-	cleanupExpiredRecordings: () => Promise<DbServiceResult<void>>;
+	cleanupExpiredRecordings: () => Promise<
+		Result<void, DbServiceErrorProperties>
+	>;
 };
 
 export type DbTransformationsService = {
-	getAllTransformations: () => Promise<DbServiceResult<Transformation[]>>;
+	getAllTransformations: () => Promise<
+		Result<Transformation[], DbServiceErrorProperties>
+	>;
 	getTransformationById: (
 		id: string,
-	) => Promise<DbServiceResult<Transformation | null>>;
+	) => Promise<Result<Transformation | null, DbServiceErrorProperties>>;
 	createTransformation: (
 		transformation: InsertTransformation,
-	) => Promise<DbServiceResult<Transformation>>;
+	) => Promise<Result<Transformation, DbServiceErrorProperties>>;
 	updateTransformation: (
 		transformation: Transformation,
-	) => Promise<DbServiceResult<Transformation>>;
+	) => Promise<Result<Transformation, DbServiceErrorProperties>>;
 	deleteTransformation: (
 		transformation: Transformation,
-	) => Promise<DbServiceResult<void>>;
+	) => Promise<Result<void, DbServiceErrorProperties>>;
 	deleteTransformations: (
 		transformations: Transformation[],
-	) => Promise<DbServiceResult<void>>;
+	) => Promise<Result<void, DbServiceErrorProperties>>;
 
 	getTransformationRunById: (
 		id: string,
-	) => Promise<DbServiceResult<TransformationRun | null>>;
+	) => Promise<Result<TransformationRun | null, DbServiceErrorProperties>>;
 	getTransformationRunsByTransformationId: (
 		transformationId: string,
-	) => Promise<DbServiceResult<TransformationRun[]>>;
+	) => Promise<Result<TransformationRun[], DbServiceErrorProperties>>;
 	getTransformationRunsByRecordingId: (
 		recordingId: string,
-	) => Promise<DbServiceResult<TransformationRun[]>>;
+	) => Promise<Result<TransformationRun[], DbServiceErrorProperties>>;
 	createTransformationRun: (
 		transformationRun: Pick<
 			TransformationRun,
 			'input' | 'transformationId' | 'recordingId'
 		>,
-	) => Promise<DbServiceResult<TransformationRun>>;
+	) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
 	addTransformationStepRunToTransformationRun: (opts: {
 		transformationRun: TransformationRun;
 		stepId: string;
 		input: string;
-	}) => Promise<DbServiceResult<TransformationStepRun>>;
+	}) => Promise<Result<TransformationStepRun, DbServiceErrorProperties>>;
 	markTransformationRunAndRunStepAsFailed: (opts: {
 		transformationRun: TransformationRun;
 		stepRunId: string;
 		error: string;
-	}) => Promise<DbServiceResult<TransformationRun>>;
+	}) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
 	markTransformationRunStepAsCompleted: (opts: {
 		transformationRun: TransformationRun;
 		stepRunId: string;
 		output: string;
-	}) => Promise<DbServiceResult<TransformationRun>>;
+	}) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
 	markTransformationRunAsCompleted: (opts: {
 		transformationRun: TransformationRun;
 		output: string;
-	}) => Promise<DbServiceResult<TransformationRun>>;
+	}) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
 };
 
 export const TRANSFORMATION_STEP_TYPES = [
