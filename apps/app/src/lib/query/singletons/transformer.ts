@@ -3,7 +3,6 @@ import { RunTransformationService } from '$lib/services/index.js';
 import { TransformErrorToWhisperingErr } from '$lib/services/runTransformation';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { getErrorMessage } from '$lib/utils';
 import { Err, Ok } from '@epicenterhq/result';
 import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import { getContext, setContext } from 'svelte';

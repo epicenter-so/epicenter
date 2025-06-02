@@ -84,13 +84,3 @@ export function getExtensionFromAudioBlob(blob: Blob) {
 	if (mimeIncludes('flac')) return 'flac';
 	return 'mp3';
 }
-
-export function getErrorMessage(error: unknown) {
-	if (error instanceof Error) return error.message;
-	if (typeof error === 'string') return error;
-	const message = (error as { message?: unknown })?.message;
-	if (typeof message === 'string') return message;
-	const e = (error as { error?: unknown })?.error;
-	if (e) return getErrorMessage(e);
-	return JSON.stringify(error);
-}
