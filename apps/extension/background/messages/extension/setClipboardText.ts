@@ -48,7 +48,7 @@ const setClipboardText = async (
 				return {
 					data: null,
 					error: {
-						_tag: 'WhisperingError',
+						name: 'WhisperingError',
 						variant: 'error',
 						title: 'Unable to copy transcribed text to clipboard in active tab',
 						description:

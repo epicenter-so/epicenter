@@ -22,7 +22,7 @@ const closeRecordingSession = async () => {
 				return {
 					data: null,
 					error: {
-						_tag: 'WhisperingError',
+						name: 'WhisperingError',
 						variant: 'error',
 						title: 'Unable to close recording session',
 						description:

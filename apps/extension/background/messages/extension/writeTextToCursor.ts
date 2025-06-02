@@ -109,7 +109,7 @@ const writeTextToCursor = async (
 				return {
 					data: null,
 					error: {
-						_tag: 'WhisperingError',
+						name: 'WhisperingError',
 						variant: 'error',
 						isWarning: true,
 						title: 'Please paste the transcribed text manually',
