@@ -1,8 +1,11 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import { WhisperingError, type WhisperingResult } from '@repo/shared';
 import type { Settings } from '@repo/shared/settings';
-import type { RecorderService, UpdateStatusMessageFn } from './RecorderService';
+import type {
+	RecorderService,
+	RecordingServiceError,
+	UpdateStatusMessageFn,
+} from './RecorderService';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
@@ -27,7 +30,7 @@ export function createRecorderServiceWeb(): RecorderService {
 	const acquireStream = async (
 		settings: Settings,
 		{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
-	): Promise<WhisperingResult<MediaStream>> => {
+	): Promise<Result<MediaStream, RecordingServiceError>> => {
 		if (!settings['recording.navigator.selectedAudioInputDeviceId']) {
 			sendStatus({
 				title: '🔍 No Device Selected',
@@ -37,14 +40,13 @@ export function createRecorderServiceWeb(): RecorderService {
 			const { data: firstStream, error: getFirstStreamError } =
 				await getFirstAvailableStream();
 			if (getFirstStreamError) {
-				return Err(
-					WhisperingError({
-						title: '🚫 Stream Error',
-						description:
-							"Hmm... We couldn't find any microphones to use. Check your connections and try again!",
-						action: { type: 'more-details', error: getFirstStreamError },
-					}),
-				);
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						"Hmm... We couldn't find any microphones to use. Check your connections and try again!",
+					context: { settings },
+					cause: getFirstStreamError,
+				});
 			}
 			return Ok(firstStream);
 		}
@@ -66,14 +68,13 @@ export function createRecorderServiceWeb(): RecorderService {
 			const { data: firstStream, error: getFirstStreamError } =
 				await getFirstAvailableStream();
 			if (getFirstStreamError) {
-				return Err(
-					WhisperingError({
-						title: '🎤 No Microphone Found',
-						description:
-							"We couldn't connect to any microphones. Make sure they're plugged in and try again!",
-						action: { type: 'more-details', error: getFirstStreamError },
-					}),
-				);
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						"We couldn't connect to any microphones. Make sure they're plugged in and try again!",
+					context: { settings },
+					cause: getFirstStreamError,
+				});
 			}
 			return Ok(firstStream);
 		}
@@ -129,13 +130,13 @@ export function createRecorderServiceWeb(): RecorderService {
 
 		startRecording: async (recordingId, { sendStatus }) => {
 			if (!maybeCurrentSession) {
-				return Err(
-					WhisperingError({
-						title: '🚫 No Active Session',
-						description:
-							'Looks like we need to start a new recording session first!',
-					}),
-				);
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						'Cannot start recording without an active session. Please ensure you have set up a recording session first before attempting to record.',
+					context: { recordingId },
+					cause: undefined,
+				});
 			}
 			const currentSession = maybeCurrentSession;
 			if (!currentSession.stream.active) {
@@ -168,13 +169,19 @@ export function createRecorderServiceWeb(): RecorderService {
 							) * 1000,
 					});
 				},
-				mapErr: (error) =>
-					WhisperingError({
-						title: '🎙️ Setup Failed',
-						description:
-							"Oops! Something went wrong with your microphone. Let's try that again!",
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): RecordingServiceError => ({
+					name: 'RecordingServiceError',
+					message:
+						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
+					context: {
+						recordingId,
+						bitrateKbps:
+							currentSession.settings['recording.navigator.bitrateKbps'],
+						streamActive: currentSession.stream.active,
+						streamTracks: currentSession.stream.getTracks().length,
+					},
+					cause: error,
+				}),
 			});
 			if (newRecorderError) return Err(newRecorderError);
 			sendStatus({
@@ -197,13 +204,16 @@ export function createRecorderServiceWeb(): RecorderService {
 
 		stopRecording: async ({ sendStatus }) => {
 			if (!maybeCurrentSession?.recorder) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Nothing to Stop',
-						description: 'No active recording found to stop',
-						action: { type: 'more-details', error: undefined },
-					}),
-				);
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
+					context: {
+						hasSession: !!maybeCurrentSession,
+						hasRecorder: !!maybeCurrentSession?.recorder,
+					},
+					cause: undefined,
+				});
 			}
 			const recorder = maybeCurrentSession.recorder;
 			sendStatus({
@@ -222,12 +232,18 @@ export function createRecorderServiceWeb(): RecorderService {
 						});
 						recorder.mediaRecorder.stop();
 					}),
-				mapErr: (error) =>
-					WhisperingError({
-						title: '⏹️ Recording Stop Failed',
-						description: 'Unable to save your recording. Please try again',
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): RecordingServiceError => ({
+					name: 'RecordingServiceError',
+					message:
+						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
+					context: {
+						recordingId: recorder.recordingId,
+						chunksCount: recorder.recordedChunks.length,
+						mimeType: recorder.mediaRecorder.mimeType,
+						state: recorder.mediaRecorder.state,
+					},
+					cause: error,
+				}),
 			});
 			if (stopError) return Err(stopError);
 			sendStatus({
@@ -240,13 +256,16 @@ export function createRecorderServiceWeb(): RecorderService {
 
 		cancelRecording: async ({ sendStatus }) => {
 			if (!maybeCurrentSession?.recorder) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Nothing to Cancel',
-						description: 'No active recording found to cancel',
-						action: { type: 'more-details', error: undefined },
-					}),
-				);
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						'Cannot cancel recording because no active recording session was found. There is currently nothing to cancel.',
+					context: {
+						hasSession: !!maybeCurrentSession,
+						hasRecorder: !!maybeCurrentSession?.recorder,
+					},
+					cause: undefined,
+				});
 			}
 			const recorder = maybeCurrentSession.recorder;
 			sendStatus({
@@ -289,15 +308,13 @@ async function getFirstAvailableStream() {
 	const { data: recordingDevices, error: enumerateDevicesError } =
 		await enumerateRecordingDevices();
 	if (enumerateDevicesError)
-		return Err(
-			WhisperingError({
-				title:
-					'Error enumerating recording devices and acquiring first available stream',
-				description:
-					'Please make sure you have given permission to access your audio devices',
-				action: { type: 'more-details', error: enumerateDevicesError },
-			}),
-		);
+		return Err({
+			name: 'RecordingServiceError',
+			message:
+				'Error enumerating recording devices and acquiring first available stream. Please make sure you have given permission to access your audio devices',
+			context: {},
+			cause: enumerateDevicesError,
+		});
 	for (const device of recordingDevices) {
 		const { data: stream, error: getStreamForDeviceIdError } =
 			await getStreamForDeviceId(device.deviceId);
@@ -305,16 +322,17 @@ async function getFirstAvailableStream() {
 			return Ok(stream);
 		}
 	}
-	return Err(
-		WhisperingError({
-			title: '🎤 Microphone Access Error',
-			description: 'Unable to connect to your selected microphone',
-			action: { type: 'more-details', error: undefined },
-		}),
-	);
+	return Err({
+		name: 'RecordingServiceError',
+		message: 'Unable to connect to your selected microphone',
+		context: {},
+		cause: undefined,
+	});
 }
 
-async function enumerateRecordingDevices() {
+async function enumerateRecordingDevices(): Promise<
+	Result<MediaDeviceInfo[], RecordingServiceError>
+> {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
 		void extension.openWhisperingTab({});
@@ -333,13 +351,13 @@ async function enumerateRecordingDevices() {
 			);
 			return audioInputDevices;
 		},
-		mapErr: (error) =>
-			WhisperingError({
-				title: '🎤 Device Access Error',
-				description:
-					'Oops! We need permission to see your microphones. Check your browser settings and try again!',
-				action: { type: 'more-details', error },
-			}),
+		mapErr: (error) => ({
+			name: 'RecordingServiceError',
+			message:
+				'We need permission to see your microphones. Check your browser settings and try again.',
+			context: {},
+			cause: error,
+		}),
 	});
 }
 
@@ -358,11 +376,15 @@ async function getStreamForDeviceId(recordingDeviceId: string) {
 			});
 			return stream;
 		},
-		mapErr: (error) =>
-			WhisperingError({
-				title: '🎤 Microphone Access Error',
-				description: 'Unable to connect to your selected microphone',
-				action: { type: 'more-details', error },
-			}),
+		mapErr: (error): RecordingServiceError => ({
+			name: 'RecordingServiceError',
+			message:
+				'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
+			context: {
+				recordingDeviceId,
+				hasPermission,
+			},
+			cause: error,
+		}),
 	});
 }

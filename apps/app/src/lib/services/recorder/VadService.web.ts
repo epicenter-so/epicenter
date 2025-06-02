@@ -52,6 +52,8 @@ export function createVadServiceWeb() {
 						title: 'Failed to destroy Voice Activity Detector',
 						description:
 							error instanceof Error ? error.message : 'Failed to destroy VAD',
+						context: {},
+						cause: error,
 					}),
 			});
 			if (destroyError) return Err(destroyError);
@@ -66,6 +68,8 @@ export function createVadServiceWeb() {
 						title: 'Voice Activity Detector not initialized',
 						description:
 							'The voice activity detector has not been initialized. Please ensure that the VAD is initialized before starting it.',
+						context: {},
+						cause: new Error('VAD not initialized'),
 					}),
 				);
 			const vad = maybeVad;
@@ -78,6 +82,8 @@ export function createVadServiceWeb() {
 							error instanceof Error
 								? error.message
 								: 'An unknown error occurred while starting the VAD.',
+						context: {},
+						cause: error,
 					}),
 			});
 			if (startError) return Err(startError);
@@ -90,6 +96,8 @@ export function createVadServiceWeb() {
 					WhisperingError({
 						title: 'Voice Activity Detector not initialized',
 						description: 'VAD not initialized',
+						context: {},
+						cause: new Error('VAD not initialized'),
 					}),
 				);
 			const vad = maybeVad;
@@ -102,6 +110,8 @@ export function createVadServiceWeb() {
 							error instanceof Error
 								? error.message
 								: 'An unknown error occurred while pausing the VAD.',
+						context: {},
+						cause: error,
 					}),
 			});
 			if (pauseError) return Err(pauseError);
@@ -114,6 +124,8 @@ export function createVadServiceWeb() {
 					WhisperingError({
 						title: 'Voice Activity Detector not initialized',
 						description: 'VAD not initialized',
+						context: {},
+						cause: new Error('VAD not initialized'),
 					}),
 				);
 			const vad = maybeVad;
@@ -126,6 +138,8 @@ export function createVadServiceWeb() {
 							error instanceof Error
 								? error.message
 								: 'An unknown error occurred while destroying the VAD.',
+						context: {},
+						cause: error,
 					}),
 			});
 			if (destroyError) return Err(destroyError);
