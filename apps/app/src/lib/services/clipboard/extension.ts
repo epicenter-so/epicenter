@@ -1,8 +1,5 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
-import type {
-	ClipboardService,
-	ClipboardServiceError,
-} from './ClipboardService';
+import type { ClipboardService, ClipboardServiceError } from './_types';
 
 export function createClipboardServiceExtension(): ClipboardService {
 	return {

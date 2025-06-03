@@ -1,5 +1,5 @@
 import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
-import type { HttpService, ConnectionError, ParseError } from './HttpService';
+import type { HttpService, ConnectionError, ParseError } from './_types';
 
 export function createHttpServiceWeb(): HttpService {
 	return {

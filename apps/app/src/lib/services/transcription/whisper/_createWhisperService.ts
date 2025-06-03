@@ -2,11 +2,11 @@ import { getExtensionFromAudioBlob } from '$lib/utils';
 import { Err, Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import { z } from 'zod';
-import type { HttpService } from '../http/HttpService';
+import type { HttpService } from '../../http/_types';
 import type {
 	TranscriptionService,
 	TranscriptionServiceError,
-} from './TranscriptionService';
+} from '../_types';
 
 const whisperApiResponseSchema = z.union([
 	z.object({ text: z.string() }),

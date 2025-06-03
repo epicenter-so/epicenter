@@ -1,6 +1,6 @@
 import { Err, Ok } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import type { NotificationService } from './NotificationService';
+import type { NotificationService } from './_types';
 
 export function createNotificationServiceWeb(): NotificationService {
 	return {

@@ -1,8 +1,8 @@
 import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
-import type { HttpService } from '../http/HttpService';
-import type { TranscriptionService } from './TranscriptionService';
-import { createWhisperService } from './createWhisperService';
+import type { TranscriptionService } from '../_types';
+import type { HttpService } from '../../http/_types';
+import { createWhisperService } from './_createWhisperService';
 
 type ModelName =
 	/**

@@ -2,10 +2,7 @@ import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';
-import type {
-	ClipboardService,
-	ClipboardServiceError,
-} from './ClipboardService';
+import type { ClipboardService, ClipboardServiceError } from './_types';
 import type { WhisperingWarning } from '@repo/shared';
 
 export function createClipboardServiceDesktop(): ClipboardService {

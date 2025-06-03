@@ -7,10 +7,7 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
-import type {
-	NotificationService,
-	NotificationServiceError,
-} from './NotificationService';
+import type { NotificationService, NotificationServiceError } from './_types';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (

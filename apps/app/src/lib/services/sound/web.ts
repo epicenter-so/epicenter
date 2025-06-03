@@ -1,6 +1,6 @@
 import { Err, Ok } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import type { PlaySoundService } from './PlaySoundService';
+import type { PlaySoundService } from './_types';
 import { audioElements } from './_audioElements';
 
 export function createPlaySoundServiceWeb(): PlaySoundService {

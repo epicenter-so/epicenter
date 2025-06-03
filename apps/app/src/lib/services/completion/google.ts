@@ -1,6 +1,6 @@
 import { Err, Ok, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { CompletionService, CompletionServiceError } from './types';
+import type { CompletionService, CompletionServiceError } from './_types';
 
 export function createGoogleCompletionService({
 	apiKey,

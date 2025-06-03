@@ -17,7 +17,7 @@ import type {
 	TransformationRun,
 	TransformationStep,
 } from './db';
-import type { HttpService } from './http/HttpService';
+import type { HttpService } from './http/_types';
 
 type TransformErrorProperties = {
 	name: 'TransformError';

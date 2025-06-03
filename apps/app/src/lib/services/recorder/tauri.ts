@@ -1,7 +1,7 @@
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
-import type { RecorderService, RecordingServiceError } from './RecorderService';
+import type { RecorderService, RecordingServiceError } from './_types';
 
 export function createRecorderServiceTauri(): RecorderService {
 	return {

@@ -5,7 +5,7 @@ import type {
 	RecorderService,
 	RecordingServiceError,
 	UpdateStatusMessageFn,
-} from './RecorderService';
+} from './_types';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
