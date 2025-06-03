@@ -2,7 +2,7 @@ import { DownloadService } from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import { toast } from '$lib/services/toast';
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import { createMutation } from '@tanstack/svelte-query';
 
 export function useDownloadIndexedDbBlobWithToast() {
@@ -13,8 +13,16 @@ export function useDownloadIndexedDbBlobWithToast() {
 					{ name, blob },
 				);
 				if (downloadBlobError) {
-					toast.error(downloadBlobError);
-					return Err(downloadBlobError);
+					const whisperingError = {
+						name: 'WhisperingError',
+						title: 'Failed to download IndexedDB dump!',
+						description: 'Your IndexedDB dump could not be downloaded.',
+						action: { type: 'more-details', error: downloadBlobError },
+						context: {},
+						cause: downloadBlobError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 				toast.success({
 					title: 'IndexedDB dump downloaded!',
@@ -31,12 +39,15 @@ export function useDownloadRecordingWithToast() {
 		downloadRecordingWithToast: createMutation(() => ({
 			mutationFn: async (recording: Recording) => {
 				if (!recording.blob) {
-					const e = WhisperingError({
+					const whisperingError = {
+						name: 'WhisperingError',
 						title: '⚠️ Recording blob not found',
 						description: "Your recording doesn't have a blob to download.",
-					});
-					toast.error(e.error);
-					return e;
+						context: {},
+						cause: new Error('Recording blob not found'),
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 				const { error: downloadBlobError } = await DownloadService.downloadBlob(
 					{
@@ -45,13 +56,16 @@ export function useDownloadRecordingWithToast() {
 					},
 				);
 				if (downloadBlobError) {
-					const e = WhisperingError({
+					const whisperingError = {
+						name: 'WhisperingError',
 						title: 'Failed to download recording!',
 						description: 'Your recording could not be downloaded.',
 						action: { type: 'more-details', error: downloadBlobError },
-					});
-					toast.error(e.error);
-					return e;
+						context: {},
+						cause: downloadBlobError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 
 				toast.success({

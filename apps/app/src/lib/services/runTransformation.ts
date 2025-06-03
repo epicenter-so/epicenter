@@ -3,24 +3,21 @@ import {
 	Err,
 	Ok,
 	type Result,
-	isErr,
-	tryAsync,
 	extractErrorMessage,
+	isErr,
 } from '@epicenterhq/result';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { WhisperingError } from '@repo/shared';
-import { z } from 'zod';
 import { DbRecordingsService } from '.';
+import { createAnthropicCompletionService } from './completion/anthropic';
+import { createGoogleCompletionService } from './completion/google';
+import { createGroqCompletionService } from './completion/groq';
+import { createOpenAiCompletionService } from './completion/openai';
 import type {
 	DbTransformationsService,
 	TransformationRun,
 	TransformationStep,
 } from './db';
 import type { HttpService } from './http/HttpService';
-import { createOpenAiCompletionService } from './completion/openai';
-import { createGroqCompletionService } from './completion/groq';
-import { createAnthropicCompletionService } from './completion/anthropic';
-import { createGoogleCompletionService } from './completion/google';
 
 type TransformErrorProperties = {
 	name: 'TransformError';

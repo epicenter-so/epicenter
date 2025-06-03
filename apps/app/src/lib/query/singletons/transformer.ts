@@ -4,7 +4,7 @@ import { TransformErrorToWhisperingErr } from '$lib/services/runTransformation';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError, type WhisperingResult } from '@repo/shared';
+import type { WhisperingResult } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
 import { transformationRunKeys } from '../transformationRuns/queries';
@@ -57,22 +57,24 @@ export function createTransformer() {
 			}
 
 			if (transformationRun.error) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation failed',
-						description: transformationRun.error,
-						action: { type: 'more-details', error: transformationRun.error },
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation failed',
+					description: transformationRun.error,
+					action: { type: 'more-details', error: transformationRun.error },
+					context: {},
+					cause: transformationRun.error,
+				});
 			}
 
 			if (!transformationRun.output) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation produced no output',
-						description: 'The transformation completed but produced no output.',
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation produced no output',
+					description: 'The transformation completed but produced no output.',
+					context: {},
+					cause: transformationRun.error,
+				});
 			}
 
 			return Ok(transformationRun.output);
@@ -134,39 +136,41 @@ export function createTransformer() {
 				});
 
 			if (transformationRunError) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation failed',
-						description:
-							'Failed to apply the transformation on the recording..',
-						action: {
-							type: 'more-details',
-							error: transformationRunError,
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation failed',
+					description: 'Failed to apply the transformation on the recording..',
+					action: {
+						type: 'more-details',
+						error: transformationRunError,
+					},
+					context: {},
+					cause: transformationRunError,
+				});
 			}
 
 			if (transformationRun.error) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation error',
-						description: 'Failed to apply the transformation on the recording.',
-						action: {
-							type: 'more-details',
-							error: transformationRun.error,
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation error',
+					description: 'Failed to apply the transformation on the recording.',
+					action: {
+						type: 'more-details',
+						error: transformationRun.error,
+					},
+					context: {},
+					cause: transformationRun.error,
+				});
 			}
 
 			if (!transformationRun.output) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation produced no output',
-						description: 'The transformation completed but produced no output.',
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation produced no output',
+					description: 'The transformation completed but produced no output.',
+					context: {},
+					cause: transformationRun.error,
+				});
 			}
 
 			return Ok(transformationRun.output);

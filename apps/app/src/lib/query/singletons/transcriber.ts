@@ -7,7 +7,7 @@ import {
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
 import { useUpdateRecording } from '../recordings/mutations';
@@ -68,12 +68,13 @@ function createTranscriber() {
 			toastId: string;
 		}) => {
 			if (!recording.blob) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Recording blob not found',
-						description: "Your recording doesn't have a blob to transcribe.",
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Recording blob not found',
+					description: "Your recording doesn't have a blob to transcribe.",
+					context: { recording },
+					cause: new Error('Recording blob not found'),
+				} satisfies WhisperingError);
 			}
 			const { data: transcribedText, error: transcriptionError } =
 				await userConfiguredServices.transcription.transcribe(recording.blob, {
@@ -81,7 +82,18 @@ function createTranscriber() {
 					prompt: settings.value['transcription.prompt'],
 					temperature: settings.value['transcription.temperature'],
 				});
-			if (transcriptionError) return Err(transcriptionError);
+			if (transcriptionError) {
+				if (transcriptionError.name === 'WhisperingError')
+					return Err(transcriptionError);
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transcription error',
+					description: 'Your recording could not be transcribed.',
+					action: { type: 'more-details', error: transcriptionError },
+					context: { recording },
+					cause: transcriptionError,
+				} satisfies WhisperingError);
+			}
 
 			await updateRecording.mutateAsync(
 				{ ...recording, transcribedText },
@@ -106,8 +118,7 @@ function createTranscriber() {
 				{
 					onError: (error) => {
 						toast.error({
-							title:
-								'⚠️ Unable to set recording transcription status to failed',
+							title: '⚠️ Unable to set recording transcription status to failed',
 							description:
 								'Transcription failed and failed again to update recording transcription status to failed',
 							action: { type: 'more-details', error },
