@@ -5,8 +5,8 @@ import {
 	createResultMutation,
 } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
-import { Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import { Err, Ok } from '@epicenterhq/result';
+import type { WhisperingError } from '@repo/shared';
 import { recordingsKeys } from './queries';
 
 export function useCreateRecording() {
@@ -16,13 +16,14 @@ export function useCreateRecording() {
 				const { error: createRecordingError } =
 					await DbRecordingsService.createRecording(recording);
 				if (createRecordingError) {
-					return Err(
-						WhisperingError({
-							title: 'Failed to update recording!',
-							description: 'Your recording could not be updated.',
-							action: { type: 'more-details', error: createRecordingError },
-						}),
-					);
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error: createRecordingError },
+						context: { recording },
+						cause: createRecordingError,
+					} satisfies WhisperingError);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
@@ -50,13 +51,14 @@ export function useUpdateRecording() {
 				const { error: updateRecordingError } =
 					await DbRecordingsService.updateRecording(recording);
 				if (updateRecordingError) {
-					return Err(
-						WhisperingError({
-							title: 'Failed to update recording!',
-							description: 'Your recording could not be updated.',
-							action: { type: 'more-details', error: updateRecordingError },
-						}),
-					);
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error: updateRecordingError },
+						context: { recording },
+						cause: updateRecordingError,
+					} satisfies WhisperingError);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
@@ -86,13 +88,16 @@ export function useUpdateRecordingWithToast() {
 				const { error: updateRecordingError } =
 					await DbRecordingsService.updateRecording(recording);
 				if (updateRecordingError) {
-					const e = WhisperingError({
+					const whisperingError = {
+						name: 'WhisperingError',
 						title: 'Failed to update recording!',
 						description: 'Your recording could not be updated.',
 						action: { type: 'more-details', error: updateRecordingError },
-					});
-					toast.error(e.error);
-					return e;
+						context: { recording },
+						cause: updateRecordingError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
@@ -127,13 +132,16 @@ export function useDeleteRecordingWithToast() {
 				const { error: deleteRecordingError } =
 					await DbRecordingsService.deleteRecording(recording);
 				if (deleteRecordingError) {
-					const e = WhisperingError({
+					const whisperingError = {
+						name: 'WhisperingError',
 						title: 'Failed to delete recording!',
 						description: 'Your recording could not be deleted.',
 						action: { type: 'more-details', error: deleteRecordingError },
-					});
-					toast.error(e.error);
-					return e;
+						context: { recording },
+						cause: deleteRecordingError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
 					if (!oldData) return [];
@@ -164,13 +172,16 @@ export function useDeleteRecordingsWithToast() {
 				const { error: deleteRecordingsError } =
 					await DbRecordingsService.deleteRecordings(recordings);
 				if (deleteRecordingsError) {
-					const e = WhisperingError({
+					const whisperingError = {
+						name: 'WhisperingError',
 						title: 'Failed to delete recordings!',
 						description: 'Your recordings could not be deleted.',
 						action: { type: 'more-details', error: deleteRecordingsError },
-					});
-					toast.error(e.error);
-					return e;
+						context: { recordings },
+						cause: deleteRecordingsError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {

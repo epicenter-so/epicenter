@@ -26,6 +26,8 @@ export async function injectScript<T, Args extends unknown[]>({
 				description:
 					'This might be due to the tab not being awake or not in the correct domain.',
 				action: { type: 'more-details', error },
+				context: { tabId, commandName, args },
+				cause: error,
 			}),
 	});
 	if (injectionResult.error) return Err(injectionResult.error);
@@ -39,6 +41,8 @@ export async function injectScript<T, Args extends unknown[]>({
 			WhisperingError({
 				title: `Unable to execute "${commandName}" script in Whispering tab`,
 				description: 'The result of the script injection is undefined',
+				context: { tabId, commandName, args, executeScriptResult },
+				cause: undefined,
 			}),
 		);
 	}

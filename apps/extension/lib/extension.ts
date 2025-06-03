@@ -40,8 +40,7 @@ import type {
 } from '../background/messages/extension/writeTextToCursor';
 
 type SendMessageToExtensionErrProperties = {
-	_tag: 'SendMessageToExtensionError';
-	name: string;
+	name: 'SendMessageToExtensionError';
 	body: unknown;
 	metadata: Parameters<typeof sendToBackgroundViaRelay>[0];
 	error: unknown;
@@ -52,10 +51,10 @@ type SendMessageToExtensionErr = Err<SendMessageToExtensionErrProperties>;
 export type SendMessageToExtensionResult<T> = Ok<T> | SendMessageToExtensionErr;
 
 export const SendMessageToExtensionErr = (
-	args: Omit<SendMessageToExtensionErrProperties, '_tag'>,
+	args: Omit<SendMessageToExtensionErrProperties, 'name'>,
 ): SendMessageToExtensionErr =>
 	Err({
-		_tag: 'SendMessageToExtensionError',
+		name: 'SendMessageToExtensionError',
 		...args,
 	} as const);
 
@@ -91,6 +90,8 @@ export async function sendMessageToExtension<
 					type: 'more-details',
 					error: { name, body, metadata, error },
 				},
+				context: { name, body, metadata, error },
+				cause: error,
 			}),
 		);
 	}
@@ -99,7 +100,7 @@ export async function sendMessageToExtension<
 
 const ExtensionNotAvailableErr = () =>
 	Err({
-		_tag: 'ExtensionNotAvailableError',
+		name: 'ExtensionNotAvailableError',
 	} as const);
 
 export const extension = (() => {

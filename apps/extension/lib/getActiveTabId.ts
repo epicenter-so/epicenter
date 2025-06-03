@@ -11,7 +11,7 @@ export const getActiveTabId = () =>
 		},
 		mapErr: (error) =>
 			Err({
-				_tag: 'GetActiveTabIdError',
+				name: 'GetActiveTabIdError',
 				message: 'Unable to get active tab ID',
 			} as const),
 	});

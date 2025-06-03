@@ -50,7 +50,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@epicenterhq/result": "^0.9.5",
+		"@epicenterhq/result": "^0.12.0",
 		"@google/generative-ai": "^0.24.1",
 		"@plasmohq/messaging": "^0.7.1",
 		"@repo/extension": "workspace:*",

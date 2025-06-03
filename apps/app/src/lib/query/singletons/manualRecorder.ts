@@ -4,7 +4,7 @@ import {
 	playSoundIfEnabled,
 	userConfiguredServices,
 } from '$lib/services/index.js';
-import type { UpdateStatusMessageFn } from '$lib/services/recorder/RecorderService';
+import type { UpdateStatusMessageFn } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { noop } from '@tanstack/table-core';

@@ -1,8 +1,8 @@
 import { Err, Ok } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
-import type { HttpService } from '../http/HttpService';
-import type { TranscriptionService } from './TranscriptionService';
-import { createWhisperService } from './createWhisperService';
+import type { WhisperingError } from '@repo/shared';
+import type { TranscriptionService } from '../_types';
+import type { HttpService } from '../../http/_types';
+import { createWhisperService } from './_createWhisperService';
 
 type ModelName =
 	/**
@@ -44,38 +44,42 @@ export function createGroqTranscriptionService({
 		},
 		preValidate: async () => {
 			if (!apiKey) {
-				return Err(
-					WhisperingError({
-						title: 'Groq API Key not provided.',
-						description: 'Please enter your Groq API key in the settings',
-						action: {
-							type: 'link',
-							label: 'Go to settings',
-							goto: '/settings/transcription',
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔑 API Key Required',
+					description: 'Please enter your Groq API key in settings.',
+					action: {
+						type: 'link',
+						label: 'Add API key',
+						goto: '/settings/transcription',
+					},
+					context: {},
+					cause: undefined,
+				} satisfies WhisperingError);
 			}
 
 			if (!apiKey.startsWith('gsk_')) {
-				return Err(
-					WhisperingError({
-						title: 'Invalid Groq API Key',
-						description: 'The Groq API Key must start with "gsk_"',
-						action: {
-							type: 'link',
-							label: 'Update API Key',
-							goto: '/settings/transcription',
-						},
-					}),
-				);
+				return Err({
+					name: 'WhisperingError',
+					title: '🔑 Invalid API Key Format',
+					description:
+						'Your Groq API key should start with "gsk_". Please check and update your API key.',
+					action: {
+						type: 'link',
+						label: 'Update API key',
+						goto: '/settings/transcription',
+					},
+					context: {},
+					cause: undefined,
+				} satisfies WhisperingError);
 			}
 
 			return Ok(undefined);
 		},
 		errorConfig: {
-			title: 'Server error from Groq API',
-			description: 'This is likely a problem with Groq, not you.',
+			title: '🔧 Groq Service Error',
+			description:
+				'The Groq transcription service encountered an issue. This is typically a temporary problem on their end.',
 		},
 	});
 }

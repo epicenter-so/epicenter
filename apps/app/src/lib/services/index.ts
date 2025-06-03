@@ -18,28 +18,28 @@ import {
 	createSetTrayIconDesktopService,
 	createSetTrayIconWebService,
 } from './SetTrayIconService';
-import { createClipboardServiceDesktop } from './clipboard/ClipboardService.desktop';
-import { createClipboardServiceWeb } from './clipboard/ClipboardService.web';
+import { createClipboardServiceDesktop } from './clipboard/desktop';
+import { createClipboardServiceWeb } from './clipboard/web';
 import {
 	createDbRecordingsServiceDexie,
 	createDbTransformationsServiceDexie,
 } from './db/DbService.dexie';
-import { createDownloadServiceDesktop } from './download/DownloadService.desktop';
-import { createDownloadServiceWeb } from './download/DownloadService.web';
-import { createHttpServiceDesktop } from './http/HttpService.desktop';
-import { createHttpServiceWeb } from './http/HttpService.web';
-import { createNotificationServiceDesktop } from './notifications/NotificationService.desktop';
-import { createNotificationServiceWeb } from './notifications/NotificationService.web';
-import type { RecorderService } from './recorder/RecorderService';
-import { createRecorderServiceTauri } from './recorder/RecorderService.tauri';
-import { createRecorderServiceWeb } from './recorder/RecorderService.web';
+import { createDownloadServiceDesktop } from './download/desktop';
+import { createDownloadServiceWeb } from './download/web';
+import { createHttpServiceDesktop } from './http/desktop';
+import { createHttpServiceWeb } from './http/web';
+import { createNotificationServiceDesktop } from './notifications/desktop';
+import { createNotificationServiceWeb } from './notifications/web';
+import type { RecorderService } from './recorder/_types';
+import { createRecorderServiceTauri } from './recorder/tauri';
+import { createRecorderServiceWeb } from './recorder/web';
 import { createRunTransformationService } from './runTransformation';
-import { createPlaySoundServiceDesktop } from './sound/PlaySoundService.desktop';
-import { createPlaySoundServiceWeb } from './sound/PlaySoundService.web';
-import { createElevenLabsTranscriptionService } from './transcription/TranscriptionService.elevenlabs';
-import { createFasterWhisperServerTranscriptionService } from './transcription/TranscriptionService.fasterWhisperServer';
-import { createGroqTranscriptionService } from './transcription/TranscriptionService.groq';
-import { createOpenaiTranscriptionService } from './transcription/TranscriptionService.openai';
+import { createPlaySoundServiceDesktop } from './sound/desktop';
+import { createPlaySoundServiceWeb } from './sound/web';
+import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
+import { createFasterWhisperServerTranscriptionService } from './transcription/whisper/fasterWhisperServer';
+import { createGroqTranscriptionService } from './transcription/whisper/groq';
+import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
 
 type QueryResultFunction<TData, TError> = () => MaybePromise<
 	Result<TData, TError>

@@ -1,6 +1,6 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
 import type { Command } from '@repo/shared';
-import { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';
 import type { CommandCallbacks } from './commands';
@@ -53,12 +53,14 @@ function createShortcutsRegister({
 							return false;
 						});
 					},
-					mapErr: (error) =>
-						WhisperingError({
-							title: 'Error registering push to talk local shortcut',
-							description: 'Please make sure it is a valid keyboard shortcut.',
-							action: { type: 'more-details', error },
-						}),
+					mapErr: (error): WhisperingError => ({
+						name: 'WhisperingError',
+						title: 'Error registering push to talk local shortcut',
+						description: 'Please make sure it is a valid keyboard shortcut.',
+						action: { type: 'more-details', error },
+						context: {},
+						cause: error,
+					}),
 				});
 				return registerPushToTalkLocallyResult;
 			}
@@ -70,12 +72,14 @@ function createShortcutsRegister({
 						commandCallbacks[command.id]();
 						return false;
 					}),
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Error registering local shortcut',
-						description: 'Please make sure it is a valid keyboard shortcut.',
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): WhisperingError => ({
+					name: 'WhisperingError',
+					title: 'Error registering local shortcut',
+					description: 'Please make sure it is a valid keyboard shortcut.',
+					action: { type: 'more-details', error },
+					context: {},
+					cause: error,
+				}),
 			});
 			return registerNewCommandLocallyResult;
 		},
@@ -99,13 +103,15 @@ function createShortcutsRegister({
 							}
 						});
 					},
-					mapErr: (error) =>
-						WhisperingError({
-							title: 'Error registering global shortcut.',
-							description:
-								'Please make sure it is a valid Electron keyboard shortcut.',
-							action: { type: 'more-details', error },
-						}),
+					mapErr: (error): WhisperingError => ({
+						name: 'WhisperingError',
+						title: 'Error registering global shortcut.',
+						description:
+							'Please make sure it is a valid Electron keyboard shortcut.',
+						action: { type: 'more-details', error },
+						context: {},
+						cause: error,
+					}),
 				});
 				return registerPushToTalkGloballyResult;
 			}
@@ -122,13 +128,15 @@ function createShortcutsRegister({
 						}
 					});
 				},
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Error registering global shortcut.',
-						description:
-							'Please make sure it is a valid Electron keyboard shortcut.',
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): WhisperingError => ({
+					name: 'WhisperingError',
+					title: 'Error registering global shortcut.',
+					description:
+						'Please make sure it is a valid Electron keyboard shortcut.',
+					action: { type: 'more-details', error },
+					context: {},
+					cause: error,
+				}),
 			});
 			return registerNewShortcutKeyResult;
 		},

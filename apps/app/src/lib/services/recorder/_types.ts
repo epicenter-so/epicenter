@@ -1,8 +1,5 @@
-import type {
-	MaybePromise,
-	WhisperingRecordingState,
-	WhisperingResult,
-} from '@repo/shared';
+import type { Result, TaggedError } from '@epicenterhq/result';
+import type { MaybePromise, WhisperingRecordingState } from '@repo/shared';
 import type { Settings } from '@repo/shared/settings';
 
 export type UpdateStatusMessageFn = (args: {
@@ -15,28 +12,30 @@ export type RecordingSessionSettings = {
 	bitsPerSecond: number;
 };
 
+export type RecordingServiceError = TaggedError<'RecordingServiceError'>;
+
 export type RecorderService = {
 	getRecorderState: () => MaybePromise<
-		WhisperingResult<WhisperingRecordingState>
+		Result<WhisperingRecordingState, RecordingServiceError>
 	>;
 	enumerateRecordingDevices: () => Promise<
-		WhisperingResult<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[]>
+		Result<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[], RecordingServiceError>
 	>;
 	ensureRecordingSession: (
 		settings: Settings,
 		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<WhisperingResult<void>>;
+	) => Promise<Result<void, RecordingServiceError>>;
 	closeRecordingSession: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
-	}) => Promise<WhisperingResult<void>>;
+	}) => Promise<Result<void, RecordingServiceError>>;
 	startRecording: (
 		recordingId: string,
 		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<WhisperingResult<void>>;
+	) => Promise<Result<void, RecordingServiceError>>;
 	stopRecording: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
-	}) => Promise<WhisperingResult<Blob>>;
+	}) => Promise<Result<Blob, RecordingServiceError>>;
 	cancelRecording: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
-	}) => Promise<WhisperingResult<void>>;
+	}) => Promise<Result<void, RecordingServiceError>>;
 };

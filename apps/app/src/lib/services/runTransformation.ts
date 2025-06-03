@@ -1,19 +1,26 @@
 import { settings } from '$lib/stores/settings.svelte';
-import { getErrorMessage } from '$lib/utils';
-import { Err, Ok, type Result, isErr, tryAsync } from '@epicenterhq/result';
-import { GoogleGenerativeAI, Outcome } from '@google/generative-ai';
-import { WhisperingError, type WhisperingResult } from '@repo/shared';
-import { z } from 'zod';
+import {
+	Err,
+	Ok,
+	type Result,
+	extractErrorMessage,
+	isErr,
+} from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import { DbRecordingsService } from '.';
+import { createAnthropicCompletionService } from './completion/anthropic';
+import { createGoogleCompletionService } from './completion/google';
+import { createGroqCompletionService } from './completion/groq';
+import { createOpenAiCompletionService } from './completion/openai';
 import type {
 	DbTransformationsService,
 	TransformationRun,
 	TransformationStep,
 } from './db';
-import type { HttpService } from './http/HttpService';
+import type { HttpService } from './http/_types';
 
 type TransformErrorProperties = {
-	_tag: 'TransformError';
+	name: 'TransformError';
 	code:
 		| 'RECORDING_NOT_FOUND'
 		| 'NO_INPUT'
@@ -36,6 +43,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Empty input',
 					description: 'Please enter some text to transform',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'RECORDING_NOT_FOUND':
@@ -43,6 +52,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Recording not found',
 					description: 'Could not find the selected recording.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'TRANSFORMATION_NOT_FOUND':
@@ -50,6 +61,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Transformation not found',
 					description: 'Could not find the selected transformation.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'NO_STEPS_CONFIGURED':
@@ -57,6 +70,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: 'No steps configured',
 					description: 'Please add at least one transformation step',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'FAILED_TO_CREATE_TRANSFORMATION_RUN':
@@ -64,6 +79,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Failed to create transformation run',
 					description: 'Could not create the transformation run.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'FAILED_TO_ADD_TRANSFORMATION_STEP_RUN':
@@ -71,6 +88,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Failed to add transformation step run',
 					description: 'Could not add the transformation step run.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_AND_STEP_AS_FAILED':
@@ -79,6 +98,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 					title: '⚠️ Failed to mark transformation run and step as failed',
 					description:
 						'Could not mark the transformation run and step as failed.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_STEP_AS_COMPLETED':
@@ -87,6 +108,8 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 					title: '⚠️ Failed to mark transformation run step as completed',
 					description:
 						'Could not mark the transformation run step as completed.',
+					context: { error },
+					cause: error,
 				}),
 			);
 		case 'FAILED_TO_MARK_TRANSFORMATION_RUN_AS_COMPLETED':
@@ -94,18 +117,20 @@ export const TransformErrorToWhisperingErr = ({ error }: TransformError) => {
 				WhisperingError({
 					title: '⚠️ Failed to mark transformation run as completed',
 					description: 'Could not mark the transformation run as completed.',
+					context: { error },
+					cause: error,
 				}),
 			);
 	}
 };
 
 export const TransformError = <
-	T extends Omit<TransformErrorProperties, '_tag'>,
+	T extends Omit<TransformErrorProperties, 'name'>,
 >(
 	properties: T,
 ) =>
 	Err({
-		_tag: 'TransformError',
+		name: 'TransformError',
 		...properties,
 	}) satisfies TransformError;
 
@@ -116,6 +141,47 @@ export function createRunTransformationService({
 	DbTransformationsService: DbTransformationsService;
 	HttpService: HttpService;
 }) {
+	/**
+	 * Processes a single transformation step and returns the transformed output.
+	 *
+	 * This function handles different types of transformation steps:
+	 * - **find_replace**: Performs text find/replace operations (with optional regex support)
+	 * - **prompt_transform**: Uses AI providers (OpenAI, Groq, Anthropic, Google) to transform text
+	 *
+	 * **Error Handling Strategy:**
+	 * When errors occur during step processing, they are collapsed into simple string error messages
+	 * that can be stored in the database. This design choice ensures:
+	 * 1. **Database Compatibility**: Complex error objects are flattened to strings for storage
+	 * 2. **User-Friendly Messages**: Technical errors are converted to readable descriptions
+	 * 3. **Consistent Interface**: All step types return the same Result<string, string> format
+	 *
+	 * The error strings are later saved to the database via `markTransformationRunAndRunStepAsFailed`
+	 * which stores both the transformation run failure and the specific step failure with the error message.
+	 *
+	 * @param input - The text input to be transformed by this step
+	 * @param step - The transformation step configuration containing type and parameters
+	 * @param HttpService - Service for making HTTP requests to AI providers
+	 * @returns Promise<Result<string, string>> - Success with transformed text or error with descriptive message
+	 *
+	 * @example
+	 * ```typescript
+	 * // Find/replace transformation
+	 * const result = await handleStep({
+	 *   input: "Hello world",
+	 *   step: { type: 'find_replace', 'find_replace.findText': 'world', 'find_replace.replaceText': 'universe' },
+	 *   HttpService
+	 * });
+	 * // Result: Ok("Hello universe")
+	 *
+	 * // AI prompt transformation with error
+	 * const result = await handleStep({
+	 *   input: "Summarize this text",
+	 *   step: { type: 'prompt_transform', provider: 'OpenAI', ... },
+	 *   HttpService
+	 * });
+	 * // On API error: Err("OpenAI API Error: Rate limit exceeded (429)")
+	 * ```
+	 */
 	const handleStep = async ({
 		input,
 		step,
@@ -136,7 +202,7 @@ export function createRunTransformationService({
 						const regex = new RegExp(findText, 'g');
 						return Ok(input.replace(regex, replaceText));
 					} catch (error) {
-						return Err(`Invalid regex pattern: ${getErrorMessage(error)}`);
+						return Err(`Invalid regex pattern: ${extractErrorMessage(error)}`);
 					}
 				}
 
@@ -155,164 +221,79 @@ export function createRunTransformationService({
 
 				switch (provider) {
 					case 'OpenAI': {
-						const model =
-							step['prompt_transform.inference.provider.OpenAI.model'];
 						const { data: completionResponse, error: completionError } =
-							await HttpService.post({
-								url: 'https://api.openai.com/v1/chat/completions',
-								headers: {
-									'Content-Type': 'application/json',
-									Authorization: `Bearer ${settings.value['apiKeys.openai']}`,
-								},
-								body: JSON.stringify({
-									model,
-									messages: [
-										{ role: 'system', content: systemPrompt },
-										{ role: 'user', content: userPrompt },
-									],
-								}),
-								schema: z.object({
-									choices: z.array(
-										z.object({
-											message: z.object({
-												content: z.string(),
-											}),
-										}),
-									),
-								}),
+							await createOpenAiCompletionService({
+								apiKey: settings.value['apiKeys.openai'],
+								HttpService,
+							}).complete({
+								systemPrompt,
+								userPrompt,
+								model: step['prompt_transform.inference.provider.OpenAI.model'],
 							});
 
 						if (completionError) {
-							const { error, code } = completionError;
-							return Err(
-								`OpenAI API Error: ${getErrorMessage(error)} (${code})`,
-							);
+							return Err(completionError.message);
 						}
 
-						const responseText =
-							completionResponse.choices[0]?.message?.content;
-						if (!responseText) {
-							return Err('OpenAI API returned an empty response');
-						}
-
-						return Ok(responseText);
+						return Ok(completionResponse);
 					}
 
 					case 'Groq': {
 						const model =
 							step['prompt_transform.inference.provider.Groq.model'];
 						const { data: completionResponse, error: completionError } =
-							await HttpService.post({
-								url: 'https://api.groq.com/openai/v1/chat/completions',
-								headers: {
-									'Content-Type': 'application/json',
-									Authorization: `Bearer ${settings.value['apiKeys.groq']}`,
-								},
-								body: JSON.stringify({
-									model,
-									messages: [
-										{ role: 'system', content: systemPrompt },
-										{ role: 'user', content: userPrompt },
-									],
-								}),
-								schema: z.object({
-									choices: z.array(
-										z.object({
-											message: z.object({
-												content: z.string(),
-											}),
-										}),
-									),
-								}),
+							await createGroqCompletionService({
+								apiKey: settings.value['apiKeys.groq'],
+								HttpService,
+							}).complete({
+								model,
+								systemPrompt,
+								userPrompt,
 							});
 
 						if (completionError) {
-							const { error, code } = completionError;
-							return Err(`Groq API Error: ${getErrorMessage(error)} (${code})`);
+							return Err(completionError.message);
 						}
 
-						const responseText =
-							completionResponse.choices[0]?.message?.content;
-						if (!responseText) {
-							return Err('Groq API returned an empty response');
-						}
-
-						return Ok(responseText);
+						return Ok(completionResponse);
 					}
 
 					case 'Anthropic': {
-						const model =
-							step['prompt_transform.inference.provider.Anthropic.model'];
 						const { data: completionResponse, error: completionError } =
-							await HttpService.post({
-								url: 'https://api.anthropic.com/v1/messages',
-								headers: {
-									'Content-Type': 'application/json',
-									'anthropic-version': '2023-06-01',
-									'x-api-key': settings.value['apiKeys.anthropic'],
-									'anthropic-dangerous-direct-browser-access': 'true',
-								},
-								body: JSON.stringify({
-									model,
-									system: systemPrompt,
-									messages: [{ role: 'user', content: userPrompt }],
-									max_tokens: 1024,
-								}),
-								schema: z.object({
-									content: z.array(
-										z.object({
-											type: z.literal('text'),
-											text: z.string(),
-										}),
-									),
-								}),
+							await createAnthropicCompletionService({
+								apiKey: settings.value['apiKeys.anthropic'],
+								HttpService,
+							}).complete({
+								model:
+									step['prompt_transform.inference.provider.Anthropic.model'],
+								systemPrompt,
+								userPrompt,
 							});
 
 						if (completionError) {
-							const { error, code } = completionError;
-							return Err(
-								`Anthropic API Error: ${getErrorMessage(error)} (${code})`,
-							);
+							return Err(completionError.message);
 						}
 
-						const responseText = completionResponse.content[0]?.text;
-						if (!responseText) {
-							return Err('Anthropic API returned an empty response');
-						}
-
-						return Ok(responseText);
+						return Ok(completionResponse);
 					}
 
 					case 'Google': {
-						const combinedPrompt = `${systemPrompt}\n${userPrompt}`;
-
-						const { data: completionResponse, error: completionError } =
-							await tryAsync({
-								try: async () => {
-									const genAI = new GoogleGenerativeAI(
-										settings.value['apiKeys.google'],
-									);
-
-									const model = genAI.getGenerativeModel({
-										model:
-											step['prompt_transform.inference.provider.Google.model'],
-										generationConfig: { temperature: 0 },
-									});
-									return await model.generateContent(combinedPrompt);
-								},
-								mapErr: (error) => {
-									return Err(getErrorMessage(error));
-								},
+						const { data: completion, error: completionError } =
+							await createGoogleCompletionService({
+								apiKey: settings.value['apiKeys.google'],
+							}).complete({
+								model: step['prompt_transform.inference.provider.Google.model'],
+								systemPrompt,
+								userPrompt,
+								// TODO: Add temperature to step settings
+								// temperature: 0,
 							});
-						if (completionError) return completionError;
 
-						const responseText = completionResponse.response.text();
-
-						if (!responseText) {
-							return Err('Google API returned an empty response');
+						if (completionError) {
+							return Err(completionError.message);
 						}
 
-						return Ok(responseText);
+						return Ok(completion);
 					}
 
 					default:
@@ -325,6 +306,23 @@ export function createRunTransformationService({
 		}
 	};
 
+	/**
+	 * Executes a complete transformation pipeline by running input through a series of transformation steps.
+	 *
+	 * **Error Persistence Strategy:**
+	 * When any step fails during transformation, the error handling follows this pattern:
+	 * 1. **Error Capture**: handleStep returns string error messages for failed operations
+	 * 2. **Database Persistence**: Failed steps are marked in the database with the error message
+	 * 3. **Early Termination**: Processing stops at the first failed step
+	 * 4. **Audit Trail**: Both the transformation run and specific step failure are recorded
+	 *
+	 * This approach ensures complete traceability of what went wrong and where in the pipeline.
+	 *
+	 * @param input - The initial text input to transform
+	 * @param transformationId - ID of the transformation configuration to execute
+	 * @param recordingId - Optional ID of the source recording (null for direct input)
+	 * @returns Promise<TransformResult<TransformationRun>> - Complete transformation run with results or error
+	 */
 	const runTransformation = async ({
 		input,
 		transformationId,

@@ -21,8 +21,8 @@ importers:
   apps/app:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.9.5
-        version: 0.9.5
+        specifier: ^0.12.0
+        version: 0.12.0
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -220,8 +220,8 @@ importers:
   apps/extension:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.9.5
-        version: 0.9.5
+        specifier: ^0.12.0
+        version: 0.12.0
       '@plasmohq/messaging':
         specifier: ^0.6.2
         version: 0.6.2(react@18.3.1)
@@ -317,8 +317,8 @@ importers:
   packages/shared:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.9.5
-        version: 0.9.5
+        specifier: ^0.12.0
+        version: 0.12.0
       arktype:
         specifier: ^2.1.20
         version: 2.1.20
@@ -469,8 +469,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@epicenterhq/result@0.9.5':
-    resolution: {integrity: sha512-nXwwEJtolRNtySlWGam2xGWXXT5OQHtUShD6ThmB5/ZIMAIP9Q03wK0h5LfmsVaFNmVw+3epc5xWOZ04KsL39g==}
+  '@epicenterhq/result@0.12.0':
+    resolution: {integrity: sha512-5ma8+cLbijCrytfwOy0EmtlrjHwk4hz2BWcjfMN1V5efMNVi5p6e7Uh8w/fMRliBG3mu8fCgM3gOBk30/Fz9lw==}
 
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
@@ -3409,8 +3409,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@3.16.2:
-    resolution: {integrity: sha512-lOZ9Q7PUDncgOItoyD/avjiGXfxb4Ot9M49KgB89Koy6aIfyNbKxEDLsJEx6LWX6o0MH5/bKfP1XID2A9Sc/5g==}
+  effect@3.16.3:
+    resolution: {integrity: sha512-SWndb1UavNWvet1+hnkU4qp3EHtnmDKhUeP14eB+7vf/2nCFlM77/oIjdDeZctveibNjE65P9H/sBBmF0NTy/w==}
 
   electron-to-chromium@1.5.161:
     resolution: {integrity: sha512-hwtetwfKNZo/UlwHIVBlKZVdy7o8bIZxxKs0Mv/ROPiQQQmDgdm5a+KvKtBsxM8ZjFzTaCeLoodZ8jiBE3o9rA==}
@@ -5619,6 +5619,9 @@ packages:
   zod@3.25.42:
     resolution: {integrity: sha512-PcALTLskaucbeHc41tU/xfjfhcz8z0GdhhDcSgrCTmSazUuqnYqiXO63M0QUBVwpBlsLsNVn5qHSC5Dw3KZvaQ==}
 
+  zod@3.25.46:
+    resolution: {integrity: sha512-IqRxcHEIjqLd4LNS/zKffB3Jzg3NwqJxQQ0Ns7pdrvgGkwQsEBdEQcOHaBVqvvZArShRzI39+aMST3FBGmTrLQ==}
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -5769,7 +5772,7 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@epicenterhq/result@0.9.5': {}
+  '@epicenterhq/result@0.12.0': {}
 
   '@esbuild/aix-ppc64@0.25.5':
     optional: true
@@ -8839,7 +8842,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@3.16.2:
+  effect@3.16.3:
     dependencies:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2
@@ -10734,14 +10737,14 @@ snapshots:
       '@vinejs/vine': 3.0.1
       arktype: 2.1.20
       class-validator: 0.14.2
-      effect: 3.16.2
+      effect: 3.16.3
       joi: 17.13.3
       json-schema-to-ts: 3.1.1
       superstruct: 2.0.2
       valibot: 1.0.0-rc.3(typescript@5.8.3)
       yup: 1.6.1
-      zod: 3.25.42
-      zod-to-json-schema: 3.24.5(zod@3.25.42)
+      zod: 3.25.46
+      zod-to-json-schema: 3.24.5(zod@3.25.46)
     transitivePeerDependencies:
       - '@types/json-schema'
       - typescript
@@ -11173,9 +11176,12 @@ snapshots:
 
   zimmerframe@1.1.2: {}
 
-  zod-to-json-schema@3.24.5(zod@3.25.42):
+  zod-to-json-schema@3.24.5(zod@3.25.46):
     dependencies:
-      zod: 3.25.42
+      zod: 3.25.46
     optional: true
 
   zod@3.25.42: {}
+
+  zod@3.25.46:
+    optional: true

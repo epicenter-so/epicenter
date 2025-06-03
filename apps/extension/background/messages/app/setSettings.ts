@@ -30,7 +30,7 @@ const setSettings = async (settings: Settings) => {
 				return {
 					data: null,
 					error: {
-						_tag: 'WhisperingError',
+						name: 'WhisperingError',
 						variant: 'error',
 						title: 'Unable to set Whispering settings',
 						description: 'An error occurred while setting Whispering settings.',

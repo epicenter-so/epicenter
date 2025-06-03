@@ -1,5 +1,4 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import {
 	active,
 	isPermissionGranted,
@@ -8,19 +7,21 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
-import type { NotificationService } from './NotificationService';
+import type { NotificationService, NotificationServiceError } from './_types';
 
 export function createNotificationServiceDesktop(): NotificationService {
-	const removeNotificationById = async (id: number) => {
+	const removeNotificationById = async (
+		id: number,
+	): Promise<Result<void, NotificationServiceError>> => {
 		const { data: activeNotifications, error: activeNotificationsError } =
 			await tryAsync({
 				try: async () => await active(),
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Unable to remove notification',
-						description: 'Unable to retrieve active notifications.',
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): NotificationServiceError => ({
+					name: 'NotificationServiceError',
+					message: 'Unable to retrieve active desktop notifications.',
+					context: {},
+					cause: error,
+				}),
 			});
 		if (activeNotificationsError) return Err(activeNotificationsError);
 		const matchingActiveNotification = activeNotifications.find(
@@ -29,12 +30,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 		if (matchingActiveNotification) {
 			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Unable to remove notification',
-						description: `An error occurred while trying to remove notification with id ${id}.`,
-						action: { type: 'more-details', error },
-					}),
+				mapErr: (error): NotificationServiceError => ({
+					name: 'NotificationServiceError',
+					message: `Unable to remove notification with id ${id}.`,
+					context: { id, matchingActiveNotification },
+					cause: error,
+				}),
 			});
 			if (removeActiveError) return Err(removeActiveError);
 		}
@@ -58,15 +59,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 						sendNotification({ id: id, title, body: description });
 					}
 				},
-				mapErr: (error) =>
-					WhisperingError({
-						title: 'Notification error',
-						description: 'Could not send notification',
-						action: {
-							type: 'more-details',
-							error,
-						},
-					}),
+				mapErr: (error): NotificationServiceError => ({
+					name: 'NotificationServiceError',
+					message: 'Could not send notification',
+					context: { idStringified, title, description },
+					cause: error,
+				}),
 			});
 			if (notifyError) return Err(notifyError);
 			return Ok(idStringified);
