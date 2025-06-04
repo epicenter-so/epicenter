@@ -76,12 +76,30 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-use enigo::{Enigo, Keyboard, Settings};
+use enigo::{Direction, Enigo, Key, Keyboard, Settings};
 use tauri::Manager;
+use tauri_plugin_clipboard_manager::ClipboardExt;
 
-/// Write text to the active application using the Enigo library
+/// Paste text into the active application using the clipboard and a paste
+/// keyboard shortcut. Falls back to simulating keystrokes with Enigo.
 #[tauri::command]
-fn write_text(text: String) -> Result<(), String> {
-    let mut enigo = Enigo::new(&Settings::default()).unwrap();
-    enigo.text(&text).map_err(|e| e.to_string())
+fn write_text(app: tauri::AppHandle, text: String) -> Result<(), String> {
+    if let Err(err) = app.clipboard().write_text(&text) {
+        return Err(err.to_string());
+    }
+
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+
+    #[cfg(target_os = "macos")]
+    let modifier = Key::Meta;
+    #[cfg(not(target_os = "macos"))]
+    let modifier = Key::Control;
+
+    enigo.key(modifier, Direction::Press).map_err(|e| e.to_string())?;
+    enigo
+        .key(Key::Unicode('v'), Direction::Click)
+        .map_err(|e| e.to_string())?;
+    enigo.key(modifier, Direction::Release).map_err(|e| e.to_string())?;
+
+    Ok(())
 }
