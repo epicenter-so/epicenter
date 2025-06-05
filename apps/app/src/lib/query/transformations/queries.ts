@@ -1,9 +1,7 @@
 import { queryClient } from '$lib/query';
 import type { Transformation } from '$lib/services/db';
-import {
-	DbTransformationsService,
-	createResultQuery,
-} from '$lib/services/index.js';
+import { DbTransformationsService } from '$lib/services/index.js';
+import { createResultQuery } from '@tanstack/svelte-query';
 import type { Accessor } from '../types';
 
 // Define the query key as a constant array
@@ -29,8 +27,9 @@ export function useTransformationQuery(id: Accessor<string>) {
 		transformationQuery: createResultQuery(() => ({
 			queryKey: transformationsKeys.byId(id()),
 			queryFn: async () => {
-				const result =
-					await DbTransformationsService.getTransformationById(id());
+				const result = await DbTransformationsService.getTransformationById(
+					id(),
+				);
 				return result;
 			},
 			initialData: () =>

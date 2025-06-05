@@ -1,18 +1,4 @@
-import type { Accessor } from '$lib/query/types';
-import type { Result } from '@epicenterhq/result';
-import type {
-	MaybePromise,
-	RECORDING_METHODS,
-	WhisperingSoundNames,
-} from '@repo/shared';
-import {
-	type CreateMutationOptions,
-	type CreateQueryOptions,
-	type DefaultError,
-	type QueryKey,
-	createMutation,
-	createQuery,
-} from '@tanstack/svelte-query';
+import type { RECORDING_METHODS, WhisperingSoundNames } from '@repo/shared';
 import { settings } from '../stores/settings.svelte';
 import {
 	createSetTrayIconDesktopService,
@@ -40,69 +26,6 @@ import { createElevenLabsTranscriptionService } from './transcription/whisper/el
 import { createFasterWhisperServerTranscriptionService } from './transcription/whisper/fasterWhisperServer';
 import { createGroqTranscriptionService } from './transcription/whisper/groq';
 import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
-
-type QueryResultFunction<TData, TError> = () => MaybePromise<
-	Result<TData, TError>
->;
-
-export function createResultQuery<
-	TQueryFnData = unknown,
-	TError = DefaultError,
-	TData = TQueryFnData,
-	TQueryKey extends QueryKey = QueryKey,
->(
-	options: Accessor<
-		Omit<
-			CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-			'queryFn'
-		> & {
-			queryFn: QueryResultFunction<TQueryFnData, TError>;
-		}
-	>,
-) {
-	return createQuery<TQueryFnData, TError, TData, TQueryKey>(() => {
-		const { queryFn, ...optionValues } = options();
-		return {
-			...optionValues,
-
-			queryFn: async () => {
-				const { data, error } = await queryFn();
-				if (error) throw error;
-				return data;
-			},
-		};
-	});
-}
-
-export function createResultMutation<
-	TData = unknown,
-	TError = DefaultError,
-	TVariables = void,
-	TContext = unknown,
->(
-	options: Accessor<
-		Omit<
-			CreateMutationOptions<TData, TError, TVariables, TContext>,
-			'mutationFn'
-		> & {
-			mutationFn: (
-				variables: TVariables,
-			) => MaybePromise<Result<TData, TError>>;
-		}
-	>,
-) {
-	return createMutation<TData, TError, TVariables, TContext>(() => {
-		const { mutationFn, ...optionValues } = options();
-		return {
-			...optionValues,
-			mutationFn: async (args) => {
-				const { data, error } = await mutationFn(args);
-				if (error) throw error;
-				return data;
-			},
-		};
-	});
-}
 
 export const DownloadService = window.__TAURI_INTERNALS__
 	? createDownloadServiceDesktop()

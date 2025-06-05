@@ -1,4 +1,5 @@
-import { createResultMutation, playSoundIfEnabled } from '$lib/services';
+import { createResultMutation } from '@tanstack/svelte-query';
+import { playSoundIfEnabled } from '$lib/services';
 import { RunTransformationService } from '$lib/services/index.js';
 import { TransformErrorToWhisperingErr } from '$lib/services/runTransformation';
 import { toast } from '$lib/services/toast';

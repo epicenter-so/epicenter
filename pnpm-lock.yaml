@@ -39,14 +39,14 @@ importers:
         specifier: ^0.0.24
         version: 0.0.24
       '@tanstack/query-core':
-        specifier: ^5.77.2
-        version: 5.79.0
+        specifier: https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@production
+        version: https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@production
       '@tanstack/svelte-query':
-        specifier: https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb
-        version: https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(svelte@5.33.10)
+        specifier: https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production
+        version: https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production(svelte@5.33.10)
       '@tanstack/svelte-query-devtools':
-        specifier: https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb
-        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(@tanstack/svelte-query@https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(svelte@5.33.10))(svelte@5.33.10)
+        specifier: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter
+        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production(svelte@5.33.10))(svelte@5.33.10)
       '@tanstack/table-core':
         specifier: 8.21.3
         version: 8.21.3
@@ -118,7 +118,7 @@ importers:
         version: 1.0.0-next.7(svelte@5.33.10)
       zod:
         specifier: ^3.25.31
-        version: 3.25.42
+        version: 3.25.46
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.9
@@ -290,7 +290,7 @@ importers:
         version: 1.0.7(tailwindcss@3.4.17)
       zod:
         specifier: ^3.25.42
-        version: 3.25.42
+        version: 3.25.46
     devDependencies:
       '@types/chrome':
         specifier: ^0.0.287
@@ -324,7 +324,7 @@ importers:
         version: 2.1.20
       zod:
         specifier: ^3.25.42
-        version: 3.25.42
+        version: 3.25.46
     devDependencies:
       '@types/node':
         specifier: ^22.15.29
@@ -2560,31 +2560,35 @@ packages:
   '@tanstack/query-core@5.79.0':
     resolution: {integrity: sha512-s+epTqqLM0/TbJzMAK7OEhZIzh63P9sWz5HEFc5XHL4FvKQXQkcjI8F3nee+H/xVVn7mrP610nVXwOytTSYd0w==}
 
-  '@tanstack/query-core@https://pkg.pr.new/TanStack/query/@tanstack/query-core@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb':
-    resolution: {tarball: https://pkg.pr.new/TanStack/query/@tanstack/query-core@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb}
-    version: 5.62.7
+  '@tanstack/query-core@https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@a3e44a144445a6e16b863de730ff463671f210eb':
+    resolution: {tarball: https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@a3e44a144445a6e16b863de730ff463671f210eb}
+    version: 5.79.0
 
-  '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb':
-    resolution: {tarball: https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb}
-    version: 5.61.4
+  '@tanstack/query-core@https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@production':
+    resolution: {tarball: https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@production}
+    version: 5.79.0
+
+  '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5':
+    resolution: {tarball: https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5}
+    version: 5.74.7
 
   '@tanstack/react-query@5.79.0':
     resolution: {integrity: sha512-DjC4JIYZnYzxaTzbg3osOU63VNLP67dOrWet2cZvXgmgwAXNxfS52AMq86M5++ILuzW+BqTUEVMTjhrZ7/XBuA==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb':
-    resolution: {tarball: https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb}
-    version: 5.62.7
+  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter':
+    resolution: {tarball: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter}
+    version: 5.75.7
     peerDependencies:
-      '@tanstack/svelte-query': ^5.62.7
+      '@tanstack/svelte-query': ^5.75.7
       svelte: ^5.0.0
 
-  '@tanstack/svelte-query@https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb':
-    resolution: {tarball: https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb}
-    version: 5.62.7
+  '@tanstack/svelte-query@https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production':
+    resolution: {tarball: https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production}
+    version: 5.79.0
     peerDependencies:
-      svelte: ^5.0.0
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
 
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
@@ -5616,9 +5620,6 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.42:
-    resolution: {integrity: sha512-PcALTLskaucbeHc41tU/xfjfhcz8z0GdhhDcSgrCTmSazUuqnYqiXO63M0QUBVwpBlsLsNVn5qHSC5Dw3KZvaQ==}
-
   zod@3.25.46:
     resolution: {integrity: sha512-IqRxcHEIjqLd4LNS/zKffB3Jzg3NwqJxQQ0Ns7pdrvgGkwQsEBdEQcOHaBVqvvZArShRzI39+aMST3FBGmTrLQ==}
 
@@ -7971,25 +7972,27 @@ snapshots:
 
   '@tanstack/query-core@5.79.0': {}
 
-  '@tanstack/query-core@https://pkg.pr.new/TanStack/query/@tanstack/query-core@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb': {}
+  '@tanstack/query-core@https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@a3e44a144445a6e16b863de730ff463671f210eb': {}
 
-  '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb': {}
+  '@tanstack/query-core@https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@production': {}
+
+  '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5': {}
 
   '@tanstack/react-query@5.79.0(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.79.0
       react: 18.3.1
 
-  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(@tanstack/svelte-query@https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(svelte@5.33.10))(svelte@5.33.10)':
+  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production(svelte@5.33.10))(svelte@5.33.10)':
     dependencies:
-      '@tanstack/query-devtools': https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb
-      '@tanstack/svelte-query': https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(svelte@5.33.10)
+      '@tanstack/query-devtools': https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5
+      '@tanstack/svelte-query': https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production(svelte@5.33.10)
       esm-env: 1.2.2
       svelte: 5.33.10
 
-  '@tanstack/svelte-query@https://pkg.pr.new/@tanstack/svelte-query@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb(svelte@5.33.10)':
+  '@tanstack/svelte-query@https://pkg.pr.new/EpicenterHQ/query/@tanstack/svelte-query@production(svelte@5.33.10)':
     dependencies:
-      '@tanstack/query-core': https://pkg.pr.new/TanStack/query/@tanstack/query-core@56f67c7d62d60b26a3dfbf8e359f12257dcbc8eb
+      '@tanstack/query-core': https://pkg.pr.new/EpicenterHQ/query/@tanstack/query-core@a3e44a144445a6e16b863de730ff463671f210eb
       svelte: 5.33.10
 
   '@tanstack/table-core@8.21.3': {}
@@ -11181,7 +11184,4 @@ snapshots:
       zod: 3.25.46
     optional: true
 
-  zod@3.25.42: {}
-
-  zod@3.25.46:
-    optional: true
+  zod@3.25.46: {}
