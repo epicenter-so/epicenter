@@ -39,14 +39,14 @@ importers:
         specifier: ^0.0.24
         version: 0.0.24
       '@tanstack/query-core':
-        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6
-        version: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6
+        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320
+        version: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320
       '@tanstack/svelte-query':
-        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6
-        version: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6(svelte@5.33.10)
+        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320
+        version: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10)
       '@tanstack/svelte-query-devtools':
         specifier: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter
-        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6(svelte@5.33.10))(svelte@5.33.10)
+        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10))(svelte@5.33.10)
       '@tanstack/table-core':
         specifier: 8.21.3
         version: 8.21.3
@@ -468,9 +468,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@epicenterhq/result@0.11.0':
-    resolution: {integrity: sha512-yYau8pBSrwwSXZW7Qo5x0Z7bE1C2f4f6tPsm8LGKEXKMvIS3eMgKr+zCf3xOQiHq/SUeHh4VPBO4CO1uRXOVSA==}
 
   '@epicenterhq/result@0.13.0':
     resolution: {integrity: sha512-+ztxf1TfqoitqqvgFNwFPfoYQzDww7s1Xz3O1tHqgVh8uOxCuEPrlHgcoXfy+UgAQFUBQQu0wCzORO0CDHUTfw==}
@@ -2563,12 +2560,8 @@ packages:
   '@tanstack/query-core@5.79.0':
     resolution: {integrity: sha512-s+epTqqLM0/TbJzMAK7OEhZIzh63P9sWz5HEFc5XHL4FvKQXQkcjI8F3nee+H/xVVn7mrP610nVXwOytTSYd0w==}
 
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6':
-    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6}
-    version: 5.79.0
-
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6c80daf83cfa28dcf48e6ed120c3844226':
-    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6c80daf83cfa28dcf48e6ed120c3844226}
+  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320':
+    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320}
     version: 5.79.0
 
   '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5':
@@ -2587,8 +2580,8 @@ packages:
       '@tanstack/svelte-query': ^5.75.7
       svelte: ^5.0.0
 
-  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6':
-    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6}
+  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320':
+    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320}
     version: 5.79.0
     peerDependencies:
       svelte: ^5.7.0
@@ -5776,8 +5769,6 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@epicenterhq/result@0.11.0': {}
-
   '@epicenterhq/result@0.13.0': {}
 
   '@esbuild/aix-ppc64@0.25.5':
@@ -7977,9 +7968,7 @@ snapshots:
 
   '@tanstack/query-core@5.79.0': {}
 
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6': {}
-
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6c80daf83cfa28dcf48e6ed120c3844226': {}
+  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320': {}
 
   '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5': {}
 
@@ -7988,17 +7977,17 @@ snapshots:
       '@tanstack/query-core': 5.79.0
       react: 18.3.1
 
-  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6(svelte@5.33.10))(svelte@5.33.10)':
+  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10))(svelte@5.33.10)':
     dependencies:
       '@tanstack/query-devtools': https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5
-      '@tanstack/svelte-query': https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6(svelte@5.33.10)
+      '@tanstack/svelte-query': https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10)
       esm-env: 1.2.2
       svelte: 5.33.10
 
-  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6(svelte@5.33.10)':
+  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10)':
     dependencies:
-      '@epicenterhq/result': 0.11.0
-      '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6c80daf83cfa28dcf48e6ed120c3844226
+      '@epicenterhq/result': 0.13.0
+      '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320
       svelte: 5.33.10
 
   '@tanstack/table-core@8.21.3': {}
