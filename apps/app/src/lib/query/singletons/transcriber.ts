@@ -1,9 +1,6 @@
 import { createResultMutation } from '@tanstack/svelte-query';
 import type { Recording } from '$lib/services/db';
-import {
-	playSoundIfEnabled,
-	userConfiguredServices,
-} from '$lib/services/index.js';
+import { playSoundIfEnabled, services } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from '@epicenterhq/result';
@@ -77,7 +74,7 @@ function createTranscriber() {
 				} satisfies WhisperingError);
 			}
 			const { data: transcribedText, error: transcriptionError } =
-				await userConfiguredServices.transcription.transcribe(recording.blob, {
+				await services.transcription.transcribe(recording.blob, {
 					outputLanguage: settings.value['transcription.outputLanguage'],
 					prompt: settings.value['transcription.prompt'],
 					temperature: settings.value['transcription.temperature'],
