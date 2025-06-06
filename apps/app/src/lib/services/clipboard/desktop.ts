@@ -10,7 +10,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 		setClipboardText: (text) =>
 			tryAsync({
 				try: () => writeText(text),
-				mapErr: (error): ClipboardServiceError => ({
+				mapError: (error): ClipboardServiceError => ({
 					name: 'ClipboardServiceError',
 					message:
 						'There was an error writing to the clipboard using the Tauri Clipboard Manager API. Please try again.',
@@ -25,7 +25,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 			): Promise<Result<void, ClipboardServiceError>> =>
 				tryAsync({
 					try: () => invoke<void>('write_text', { text }),
-					mapErr: (error): ClipboardServiceError => ({
+					mapError: (error): ClipboardServiceError => ({
 						name: 'ClipboardServiceError',
 						message:
 							'There was an error pasting from the clipboard using the Tauri Invoke API. Please try again.',
@@ -51,7 +51,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 					invoke<boolean>('is_macos_accessibility_enabled', {
 						askIfNotAllowed: false,
 					}),
-				mapErr: (error): ClipboardServiceError => ({
+				mapError: (error): ClipboardServiceError => ({
 					name: 'ClipboardServiceError',
 					message:
 						'There was an error checking if accessibility is enabled using the Tauri Invoke API. Please try again.',

@@ -16,7 +16,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 		const { data: activeNotifications, error: activeNotificationsError } =
 			await tryAsync({
 				try: async () => await active(),
-				mapErr: (error): NotificationServiceError => ({
+				mapError: (error): NotificationServiceError => ({
 					name: 'NotificationServiceError',
 					message: 'Unable to retrieve active desktop notifications.',
 					context: {},
@@ -30,7 +30,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 		if (matchingActiveNotification) {
 			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
-				mapErr: (error): NotificationServiceError => ({
+				mapError: (error): NotificationServiceError => ({
 					name: 'NotificationServiceError',
 					message: `Unable to remove notification with id ${id}.`,
 					context: { id, matchingActiveNotification },
@@ -59,7 +59,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 						sendNotification({ id: id, title, body: description });
 					}
 				},
-				mapErr: (error): NotificationServiceError => ({
+				mapError: (error): NotificationServiceError => ({
 					name: 'NotificationServiceError',
 					message: 'Could not send notification',
 					context: { idStringified, title, description },

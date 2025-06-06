@@ -68,7 +68,7 @@ export async function sendMessageToExtension<
 	const { data: commandAsWhisperingResult, error: sendError } = (await tryAsync(
 		{
 			try: () => sendToBackgroundViaRelay(...args),
-			mapErr: (error) => {
+			mapError: (error) => {
 				const { name, body } = args[0];
 				return SendMessageToExtensionErr({
 					name,

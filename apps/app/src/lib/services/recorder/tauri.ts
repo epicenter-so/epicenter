@@ -136,7 +136,7 @@ export function createRecorderServiceTauri(): RecorderService {
 async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	return tryAsync({
 		try: async () => await tauriInvoke<T>(command, args),
-		mapErr: (error) =>
+		mapError: (error) =>
 			Err({ name: 'TauriInvokeError', command, error } as const),
 	});
 }
