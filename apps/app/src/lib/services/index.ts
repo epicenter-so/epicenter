@@ -62,7 +62,7 @@ export const RunTransformationService = createRunTransformationService({
 /**
  * Services that are determined by the user's settings.
  */
-export const userConfiguredServices = (() => {
+export const services = (() => {
 	const RecorderServiceTauri = createRecorderServiceTauri();
 	const RecorderServiceWeb = createRecorderServiceWeb();
 

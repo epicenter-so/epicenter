@@ -3,10 +3,7 @@ import {
 	createResultMutation,
 	createResultQuery,
 } from '@tanstack/svelte-query';
-import {
-	playSoundIfEnabled,
-	userConfiguredServices,
-} from '$lib/services/index.js';
+import { playSoundIfEnabled, services } from '$lib/services/index.js';
 import type { UpdateStatusMessageFn } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
@@ -55,8 +52,7 @@ function createManualRecorder({
 	const recorderState = createResultQuery(() => ({
 		queryKey: manualRecorderKeys.state,
 		queryFn: async () => {
-			const recorderStateResult =
-				await userConfiguredServices.recorder.getRecorderState();
+			const recorderStateResult = await services.recorder.getRecorderState();
 			return recorderStateResult;
 		},
 		initialData: 'IDLE' as const,
@@ -72,10 +68,12 @@ function createManualRecorder({
 			await ensureRecordingSession.mutateAsync(toastId);
 		},
 		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const startRecordingResult =
-				await userConfiguredServices.recorder.startRecording(nanoid(), {
+			const startRecordingResult = await services.recorder.startRecording(
+				nanoid(),
+				{
 					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
+				},
+			);
 			return startRecordingResult;
 		},
 		onError: (error, { toastId }) => {
@@ -102,7 +100,7 @@ function createManualRecorder({
 			});
 		},
 		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const stopResult = await userConfiguredServices.recorder.stopRecording({
+			const stopResult = await services.recorder.stopRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			});
 			return stopResult;
@@ -223,12 +221,9 @@ function createManualRecorder({
 	const ensureRecordingSession = createResultMutation(() => ({
 		mutationFn: async (toastId: string) => {
 			const ensureRecordingSessionResult =
-				await userConfiguredServices.recorder.ensureRecordingSession(
-					settings.value,
-					{
-						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-					},
-				);
+				await services.recorder.ensureRecordingSession(settings.value, {
+					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				});
 			return ensureRecordingSessionResult;
 		},
 		onSettled: invalidateRecorderState,
@@ -240,10 +235,9 @@ function createManualRecorder({
 		}: {
 			sendStatus: UpdateStatusMessageFn;
 		}) => {
-			const closeResult =
-				await userConfiguredServices.recorder.closeRecordingSession({
-					sendStatus,
-				});
+			const closeResult = await services.recorder.closeRecordingSession({
+				sendStatus,
+			});
 			return closeResult;
 		},
 		onSettled: invalidateRecorderState,
@@ -258,10 +252,9 @@ function createManualRecorder({
 			});
 		},
 		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const cancelResult =
-				await userConfiguredServices.recorder.cancelRecording({
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
+			const cancelResult = await services.recorder.cancelRecording({
+				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+			});
 			return cancelResult;
 		},
 		onError: (error, { toastId }) => {
