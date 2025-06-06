@@ -23,7 +23,7 @@ const setRecorderState = async (recorderState: WhisperingRecordingState) => {
 	const path = iconPaths[recorderState];
 	const { error: setIconError } = await tryAsync({
 		try: () => chrome.action.setIcon({ path }),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: `Error setting icon to ${recorderState} icon`,
 				description:

@@ -34,7 +34,7 @@ export const getOrCreateWhisperingTabId = async (): Promise<
 function getAllWhisperingTabs() {
 	return tryAsync({
 		try: () => chrome.tabs.query({ url: WHISPERING_URL_WILDCARD }),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: 'Error getting Whispering tabs',
 				description: 'Error querying for Whispering tabs in the browser.',
@@ -58,7 +58,7 @@ async function createAndSetupNewTab(): Promise<WhisperingResult<number>> {
 function pinTabById(tabId: number) {
 	return tryAsync({
 		try: () => chrome.tabs.update(tabId, { pinned: true }),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: 'Unable to pin Whispering tab',
 				description: 'Error pinning Whispering tab.',
@@ -125,7 +125,7 @@ function createWhisperingTab() {
 					pinned: true,
 				});
 			}),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: 'Error creating Whispering tab',
 				description: 'Error creating Whispering tab in the browser.',
@@ -137,7 +137,7 @@ function createWhisperingTab() {
 function makeTabUndiscardableById(tabId: number) {
 	return tryAsync({
 		try: () => chrome.tabs.update(tabId, { autoDiscardable: false }),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: 'Unable to make Whispering tab undiscardable',
 				description: 'Error updating Whispering tab to make it undiscardable.',
@@ -151,7 +151,7 @@ function removeTabsById(tabIds: number[]) {
 		tabIds.map((tabId) =>
 			tryAsync({
 				try: () => chrome.tabs.remove(tabId),
-				mapErr: (error) =>
+				mapError: (error) =>
 					WhisperingError({
 						title: `Error closing Whispering tab ${tabId}`,
 						description: `Error closing Whispering tab ${tabId} in the browser.`,

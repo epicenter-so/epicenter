@@ -41,7 +41,7 @@
 
 				const { error: unregisterError } = trySync({
 					try: () => hotkeys.unbind(currentCommandKey),
-					mapErr: (error) =>
+					mapError: (error) =>
 						WhisperingError({
 							title: `Error unregistering old command with id ${command.id} locally`,
 							description: 'Please try again.',

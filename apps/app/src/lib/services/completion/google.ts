@@ -22,7 +22,7 @@ export function createGoogleCompletionService({
 					const { response } = await model.generateContent(combinedPrompt);
 					return response.text();
 				},
-				mapErr: (error): CompletionServiceError => ({
+				mapError: (error): CompletionServiceError => ({
 					name: 'CompletionServiceError',
 					message: `Google API Error: ${extractErrorMessage(error)}`,
 					context: { model: modelName, systemPrompt, userPrompt },
