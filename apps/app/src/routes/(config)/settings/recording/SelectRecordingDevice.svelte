@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { useGetMediaDevices } from '$lib/query/audio/queries';
+	import { queries } from '$lib/query/queries';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { toast } from '$lib/services/toast';
+	import { createResultQuery } from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -13,7 +14,9 @@
 	} = $props();
 
 	const manualRecorder = getManualRecorderFromContext();
-	const { getMediaDevicesQuery } = useGetMediaDevices();
+	const getMediaDevicesQuery = createResultQuery(() =>
+		queries.getMediaDevices(),
+	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {

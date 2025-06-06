@@ -7,11 +7,18 @@
 	import { createResultQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
+	import { toast } from '$lib/services/toast';
 
 	const manualRecorder = getManualRecorderFromContext();
 	const getMediaDevicesQuery = createResultQuery(() =>
 		queries.getMediaDevices(),
 	);
+
+	$effect(() => {
+		if (getMediaDevicesQuery.isError) {
+			toast.warning(getMediaDevicesQuery.error);
+		}
+	});
 </script>
 
 <Command.Root loop>
@@ -24,7 +31,7 @@
 			</div>
 		{:else if getMediaDevicesQuery.isError}
 			<div class="p-4 text-center text-sm text-destructive">
-				{getMediaDevicesQuery.error.message}
+				{getMediaDevicesQuery.error.description}
 			</div>
 		{:else}
 			{#each getMediaDevicesQuery.data as device (device.deviceId)}
