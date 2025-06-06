@@ -7,11 +7,9 @@
 	import { cn } from '$lib/utils';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
-	import { queries } from '$lib/query/queries';
-	import type { createResultQuery } from '@tanstack/svelte-query';
 
 	const manualRecorder = getManualRecorderFromContext();
-	const getMediaDevicesQuery = createResultQuery(queries.getMediaDevices());
+	const { getMediaDevicesQuery } = useGetMediaDevices();
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
