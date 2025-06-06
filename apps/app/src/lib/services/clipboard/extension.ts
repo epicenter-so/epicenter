@@ -6,7 +6,7 @@ export function createClipboardServiceExtension(): ClipboardService {
 		setClipboardText: (text) =>
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
-				mapErr: (error): ClipboardServiceError => ({
+				mapError: (error): ClipboardServiceError => ({
 					name: 'ClipboardServiceError',
 					message: 'Unable to write to clipboard',
 					context: { text },
@@ -17,7 +17,7 @@ export function createClipboardServiceExtension(): ClipboardService {
 		writeTextToCursor: (text) =>
 			trySync({
 				try: () => writeTextToCursor(text),
-				mapErr: (error): ClipboardServiceError => ({
+				mapError: (error): ClipboardServiceError => ({
 					name: 'ClipboardServiceError',
 					message: 'Unable to paste text to cursor',
 					context: { text },

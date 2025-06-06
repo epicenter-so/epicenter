@@ -61,7 +61,7 @@ export const createNotification = async ({
 						);
 						return id;
 					},
-					mapErr: (error) =>
+					mapError: (error) =>
 						WhisperingError({
 							title: 'Failed to show notification',
 							description:
@@ -86,7 +86,7 @@ export const createNotification = async ({
 						});
 						return id;
 					},
-					mapErr: (error) =>
+					mapError: (error) =>
 						WhisperingError({
 							title: 'Failed to show notification',
 							description:
@@ -111,7 +111,7 @@ export const createNotification = async ({
 						});
 						return id;
 					},
-					mapErr: (error) =>
+					mapError: (error) =>
 						WhisperingError({
 							title: 'Failed to show notification',
 							description:

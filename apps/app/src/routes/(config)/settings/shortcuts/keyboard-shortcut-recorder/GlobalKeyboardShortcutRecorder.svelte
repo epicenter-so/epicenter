@@ -44,7 +44,7 @@
 						);
 						return await unregister(oldShortcutKey);
 					},
-					mapErr: (error) =>
+					mapError: (error) =>
 						WhisperingError({
 							title: `Error unregistering command with id ${command.id} globally`,
 							description: 'Please try again.',

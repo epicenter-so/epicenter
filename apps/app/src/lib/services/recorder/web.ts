@@ -169,7 +169,7 @@ export function createRecorderServiceWeb(): RecorderService {
 							) * 1000,
 					});
 				},
-				mapErr: (error): RecordingServiceError => ({
+				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
@@ -232,7 +232,7 @@ export function createRecorderServiceWeb(): RecorderService {
 						});
 						recorder.mediaRecorder.stop();
 					}),
-				mapErr: (error): RecordingServiceError => ({
+				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
 						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
@@ -351,7 +351,7 @@ async function enumerateRecordingDevices(): Promise<
 			);
 			return audioInputDevices;
 		},
-		mapErr: (error) => ({
+		mapError: (error) => ({
 			name: 'RecordingServiceError',
 			message:
 				'We need permission to see your microphones. Check your browser settings and try again.',
@@ -376,7 +376,7 @@ async function getStreamForDeviceId(recordingDeviceId: string) {
 			});
 			return stream;
 		},
-		mapErr: (error): RecordingServiceError => ({
+		mapError: (error): RecordingServiceError => ({
 			name: 'RecordingServiceError',
 			message:
 				'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',

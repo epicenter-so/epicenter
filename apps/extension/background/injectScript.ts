@@ -20,7 +20,7 @@ export async function injectScript<T, Args extends unknown[]>({
 				func,
 				args,
 			}),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: `Unable to execute "${commandName}" script in Whispering tab`,
 				description:

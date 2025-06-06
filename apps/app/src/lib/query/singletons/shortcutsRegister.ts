@@ -53,7 +53,7 @@ function createShortcutsRegister({
 							return false;
 						});
 					},
-					mapErr: (error): WhisperingError => ({
+					mapError: (error): WhisperingError => ({
 						name: 'WhisperingError',
 						title: 'Error registering push to talk local shortcut',
 						description: 'Please make sure it is a valid keyboard shortcut.',
@@ -72,7 +72,7 @@ function createShortcutsRegister({
 						commandCallbacks[command.id]();
 						return false;
 					}),
-				mapErr: (error): WhisperingError => ({
+				mapError: (error): WhisperingError => ({
 					name: 'WhisperingError',
 					title: 'Error registering local shortcut',
 					description: 'Please make sure it is a valid keyboard shortcut.',
@@ -103,7 +103,7 @@ function createShortcutsRegister({
 							}
 						});
 					},
-					mapErr: (error): WhisperingError => ({
+					mapError: (error): WhisperingError => ({
 						name: 'WhisperingError',
 						title: 'Error registering global shortcut.',
 						description:
@@ -128,7 +128,7 @@ function createShortcutsRegister({
 						}
 					});
 				},
-				mapErr: (error): WhisperingError => ({
+				mapError: (error): WhisperingError => ({
 					name: 'WhisperingError',
 					title: 'Error registering global shortcut.',
 					description:

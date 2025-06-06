@@ -15,7 +15,7 @@ export function createDownloadServiceDesktop(): DownloadService {
 					});
 					return path;
 				},
-				mapErr: (error): DownloadServiceError => ({
+				mapError: (error): DownloadServiceError => ({
 					name: 'DownloadServiceError',
 					message:
 						'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
@@ -37,7 +37,7 @@ export function createDownloadServiceDesktop(): DownloadService {
 					const contents = new Uint8Array(await blob.arrayBuffer());
 					await writeFile(path, contents);
 				},
-				mapErr: (error): DownloadServiceError => ({
+				mapError: (error): DownloadServiceError => ({
 					name: 'DownloadServiceError',
 					message:
 						'There was an error saving the recording using the Tauri Filesystem API. Please try again.',

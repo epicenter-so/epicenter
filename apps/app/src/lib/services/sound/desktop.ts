@@ -9,7 +9,7 @@ export function createPlaySoundServiceDesktop(): PlaySoundService {
 				try: async () => {
 					await audioElements[soundName].play();
 				},
-				mapErr: (error): PlaySoundServiceError => ({
+				mapError: (error): PlaySoundServiceError => ({
 					name: 'PlaySoundServiceError',
 					message: 'Failed to play sound',
 					context: { soundName },

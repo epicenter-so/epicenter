@@ -1,7 +1,5 @@
-import {
-	DbTransformationsService,
-	createResultQuery,
-} from '$lib/services/index.js';
+import { DbTransformationsService } from '$lib/services/index.js';
+import { createResultQuery } from '@tanstack/svelte-query';
 import type { Accessor } from '../types';
 
 // Define the query key as a constant array

@@ -1,13 +1,11 @@
 import { queryClient } from '$lib/query';
 import type { Recording } from '$lib/services/db';
-import {
-	DbRecordingsService,
-	createResultMutation,
-} from '$lib/services/index.js';
+import { DbRecordingsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import { recordingsKeys } from './queries';
+import { createResultMutation } from '@tanstack/svelte-query';
 
 export function useCreateRecording() {
 	return {

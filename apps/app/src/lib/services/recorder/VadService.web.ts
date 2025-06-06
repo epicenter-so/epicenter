@@ -47,7 +47,7 @@ export function createVadServiceWeb() {
 			const vad = maybeVad;
 			const { error: destroyError } = trySync({
 				try: () => vad.destroy(),
-				mapErr: (error) =>
+				mapError: (error) =>
 					WhisperingError({
 						title: 'Failed to destroy Voice Activity Detector',
 						description:
@@ -75,7 +75,7 @@ export function createVadServiceWeb() {
 			const vad = maybeVad;
 			const { error: startError } = trySync({
 				try: () => vad.start(),
-				mapErr: (error) =>
+				mapError: (error) =>
 					WhisperingError({
 						title: 'Failed to start Voice Activity Detector',
 						description:
@@ -103,7 +103,7 @@ export function createVadServiceWeb() {
 			const vad = maybeVad;
 			const { error: pauseError } = trySync({
 				try: () => vad.pause(),
-				mapErr: (error) =>
+				mapError: (error) =>
 					WhisperingError({
 						title: 'Failed to pause Voice Activity Detector',
 						description:
@@ -131,7 +131,7 @@ export function createVadServiceWeb() {
 			const vad = maybeVad;
 			const { error: destroyError } = trySync({
 				try: () => vad.destroy(),
-				mapErr: (error) =>
+				mapError: (error) =>
 					WhisperingError({
 						title: 'Failed to destroy Voice Activity Detector',
 						description:

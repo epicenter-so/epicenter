@@ -56,7 +56,7 @@ export function createSetTrayIconDesktopService(): SetTrayIconService {
 					const tray = await trayPromise;
 					return tray.setIcon(iconPath);
 				},
-				mapErr: (error): SetTrayIconServiceErrorProperties => ({
+				mapError: (error): SetTrayIconServiceErrorProperties => ({
 					name: 'SetTrayIconServiceError',
 					message: 'Failed to set tray icon',
 					context: { icon: recorderState },

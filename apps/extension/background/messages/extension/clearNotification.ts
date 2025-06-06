@@ -12,7 +12,7 @@ async function clearNotification(
 ): Promise<WhisperingResult<void>> {
 	const { error: clearError } = trySync({
 		try: () => chrome.notifications.clear(notificationId),
-		mapErr: (error) =>
+		mapError: (error) =>
 			WhisperingError({
 				title: 'Error invoking clearNotification command',
 				description:

@@ -1,5 +1,8 @@
 import { useCreateRecording } from '$lib/query/recordings/mutations';
-import { createResultMutation, createResultQuery } from '$lib/services';
+import {
+	createResultMutation,
+	createResultQuery,
+} from '@tanstack/svelte-query';
 import {
 	playSoundIfEnabled,
 	userConfiguredServices,
