@@ -1,23 +1,17 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { useGetMediaDevices } from '$lib/query/audio/queries';
+	import { queries } from '$lib/query/queries';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
-	import { queries } from '$lib/query/queries';
-	import type { createResultQuery } from '@tanstack/svelte-query';
 
 	const manualRecorder = getManualRecorderFromContext();
-	const getMediaDevicesQuery = createResultQuery(queries.getMediaDevices());
-
-	$effect(() => {
-		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
-		}
-	});
+	const getMediaDevicesQuery = createResultQuery(() =>
+		queries.getMediaDevices(),
+	);
 </script>
 
 <Command.Root loop>
@@ -30,8 +24,7 @@
 			</div>
 		{:else if getMediaDevicesQuery.isError}
 			<div class="p-4 text-center text-sm text-destructive">
-				{getMediaDevicesQuery.error.title}: {getMediaDevicesQuery.error
-					.description}
+				{getMediaDevicesQuery.error.message}
 			</div>
 		{:else}
 			{#each getMediaDevicesQuery.data as device (device.deviceId)}
