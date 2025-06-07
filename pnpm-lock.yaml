@@ -21,8 +21,8 @@ importers:
   apps/app:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.13.1
+        version: 0.13.1
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -471,6 +471,9 @@ packages:
 
   '@epicenterhq/result@0.13.0':
     resolution: {integrity: sha512-+ztxf1TfqoitqqvgFNwFPfoYQzDww7s1Xz3O1tHqgVh8uOxCuEPrlHgcoXfy+UgAQFUBQQu0wCzORO0CDHUTfw==}
+
+  '@epicenterhq/result@0.13.1':
+    resolution: {integrity: sha512-Mu5XSISnaZQT6+qhiaMG6fCdyzNvQmxPgbP0cAzEO+J7TmeVXPQKwuopMKxP6kPLQ7WejYoi5Yclxxp1XMLO3Q==}
 
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
@@ -5771,6 +5774,8 @@ snapshots:
 
   '@epicenterhq/result@0.13.0': {}
 
+  '@epicenterhq/result@0.13.1': {}
+
   '@esbuild/aix-ppc64@0.25.5':
     optional: true
 
@@ -7986,7 +7991,7 @@ snapshots:
 
   '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@26757cc932ea3c24739e47497e307271baea4320(svelte@5.33.10)':
     dependencies:
-      '@epicenterhq/result': 0.13.0
+      '@epicenterhq/result': 0.13.1
       '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@26757cc932ea3c24739e47497e307271baea4320
       svelte: 5.33.10
 
