@@ -6,16 +6,16 @@ import type { WhisperingError } from '@repo/shared';
 import type { Accessor } from '@tanstack/svelte-query';
 import { queryClient } from '.';
 
-export const recordingsKeys = {
+const recordingKeys = {
 	all: ['recordings'] as const,
 	latest: ['recordings', 'latest'] as const,
-	byId: (id: Accessor<string>) => [...recordingsKeys.all, id()] as const,
+	byId: (id: Accessor<string>) => [...recordingKeys.all, id()] as const,
 };
 
 export const recordings = {
 	queries: {
 		getAllRecordings: () => ({
-			queryKey: recordingsKeys.all,
+			queryKey: recordingKeys.all,
 			queryFn: async (): Promise<Result<Recording[], WhisperingError>> => {
 				const { data: recordings, error: getAllRecordingsError } =
 					await DbRecordingsService.getAllRecordings();
@@ -33,7 +33,7 @@ export const recordings = {
 			},
 		}),
 		getLatestRecording: () => ({
-			queryKey: recordingsKeys.latest,
+			queryKey: recordingKeys.latest,
 			queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
 				const { data: latestRecording, error: getLatestRecordingError } =
 					await DbRecordingsService.getLatestRecording();
@@ -51,16 +51,16 @@ export const recordings = {
 			},
 			initialData: () =>
 				queryClient
-					.getQueryData<Recording[]>(recordingsKeys.all)
+					.getQueryData<Recording[]>(recordingKeys.all)
 					?.toSorted(
 						(a, b) =>
 							new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
 					)[0],
 			initialDataUpdatedAt: () =>
-				queryClient.getQueryState(recordingsKeys.all)?.dataUpdatedAt,
+				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
 		}),
 		getRecordingById: (id: Accessor<string>) => () => ({
-			queryKey: recordingsKeys.byId(id),
+			queryKey: recordingKeys.byId(id),
 			queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
 				const { data: recording, error: getRecordingByIdError } =
 					await DbRecordingsService.getRecordingById(id());
@@ -78,10 +78,10 @@ export const recordings = {
 			},
 			initialData: () =>
 				queryClient
-					.getQueryData<Recording[]>(recordingsKeys.all)
+					.getQueryData<Recording[]>(recordingKeys.all)
 					?.find((r) => r.id === id()),
 			initialDataUpdatedAt: () =>
-				queryClient.getQueryState(recordingsKeys.all)?.dataUpdatedAt,
+				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
 		}),
 	},
 	mutations: {
@@ -102,16 +102,16 @@ export const recordings = {
 					} satisfies WhisperingError);
 				}
 
-				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return [...oldData, recording];
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(() => recording.id),
+					recordingKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
-					queryKey: recordingsKeys.latest,
+					queryKey: recordingKeys.latest,
 				});
 
 				return Ok(recording);
@@ -134,18 +134,18 @@ export const recordings = {
 					} satisfies WhisperingError);
 				}
 
-				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return oldData.map((item) =>
 						item.id === recording.id ? recording : item,
 					);
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(() => recording.id),
+					recordingKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
-					queryKey: recordingsKeys.latest,
+					queryKey: recordingKeys.latest,
 				});
 
 				return Ok(recording);
@@ -170,18 +170,18 @@ export const recordings = {
 					return Err(whisperingError);
 				}
 
-				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return oldData.map((item) =>
 						item.id === recording.id ? recording : item,
 					);
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(() => recording.id),
+					recordingKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
-					queryKey: recordingsKeys.latest,
+					queryKey: recordingKeys.latest,
 				});
 
 				toast.success({
@@ -210,15 +210,15 @@ export const recordings = {
 					toast.error(whisperingError);
 					return Err(whisperingError);
 				}
-				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					return oldData.filter((item) => item.id !== recording.id);
 				});
 				queryClient.removeQueries({
-					queryKey: recordingsKeys.byId(() => recording.id),
+					queryKey: recordingKeys.byId(() => recording.id),
 				});
 				queryClient.invalidateQueries({
-					queryKey: recordingsKeys.latest,
+					queryKey: recordingKeys.latest,
 				});
 
 				toast.success({
@@ -248,18 +248,18 @@ export const recordings = {
 					return Err(whisperingError);
 				}
 
-				queryClient.setQueryData<Recording[]>(recordingsKeys.all, (oldData) => {
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					const deletedIds = new Set(recordings.map((r) => r.id));
 					return oldData.filter((item) => !deletedIds.has(item.id));
 				});
 				for (const recording of recordings) {
 					queryClient.removeQueries({
-						queryKey: recordingsKeys.byId(() => recording.id),
+						queryKey: recordingKeys.byId(() => recording.id),
 					});
 				}
 				queryClient.invalidateQueries({
-					queryKey: recordingsKeys.latest,
+					queryKey: recordingKeys.latest,
 				});
 
 				toast.success({
