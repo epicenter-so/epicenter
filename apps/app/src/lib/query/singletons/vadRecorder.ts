@@ -1,5 +1,5 @@
 import { createResultMutation, createResultQuery } from '@tanstack/svelte-query';
-import { useCreateRecording } from '$lib/query/recordings/mutations';
+import { recordings } from '$lib/query/recordings';
 import { playSoundIfEnabled } from '$lib/services/index.js';
 import { createVadServiceWeb } from '$lib/services/recorder/VadService.web';
 import { toast } from '$lib/services/toast';
@@ -44,7 +44,7 @@ function createVadRecorder({
 	const VadService = createVadServiceWeb();
 	const invalidateVadState = () =>
 		queryClient.invalidateQueries({ queryKey: vadRecorderKeys.state });
-	const { createRecording } = useCreateRecording();
+	const createRecording = createResultMutation(recordings.mutations.createRecording);
 
 	const vadState = createResultQuery(() => ({
 		queryKey: vadRecorderKeys.state,

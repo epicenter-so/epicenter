@@ -7,11 +7,8 @@
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { useDownloadRecordingWithToast } from '$lib/query/download/mutations';
-	import {
-		useDeleteRecordingWithToast,
-		useUpdateRecordingWithToast,
-	} from '$lib/query/recordings/mutations';
-	import { useRecordingQuery } from '$lib/query/recordings/queries';
+	import { recordings } from '$lib/query/recordings';
+	import { createResultMutation, createResultQuery } from '@tanstack/svelte-query';
 	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
 	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
 	import { useLatestTransformationRunByRecordingIdQuery } from '$lib/query/transformationRuns/queries';
@@ -33,8 +30,8 @@
 
 	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
-	const { deleteRecordingWithToast } = useDeleteRecordingWithToast();
-	const { updateRecordingWithToast } = useUpdateRecordingWithToast();
+	const deleteRecordingWithToast = createResultMutation(recordings.mutations.deleteRecordingWithToast);
+	const updateRecordingWithToast = createResultMutation(recordings.mutations.updateRecordingWithToast);
 	const { downloadRecordingWithToast } = useDownloadRecordingWithToast();
 
 	let { recordingId }: { recordingId: string } = $props();
@@ -42,7 +39,7 @@
 	const { latestTransformationRunByRecordingIdQuery } =
 		useLatestTransformationRunByRecordingIdQuery(() => recordingId);
 
-	const { recordingQuery } = useRecordingQuery(() => recordingId);
+	const recordingQuery = createResultQuery(recordings.queries.getRecordingById(() => recordingId));
 
 	const recording = $derived(recordingQuery.data);
 

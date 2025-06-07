@@ -16,8 +16,7 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
-	import { useDeleteRecordingsWithToast } from '$lib/query/recordings/mutations';
-	import { useRecordingsQuery } from '$lib/query/recordings/queries';
+	import { recordings } from '$lib/query/recordings';
 	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
 	import type { Recording } from '$lib/services/db';
 	import { cn } from '$lib/utils';
@@ -51,9 +50,19 @@
 	import RecordingRowActions from './RecordingRowActions.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
+	import {
+		createResultMutation,
+		createResultQuery,
+	} from '@tanstack/svelte-query';
 
 	const transcriber = getTranscriberFromContext();
-	const { deleteRecordingsWithToast } = useDeleteRecordingsWithToast();
+
+	const getAllRecordingsQuery = createResultQuery(
+		recordings.queries.getAllRecordings,
+	);
+	const deleteRecordingsWithToast = createResultMutation(
+		recordings.mutations.deleteRecordingsWithToast,
+	);
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -226,12 +235,10 @@
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let globalFilter = $state('');
 
-	const { recordingsQuery } = useRecordingsQuery();
-
 	const table = createSvelteTable({
 		getRowId: (originalRow) => originalRow.id,
 		get data() {
-			return recordingsQuery.data ?? [];
+			return getAllRecordingsQuery.data ?? [];
 		},
 		columns,
 		getCoreRowModel: getCoreRowModel(),
@@ -365,12 +372,12 @@
 							)}
 					>
 						{#if selectedRecordingRows.some(({ id }) => {
-							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
+							const currentRow = getAllRecordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'TRANSCRIBING';
 						})}
 							<LoadingTranscriptionIcon class="size-4" />
 						{:else if selectedRecordingRows.some(({ id }) => {
-							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
+							const currentRow = getAllRecordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'DONE';
 						})}
 							<RetryTranscriptionIcon class="size-4" />
@@ -513,7 +520,7 @@
 					{/each}
 				</Table.Header>
 				<Table.Body>
-					{#if recordingsQuery.isPending}
+					{#if getAllRecordingsQuery.isPending}
 						{#each { length: 5 }}
 							<Table.Row>
 								<Table.Cell>

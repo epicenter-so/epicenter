@@ -7,7 +7,8 @@
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
-	import { useLatestRecording } from '$lib/query/recordings/queries';
+	import { recordings } from '$lib/query/recordings';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
@@ -22,7 +23,7 @@
 	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
-	const { latestRecordingQuery } = useLatestRecording();
+	const latestRecordingQuery = createResultQuery(recordings.queries.getLatestRecording);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {

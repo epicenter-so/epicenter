@@ -1,4 +1,4 @@
-import { useCreateRecording } from '$lib/query/recordings/mutations';
+import { recordings } from '$lib/query/recordings';
 import {
 	createResultMutation,
 	createResultQuery,
@@ -47,7 +47,7 @@ function createManualRecorder({
 	const invalidateRecorderState = () =>
 		queryClient.invalidateQueries({ queryKey: manualRecorderKeys.state });
 
-	const { createRecording } = useCreateRecording();
+	const createRecording = createResultMutation(recordings.mutations.createRecording);
 
 	const recorderState = createResultQuery(() => ({
 		queryKey: manualRecorderKeys.state,

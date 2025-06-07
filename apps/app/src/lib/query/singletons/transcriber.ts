@@ -7,7 +7,7 @@ import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
-import { useUpdateRecording } from '../recordings/mutations';
+import { recordings } from '../recordings';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
 
 export type Transcriber = ReturnType<typeof createTranscriber>;
@@ -28,7 +28,7 @@ const transcriberKeys = {
 } as const;
 
 function createTranscriber() {
-	const { updateRecording } = useUpdateRecording();
+	const updateRecording = createResultMutation(recordings.mutations.updateRecording);
 
 	const transcribeRecording = createResultMutation(() => ({
 		mutationKey: transcriberKeys.transcribe,

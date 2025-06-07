@@ -1,23 +1,92 @@
-import { queryClient } from '$lib/query';
 import type { Recording } from '$lib/services/db';
 import { DbRecordingsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
-import { Err, Ok } from '@epicenterhq/result';
+import { Err, Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
-import { recordingsKeys } from './queries';
-import { createResultMutation } from '@tanstack/svelte-query';
+import type { Accessor } from '@tanstack/svelte-query';
+import { queryClient } from '.';
 
-export function useCreateRecording() {
-	return {
-		createRecording: createResultMutation(() => ({
-			mutationFn: async (recording: Recording) => {
+export const recordingsKeys = {
+	all: ['recordings'] as const,
+	latest: ['recordings', 'latest'] as const,
+	byId: (id: Accessor<string>) => [...recordingsKeys.all, id()] as const,
+};
+
+export const recordings = {
+	queries: {
+		getAllRecordings: () => ({
+			queryKey: recordingsKeys.all,
+			queryFn: async (): Promise<Result<Recording[], WhisperingError>> => {
+				const { data: recordings, error: getAllRecordingsError } =
+					await DbRecordingsService.getAllRecordings();
+				if (getAllRecordingsError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch recordings!',
+						description: 'Your recordings could not be fetched.',
+						action: { type: 'more-details', error: getAllRecordingsError },
+						context: {},
+						cause: getAllRecordingsError,
+					});
+				}
+				return Ok(recordings);
+			},
+		}),
+		getLatestRecording: () => ({
+			queryKey: recordingsKeys.latest,
+			queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
+				const { data: latestRecording, error: getLatestRecordingError } =
+					await DbRecordingsService.getLatestRecording();
+				if (getLatestRecordingError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch latest recording!',
+						description: 'Your latest recording could not be fetched.',
+						action: { type: 'more-details', error: getLatestRecordingError },
+						context: {},
+						cause: getLatestRecordingError,
+					});
+				}
+				return Ok(latestRecording);
+			},
+		}),
+		getRecordingById: (id: Accessor<string>) => () => ({
+			queryKey: recordingsKeys.byId(id),
+			queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
+				const { data: recording, error: getRecordingByIdError } =
+					await DbRecordingsService.getRecordingById(id());
+				if (getRecordingByIdError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch recording!',
+						description: 'Your recording could not be fetched.',
+						action: { type: 'more-details', error: getRecordingByIdError },
+						context: { id },
+						cause: getRecordingByIdError,
+					});
+				}
+				return Ok(recording);
+			},
+			initialData: () =>
+				queryClient
+					.getQueryData<Recording[]>(recordingsKeys.all)
+					?.find((r) => r.id === id()),
+			initialDataUpdatedAt: () =>
+				queryClient.getQueryState(recordingsKeys.all)?.dataUpdatedAt,
+		}),
+	},
+	mutations: {
+		createRecording: () => ({
+			mutationFn: async (
+				recording: Recording,
+			): Promise<Result<Recording, WhisperingError>> => {
 				const { error: createRecordingError } =
 					await DbRecordingsService.createRecording(recording);
 				if (createRecordingError) {
 					return Err({
 						name: 'WhisperingError',
-						title: 'Failed to update recording!',
-						description: 'Your recording could not be updated.',
+						title: 'Failed to create recording!',
+						description: 'Your recording could not be created.',
 						action: { type: 'more-details', error: createRecordingError },
 						context: { recording },
 						cause: createRecordingError,
@@ -29,7 +98,7 @@ export function useCreateRecording() {
 					return [...oldData, recording];
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(recording.id),
+					recordingsKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
@@ -38,14 +107,11 @@ export function useCreateRecording() {
 
 				return Ok(recording);
 			},
-		})),
-	};
-}
-
-export function useUpdateRecording() {
-	return {
-		updateRecording: createResultMutation(() => ({
-			mutationFn: async (recording: Recording) => {
+		}),
+		updateRecording: () => ({
+			mutationFn: async (
+				recording: Recording,
+			): Promise<Result<Recording, WhisperingError>> => {
 				const { error: updateRecordingError } =
 					await DbRecordingsService.updateRecording(recording);
 				if (updateRecordingError) {
@@ -66,7 +132,7 @@ export function useUpdateRecording() {
 					);
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(recording.id),
+					recordingsKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
@@ -75,14 +141,11 @@ export function useUpdateRecording() {
 
 				return Ok(recording);
 			},
-		})),
-	};
-}
-
-export function useUpdateRecordingWithToast() {
-	return {
-		updateRecordingWithToast: createResultMutation(() => ({
-			mutationFn: async (recording: Recording) => {
+		}),
+		updateRecordingWithToast: () => ({
+			mutationFn: async (
+				recording: Recording,
+			): Promise<Result<Recording, WhisperingError>> => {
 				const { error: updateRecordingError } =
 					await DbRecordingsService.updateRecording(recording);
 				if (updateRecordingError) {
@@ -105,7 +168,7 @@ export function useUpdateRecordingWithToast() {
 					);
 				});
 				queryClient.setQueryData<Recording>(
-					recordingsKeys.byId(recording.id),
+					recordingsKeys.byId(() => recording.id),
 					recording,
 				);
 				queryClient.invalidateQueries({
@@ -119,14 +182,11 @@ export function useUpdateRecordingWithToast() {
 
 				return Ok(recording);
 			},
-		})),
-	};
-}
-
-export function useDeleteRecordingWithToast() {
-	return {
-		deleteRecordingWithToast: createResultMutation(() => ({
-			mutationFn: async (recording: Recording) => {
+		}),
+		deleteRecordingWithToast: () => ({
+			mutationFn: async (
+				recording: Recording,
+			): Promise<Result<Recording, WhisperingError>> => {
 				const { error: deleteRecordingError } =
 					await DbRecordingsService.deleteRecording(recording);
 				if (deleteRecordingError) {
@@ -146,7 +206,7 @@ export function useDeleteRecordingWithToast() {
 					return oldData.filter((item) => item.id !== recording.id);
 				});
 				queryClient.removeQueries({
-					queryKey: recordingsKeys.byId(recording.id),
+					queryKey: recordingsKeys.byId(() => recording.id),
 				});
 				queryClient.invalidateQueries({
 					queryKey: recordingsKeys.latest,
@@ -159,14 +219,11 @@ export function useDeleteRecordingWithToast() {
 
 				return Ok(recording);
 			},
-		})),
-	};
-}
-
-export function useDeleteRecordingsWithToast() {
-	return {
-		deleteRecordingsWithToast: createResultMutation(() => ({
-			mutationFn: async (recordings: Recording[]) => {
+		}),
+		deleteRecordingsWithToast: () => ({
+			mutationFn: async (
+				recordings: Recording[],
+			): Promise<Result<Recording[], WhisperingError>> => {
 				const { error: deleteRecordingsError } =
 					await DbRecordingsService.deleteRecordings(recordings);
 				if (deleteRecordingsError) {
@@ -189,7 +246,7 @@ export function useDeleteRecordingsWithToast() {
 				});
 				for (const recording of recordings) {
 					queryClient.removeQueries({
-						queryKey: recordingsKeys.byId(recording.id),
+						queryKey: recordingsKeys.byId(() => recording.id),
 					});
 				}
 				queryClient.invalidateQueries({
@@ -203,6 +260,6 @@ export function useDeleteRecordingsWithToast() {
 
 				return Ok(recordings);
 			},
-		})),
-	};
-}
+		}),
+	},
+};
