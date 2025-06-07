@@ -49,6 +49,15 @@ export const recordings = {
 				}
 				return Ok(latestRecording);
 			},
+			initialData: () =>
+				queryClient
+					.getQueryData<Recording[]>(recordingsKeys.all)
+					?.toSorted(
+						(a, b) =>
+							new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+					)[0],
+			initialDataUpdatedAt: () =>
+				queryClient.getQueryState(recordingsKeys.all)?.dataUpdatedAt,
 		}),
 		getRecordingById: (id: Accessor<string>) => () => ({
 			queryKey: recordingsKeys.byId(id),
