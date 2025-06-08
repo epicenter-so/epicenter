@@ -96,10 +96,7 @@ class RecordingsDatabase extends Dexie {
 									type: 'application/json',
 								});
 								downloadIndexedDbBlob.mutate(
-									{
-										name: 'recording-db-dump.json',
-										blob,
-									},
+									{ name: 'recording-db-dump.json', blob },
 									{
 										onSuccess: () => {
 											toast.success({
