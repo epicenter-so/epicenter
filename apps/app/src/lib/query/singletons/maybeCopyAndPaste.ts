@@ -1,7 +1,7 @@
 import { ClipboardService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
-import { copyTextToClipboardWithToast } from '../clipboard/mutations';
+import { copyTextToClipboardWithToast } from '../clipboard';
 
 export async function maybeCopyAndPaste({
 	text,

@@ -19,7 +19,8 @@ export const copyTextToClipboardWithToast = async (
 	if (error) {
 		toast.error({
 			title: `Error copying ${label} to clipboard`,
-			description: error.description,
+			description: error.message,
+			action: { type: 'more-details', error },
 		});
 	} else {
 		toast.success({

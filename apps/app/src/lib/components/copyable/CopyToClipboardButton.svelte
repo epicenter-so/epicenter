@@ -5,7 +5,7 @@
 	import {
 		type CopyToClipboardLabel,
 		copyTextToClipboardWithToast,
-	} from '$lib/query/clipboard/mutations';
+	} from '$lib/query/clipboard';
 	import { CheckIcon } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 

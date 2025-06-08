@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
+	import { copyTextToClipboardWithToast } from '$lib/query/clipboard';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 

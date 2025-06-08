@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
+	import { copyTextToClipboardWithToast } from '$lib/query/clipboard';
 	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { toast } from '$lib/services/toast';
 	import { InfoIcon, KeyboardIcon } from 'lucide-svelte';

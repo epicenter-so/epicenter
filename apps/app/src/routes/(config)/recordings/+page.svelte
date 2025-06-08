@@ -15,7 +15,7 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
+	import { copyTextToClipboardWithToast } from '$lib/query/clipboard';
 	import { recordings } from '$lib/query/recordings';
 	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
 	import type { Recording } from '$lib/services/db';
