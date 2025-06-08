@@ -65,19 +65,22 @@ function createManualRecorder({
 				title: '🎙️ Preparing to record...',
 				description: 'Setting up your recording environment...',
 			});
-			await ensureRecordingSession.mutateAsync(toastId);
+			await services.recorder.ensureRecordingSession(settings.value, {
+				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+			});
+			invalidateRecorderState();
 		},
-		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const startRecordingResult = await services.recorder.startRecording(
-				nanoid(),
-				{
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				},
-			);
-			return startRecordingResult;
-		},
+		mutationFn: ({ toastId }: { toastId: string }) =>
+			services.recorder.startRecording(nanoid(), {
+				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+			}),
 		onError: (error, { toastId }) => {
-			toast.error({ id: toastId, ...error });
+			toast.error({
+				id: toastId,
+				title: '❌ Failed to start recording',
+				description: 'Your recording could not be started. Please try again.',
+				action: { type: 'more-details', error: error },
+			});
 		},
 		onSuccess: (_data, { toastId }) => {
 			toast.success({
@@ -99,14 +102,17 @@ function createManualRecorder({
 				description: 'Finalizing your audio capture...',
 			});
 		},
-		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const stopResult = await services.recorder.stopRecording({
+		mutationFn: ({ toastId }: { toastId: string }) =>
+			services.recorder.stopRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-			});
-			return stopResult;
-		},
+			}),
 		onError: (error, { toastId }) => {
-			toast.error({ id: toastId, ...error });
+			toast.error({
+				id: toastId,
+				title: '❌ Failed to stop recording',
+				description: 'Your recording could not be stopped. Please try again.',
+				action: { type: 'more-details', error: error },
+			});
 		},
 		onSuccess: async (blob, { toastId }) => {
 			toast.success({
@@ -218,28 +224,9 @@ function createManualRecorder({
 		onSettled: invalidateRecorderState,
 	}));
 
-	const ensureRecordingSession = createResultMutation(() => ({
-		mutationFn: async (toastId: string) => {
-			const ensureRecordingSessionResult =
-				await services.recorder.ensureRecordingSession(settings.value, {
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
-			return ensureRecordingSessionResult;
-		},
-		onSettled: invalidateRecorderState,
-	}));
-
 	const closeRecordingSession = createResultMutation(() => ({
-		mutationFn: async ({
-			sendStatus,
-		}: {
-			sendStatus: UpdateStatusMessageFn;
-		}) => {
-			const closeResult = await services.recorder.closeRecordingSession({
-				sendStatus,
-			});
-			return closeResult;
-		},
+		mutationFn: ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }) =>
+			services.recorder.closeRecordingSession({ sendStatus }),
 		onSettled: invalidateRecorderState,
 	}));
 
