@@ -6,7 +6,6 @@ import type {
 import { DbTransformationsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok } from '@epicenterhq/result';
 import type {
 	CreateResultMutationOptions,
 	CreateResultQueryOptions,

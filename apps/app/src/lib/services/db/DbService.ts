@@ -56,7 +56,7 @@ export type DbRecordingsService = {
 		id: string,
 	) => Promise<Result<Recording | null, DbServiceErrorProperties>>;
 	createRecording: (
-		recording: InsertRecording,
+		recording: Recording,
 	) => Promise<Result<Recording, DbServiceErrorProperties>>;
 	updateRecording: (
 		recording: Recording,
@@ -163,8 +163,6 @@ export type Recording = {
 	 */
 	transcriptionStatus: 'UNPROCESSED' | 'TRANSCRIBING' | 'DONE' | 'FAILED';
 };
-
-export type InsertRecording = Omit<Recording, 'createdAt' | 'updatedAt'>;
 
 export type Transformation = {
 	id: string;

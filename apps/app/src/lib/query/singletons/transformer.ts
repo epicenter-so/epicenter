@@ -9,8 +9,8 @@ import type { WhisperingResult } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
 import { transformationRunKeys } from '../transformationRuns';
-import { transformationsKeys } from '../transformations/queries';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
+import { transformationsKeys } from '../transformations';
 
 export type Transformer = ReturnType<typeof createTransformer>;
 
