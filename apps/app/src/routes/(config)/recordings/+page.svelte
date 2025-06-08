@@ -44,6 +44,7 @@
 	} from '@tanstack/table-core';
 	import {
 		ChevronDownIcon,
+		EllipsisIcon,
 		EllipsisIcon as LoadingTranscriptionIcon,
 		RepeatIcon as RetryTranscriptionIcon,
 		PlayIcon as StartTranscriptionIcon,
@@ -54,6 +55,7 @@
 	import RecordingRowActions from './RecordingRowActions.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
+	import { nanoid } from 'nanoid/non-secure';
 
 	const getAllRecordingsQuery = createResultQuery(recordings.getAllRecordings);
 	const transcribeRecordings = createResultMutation(
@@ -373,7 +375,14 @@
 						tooltipContent="Transcribe selected recordings"
 						variant="outline"
 						size="icon"
-						onclick={() =>
+						disabled={transcribeRecordings.isPending}
+						onclick={() => {
+							const toastId = nanoid();
+							toast.loading({
+								id: toastId,
+								title: 'Transcribing recordings...',
+								description: 'This may take a while.',
+							});
 							transcribeRecordings.mutate(
 								selectedRecordingRows.map(({ original }) => original),
 								{
@@ -382,6 +391,7 @@
 										if (isAllSuccessful) {
 											const n = oks.length;
 											toast.success({
+												id: toastId,
 												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
 												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
 											});
@@ -391,6 +401,7 @@
 										if (isAllFailed) {
 											const n = errs.length;
 											toast.error({
+												id: toastId,
 												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
 												description:
 													n === 1
@@ -402,15 +413,19 @@
 										}
 										// Mixed results
 										toast.warning({
+											id: toastId,
 											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
 											description: `${oks.length} succeeded, ${errs.length} failed.`,
 											action: { type: 'more-details', error: errs },
 										});
 									},
 								},
-							)}
+							);
+						}}
 					>
-						{#if selectedRecordingRows.some(({ id }) => {
+						{#if transcribeRecordings.isPending}
+							<EllipsisIcon class="size-4" />
+						{:else if selectedRecordingRows.some(({ id }) => {
 							const currentRow = getAllRecordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'TRANSCRIBING';
 						})}
