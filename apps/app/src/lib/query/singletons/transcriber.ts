@@ -1,14 +1,19 @@
-import { createResultMutation } from '@tanstack/svelte-query';
 import type { Recording } from '$lib/services/db';
-import { playSoundIfEnabled, services } from '$lib/services/index.js';
+import {
+	DbRecordingsService,
+	playSoundIfEnabled,
+	services,
+} from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok } from '@epicenterhq/result';
+import { Err, Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
+import { createResultMutation } from '@tanstack/svelte-query';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
-import { recordings } from '../recordings';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
+import type { Transformer } from './transformer';
+import { nanoid } from 'nanoid/non-secure';
 
 export type Transcriber = ReturnType<typeof createTranscriber>;
 
@@ -27,12 +32,14 @@ const transcriberKeys = {
 	transform: ['transcriber', 'transform'] as const,
 } as const;
 
-function createTranscriber() {
-	const updateRecording = createResultMutation(recordings.updateRecording);
-
+function createTranscriber({
+	transformer,
+}: {
+	transformer: Transformer;
+}) {
 	const transcribeRecording = createResultMutation(() => ({
 		mutationKey: transcriberKeys.transcribe,
-		onMutate: ({
+		onMutate: async ({
 			recording,
 			toastId,
 		}: {
@@ -44,26 +51,29 @@ function createTranscriber() {
 				title: '📋 Transcribing...',
 				description: 'Your recording is being transcribed...',
 			});
-			updateRecording.mutate(
-				{ ...recording, transcriptionStatus: 'TRANSCRIBING' },
-				{
-					onError: (error) => {
-						toast.warning({
-							title:
-								'⚠️ Unable to set recording transcription status to transcribing',
-							description: 'Continuing with the transcription process...',
-							action: { type: 'more-details', error },
-						});
+			const { error: setRecordingTranscribingError } =
+				await DbRecordingsService.updateRecording({
+					...recording,
+					transcriptionStatus: 'TRANSCRIBING',
+				});
+			if (setRecordingTranscribingError) {
+				toast.warning({
+					title:
+						'⚠️ Unable to set recording transcription status to transcribing',
+					description: 'Continuing with the transcription process...',
+					action: {
+						type: 'more-details',
+						error: setRecordingTranscribingError,
 					},
-				},
-			);
+				});
+			}
 		},
 		mutationFn: async ({
 			recording,
 		}: {
 			recording: Recording;
 			toastId: string;
-		}) => {
+		}): Promise<Result<string, WhisperingError>> => {
 			if (!recording.blob) {
 				return Err({
 					name: 'WhisperingError',
@@ -92,52 +102,56 @@ function createTranscriber() {
 				} satisfies WhisperingError);
 			}
 
-			await updateRecording.mutateAsync(
-				{ ...recording, transcribedText },
-				{
-					onError: (error) => {
-						toast.error({
-							title: '⚠️ Unable to update recording after transcription',
-							description:
-								"Transcription completed but unable to update recording's transcribed text in database",
-							action: { type: 'more-details', error },
-						});
+			const { error: setRecordingTranscribedTextError } =
+				await DbRecordingsService.updateRecording({
+					...recording,
+					transcribedText,
+				});
+			if (setRecordingTranscribedTextError) {
+				toast.error({
+					title: '⚠️ Unable to update recording after transcription',
+					description:
+						"Transcription completed but unable to update recording's transcribed text in database",
+					action: {
+						type: 'more-details',
+						error: setRecordingTranscribedTextError,
 					},
-				},
-			);
+				});
+			}
 
 			return Ok(transcribedText);
 		},
-		onError: (error, { recording, toastId }) => {
+		onError: async (error, { recording, toastId }) => {
 			toast.error({ id: toastId, ...error });
-			updateRecording.mutate(
-				{ ...recording, transcriptionStatus: 'FAILED' },
-				{
-					onError: (error) => {
-						toast.error({
-							title: '⚠️ Unable to set recording transcription status to failed',
-							description:
-								'Transcription failed and failed again to update recording transcription status to failed',
-							action: { type: 'more-details', error },
-						});
-					},
-				},
-			);
+			const { error: setRecordingFailedError } =
+				await DbRecordingsService.updateRecording({
+					...recording,
+					transcriptionStatus: 'FAILED',
+				});
+			if (setRecordingFailedError) {
+				toast.error({
+					title: '⚠️ Unable to set recording transcription status to failed',
+					description:
+						'Transcription failed and failed again to update recording transcription status to failed',
+					action: { type: 'more-details', error: setRecordingFailedError },
+				});
+			}
 		},
-		onSuccess: (transcribedText, { recording, toastId }) => {
-			updateRecording.mutate(
-				{ ...recording, transcribedText, transcriptionStatus: 'DONE' },
-				{
-					onError: (error) => {
-						toast.error({
-							title: '⚠️ Unable to update recording after transcription',
-							description:
-								"Transcription completed but unable to update recording's transcribed text and status in database",
-							action: { type: 'more-details', error },
-						});
-					},
-				},
-			);
+		onSuccess: async (transcribedText, { recording, toastId }) => {
+			const { error: setRecordingDoneError } =
+				await DbRecordingsService.updateRecording({
+					...recording,
+					transcribedText,
+					transcriptionStatus: 'DONE',
+				});
+			if (setRecordingDoneError) {
+				toast.error({
+					title: '⚠️ Unable to update recording after transcription',
+					description:
+						"Transcription completed but unable to update recording's transcribed text and status in database",
+					action: { type: 'more-details', error: setRecordingDoneError },
+				});
+			}
 			void playSoundIfEnabled('transcriptionComplete');
 			maybeCopyAndPaste({
 				text: transcribedText,
@@ -166,6 +180,30 @@ function createTranscriber() {
 				}) > 0
 			);
 		},
-		transcribeRecording,
+		transcribeRecording: transcribeRecording.mutate,
+		transcribeThenTransformRecording: ({
+			toastId,
+			recording,
+		}: {
+			toastId: string;
+			recording: Recording;
+		}) => {
+			transcribeRecording.mutate(
+				{ recording, toastId },
+				{
+					onSuccess: () => {
+						if (settings.value['transformations.selectedTransformationId']) {
+							const transformToastId = nanoid();
+							transformer.transformRecording.mutate({
+								recordingId: recording.id,
+								transformationId:
+									settings.value['transformations.selectedTransformationId'],
+								toastId: transformToastId,
+							});
+						}
+					},
+				},
+			);
+		},
 	};
 }
