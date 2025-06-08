@@ -11,10 +11,24 @@
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
+	import { toast } from '$lib/services/toast';
 
-	const deleteRecordingWithToast = createResultMutation(
-		recordings.deleteRecordingWithToast(),
-	);
+	const deleteRecordingWithToast = createResultMutation(() => ({
+		...recordings.deleteRecording(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Deleted recording!',
+				description: 'Your recording has been deleted successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to delete recording!',
+				description: 'Your recording could not be deleted.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	let {
 		recording,

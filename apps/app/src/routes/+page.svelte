@@ -24,7 +24,7 @@
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
 	const latestRecordingQuery = createResultQuery(
-		recordings.getLatestRecording(),
+		recordings.getLatestRecording,
 	);
 
 	const latestRecording = $derived<Recording>(

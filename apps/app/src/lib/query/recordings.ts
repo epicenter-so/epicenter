@@ -1,8 +1,5 @@
 import type { DbServiceErrorProperties, Recording } from '$lib/services/db';
 import { DbRecordingsService } from '$lib/services/index.js';
-import { toast } from '$lib/services/toast';
-import { Err, Ok } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
 import type {
 	Accessor,
 	CreateResultMutationOptions,
@@ -17,7 +14,7 @@ const recordingKeys = {
 };
 
 export const recordings = {
-	getAllRecordings: () => () =>
+	getAllRecordings: () =>
 		({
 			queryKey: recordingKeys.all,
 			queryFn: () => DbRecordingsService.getAllRecordings(),
@@ -26,7 +23,7 @@ export const recordings = {
 			DbServiceErrorProperties
 		>,
 
-	getLatestRecording: () => () =>
+	getLatestRecording: () =>
 		({
 			queryKey: recordingKeys.latest,
 			queryFn: () => DbRecordingsService.getLatestRecording(),
@@ -59,7 +56,7 @@ export const recordings = {
 			DbServiceErrorProperties
 		>,
 
-	createRecording: () => () =>
+	createRecording: () =>
 		({
 			mutationFn: (recording) => DbRecordingsService.createRecording(recording),
 			onSuccess: (recording) => {
@@ -81,7 +78,7 @@ export const recordings = {
 			Recording
 		>,
 
-	updateRecording: () => () =>
+	updateRecording: () =>
 		({
 			mutationFn: (recording) => DbRecordingsService.updateRecording(recording),
 			onSuccess: (recording) => {
@@ -105,23 +102,10 @@ export const recordings = {
 			Recording
 		>,
 
-	deleteRecordingWithToast: () => () =>
+	deleteRecording: () =>
 		({
-			mutationFn: async (recording) => {
-				const { error: deleteRecordingError } =
-					await DbRecordingsService.deleteRecording(recording);
-				if (deleteRecordingError) {
-					const whisperingError = {
-						name: 'WhisperingError',
-						title: 'Failed to delete recording!',
-						description: 'Your recording could not be deleted.',
-						action: { type: 'more-details', error: deleteRecordingError },
-						context: { recording },
-						cause: deleteRecordingError,
-					} satisfies WhisperingError;
-					toast.error(whisperingError);
-					return Err(whisperingError);
-				}
+			mutationFn: (recording) => DbRecordingsService.deleteRecording(recording),
+			onSuccess: (_, recording) => {
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					return oldData.filter((item) => item.id !== recording.id);
@@ -132,38 +116,13 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
-
-				toast.success({
-					title: 'Deleted recording!',
-					description: 'Your recording has been deleted successfully.',
-				});
-
-				return Ok(recording);
 			},
-		}) satisfies CreateResultMutationOptions<
-			Recording,
-			WhisperingError,
-			Recording
-		>,
+		}) satisfies CreateResultMutationOptions<void, DbServiceErrorProperties, Recording>,
 
-	deleteRecordingsWithToast: () => () =>
+	deleteRecordings: () =>
 		({
-			mutationFn: async (recordings) => {
-				const { error: deleteRecordingsError } =
-					await DbRecordingsService.deleteRecordings(recordings);
-				if (deleteRecordingsError) {
-					const whisperingError = {
-						name: 'WhisperingError',
-						title: 'Failed to delete recordings!',
-						description: 'Your recordings could not be deleted.',
-						action: { type: 'more-details', error: deleteRecordingsError },
-						context: { recordings },
-						cause: deleteRecordingsError,
-					} satisfies WhisperingError;
-					toast.error(whisperingError);
-					return Err(whisperingError);
-				}
-
+			mutationFn: (recordings) => DbRecordingsService.deleteRecordings(recordings),
+			onSuccess: (_, recordings) => {
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					const deletedIds = new Set(recordings.map((r) => r.id));
@@ -177,17 +136,6 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
-
-				toast.success({
-					title: 'Deleted recordings!',
-					description: 'Your recordings have been deleted successfully.',
-				});
-
-				return Ok(recordings);
 			},
-		}) satisfies CreateResultMutationOptions<
-			Recording[],
-			WhisperingError,
-			Recording[]
-		>,
+		}) satisfies CreateResultMutationOptions<void, DbServiceErrorProperties, Recording[]>,
 };

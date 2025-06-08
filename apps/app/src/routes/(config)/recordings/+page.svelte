@@ -54,15 +54,27 @@
 		createResultMutation,
 		createResultQuery,
 	} from '@tanstack/svelte-query';
+	import { toast } from '$lib/services/toast';
 
 	const transcriber = getTranscriberFromContext();
 
-	const getAllRecordingsQuery = createResultQuery(
-		recordings.getAllRecordings(),
-	);
-	const deleteRecordingsWithToast = createResultMutation(
-		recordings.deleteRecordingsWithToast(),
-	);
+	const getAllRecordingsQuery = createResultQuery(recordings.getAllRecordings);
+	const deleteRecordingsWithToast = createResultMutation(() => ({
+		...recordings.deleteRecordings(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Deleted recordings!',
+				description: 'Your recordings have been deleted successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to delete recordings!',
+				description: 'Your recordings could not be deleted.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	const columns: ColumnDef<Recording>[] = [
 		{

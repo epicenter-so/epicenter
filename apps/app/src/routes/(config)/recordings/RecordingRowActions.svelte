@@ -34,11 +34,24 @@
 
 	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
-	const deleteRecordingWithToast = createResultMutation(
-		recordings.deleteRecordingWithToast(),
-	);
+	const deleteRecordingWithToast = createResultMutation(() => ({
+		...recordings.deleteRecording(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Deleted recording!',
+				description: 'Your recording has been deleted successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to delete recording!',
+				description: 'Your recording could not be deleted.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 	const updateRecordingWithToast = createResultMutation(() => ({
-		...recordings.updateRecording()(),
+		...recordings.updateRecording(),
 		onSuccess: () => {
 			toast.success({
 				title: 'Recording updated!',
