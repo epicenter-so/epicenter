@@ -89,16 +89,34 @@ class RecordingsDatabase extends Dexie {
 						{
 							label: 'Download Database Dump',
 							onClick: () => {
-								const downloadIndexedDbBlobWithToast = createResultMutation(
-									download.downloadIndexedDbBlobWithToast(),
+								const downloadIndexedDbBlob = createResultMutation(
+									download.downloadIndexedDbBlob,
 								);
 								const blob = new Blob([dumpString], {
 									type: 'application/json',
 								});
-								downloadIndexedDbBlobWithToast.mutate({
-									name: 'recording-db-dump.json',
-									blob,
-								});
+								downloadIndexedDbBlob.mutate(
+									{
+										name: 'recording-db-dump.json',
+										blob,
+									},
+									{
+										onSuccess: () => {
+											toast.success({
+												title: 'IndexedDB dump downloaded!',
+												description: 'Your IndexedDB dump is being downloaded.',
+											});
+										},
+										onError: (error) => {
+											toast.error({
+												title: 'Failed to download IndexedDB dump!',
+												description:
+													'Your IndexedDB dump could not be downloaded.',
+												action: { type: 'more-details', error },
+											});
+										},
+									},
+								);
 							},
 						},
 						{

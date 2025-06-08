@@ -7,32 +7,19 @@ import type { WhisperingError } from '@repo/shared';
 import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
 
 export const download = {
-	downloadIndexedDbBlobWithToast: () => () =>
+	downloadIndexedDbBlob: () => () =>
 		({
 			mutationFn: ({ blob, name }) =>
 				DownloadService.downloadBlob({
 					name,
 					blob,
 				}),
-			onSuccess: () => {
-				toast.success({
-					title: 'IndexedDB dump downloaded!',
-					description: 'Your IndexedDB dump is being downloaded.',
-				});
-			},
-			onError: (error) => {
-				toast.error({
-					title: 'Failed to download IndexedDB dump!',
-					description: 'Your IndexedDB dump could not be downloaded.',
-					action: { type: 'more-details', error },
-				});
-			},
 		}) satisfies CreateResultMutationOptions<
 			void,
 			DownloadServiceError,
 			{ blob: Blob; name: string }
 		>,
-	downloadRecordingWithToast: () => () =>
+	downloadRecording: () => () =>
 		({
 			mutationFn: async (recording) => {
 				if (!recording.blob) {
@@ -48,23 +35,6 @@ export const download = {
 				return await DownloadService.downloadBlob({
 					name: `whispering_recording_${recording.id}`,
 					blob: recording.blob,
-				});
-			},
-			onError: (error) => {
-				if (error.name === 'WhisperingError') {
-					toast.error(error);
-					return;
-				}
-				toast.error({
-					title: 'Failed to download recording!',
-					description: 'Your recording could not be downloaded.',
-					action: { type: 'more-details', error },
-				});
-			},
-			onSuccess: () => {
-				toast.success({
-					title: 'Recording downloaded!',
-					description: 'Your recording has been downloaded.',
 				});
 			},
 		}) satisfies CreateResultMutationOptions<
