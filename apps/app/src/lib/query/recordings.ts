@@ -280,10 +280,10 @@ export const recordings = {
 	}),
 } satisfies Record<
 	string,
-	| ((
-			...args: Accessor<any>[]
-	  ) => Accessor<CreateResultMutationOptions<any, WhisperingError, any>>)
-	| ((
-			...args: Accessor<any>[]
-	  ) => Accessor<CreateResultQueryOptions<unknown, WhisperingError>>)
+	(
+		...args: Accessor<any>[]
+	) => Accessor<
+		| CreateResultQueryOptions<unknown, WhisperingError>
+		| CreateResultMutationOptions<any, WhisperingError, any>
+	>
 >;
