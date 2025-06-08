@@ -70,14 +70,9 @@ export const transformations = {
 			>,
 		updateTransformation: () =>
 			({
-				mutationFn: async (transformation: Transformation) => {
-					const {
-						data: updatedTransformation,
-						error: updateTransformationError,
-					} =
-						await DbTransformationsService.updateTransformation(transformation);
-					if (updateTransformationError) return Err(updateTransformationError);
-
+				mutationFn: (transformation: Transformation) =>
+					DbTransformationsService.updateTransformation(transformation),
+				onSuccess: (transformation) => {
 					queryClient.setQueryData<Transformation[]>(
 						transformationsKeys.all,
 						(oldData) => {
@@ -91,8 +86,6 @@ export const transformations = {
 						transformationsKeys.byId(transformation.id),
 						transformation,
 					);
-
-					return Ok(updatedTransformation);
 				},
 			}) satisfies CreateResultMutationOptions<
 				Transformation,
@@ -101,28 +94,8 @@ export const transformations = {
 			>,
 		updateTransformationWithToast: () =>
 			({
-				mutationFn: async (
-					...params: Parameters<
-						typeof DbTransformationsService.updateTransformation
-					>
-				) => {
-					const {
-						data: updatedTransformation,
-						error: updateTransformationError,
-					} = await DbTransformationsService.updateTransformation(...params);
-					if (updateTransformationError) {
-						toast.error({
-							title: 'Failed to update transformation!',
-							description: 'Your transformation could not be updated.',
-							action: {
-								type: 'more-details',
-								error: updateTransformationError,
-							},
-						});
-						throw updateTransformationError;
-					}
-					return updatedTransformation;
-				},
+				mutationFn: (transformation: Transformation) =>
+					DbTransformationsService.updateTransformation(transformation),
 				onSuccess: (transformation) => {
 					queryClient.setQueryData<Transformation[]>(
 						transformationsKeys.all,
@@ -146,7 +119,7 @@ export const transformations = {
 			}) satisfies CreateResultMutationOptions<
 				Transformation,
 				DbServiceErrorProperties,
-				Parameters<typeof DbTransformationsService.updateTransformation>[0]
+				Transformation
 			>,
 		deleteTransformation: () =>
 			({
