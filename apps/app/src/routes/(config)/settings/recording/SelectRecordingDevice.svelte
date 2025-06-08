@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { queries } from '$lib/query/queries';
+	import { recorder } from '$lib/query/recorder';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { toast } from '$lib/services/toast';
 	import { createResultQuery } from '@tanstack/svelte-query';
@@ -15,12 +15,15 @@
 
 	const manualRecorder = getManualRecorderFromContext();
 	const getMediaDevicesQuery = createResultQuery(() =>
-		queries.getMediaDevices(),
+		recorder.getMediaDevices(),
 	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
+			toast.warning({
+				title: 'Error loading devices',
+				description: getMediaDevicesQuery.error.message,
+			});
 		}
 	});
 </script>
@@ -37,7 +40,7 @@
 	/>
 {:else if getMediaDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getMediaDevicesQuery.error.title}: {getMediaDevicesQuery.error.description}
+		{getMediaDevicesQuery.error.message}
 	</p>
 {:else}
 	{@const items = getMediaDevicesQuery.data.map((device) => ({

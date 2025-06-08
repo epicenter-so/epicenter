@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { queries } from '$lib/query/queries';
+	import { recorder } from '$lib/query/recorder';
 	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
@@ -11,12 +11,15 @@
 
 	const manualRecorder = getManualRecorderFromContext();
 	const getMediaDevicesQuery = createResultQuery(() =>
-		queries.getMediaDevices(),
+		recorder.getMediaDevices(),
 	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
+			toast.warning({
+				title: 'Error loading devices',
+				description: getMediaDevicesQuery.error.message,
+			});
 		}
 	});
 </script>
@@ -31,7 +34,7 @@
 			</div>
 		{:else if getMediaDevicesQuery.isError}
 			<div class="p-4 text-center text-sm text-destructive">
-				{getMediaDevicesQuery.error.description}
+				{getMediaDevicesQuery.error.message}
 			</div>
 		{:else}
 			{#each getMediaDevicesQuery.data as device (device.deviceId)}
