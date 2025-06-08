@@ -1,4 +1,4 @@
-import type { Recording } from '$lib/services/db';
+import type { DbServiceErrorProperties, Recording } from '$lib/services/db';
 import { DbRecordingsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { Err, Ok } from '@epicenterhq/result';
@@ -20,41 +20,16 @@ export const recordings = {
 	getAllRecordings: () => () =>
 		({
 			queryKey: recordingKeys.all,
-			queryFn: async () => {
-				const { data: recordings, error: getAllRecordingsError } =
-					await DbRecordingsService.getAllRecordings();
-				if (getAllRecordingsError) {
-					return Err({
-						name: 'WhisperingError',
-						title: 'Failed to fetch recordings!',
-						description: 'Your recordings could not be fetched.',
-						action: { type: 'more-details', error: getAllRecordingsError },
-						context: {},
-						cause: getAllRecordingsError,
-					});
-				}
-				return Ok(recordings);
-			},
-		}) satisfies CreateResultQueryOptions<Recording[], WhisperingError>,
+			queryFn: () => DbRecordingsService.getAllRecordings(),
+		}) satisfies CreateResultQueryOptions<
+			Recording[],
+			DbServiceErrorProperties
+		>,
 
 	getLatestRecording: () => () =>
 		({
 			queryKey: recordingKeys.latest,
-			queryFn: async () => {
-				const { data: latestRecording, error: getLatestRecordingError } =
-					await DbRecordingsService.getLatestRecording();
-				if (getLatestRecordingError) {
-					return Err({
-						name: 'WhisperingError',
-						title: 'Failed to fetch latest recording!',
-						description: 'Your latest recording could not be fetched.',
-						action: { type: 'more-details', error: getLatestRecordingError },
-						context: {},
-						cause: getLatestRecordingError,
-					});
-				}
-				return Ok(latestRecording);
-			},
+			queryFn: () => DbRecordingsService.getLatestRecording(),
 			initialData: () =>
 				queryClient
 					.getQueryData<Recording[]>(recordingKeys.all)
@@ -64,33 +39,25 @@ export const recordings = {
 					)[0],
 			initialDataUpdatedAt: () =>
 				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-		}) satisfies CreateResultQueryOptions<Recording | null, WhisperingError>,
+		}) satisfies CreateResultQueryOptions<
+			Recording | null,
+			DbServiceErrorProperties
+		>,
 
 	getRecordingById: (id: Accessor<string>) => () =>
 		({
 			queryKey: recordingKeys.byId(id),
-			queryFn: async () => {
-				const { data: recording, error: getRecordingByIdError } =
-					await DbRecordingsService.getRecordingById(id());
-				if (getRecordingByIdError) {
-					return Err({
-						name: 'WhisperingError',
-						title: 'Failed to fetch recording!',
-						description: 'Your recording could not be fetched.',
-						action: { type: 'more-details', error: getRecordingByIdError },
-						context: { id },
-						cause: getRecordingByIdError,
-					});
-				}
-				return Ok(recording);
-			},
+			queryFn: () => DbRecordingsService.getRecordingById(id()),
 			initialData: () =>
 				queryClient
 					.getQueryData<Recording[]>(recordingKeys.all)
 					?.find((r) => r.id === id()),
 			initialDataUpdatedAt: () =>
 				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-		}) satisfies CreateResultQueryOptions<Recording | null, WhisperingError>,
+		}) satisfies CreateResultQueryOptions<
+			Recording | null,
+			DbServiceErrorProperties
+		>,
 
 	createRecording: () => () =>
 		({
@@ -134,14 +101,7 @@ export const recordings = {
 				const { error: updateRecordingError } =
 					await DbRecordingsService.updateRecording(recording);
 				if (updateRecordingError) {
-					return Err({
-						name: 'WhisperingError',
-						title: 'Failed to update recording!',
-						description: 'Your recording could not be updated.',
-						action: { type: 'more-details', error: updateRecordingError },
-						context: { recording },
-						cause: updateRecordingError,
-					} satisfies WhisperingError);
+					return Err(updateRecordingError);
 				}
 
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
@@ -162,7 +122,7 @@ export const recordings = {
 			},
 		}) satisfies CreateResultMutationOptions<
 			Recording,
-			WhisperingError,
+			DbServiceErrorProperties,
 			Recording
 		>,
 
