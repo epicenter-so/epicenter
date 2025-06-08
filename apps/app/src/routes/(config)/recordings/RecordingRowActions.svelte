@@ -109,7 +109,7 @@
 						? 'Retry transcription'
 						: 'Transcription failed - click to try again'}
 			onclick={() =>
-				transcriber.transcribeRecording.mutate({
+				transcriber.transcribeRecording({
 					recording,
 					toastId: nanoid(),
 				})}

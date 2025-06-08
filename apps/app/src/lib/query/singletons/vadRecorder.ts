@@ -112,31 +112,10 @@ function createVadRecorder({
 								});
 
 								const transcribeToastId = nanoid();
-								transcriber.transcribeRecording.mutate(
-									{
-										recording: createdRecording,
-										toastId: transcribeToastId,
-									},
-									{
-										onSuccess: () => {
-											if (
-												settings.value[
-													'transformations.selectedTransformationId'
-												]
-											) {
-												const transformToastId = nanoid();
-												transformer.transformRecording.mutate({
-													recordingId: createdRecording.id,
-													transformationId:
-														settings.value[
-															'transformations.selectedTransformationId'
-														],
-													toastId: transformToastId,
-												});
-											}
-										},
-									},
-								);
+								transcriber.transcribeThenTransformRecording({
+									recording: createdRecording,
+									toastId: transcribeToastId,
+								});
 							},
 						},
 					);

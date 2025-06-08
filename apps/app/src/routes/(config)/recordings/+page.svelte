@@ -376,7 +376,7 @@
 						onclick={() =>
 							Promise.allSettled(
 								selectedRecordingRows.map((recording) =>
-									transcriber.transcribeRecording.mutate({
+									transcriber.transcribeRecording({
 										recording: recording.original,
 										toastId: nanoid(),
 									}),
