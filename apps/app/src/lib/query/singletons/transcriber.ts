@@ -28,7 +28,7 @@ const transcriberKeys = {
 } as const;
 
 function createTranscriber() {
-	const updateRecording = createResultMutation(recordings.updateRecording());
+	const updateRecording = createResultMutation(recordings.updateRecording);
 
 	const transcribeRecording = createResultMutation(() => ({
 		mutationKey: transcriberKeys.transcribe,

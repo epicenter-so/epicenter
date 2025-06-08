@@ -47,7 +47,7 @@ function createVadRecorder({
 	const VadService = createVadServiceWeb();
 	const invalidateVadState = () =>
 		queryClient.invalidateQueries({ queryKey: vadRecorderKeys.state });
-	const createRecording = createResultMutation(recordings.createRecording());
+	const createRecording = createResultMutation(recordings.createRecording);
 
 	const vadState = createResultQuery(() => ({
 		queryKey: vadRecorderKeys.state,
