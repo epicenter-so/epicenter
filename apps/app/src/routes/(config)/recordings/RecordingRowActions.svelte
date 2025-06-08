@@ -30,15 +30,29 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
+	import { toast } from '$lib/services/toast';
 
 	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
 	const deleteRecordingWithToast = createResultMutation(
 		recordings.deleteRecordingWithToast(),
 	);
-	const updateRecordingWithToast = createResultMutation(
-		recordings.updateRecordingWithToast(),
-	);
+	const updateRecordingWithToast = createResultMutation(() => ({
+		...recordings.updateRecording()(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Recording updated!',
+				description: 'Your recording has been updated.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to update recording!',
+				description: 'Your recording could not be updated.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 	const downloadRecordingWithToast = createResultMutation(
 		download.downloadRecordingWithToast(),
 	);

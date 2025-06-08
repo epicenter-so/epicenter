@@ -61,20 +61,8 @@ export const recordings = {
 
 	createRecording: () => () =>
 		({
-			mutationFn: async (recording) => {
-				const { error: createRecordingError } =
-					await DbRecordingsService.createRecording(recording);
-				if (createRecordingError) {
-					return Err({
-						name: 'WhisperingError',
-						title: 'Failed to create recording!',
-						description: 'Your recording could not be created.',
-						action: { type: 'more-details', error: createRecordingError },
-						context: { recording },
-						cause: createRecordingError,
-					} satisfies WhisperingError);
-				}
-
+			mutationFn: (recording) => DbRecordingsService.createRecording(recording),
+			onSuccess: (recording) => {
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return [...oldData, recording];
@@ -86,39 +74,6 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
-
-				return Ok(recording);
-			},
-		}) satisfies CreateResultMutationOptions<
-			Recording,
-			WhisperingError,
-			Recording
-		>,
-
-	updateRecording: () => () =>
-		({
-			mutationFn: async (recording) => {
-				const { error: updateRecordingError } =
-					await DbRecordingsService.updateRecording(recording);
-				if (updateRecordingError) {
-					return Err(updateRecordingError);
-				}
-
-				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-					if (!oldData) return [recording];
-					return oldData.map((item) =>
-						item.id === recording.id ? recording : item,
-					);
-				});
-				queryClient.setQueryData<Recording>(
-					recordingKeys.byId(() => recording.id),
-					recording,
-				);
-				queryClient.invalidateQueries({
-					queryKey: recordingKeys.latest,
-				});
-
-				return Ok(recording);
 			},
 		}) satisfies CreateResultMutationOptions<
 			Recording,
@@ -126,24 +81,10 @@ export const recordings = {
 			Recording
 		>,
 
-	updateRecordingWithToast: () => () =>
+	updateRecording: () => () =>
 		({
-			mutationFn: async (recording) => {
-				const { error: updateRecordingError } =
-					await DbRecordingsService.updateRecording(recording);
-				if (updateRecordingError) {
-					const whisperingError = {
-						name: 'WhisperingError',
-						title: 'Failed to update recording!',
-						description: 'Your recording could not be updated.',
-						action: { type: 'more-details', error: updateRecordingError },
-						context: { recording },
-						cause: updateRecordingError,
-					} satisfies WhisperingError;
-					toast.error(whisperingError);
-					return Err(whisperingError);
-				}
-
+			mutationFn: (recording) => DbRecordingsService.updateRecording(recording),
+			onSuccess: (recording) => {
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return oldData.map((item) =>
@@ -157,17 +98,10 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
-
-				toast.success({
-					title: 'Updated recording!',
-					description: 'Your recording has been updated successfully.',
-				});
-
-				return Ok(recording);
 			},
 		}) satisfies CreateResultMutationOptions<
 			Recording,
-			WhisperingError,
+			DbServiceErrorProperties,
 			Recording
 		>,
 
