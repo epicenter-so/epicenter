@@ -1,13 +1,12 @@
 import { DownloadService } from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import type { DownloadServiceError } from '$lib/services/download/_types';
-import { toast } from '$lib/services/toast';
-import { Err } from '@epicenterhq/result';
+import { Err, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
 
 export const download = {
-	downloadIndexedDbBlob: () => () =>
+	downloadIndexedDbBlob: () =>
 		({
 			mutationFn: ({ blob, name }) =>
 				DownloadService.downloadBlob({
@@ -19,9 +18,11 @@ export const download = {
 			DownloadServiceError,
 			{ blob: Blob; name: string }
 		>,
-	downloadRecording: () => () =>
+	downloadRecording: () =>
 		({
-			mutationFn: async (recording) => {
+			mutationFn: async (
+				recording,
+			): Promise<Result<void, WhisperingError | DownloadServiceError>> => {
 				if (!recording.blob) {
 					return Err({
 						name: 'WhisperingError',

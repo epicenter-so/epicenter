@@ -66,9 +66,7 @@
 			});
 		},
 	}));
-	const downloadRecordingWithToast = createResultMutation(
-		download.downloadRecordingWithToast(),
-	);
+	const downloadRecording = createResultMutation(download.downloadRecording);
 
 	let { recordingId }: { recordingId: string } = $props();
 
@@ -191,11 +189,30 @@
 
 		<WhisperingButton
 			tooltipContent="Download recording"
-			onclick={() => downloadRecordingWithToast.mutate(recording)}
+			onclick={() =>
+				downloadRecording.mutate(recording, {
+					onError: (error) => {
+						if (error.name === 'WhisperingError') {
+							toast.error(error);
+							return;
+						}
+						toast.error({
+							title: 'Failed to download recording!',
+							description: 'Your recording could not be downloaded.',
+							action: { type: 'more-details', error },
+						});
+					},
+					onSuccess: () => {
+						toast.success({
+							title: 'Recording downloaded!',
+							description: 'Your recording has been downloaded.',
+						});
+					},
+				})}
 			variant="ghost"
 			size="icon"
 		>
-			{#if downloadRecordingWithToast.isPending}
+			{#if downloadRecording.isPending}
 				<Loader2Icon class="size-4 animate-spin" />
 			{:else}
 				<DownloadIcon class="size-4" />
