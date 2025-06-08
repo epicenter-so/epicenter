@@ -1,7 +1,7 @@
 import type { Recording } from '$lib/services/db';
 import { DbRecordingsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
-import { Err, Ok, type Result } from '@epicenterhq/result';
+import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import type {
 	Accessor,
@@ -17,273 +17,283 @@ const recordingKeys = {
 };
 
 export const recordings = {
-	getAllRecordings: () => () => ({
-		queryKey: recordingKeys.all,
-		queryFn: async (): Promise<Result<Recording[], WhisperingError>> => {
-			const { data: recordings, error: getAllRecordingsError } =
-				await DbRecordingsService.getAllRecordings();
-			if (getAllRecordingsError) {
-				return Err({
-					name: 'WhisperingError',
-					title: 'Failed to fetch recordings!',
-					description: 'Your recordings could not be fetched.',
-					action: { type: 'more-details', error: getAllRecordingsError },
-					context: {},
-					cause: getAllRecordingsError,
+	getAllRecordings: () => () =>
+		({
+			queryKey: recordingKeys.all,
+			queryFn: async () => {
+				const { data: recordings, error: getAllRecordingsError } =
+					await DbRecordingsService.getAllRecordings();
+				if (getAllRecordingsError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch recordings!',
+						description: 'Your recordings could not be fetched.',
+						action: { type: 'more-details', error: getAllRecordingsError },
+						context: {},
+						cause: getAllRecordingsError,
+					});
+				}
+				return Ok(recordings);
+			},
+		}) satisfies CreateResultQueryOptions<Recording[], WhisperingError>,
+
+	getLatestRecording: () => () =>
+		({
+			queryKey: recordingKeys.latest,
+			queryFn: async () => {
+				const { data: latestRecording, error: getLatestRecordingError } =
+					await DbRecordingsService.getLatestRecording();
+				if (getLatestRecordingError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch latest recording!',
+						description: 'Your latest recording could not be fetched.',
+						action: { type: 'more-details', error: getLatestRecordingError },
+						context: {},
+						cause: getLatestRecordingError,
+					});
+				}
+				return Ok(latestRecording);
+			},
+			initialData: () =>
+				queryClient
+					.getQueryData<Recording[]>(recordingKeys.all)
+					?.toSorted(
+						(a, b) =>
+							new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+					)[0],
+			initialDataUpdatedAt: () =>
+				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
+		}) satisfies CreateResultQueryOptions<Recording | null, WhisperingError>,
+
+	getRecordingById: (id: Accessor<string>) => () =>
+		({
+			queryKey: recordingKeys.byId(id),
+			queryFn: async () => {
+				const { data: recording, error: getRecordingByIdError } =
+					await DbRecordingsService.getRecordingById(id());
+				if (getRecordingByIdError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to fetch recording!',
+						description: 'Your recording could not be fetched.',
+						action: { type: 'more-details', error: getRecordingByIdError },
+						context: { id },
+						cause: getRecordingByIdError,
+					});
+				}
+				return Ok(recording);
+			},
+			initialData: () =>
+				queryClient
+					.getQueryData<Recording[]>(recordingKeys.all)
+					?.find((r) => r.id === id()),
+			initialDataUpdatedAt: () =>
+				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
+		}) satisfies CreateResultQueryOptions<Recording | null, WhisperingError>,
+
+	createRecording: () => () =>
+		({
+			mutationFn: async (recording) => {
+				const { error: createRecordingError } =
+					await DbRecordingsService.createRecording(recording);
+				if (createRecordingError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to create recording!',
+						description: 'Your recording could not be created.',
+						action: { type: 'more-details', error: createRecordingError },
+						context: { recording },
+						cause: createRecordingError,
+					} satisfies WhisperingError);
+				}
+
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+					if (!oldData) return [recording];
+					return [...oldData, recording];
 				});
-			}
-			return Ok(recordings);
-		},
-	}),
-
-	getLatestRecording: () => () => ({
-		queryKey: recordingKeys.latest,
-		queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
-			const { data: latestRecording, error: getLatestRecordingError } =
-				await DbRecordingsService.getLatestRecording();
-			if (getLatestRecordingError) {
-				return Err({
-					name: 'WhisperingError',
-					title: 'Failed to fetch latest recording!',
-					description: 'Your latest recording could not be fetched.',
-					action: { type: 'more-details', error: getLatestRecordingError },
-					context: {},
-					cause: getLatestRecordingError,
-				});
-			}
-			return Ok(latestRecording);
-		},
-		initialData: () =>
-			queryClient
-				.getQueryData<Recording[]>(recordingKeys.all)
-				?.toSorted(
-					(a, b) =>
-						new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-				)[0],
-		initialDataUpdatedAt: () =>
-			queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-	}),
-
-	getRecordingById: (id: Accessor<string>) => () => ({
-		queryKey: recordingKeys.byId(id),
-		queryFn: async (): Promise<Result<Recording | null, WhisperingError>> => {
-			const { data: recording, error: getRecordingByIdError } =
-				await DbRecordingsService.getRecordingById(id());
-			if (getRecordingByIdError) {
-				return Err({
-					name: 'WhisperingError',
-					title: 'Failed to fetch recording!',
-					description: 'Your recording could not be fetched.',
-					action: { type: 'more-details', error: getRecordingByIdError },
-					context: { id },
-					cause: getRecordingByIdError,
-				});
-			}
-			return Ok(recording);
-		},
-		initialData: () =>
-			queryClient
-				.getQueryData<Recording[]>(recordingKeys.all)
-				?.find((r) => r.id === id()),
-		initialDataUpdatedAt: () =>
-			queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-	}),
-
-	createRecording: () => () => ({
-		mutationFn: async (
-			recording: Recording,
-		): Promise<Result<Recording, WhisperingError>> => {
-			const { error: createRecordingError } =
-				await DbRecordingsService.createRecording(recording);
-			if (createRecordingError) {
-				return Err({
-					name: 'WhisperingError',
-					title: 'Failed to create recording!',
-					description: 'Your recording could not be created.',
-					action: { type: 'more-details', error: createRecordingError },
-					context: { recording },
-					cause: createRecordingError,
-				} satisfies WhisperingError);
-			}
-
-			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-				if (!oldData) return [recording];
-				return [...oldData, recording];
-			});
-			queryClient.setQueryData<Recording>(
-				recordingKeys.byId(() => recording.id),
-				recording,
-			);
-			queryClient.invalidateQueries({
-				queryKey: recordingKeys.latest,
-			});
-
-			return Ok(recording);
-		},
-	}),
-
-	updateRecording: () => () => ({
-		mutationFn: async (
-			recording: Recording,
-		): Promise<Result<Recording, WhisperingError>> => {
-			const { error: updateRecordingError } =
-				await DbRecordingsService.updateRecording(recording);
-			if (updateRecordingError) {
-				return Err({
-					name: 'WhisperingError',
-					title: 'Failed to update recording!',
-					description: 'Your recording could not be updated.',
-					action: { type: 'more-details', error: updateRecordingError },
-					context: { recording },
-					cause: updateRecordingError,
-				} satisfies WhisperingError);
-			}
-
-			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-				if (!oldData) return [recording];
-				return oldData.map((item) =>
-					item.id === recording.id ? recording : item,
+				queryClient.setQueryData<Recording>(
+					recordingKeys.byId(() => recording.id),
+					recording,
 				);
-			});
-			queryClient.setQueryData<Recording>(
-				recordingKeys.byId(() => recording.id),
-				recording,
-			);
-			queryClient.invalidateQueries({
-				queryKey: recordingKeys.latest,
-			});
+				queryClient.invalidateQueries({
+					queryKey: recordingKeys.latest,
+				});
 
-			return Ok(recording);
-		},
-	}),
+				return Ok(recording);
+			},
+		}) satisfies CreateResultMutationOptions<
+			Recording,
+			WhisperingError,
+			Recording
+		>,
 
-	updateRecordingWithToast: () => () => ({
-		mutationFn: async (
-			recording: Recording,
-		): Promise<Result<Recording, WhisperingError>> => {
-			const { error: updateRecordingError } =
-				await DbRecordingsService.updateRecording(recording);
-			if (updateRecordingError) {
-				const whisperingError = {
-					name: 'WhisperingError',
-					title: 'Failed to update recording!',
-					description: 'Your recording could not be updated.',
-					action: { type: 'more-details', error: updateRecordingError },
-					context: { recording },
-					cause: updateRecordingError,
-				} satisfies WhisperingError;
-				toast.error(whisperingError);
-				return Err(whisperingError);
-			}
+	updateRecording: () => () =>
+		({
+			mutationFn: async (recording) => {
+				const { error: updateRecordingError } =
+					await DbRecordingsService.updateRecording(recording);
+				if (updateRecordingError) {
+					return Err({
+						name: 'WhisperingError',
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error: updateRecordingError },
+						context: { recording },
+						cause: updateRecordingError,
+					} satisfies WhisperingError);
+				}
 
-			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-				if (!oldData) return [recording];
-				return oldData.map((item) =>
-					item.id === recording.id ? recording : item,
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+					if (!oldData) return [recording];
+					return oldData.map((item) =>
+						item.id === recording.id ? recording : item,
+					);
+				});
+				queryClient.setQueryData<Recording>(
+					recordingKeys.byId(() => recording.id),
+					recording,
 				);
-			});
-			queryClient.setQueryData<Recording>(
-				recordingKeys.byId(() => recording.id),
-				recording,
-			);
-			queryClient.invalidateQueries({
-				queryKey: recordingKeys.latest,
-			});
+				queryClient.invalidateQueries({
+					queryKey: recordingKeys.latest,
+				});
 
-			toast.success({
-				title: 'Updated recording!',
-				description: 'Your recording has been updated successfully.',
-			});
+				return Ok(recording);
+			},
+		}) satisfies CreateResultMutationOptions<
+			Recording,
+			WhisperingError,
+			Recording
+		>,
 
-			return Ok(recording);
-		},
-	}),
+	updateRecordingWithToast: () => () =>
+		({
+			mutationFn: async (recording) => {
+				const { error: updateRecordingError } =
+					await DbRecordingsService.updateRecording(recording);
+				if (updateRecordingError) {
+					const whisperingError = {
+						name: 'WhisperingError',
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error: updateRecordingError },
+						context: { recording },
+						cause: updateRecordingError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
+				}
 
-	deleteRecordingWithToast: () => () => ({
-		mutationFn: async (
-			recording: Recording,
-		): Promise<Result<Recording, WhisperingError>> => {
-			const { error: deleteRecordingError } =
-				await DbRecordingsService.deleteRecording(recording);
-			if (deleteRecordingError) {
-				const whisperingError = {
-					name: 'WhisperingError',
-					title: 'Failed to delete recording!',
-					description: 'Your recording could not be deleted.',
-					action: { type: 'more-details', error: deleteRecordingError },
-					context: { recording },
-					cause: deleteRecordingError,
-				} satisfies WhisperingError;
-				toast.error(whisperingError);
-				return Err(whisperingError);
-			}
-			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-				if (!oldData) return [];
-				return oldData.filter((item) => item.id !== recording.id);
-			});
-			queryClient.removeQueries({
-				queryKey: recordingKeys.byId(() => recording.id),
-			});
-			queryClient.invalidateQueries({
-				queryKey: recordingKeys.latest,
-			});
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+					if (!oldData) return [recording];
+					return oldData.map((item) =>
+						item.id === recording.id ? recording : item,
+					);
+				});
+				queryClient.setQueryData<Recording>(
+					recordingKeys.byId(() => recording.id),
+					recording,
+				);
+				queryClient.invalidateQueries({
+					queryKey: recordingKeys.latest,
+				});
 
-			toast.success({
-				title: 'Deleted recording!',
-				description: 'Your recording has been deleted successfully.',
-			});
+				toast.success({
+					title: 'Updated recording!',
+					description: 'Your recording has been updated successfully.',
+				});
 
-			return Ok(recording);
-		},
-	}),
+				return Ok(recording);
+			},
+		}) satisfies CreateResultMutationOptions<
+			Recording,
+			WhisperingError,
+			Recording
+		>,
 
-	deleteRecordingsWithToast: () => () => ({
-		mutationFn: async (
-			recordings: Recording[],
-		): Promise<Result<Recording[], WhisperingError>> => {
-			const { error: deleteRecordingsError } =
-				await DbRecordingsService.deleteRecordings(recordings);
-			if (deleteRecordingsError) {
-				const whisperingError = {
-					name: 'WhisperingError',
-					title: 'Failed to delete recordings!',
-					description: 'Your recordings could not be deleted.',
-					action: { type: 'more-details', error: deleteRecordingsError },
-					context: { recordings },
-					cause: deleteRecordingsError,
-				} satisfies WhisperingError;
-				toast.error(whisperingError);
-				return Err(whisperingError);
-			}
-
-			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-				if (!oldData) return [];
-				const deletedIds = new Set(recordings.map((r) => r.id));
-				return oldData.filter((item) => !deletedIds.has(item.id));
-			});
-			for (const recording of recordings) {
+	deleteRecordingWithToast: () => () =>
+		({
+			mutationFn: async (recording) => {
+				const { error: deleteRecordingError } =
+					await DbRecordingsService.deleteRecording(recording);
+				if (deleteRecordingError) {
+					const whisperingError = {
+						name: 'WhisperingError',
+						title: 'Failed to delete recording!',
+						description: 'Your recording could not be deleted.',
+						action: { type: 'more-details', error: deleteRecordingError },
+						context: { recording },
+						cause: deleteRecordingError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
+				}
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+					if (!oldData) return [];
+					return oldData.filter((item) => item.id !== recording.id);
+				});
 				queryClient.removeQueries({
 					queryKey: recordingKeys.byId(() => recording.id),
 				});
-			}
-			queryClient.invalidateQueries({
-				queryKey: recordingKeys.latest,
-			});
+				queryClient.invalidateQueries({
+					queryKey: recordingKeys.latest,
+				});
 
-			toast.success({
-				title: 'Deleted recordings!',
-				description: 'Your recordings have been deleted successfully.',
-			});
+				toast.success({
+					title: 'Deleted recording!',
+					description: 'Your recording has been deleted successfully.',
+				});
 
-			return Ok(recordings);
-		},
-	}),
-} satisfies Record<
-	string,
-	(
-		...args: Accessor<any>[]
-	) => Accessor<
-		| CreateResultQueryOptions<unknown, WhisperingError>
-		| CreateResultMutationOptions<any, WhisperingError, any>
-	>
->;
+				return Ok(recording);
+			},
+		}) satisfies CreateResultMutationOptions<
+			Recording,
+			WhisperingError,
+			Recording
+		>,
+
+	deleteRecordingsWithToast: () => () =>
+		({
+			mutationFn: async (recordings) => {
+				const { error: deleteRecordingsError } =
+					await DbRecordingsService.deleteRecordings(recordings);
+				if (deleteRecordingsError) {
+					const whisperingError = {
+						name: 'WhisperingError',
+						title: 'Failed to delete recordings!',
+						description: 'Your recordings could not be deleted.',
+						action: { type: 'more-details', error: deleteRecordingsError },
+						context: { recordings },
+						cause: deleteRecordingsError,
+					} satisfies WhisperingError;
+					toast.error(whisperingError);
+					return Err(whisperingError);
+				}
+
+				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+					if (!oldData) return [];
+					const deletedIds = new Set(recordings.map((r) => r.id));
+					return oldData.filter((item) => !deletedIds.has(item.id));
+				});
+				for (const recording of recordings) {
+					queryClient.removeQueries({
+						queryKey: recordingKeys.byId(() => recording.id),
+					});
+				}
+				queryClient.invalidateQueries({
+					queryKey: recordingKeys.latest,
+				});
+
+				toast.success({
+					title: 'Deleted recordings!',
+					description: 'Your recordings have been deleted successfully.',
+				});
+
+				return Ok(recordings);
+			},
+		}) satisfies CreateResultMutationOptions<
+			Recording[],
+			WhisperingError,
+			Recording[]
+		>,
+};
