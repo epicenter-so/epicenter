@@ -6,9 +6,12 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { useDownloadRecordingWithToast } from '$lib/query/download/mutations';
+	import { download } from '$lib/query/download';
 	import { recordings } from '$lib/query/recordings';
-	import { createResultMutation, createResultQuery } from '@tanstack/svelte-query';
+	import {
+		createResultMutation,
+		createResultQuery,
+	} from '@tanstack/svelte-query';
 	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
 	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
 	import { useLatestTransformationRunByRecordingIdQuery } from '$lib/query/transformationRuns/queries';
@@ -30,16 +33,24 @@
 
 	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
-	const deleteRecordingWithToast = createResultMutation(recordings.mutations.deleteRecordingWithToast);
-	const updateRecordingWithToast = createResultMutation(recordings.mutations.updateRecordingWithToast);
-	const { downloadRecordingWithToast } = useDownloadRecordingWithToast();
+	const deleteRecordingWithToast = createResultMutation(
+		recordings.deleteRecordingWithToast(),
+	);
+	const updateRecordingWithToast = createResultMutation(
+		recordings.updateRecordingWithToast(),
+	);
+	const downloadRecordingWithToast = createResultMutation(
+		download.mutations.downloadRecordingWithToast,
+	);
 
 	let { recordingId }: { recordingId: string } = $props();
 
 	const { latestTransformationRunByRecordingIdQuery } =
 		useLatestTransformationRunByRecordingIdQuery(() => recordingId);
 
-	const recordingQuery = createResultQuery(recordings.queries.getRecordingById(() => recordingId));
+	const recordingQuery = createResultQuery(
+		recordings.getRecordingById(() => recordingId),
+	);
 
 	const recording = $derived(recordingQuery.data);
 

@@ -47,7 +47,7 @@ function createManualRecorder({
 	const invalidateRecorderState = () =>
 		queryClient.invalidateQueries({ queryKey: manualRecorderKeys.state });
 
-	const createRecording = createResultMutation(recordings.mutations.createRecording);
+	const createRecording = createResultMutation(recordings.createRecording());
 
 	const recorderState = createResultQuery(() => ({
 		queryKey: manualRecorderKeys.state,

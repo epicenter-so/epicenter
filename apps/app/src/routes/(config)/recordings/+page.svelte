@@ -58,10 +58,10 @@
 	const transcriber = getTranscriberFromContext();
 
 	const getAllRecordingsQuery = createResultQuery(
-		recordings.queries.getAllRecordings(),
+		recordings.getAllRecordings(),
 	);
 	const deleteRecordingsWithToast = createResultMutation(
-		recordings.mutations.deleteRecordingsWithToast,
+		recordings.deleteRecordingsWithToast(),
 	);
 
 	const columns: ColumnDef<Recording>[] = [

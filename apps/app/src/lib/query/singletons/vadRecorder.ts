@@ -1,4 +1,7 @@
-import { createResultMutation, createResultQuery } from '@tanstack/svelte-query';
+import {
+	createResultMutation,
+	createResultQuery,
+} from '@tanstack/svelte-query';
 import { recordings } from '$lib/query/recordings';
 import { playSoundIfEnabled } from '$lib/services/index.js';
 import { createVadServiceWeb } from '$lib/services/recorder/VadService.web';
@@ -44,7 +47,7 @@ function createVadRecorder({
 	const VadService = createVadServiceWeb();
 	const invalidateVadState = () =>
 		queryClient.invalidateQueries({ queryKey: vadRecorderKeys.state });
-	const createRecording = createResultMutation(recordings.mutations.createRecording);
+	const createRecording = createResultMutation(recordings.createRecording());
 
 	const vadState = createResultQuery(() => ({
 		queryKey: vadRecorderKeys.state,
@@ -57,7 +60,8 @@ function createVadRecorder({
 	const ensureVadSession = createResultMutation(() => ({
 		mutationFn: async () => {
 			const ensureVadResult = await VadService.ensureVad({
-				deviceId: settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				deviceId:
+					settings.value['recording.navigator.selectedAudioInputDeviceId'],
 				onSpeechEnd: (blob) => {
 					const toastId = nanoid();
 					toast.success({
