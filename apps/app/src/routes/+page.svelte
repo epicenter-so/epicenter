@@ -23,7 +23,9 @@
 	const manualRecorder = getManualRecorderFromContext();
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
-	const latestRecordingQuery = createResultQuery(recordings.queries.getLatestRecording);
+	const latestRecordingQuery = createResultQuery(
+		recordings.queries.getLatestRecording(),
+	);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {

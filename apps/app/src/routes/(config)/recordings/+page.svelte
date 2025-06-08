@@ -58,7 +58,7 @@
 	const transcriber = getTranscriberFromContext();
 
 	const getAllRecordingsQuery = createResultQuery(
-		recordings.queries.getAllRecordings,
+		recordings.queries.getAllRecordings(),
 	);
 	const deleteRecordingsWithToast = createResultMutation(
 		recordings.mutations.deleteRecordingsWithToast,
