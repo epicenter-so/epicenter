@@ -584,14 +584,8 @@ export function createDbTransformationsServiceDexie() {
 		},
 
 		async createTransformation(transformation) {
-			const now = new Date().toISOString();
-			const transformationWithTimestamps = {
-				...transformation,
-				createdAt: now,
-				updatedAt: now,
-			} satisfies Transformation;
 			const { error: createTransformationError } = await tryAsync({
-				try: () => db.transformations.add(transformationWithTimestamps),
+				try: () => db.transformations.add(transformation),
 				mapError: (error): DbServiceErrorProperties => ({
 					name: 'DbServiceError',
 					message: 'Error adding transformation to Dexie',
@@ -600,7 +594,7 @@ export function createDbTransformationsServiceDexie() {
 				}),
 			});
 			if (createTransformationError) return Err(createTransformationError);
-			return Ok(transformationWithTimestamps);
+			return Ok(transformation);
 		},
 
 		async updateTransformation(transformation) {

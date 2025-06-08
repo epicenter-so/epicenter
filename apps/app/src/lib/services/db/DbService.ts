@@ -87,7 +87,7 @@ export type DbTransformationsService = {
 		id: string,
 	) => Promise<Result<Transformation | null, DbServiceErrorProperties>>;
 	createTransformation: (
-		transformation: InsertTransformation,
+		transformation: Transformation,
 	) => Promise<Result<Transformation, DbServiceErrorProperties>>;
 	updateTransformation: (
 		transformation: Transformation,
@@ -196,10 +196,6 @@ export type Transformation = {
 		'find_replace.useRegex': boolean;
 	}[];
 };
-export type InsertTransformation = Omit<
-	Transformation,
-	'createdAt' | 'updatedAt'
->;
 
 export type TransformationStep = Transformation['steps'][number];
 export type InsertTransformationStep = Omit<
