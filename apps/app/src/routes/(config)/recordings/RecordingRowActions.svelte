@@ -40,7 +40,7 @@
 		recordings.updateRecordingWithToast(),
 	);
 	const downloadRecordingWithToast = createResultMutation(
-		download.mutations.downloadRecordingWithToast,
+		download.downloadRecordingWithToast(),
 	);
 
 	let { recordingId }: { recordingId: string } = $props();

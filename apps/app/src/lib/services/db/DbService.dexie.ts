@@ -1,5 +1,5 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
-import { useDownloadIndexedDbBlobWithToast } from '$lib/query/download/mutations';
+import { DownloadService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
@@ -21,6 +21,8 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './DbServiceTypes';
+import { download } from '$lib/query/download';
+import { createResultMutation } from '@tanstack/svelte-query';
 
 const DB_NAME = 'RecordingDB';
 
@@ -87,8 +89,9 @@ class RecordingsDatabase extends Dexie {
 						{
 							label: 'Download Database Dump',
 							onClick: () => {
-								const { downloadIndexedDbBlobWithToast } =
-									useDownloadIndexedDbBlobWithToast();
+								const downloadIndexedDbBlobWithToast = createResultMutation(
+									download.downloadIndexedDbBlobWithToast(),
+								);
 								const blob = new Blob([dumpString], {
 									type: 'application/json',
 								});

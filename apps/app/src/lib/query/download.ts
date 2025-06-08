@@ -3,14 +3,17 @@ import type { Recording } from '$lib/services/db';
 import { toast } from '$lib/services/toast';
 import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
-import { createMutation } from '@tanstack/svelte-query';
+import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
 
-export function useDownloadIndexedDbBlobWithToast() {
-	return {
-		downloadIndexedDbBlobWithToast: createMutation(() => ({
-			mutationFn: async ({ blob, name }: { blob: Blob; name: string }) => {
+export const download = {
+	downloadIndexedDbBlobWithToast: () => () =>
+		({
+			mutationFn: async ({ blob, name }) => {
 				const { error: downloadBlobError } = await DownloadService.downloadBlob(
-					{ name, blob },
+					{
+						name,
+						blob,
+					},
 				);
 				if (downloadBlobError) {
 					const whisperingError = {
@@ -18,62 +21,72 @@ export function useDownloadIndexedDbBlobWithToast() {
 						title: 'Failed to download IndexedDB dump!',
 						description: 'Your IndexedDB dump could not be downloaded.',
 						action: { type: 'more-details', error: downloadBlobError },
-						context: {},
+						context: { name },
 						cause: downloadBlobError,
 					} satisfies WhisperingError;
-					toast.error(whisperingError);
 					return Err(whisperingError);
 				}
+				return Ok(undefined);
+			},
+			onSuccess: () => {
 				toast.success({
 					title: 'IndexedDB dump downloaded!',
 					description: 'Your IndexedDB dump is being downloaded.',
 				});
-				return Ok(undefined);
 			},
-		})),
-	};
-}
-
-export function useDownloadRecordingWithToast() {
-	return {
-		downloadRecordingWithToast: createMutation(() => ({
-			mutationFn: async (recording: Recording) => {
+			onError: (error) => {
+				toast.error(error);
+			},
+		}) satisfies CreateResultMutationOptions<
+			undefined,
+			WhisperingError,
+			{ blob: Blob; name: string }
+		>,
+	downloadRecordingWithToast: () => () =>
+		({
+			mutationFn: async (recording) => {
 				if (!recording.blob) {
-					const whisperingError = {
+					return Err({
 						name: 'WhisperingError',
 						title: '⚠️ Recording blob not found',
 						description: "Your recording doesn't have a blob to download.",
-						context: {},
+						context: { recording },
 						cause: new Error('Recording blob not found'),
-					} satisfies WhisperingError;
-					toast.error(whisperingError);
-					return Err(whisperingError);
+					} satisfies WhisperingError);
 				}
+
 				const { error: downloadBlobError } = await DownloadService.downloadBlob(
 					{
 						name: `whispering_recording_${recording.id}`,
 						blob: recording.blob,
 					},
 				);
+
 				if (downloadBlobError) {
-					const whisperingError = {
+					return Err({
 						name: 'WhisperingError',
 						title: 'Failed to download recording!',
 						description: 'Your recording could not be downloaded.',
 						action: { type: 'more-details', error: downloadBlobError },
-						context: {},
+						context: { recording },
 						cause: downloadBlobError,
-					} satisfies WhisperingError;
-					toast.error(whisperingError);
-					return Err(whisperingError);
+					} satisfies WhisperingError);
 				}
 
-				toast.success({
-					title: 'Recording downloading!',
-					description: 'Your recording is being downloaded.',
-				});
 				return Ok(undefined);
 			},
-		})),
-	};
-}
+			onError: (error) => {
+				toast.error(error);
+			},
+			onSuccess: () => {
+				toast.success({
+					title: 'Recording downloaded!',
+					description: 'Your recording has been downloaded.',
+				});
+			},
+		}) satisfies CreateResultMutationOptions<
+			undefined,
+			WhisperingError,
+			Recording
+		>,
+};
