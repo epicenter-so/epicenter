@@ -2,14 +2,17 @@
 	import { goto } from '$app/navigation';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
-	import { useTransformationsQuery } from '$lib/query/transformations/queries';
+	import { transformations as transformationsQueryOptions } from '$lib/query/transformations';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { LayersIcon } from 'lucide-svelte';
 	import WhisperingButton from './WhisperingButton.svelte';
 	import { Badge } from './ui/badge';
 	import { useCombobox } from './useCombobox.svelte';
 
-	const { transformationsQuery } = useTransformationsQuery();
+	const transformationsQuery = createResultQuery(
+		transformationsQueryOptions.queries.getAllTransformations,
+	);
 
 	const transformations = $derived(transformationsQuery.data ?? []);
 

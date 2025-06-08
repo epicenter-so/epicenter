@@ -3,16 +3,35 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { useDeleteTransformationWithToast } from '$lib/query/transformations/mutations';
-	import { useTransformationQuery } from '$lib/query/transformations/queries';
+	import { transformations } from '$lib/query/transformations';
+	import {
+		createResultMutation,
+		createResultQuery,
+	} from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';
+	import { toast } from '$lib/services/toast';
 
-	const { deleteTransformationWithToast } = useDeleteTransformationWithToast();
+	const deleteTransformationWithToast = createResultMutation(() => ({
+		...transformations.mutations.deleteTransformation(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Deleted transformation!',
+				description: 'Your transformation has been deleted successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to delete transformation!',
+				description: 'Your transformation could not be deleted.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	let { transformationId }: { transformationId: string } = $props();
 
-	const { transformationQuery } = useTransformationQuery(
-		() => transformationId,
+	const transformationQuery = createResultQuery(
+		transformations.queries.getTransformationById(() => transformationId),
 	);
 	const transformation = $derived(transformationQuery.data);
 </script>

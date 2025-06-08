@@ -3,12 +3,29 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import { useCreateTransformationWithToast } from '$lib/query/transformations/mutations';
+	import { transformations } from '$lib/query/transformations';
+	import { createResultMutation } from '@tanstack/svelte-query';
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { PlusIcon } from 'lucide-svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
+	import { toast } from '$lib/services/toast';
 
-	const { createTransformationWithToast } = useCreateTransformationWithToast();
+	const createTransformationWithToast = createResultMutation(() => ({
+		...transformations.mutations.createTransformation(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Created transformation!',
+				description: 'Your transformation has been created successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to create transformation!',
+				description: 'Your transformation could not be created.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	let isDialogOpen = $state(false);
 	let transformation = $state(generateDefaultTransformation());

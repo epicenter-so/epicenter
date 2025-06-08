@@ -5,19 +5,36 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import {
-		useDeleteTransformationWithToast,
-		useUpdateTransformationWithToast,
-	} from '$lib/query/transformations/mutations';
+	import { transformations } from '$lib/query/transformations';
+	import { createResultMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
+	import { toast } from '$lib/services/toast';
 
-	const { updateTransformationWithToast } = useUpdateTransformationWithToast();
-	const { deleteTransformationWithToast } = useDeleteTransformationWithToast();
+	const updateTransformationWithToast = createResultMutation(() => ({
+		...transformations.mutations.updateTransformation(),
+	}));
+
+	const deleteTransformationWithToast = createResultMutation(() => ({
+		...transformations.mutations.deleteTransformation(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Deleted transformation!',
+				description: 'Your transformation has been deleted successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to delete transformation!',
+				description: 'Your transformation could not be deleted.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	let {
 		transformation,

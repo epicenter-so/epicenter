@@ -2,11 +2,28 @@
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { useCreateTransformationWithToast } from '$lib/query/transformations/mutations';
+	import { transformations } from '$lib/query/transformations';
 	import { generateDefaultTransformation } from '$lib/services/db';
+	import { toast } from '$lib/services/toast';
+	import { createResultMutation } from '@tanstack/svelte-query';
 	import RenderTransformation from '../-components/RenderTransformation.svelte';
 
-	const { createTransformationWithToast } = useCreateTransformationWithToast();
+	const createTransformationWithToast = createResultMutation(() => ({
+		...transformations.mutations.createTransformation(),
+		onSuccess: () => {
+			toast.success({
+				title: 'Created transformation!',
+				description: 'Your transformation has been created successfully.',
+			});
+		},
+		onError: (error) => {
+			toast.error({
+				title: 'Failed to create transformation!',
+				description: 'Your transformation could not be created.',
+				action: { type: 'more-details', error },
+			});
+		},
+	}));
 
 	let transformation = $state(generateDefaultTransformation());
 </script>
