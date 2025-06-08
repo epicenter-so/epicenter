@@ -6,6 +6,11 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Card } from '$lib/components/ui/card';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import {
+		FlexRender,
+		createSvelteTable,
+		renderComponent,
+	} from '$lib/components/ui/data-table/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -17,15 +22,15 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { copyTextToClipboardWithToast } from '$lib/query/clipboard';
 	import { recordings } from '$lib/query/recordings';
-	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
+	import { transcription } from '$lib/query/transcription';
 	import type { Recording } from '$lib/services/db';
+	import { toast } from '$lib/services/toast';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import {
-		FlexRender,
-		createSvelteTable,
-		renderComponent,
-	} from '$lib/components/ui/data-table/index.js';
+		createResultMutation,
+		createResultQuery,
+	} from '@tanstack/svelte-query';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -43,22 +48,17 @@
 		RepeatIcon as RetryTranscriptionIcon,
 		PlayIcon as StartTranscriptionIcon,
 	} from 'lucide-svelte';
-	import { nanoid } from 'nanoid/non-secure';
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
 	import RecordingRowActions from './RecordingRowActions.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
-	import {
-		createResultMutation,
-		createResultQuery,
-	} from '@tanstack/svelte-query';
-	import { toast } from '$lib/services/toast';
-
-	const transcriber = getTranscriberFromContext();
 
 	const getAllRecordingsQuery = createResultQuery(recordings.getAllRecordings);
+	const transcribeRecordings = createResultMutation(
+		transcription.transcribeRecordings,
+	);
 	const deleteRecordingsWithToast = createResultMutation(() => ({
 		...recordings.deleteRecordings(),
 		onSuccess: () => {
@@ -374,13 +374,40 @@
 						variant="outline"
 						size="icon"
 						onclick={() =>
-							Promise.allSettled(
-								selectedRecordingRows.map((recording) =>
-									transcriber.transcribeRecording({
-										recording: recording.original,
-										toastId: nanoid(),
-									}),
-								),
+							transcribeRecordings.mutate(
+								selectedRecordingRows.map(({ original }) => original),
+								{
+									onSuccess: ({ oks, errs }) => {
+										const isAllSuccessful = errs.length === 0;
+										if (isAllSuccessful) {
+											const n = oks.length;
+											toast.success({
+												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
+												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
+											});
+											return;
+										}
+										const isAllFailed = oks.length === 0;
+										if (isAllFailed) {
+											const n = errs.length;
+											toast.error({
+												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
+												description:
+													n === 1
+														? 'Your recording could not be transcribed.'
+														: 'None of your recordings could be transcribed.',
+												action: { type: 'more-details', error: errs },
+											});
+											return;
+										}
+										// Mixed results
+										toast.warning({
+											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
+											description: `${oks.length} succeeded, ${errs.length} failed.`,
+											action: { type: 'more-details', error: errs },
+										});
+									},
+								},
 							)}
 					>
 						{#if selectedRecordingRows.some(({ id }) => {
