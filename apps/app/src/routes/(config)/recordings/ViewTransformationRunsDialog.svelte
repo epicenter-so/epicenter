@@ -2,14 +2,16 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { useTransformationRunsByRecordingId } from '$lib/query/transformationRuns/queries';
+	import { transformations } from '$lib/query/transformationRuns';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from 'lucide-svelte';
 	import RenderTransformationRuns from '../transformations/-components/RenderTransformationRuns.svelte';
 
 	let { recordingId }: { recordingId: string } = $props();
 
-	const { transformationRunsByRecordingIdQuery } =
-		useTransformationRunsByRecordingId(() => recordingId);
+	const transformationRunsByRecordingIdQuery = createResultQuery(
+		transformations.getTransformationRunsByRecordingId(() => recordingId),
+	);
 
 	let isOpen = $state(false);
 </script>
@@ -39,8 +41,7 @@
 				<div class="text-muted-foreground text-sm">Loading runs...</div>
 			{:else if transformationRunsByRecordingIdQuery.error}
 				<div class="text-destructive text-sm">
-					{transformationRunsByRecordingIdQuery.error.title}:
-					{transformationRunsByRecordingIdQuery.error.description}
+					{transformationRunsByRecordingIdQuery.error.message}
 				</div>
 			{:else if transformationRunsByRecordingIdQuery.data}
 				<RenderTransformationRuns

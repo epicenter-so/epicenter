@@ -14,7 +14,6 @@
 	} from '@tanstack/svelte-query';
 	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
 	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
-	import { useLatestTransformationRunByRecordingIdQuery } from '$lib/query/transformationRuns/queries';
 	import type { Recording } from '$lib/services/db';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
@@ -31,6 +30,7 @@
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 	import { toast } from '$lib/services/toast';
+	import { transformations } from '$lib/query/transformationRuns';
 
 	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
@@ -72,8 +72,9 @@
 
 	let { recordingId }: { recordingId: string } = $props();
 
-	const { latestTransformationRunByRecordingIdQuery } =
-		useLatestTransformationRunByRecordingIdQuery(() => recordingId);
+	const latestTransformationRunByRecordingIdQuery = createResultQuery(
+		transformations.getLatestTransformationRunByRecordingId(() => recordingId),
+	);
 
 	const recordingQuery = createResultQuery(
 		recordings.getRecordingById(() => recordingId),

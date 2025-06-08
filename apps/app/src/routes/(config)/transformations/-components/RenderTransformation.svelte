@@ -1,7 +1,8 @@
 <script lang="ts">
 	import * as Resizable from '$lib/components/ui/resizable';
-	import { useTransformationRunsByTransformationIdQuery } from '$lib/query/transformationRuns/queries';
+	import { transformations } from '$lib/query/transformationRuns';
 	import type { Transformation } from '$lib/services/db';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import RenderTransformationConfigurationAndSteps from './RenderTransformationConfigurationAndSteps.svelte';
 	import RenderTransformationRuns from './RenderTransformationRuns.svelte';
 	import RenderTransformationTest from './RenderTransformationTest.svelte';
@@ -16,8 +17,11 @@
 		setTransformationDebounced: (transformation: Transformation) => void;
 	} = $props();
 
-	const { transformationRunsByTransformationIdQuery } =
-		useTransformationRunsByTransformationIdQuery(() => transformation.id);
+	const transformationRunsByTransformationIdQuery = createResultQuery(
+		transformations.getTransformationRunsByTransformationId(
+			() => transformation.id,
+		),
+	);
 </script>
 
 <Resizable.PaneGroup direction="horizontal">

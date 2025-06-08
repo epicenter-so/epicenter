@@ -1,8 +1,9 @@
 <script lang="ts">
 	import CopyableTextDialog from '$lib/components/copyable/CopyableTextDialog.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { useLatestTransformationRunByRecordingIdQuery } from '$lib/query/transformationRuns/queries';
+	import { transformations } from '$lib/query/transformationRuns';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { createResultQuery } from '@tanstack/svelte-query';
 
 	let {
 		recordingId,
@@ -10,8 +11,9 @@
 		recordingId: string;
 	} = $props();
 
-	const { latestTransformationRunByRecordingIdQuery } =
-		useLatestTransformationRunByRecordingIdQuery(() => recordingId);
+	const latestTransformationRunByRecordingIdQuery = createResultQuery(
+		transformations.getLatestTransformationRunByRecordingId(() => recordingId),
+	);
 
 	const id = getRecordingTransitionId({
 		recordingId,
@@ -27,8 +29,7 @@
 	</div>
 {:else if latestTransformationRunByRecordingIdQuery.error}
 	<div class="text-destructive text-sm">
-		{latestTransformationRunByRecordingIdQuery.error.title}:
-		{latestTransformationRunByRecordingIdQuery.error.description}
+		{latestTransformationRunByRecordingIdQuery.error.message}
 	</div>
 {:else if latestTransformationRunByRecordingIdQuery.data?.output}
 	<CopyableTextDialog

@@ -8,7 +8,7 @@ import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingResult } from '@repo/shared';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
-import { transformationRunKeys } from '../transformationRuns/queries';
+import { transformationRunKeys } from '../transformationRuns';
 import { transformationsKeys } from '../transformations/queries';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
 
