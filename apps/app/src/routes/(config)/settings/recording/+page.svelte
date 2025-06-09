@@ -1,13 +1,16 @@
 <script lang="ts">
-	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
-
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
+	import { recorder } from '$lib/query/recorder';
+	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
+	import { createResultMutation, noop } from '@tanstack/svelte-query';
+	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 
-	const manualRecorder = getManualRecorderFromContext();
+	const closeRecordingSession = createResultMutation(
+		recorder.closeRecordingSession,
+	);
 </script>
 
 <svelte:head>
@@ -29,7 +32,19 @@
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
 		onSelectedChange={(selected) => {
-			manualRecorder.closeRecordingSessionSilent();
+			closeRecordingSession.mutate(
+				{ sendStatus: noop },
+				{
+					onError: (error) => {
+						toast.error({
+							title: '❌ Failed to close session',
+							description:
+								'Your session could not be closed. Please try again.',
+							action: { type: 'more-details', error: error },
+						});
+					},
+				},
+			);
 			settings.value = {
 				...settings.value,
 				'recording.method': selected,

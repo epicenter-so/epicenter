@@ -1,15 +1,20 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
 	import { recorder } from '$lib/query/recorder';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
+	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import {
+		createResultMutation,
+		createResultQuery,
+		noop,
+	} from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
-	import { toast } from '$lib/services/toast';
 
-	const manualRecorder = getManualRecorderFromContext();
+	const closeRecordingSession = createResultMutation(
+		recorder.closeRecordingSession,
+	);
 	const getMediaDevicesQuery = createResultQuery(() =>
 		recorder.getMediaDevices(),
 	);
@@ -41,7 +46,21 @@
 				<Command.Item
 					value={device.label}
 					onSelect={() => {
-						manualRecorder.closeRecordingSessionSilent();
+						closeRecordingSession.mutate(
+							{
+								sendStatus: noop,
+							},
+							{
+								onError: (error) => {
+									toast.error({
+										title: '❌ Failed to close session',
+										description:
+											'Your session could not be closed. Please try again.',
+										action: { type: 'more-details', error: error },
+									});
+								},
+							},
+						);
 						settings.value = {
 							...settings.value,
 							'recording.navigator.selectedAudioInputDeviceId':

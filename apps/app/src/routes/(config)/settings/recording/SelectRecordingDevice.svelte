@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { recorder } from '$lib/query/recorder';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { toast } from '$lib/services/toast';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import {
+		createResultMutation,
+		createResultQuery,
+		noop,
+	} from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -13,7 +16,9 @@
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const manualRecorder = getManualRecorderFromContext();
+	const closeRecordingSession = createResultMutation(
+		recorder.closeRecordingSession,
+	);
 	const getMediaDevicesQuery = createResultQuery(() =>
 		recorder.getMediaDevices(),
 	);
@@ -53,7 +58,21 @@
 		{items}
 		{selected}
 		onSelectedChange={(selected) => {
-			manualRecorder.closeRecordingSessionSilent();
+			closeRecordingSession.mutate(
+				{
+					sendStatus: noop,
+				},
+				{
+					onError: (error) => {
+						toast.error({
+							title: '❌ Failed to close session',
+							description:
+								'Your session could not be closed. Please try again.',
+							action: { type: 'more-details', error: error },
+						});
+					},
+				},
+			);
 			onSelectedChange(selected);
 		}}
 		placeholder="Select a device"

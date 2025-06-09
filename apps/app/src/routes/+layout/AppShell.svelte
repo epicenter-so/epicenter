@@ -4,11 +4,12 @@
 	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
+	import { recorder } from '$lib/query/recorder';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import { DbRecordingsService } from '$lib/services';
 	import { extension } from '@repo/extension';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
@@ -16,8 +17,6 @@
 	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
-	import { recorder } from '$lib/query/recorder';
-	import { createResultQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
 	const vadRecorder = getVadRecorderFromContext();
