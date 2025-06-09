@@ -16,8 +16,10 @@
 	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { recorder } from '$lib/query/recorder';
+	import { createResultQuery } from '@tanstack/svelte-query';
 
-	const manualRecorder = getManualRecorderFromContext();
+	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
 
@@ -30,7 +32,7 @@
 	bindKeyboardShortcutsOnLoad();
 
 	$effect(() => {
-		manualRecorder.recorderState;
+		getRecorderStateQuery.data;
 		vadRecorder.vadState;
 		void DbRecordingsService.cleanupExpiredRecordings();
 	});

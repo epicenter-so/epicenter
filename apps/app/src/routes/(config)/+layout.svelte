@@ -2,11 +2,12 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RecordingControls } from '$lib/components/recording-controls';
+	import { recorder } from '$lib/query/recorder';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { cn } from '$lib/utils.js';
+	import { createResultQuery } from '@tanstack/svelte-query';
 
-	const manualRecorder = getManualRecorderFromContext();
+	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
 	const commands = getCommandsFromContext();
 
 	let { children } = $props();
@@ -37,7 +38,7 @@
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
 			⏹️
 		{:else}
 			🎙️

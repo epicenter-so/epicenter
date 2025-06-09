@@ -7,25 +7,23 @@
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
+	import { recorder } from '$lib/query/recorder';
 	import { recordings } from '$lib/query/recordings';
-	import { createResultQuery } from '@tanstack/svelte-query';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { createResultQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
-	const manualRecorder = getManualRecorderFromContext();
+	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
 	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
-	const latestRecordingQuery = createResultQuery(
-		recordings.getLatestRecording,
-	);
+	const latestRecordingQuery = createResultQuery(recordings.getLatestRecording);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {
@@ -101,7 +99,7 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={manualRecorder.recorderState === 'SESSION+RECORDING'
+				tooltipContent={getRecorderStateQuery.data === 'SESSION+RECORDING'
 					? 'Stop recording'
 					: 'Start recording'}
 				onclick={commands.toggleManualRecording}
@@ -112,7 +110,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+					{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
 						⏹️
 					{:else}
 						🎙️
@@ -141,7 +139,7 @@
 			</WhisperingButton>
 		{/if}
 		<div class="flex-1 flex-justify-center mb-2">
-			{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+			{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
 					onclick={commands.cancelManualRecording}
@@ -151,7 +149,7 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if manualRecorder.recorderState === 'SESSION'}
+			{:else if getRecorderStateQuery.data === 'SESSION'}
 				<WhisperingButton
 					onclick={commands.closeManualRecordingSession}
 					variant="ghost"
