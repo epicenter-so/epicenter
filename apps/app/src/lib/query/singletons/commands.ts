@@ -40,192 +40,189 @@ function createCommandCallbacks() {
 function createRecorderCommands() {
 	const getRecorderState = createResultQuery(() => recorder.getRecorderState);
 
-	const startRecording = async () => {
-		const toastId = nanoid();
-		toast.loading({
-			id: toastId,
-			title: '⏸️ Stopping recording...',
-			description: 'Finalizing your audio capture...',
-		});
-		const { data: blob, error: stopRecordingError } =
-			await recorder.stopRecording({
-				toastId,
-			});
-		if (stopRecordingError) {
-			toast.error({
-				id: toastId,
-				title: '❌ Failed to stop recording',
-				description: 'Your recording could not be stopped. Please try again.',
-				action: { type: 'more-details', error: stopRecordingError },
-			});
-			return;
-		}
-		toast.success({
-			id: toastId,
-			title: '🎙️ Recording stopped',
-			description: 'Your recording has been saved',
-		});
-		console.info('Recording stopped');
-		playSoundIfEnabled('manual-stop');
-
-		const now = new Date().toISOString();
-		const newRecordingId = nanoid();
-
-		const { data: createdRecording, error: createRecordingError } =
-			await DbRecordingsService.createRecording({
-				id: newRecordingId,
-				title: '',
-				subtitle: '',
-				createdAt: now,
-				updatedAt: now,
-				timestamp: now,
-				transcribedText: '',
-				blob,
-				transcriptionStatus: 'UNPROCESSED',
-			});
-
-		if (createRecordingError) {
-			toast.error({
-				id: toastId,
-				title: '❌ Failed to save recording',
-				description:
-					'Your recording was captured but could not be saved to the database. Please check your storage space and permissions.',
-				action: { type: 'more-details', error: createRecordingError },
-			});
-			return;
-		}
-
-		toast.loading({
-			id: toastId,
-			title: '✨ Recording Complete!',
-			description: settings.value['recording.isFasterRerecordEnabled']
-				? 'Recording saved! Ready for another take'
-				: 'Recording saved and session closed successfully',
-		});
-
-		if (!settings.value['recording.isFasterRerecordEnabled']) {
-			toast.loading({
-				id: toastId,
-				title: '⏳ Closing recording session...',
-				description: 'Wrapping things up, just a moment...',
-			});
-
-			const { error: closeRecordingSessionError } =
-				await services.recorder.closeRecordingSession({
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
-
-			if (closeRecordingSessionError) {
-				toast.warning({
-					id: toastId,
-					title: '⚠️ Unable to close session after recording',
-					description:
-						'You might need to restart the application to continue recording',
-					action: {
-						type: 'more-details',
-						error: closeRecordingSessionError,
-					},
-				});
-			} else {
-				toast.success({
-					id: toastId,
-					title: '✨ Session Closed Successfully',
-					description: 'Your recording session has been neatly wrapped up',
-				});
-			}
-		}
-
-		const transcribeToastId = nanoid();
-		toast.loading({
-			id: transcribeToastId,
-			title: '📋 Transcribing...',
-			description: 'Your recording is being transcribed...',
-		});
-		transcribeRecording.mutate(createdRecording, {
-			onSuccess: (transcribedText) => {
-				toast.success({
-					id: transcribeToastId,
-					title: 'Transcribed recording!',
-					description: 'Your recording has been transcribed.',
-				});
-				maybeCopyAndPaste({
-					text: transcribedText,
-					toastId,
-					shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
-					shouldPaste: settings.value['transcription.clipboard.pasteOnSuccess'],
-					statusToToastText(status) {
-						switch (status) {
-							case null:
-								return '📝 Recording transcribed!';
-							case 'COPIED':
-								return '📝 Recording transcribed and copied to clipboard!';
-							case 'COPIED+PASTED':
-								return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-						}
-					},
-				});
-				if (settings.value['transformations.selectedTransformationId']) {
-					const transformToastId = nanoid();
-					transformRecording.mutate({
-						recordingId: createdRecording.id,
-						transformationId:
-							settings.value['transformations.selectedTransformationId'],
-						toastId: transformToastId,
-					});
-				}
-			},
-			onError: (error) => {
-				if (error.name === 'WhisperingError') {
-					toast.error({ id: transcribeToastId, ...error });
-					return;
-				}
-				toast.error({
-					id: transcribeToastId,
-					title: '❌ Failed to transcribe recording',
-					description: 'Your recording could not be transcribed.',
-					action: { type: 'more-details', error: error },
-				});
-			},
-		});
-	};
-
-	const stopRecording = async () => {
-		const toastId = nanoid();
-		toast.loading({
-			id: toastId,
-			title: '🎙️ Preparing to record...',
-			description: 'Setting up your recording environment...',
-		});
-		await services.recorder.ensureRecordingSession(settings.value, {
-			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-		});
-		const { error: startRecordingError } = await recorder.startRecording({
-			toastId,
-		});
-		if (startRecordingError) {
-			toast.error({
-				id: toastId,
-				title: '❌ Failed to start recording',
-				description: 'Your recording could not be started. Please try again.',
-				action: { type: 'more-details', error: startRecordingError },
-			});
-			return;
-		}
-		toast.success({
-			id: toastId,
-			title: '🎙️ Whispering is recording...',
-			description: 'Speak now and stop recording when done',
-		});
-		console.info('Recording started');
-		playSoundIfEnabled('manual-start');
-	};
-
 	return {
 		toggleManualRecording: async () => {
 			if (getRecorderState.data === 'SESSION+RECORDING') {
-				await startRecording();
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '⏸️ Stopping recording...',
+					description: 'Finalizing your audio capture...',
+				});
+				const { data: blob, error: stopRecordingError } =
+					await recorder.stopRecording({
+						toastId,
+					});
+				if (stopRecordingError) {
+					toast.error({
+						id: toastId,
+						title: '❌ Failed to stop recording',
+						description:
+							'Your recording could not be stopped. Please try again.',
+						action: { type: 'more-details', error: stopRecordingError },
+					});
+					return;
+				}
+				toast.success({
+					id: toastId,
+					title: '🎙️ Recording stopped',
+					description: 'Your recording has been saved',
+				});
+				console.info('Recording stopped');
+				playSoundIfEnabled('manual-stop');
+
+				const now = new Date().toISOString();
+				const newRecordingId = nanoid();
+
+				const { data: createdRecording, error: createRecordingError } =
+					await DbRecordingsService.createRecording({
+						id: newRecordingId,
+						title: '',
+						subtitle: '',
+						createdAt: now,
+						updatedAt: now,
+						timestamp: now,
+						transcribedText: '',
+						blob,
+						transcriptionStatus: 'UNPROCESSED',
+					});
+
+				if (createRecordingError) {
+					toast.error({
+						id: toastId,
+						title: '❌ Failed to save recording',
+						description:
+							'Your recording was captured but could not be saved to the database. Please check your storage space and permissions.',
+						action: { type: 'more-details', error: createRecordingError },
+					});
+					return;
+				}
+
+				toast.loading({
+					id: toastId,
+					title: '✨ Recording Complete!',
+					description: settings.value['recording.isFasterRerecordEnabled']
+						? 'Recording saved! Ready for another take'
+						: 'Recording saved and session closed successfully',
+				});
+
+				if (!settings.value['recording.isFasterRerecordEnabled']) {
+					toast.loading({
+						id: toastId,
+						title: '⏳ Closing recording session...',
+						description: 'Wrapping things up, just a moment...',
+					});
+
+					const { error: closeRecordingSessionError } =
+						await services.recorder.closeRecordingSession({
+							sendStatus: (options) =>
+								toast.loading({ id: toastId, ...options }),
+						});
+
+					if (closeRecordingSessionError) {
+						toast.warning({
+							id: toastId,
+							title: '⚠️ Unable to close session after recording',
+							description:
+								'You might need to restart the application to continue recording',
+							action: {
+								type: 'more-details',
+								error: closeRecordingSessionError,
+							},
+						});
+					} else {
+						toast.success({
+							id: toastId,
+							title: '✨ Session Closed Successfully',
+							description: 'Your recording session has been neatly wrapped up',
+						});
+					}
+				}
+
+				const transcribeToastId = nanoid();
+				toast.loading({
+					id: transcribeToastId,
+					title: '📋 Transcribing...',
+					description: 'Your recording is being transcribed...',
+				});
+				transcribeRecording.mutate(createdRecording, {
+					onSuccess: (transcribedText) => {
+						toast.success({
+							id: transcribeToastId,
+							title: 'Transcribed recording!',
+							description: 'Your recording has been transcribed.',
+						});
+						maybeCopyAndPaste({
+							text: transcribedText,
+							toastId,
+							shouldCopy:
+								settings.value['transcription.clipboard.copyOnSuccess'],
+							shouldPaste:
+								settings.value['transcription.clipboard.pasteOnSuccess'],
+							statusToToastText(status) {
+								switch (status) {
+									case null:
+										return '📝 Recording transcribed!';
+									case 'COPIED':
+										return '📝 Recording transcribed and copied to clipboard!';
+									case 'COPIED+PASTED':
+										return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
+								}
+							},
+						});
+						if (settings.value['transformations.selectedTransformationId']) {
+							const transformToastId = nanoid();
+							transformRecording.mutate({
+								recordingId: createdRecording.id,
+								transformationId:
+									settings.value['transformations.selectedTransformationId'],
+								toastId: transformToastId,
+							});
+						}
+					},
+					onError: (error) => {
+						if (error.name === 'WhisperingError') {
+							toast.error({ id: transcribeToastId, ...error });
+							return;
+						}
+						toast.error({
+							id: transcribeToastId,
+							title: '❌ Failed to transcribe recording',
+							description: 'Your recording could not be transcribed.',
+							action: { type: 'more-details', error: error },
+						});
+					},
+				});
 			} else {
-				await stopRecording();
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '🎙️ Preparing to record...',
+					description: 'Setting up your recording environment...',
+				});
+				await services.recorder.ensureRecordingSession(settings.value, {
+					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				});
+				const { error: startRecordingError } = await recorder.startRecording({
+					toastId,
+				});
+				if (startRecordingError) {
+					toast.error({
+						id: toastId,
+						title: '❌ Failed to start recording',
+						description:
+							'Your recording could not be started. Please try again.',
+						action: { type: 'more-details', error: startRecordingError },
+					});
+					return;
+				}
+				toast.success({
+					id: toastId,
+					title: '🎙️ Whispering is recording...',
+					description: 'Speak now and stop recording when done',
+				});
+				console.info('Recording started');
+				playSoundIfEnabled('manual-start');
 			}
 		},
 
