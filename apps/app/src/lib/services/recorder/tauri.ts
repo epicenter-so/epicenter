@@ -35,34 +35,6 @@ export function createRecorderServiceTauri(): RecorderService {
 			}
 			return Ok(deviceInfos);
 		},
-		ensureRecordingSession: async (
-			settings,
-			{ sendStatus: sendUpdateStatus },
-		) => {
-			sendUpdateStatus({
-				title: '🎤 Setting Up',
-				description:
-					'Initializing your recording session and checking microphone access...',
-			});
-			const { error: initRecordingSessionError } = await invoke(
-				'init_recording_session',
-				{
-					deviceName: settings['recording.tauri.selectedAudioInputName'],
-				},
-			);
-			if (initRecordingSessionError)
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: {
-						settings,
-						deviceName: settings['recording.tauri.selectedAudioInputName'],
-					},
-					cause: initRecordingSessionError,
-				} satisfies RecordingServiceError);
-			return Ok(undefined);
-		},
 		closeRecordingSession: async ({ sendStatus: sendUpdateStatus }) => {
 			sendUpdateStatus({
 				title: '🔄 Closing Session',
@@ -82,7 +54,35 @@ export function createRecorderServiceTauri(): RecorderService {
 				} satisfies RecordingServiceError);
 			return Ok(undefined);
 		},
-		startRecording: async (recordingId) => {
+		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
+			sendStatus({
+				title: '🎤 Setting Up',
+				description:
+					'Initializing your recording session and checking microphone access...',
+			});
+			const { error: initRecordingSessionError } = await invoke(
+				'init_recording_session',
+				{
+					deviceName: settings.selectedAudioInputDeviceId,
+				},
+			);
+			if (initRecordingSessionError)
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+					context: {
+						settings,
+						deviceName: settings.selectedAudioInputDeviceId,
+					},
+					cause: initRecordingSessionError,
+				} satisfies RecordingServiceError);
+
+			sendStatus({
+				title: '🎙️ Starting Recording',
+				description:
+					'Recording session initialized, now starting to capture audio...',
+			});
 			const { error: startRecordingError } = await invoke<void>(
 				'start_recording',
 				{ recordingId },

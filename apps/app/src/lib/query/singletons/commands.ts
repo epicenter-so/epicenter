@@ -200,11 +200,13 @@ function createRecorderCommands() {
 					title: '🎙️ Preparing to record...',
 					description: 'Setting up your recording environment...',
 				});
-				await services.recorder.ensureRecordingSession(settings.value, {
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
 				const { error: startRecordingError } = await recorder.startRecording({
 					toastId,
+					settings: {
+						selectedAudioInputDeviceId:
+							settings.value['recording.navigator.selectedAudioInputDeviceId'],
+						bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+					},
 				});
 				if (startRecordingError) {
 					toast.error({
@@ -281,26 +283,22 @@ function createRecorderCommands() {
 			}
 		},
 
-		closeManualRecordingSession: () => {
+		closeManualRecordingSession: async () => {
 			const toastId = nanoid();
-			return closeRecordingSession.mutate(
-				{
+			const { error: closeRecordingSessionError } =
+				await recorder.closeRecordingSession({
 					sendStatus: (status) => {
 						toast.info({ id: toastId, ...status });
 					},
-				},
-				{
-					onError: (error) => {
-						toast.error({
-							id: toastId,
-							title: '❌ Failed to close session',
-							description:
-								'Your session could not be closed. Please try again.',
-							action: { type: 'more-details', error: error },
-						});
-					},
-				},
-			);
+				});
+			if (closeRecordingSessionError) {
+				toast.error({
+					id: toastId,
+					title: '❌ Failed to close session',
+					description: 'Your session could not be closed. Please try again.',
+					action: { type: 'more-details', error: closeRecordingSessionError },
+				});
+			}
 		},
 	};
 }

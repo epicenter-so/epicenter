@@ -1,6 +1,7 @@
 import { services } from '$lib/services/index.js';
 import type {
 	RecordingServiceError,
+	RecordingSessionSettings,
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
@@ -46,11 +47,15 @@ export const recorder = {
 		return result;
 	},
 
-	startRecording: async ({ toastId }: { toastId: string }) => {
+	startRecording: async ({
+		toastId,
+		settings,
+	}: { toastId: string; settings: RecordingSessionSettings }) => {
 		invalidateRecorderState();
-		const result = await services.recorder.startRecording(nanoid(), {
-			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-		});
+		const result = await services.recorder.startRecording(
+			{ recordingId: nanoid(), settings },
+			{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
+		);
 		invalidateRecorderState();
 		return result;
 	},

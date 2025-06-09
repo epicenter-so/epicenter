@@ -1,6 +1,5 @@
 import type { Result, TaggedError } from '@epicenterhq/result';
 import type { MaybePromise, WhisperingRecordingState } from '@repo/shared';
-import type { Settings } from '@repo/shared/settings';
 
 export type UpdateStatusMessageFn = (args: {
 	title: string;
@@ -8,8 +7,8 @@ export type UpdateStatusMessageFn = (args: {
 }) => void;
 
 export type RecordingSessionSettings = {
-	deviceId: string | null;
-	bitsPerSecond: number;
+	selectedAudioInputDeviceId: string | null;
+	bitrateKbps: string;
 };
 
 export type RecordingServiceError = TaggedError<'RecordingServiceError'>;
@@ -21,15 +20,14 @@ export type RecorderService = {
 	enumerateRecordingDevices: () => Promise<
 		Result<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[], RecordingServiceError>
 	>;
-	ensureRecordingSession: (
-		settings: Settings,
-		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<Result<void, RecordingServiceError>>;
 	closeRecordingSession: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
 	}) => Promise<Result<void, RecordingServiceError>>;
 	startRecording: (
-		recordingId: string,
+		{
+			recordingId,
+			settings,
+		}: { recordingId: string; settings: RecordingSessionSettings },
 		callbacks: { sendStatus: UpdateStatusMessageFn },
 	) => Promise<Result<void, RecordingServiceError>>;
 	stopRecording: (callbacks: {
