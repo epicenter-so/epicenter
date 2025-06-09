@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { recorder } from '$lib/query/recorder';
+	import { recorder, executeMutation } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
 	import { createResultQuery, noop } from '@tanstack/svelte-query';
 
@@ -51,7 +51,7 @@
 		{items}
 		{selected}
 		onSelectedChange={async (selected) => {
-			const { error } = await recorder.closeRecordingSession({
+			const { error } = await executeMutation(recorder.closeRecordingSession, {
 				sendStatus: noop,
 			});
 			if (error) {

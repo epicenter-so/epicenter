@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { recorder } from '$lib/query/recorder';
+	import { recorder, executeMutation } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
-	import { createResultMutation, noop } from '@tanstack/svelte-query';
+	import { noop } from '@tanstack/svelte-query';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 </script>
 
@@ -28,7 +28,7 @@
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
 		onSelectedChange={async (selected) => {
-			const { error } = await recorder.closeRecordingSession({
+			const { error } = await executeMutation(recorder.closeRecordingSession, {
 				sendStatus: noop,
 			});
 			if (error) {

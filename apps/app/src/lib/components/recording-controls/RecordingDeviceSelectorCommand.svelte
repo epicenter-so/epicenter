@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { recorder } from '$lib/query/recorder';
+	import { recorder, executeMutation } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
@@ -43,7 +43,7 @@
 				<Command.Item
 					value={device.label}
 					onSelect={async () => {
-						const { error } = await recorder.closeRecordingSession({
+						const { error } = await executeMutation(recorder.closeRecordingSession, {
 							sendStatus: noop,
 						});
 						if (error) {
