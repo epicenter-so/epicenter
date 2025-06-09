@@ -38,7 +38,7 @@ function createCommandCallbacks() {
 }
 
 function createRecorderCommands() {
-	const recorderState = createResultQuery(recorder.getRecorderState);
+	const getRecorderState = createResultQuery(recorder.getRecorderState);
 	const startRecording = createResultMutation(recorder.startRecording);
 	const stopRecording = createResultMutation(recorder.stopRecording);
 	const cancelRecording = createResultMutation(recorder.cancelRecording);
@@ -50,7 +50,7 @@ function createRecorderCommands() {
 		toggleManualRecording: async () => {
 			const toastId = nanoid();
 
-			if (recorderState.data === 'SESSION+RECORDING') {
+			if (getRecorderState.data === 'SESSION+RECORDING') {
 				toast.loading({
 					id: toastId,
 					title: '⏸️ Stopping recording...',
