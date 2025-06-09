@@ -74,7 +74,7 @@ function createRecorderCommands() {
 								description: 'Your recording has been saved',
 							});
 							console.info('Recording stopped');
-							void playSoundIfEnabled('manual-stop');
+							playSoundIfEnabled('manual-stop');
 
 							const now = new Date().toISOString();
 							const newRecordingId = nanoid();
@@ -234,7 +234,7 @@ function createRecorderCommands() {
 								description: 'Speak now and stop recording when done',
 							});
 							console.info('Recording started');
-							void playSoundIfEnabled('manual-start');
+							playSoundIfEnabled('manual-start');
 						},
 					},
 				);
@@ -282,7 +282,7 @@ function createRecorderCommands() {
 											description:
 												'Recording cancelled and session closed successfully',
 										});
-										void playSoundIfEnabled('manual-cancel');
+										playSoundIfEnabled('manual-cancel');
 										console.info('Recording cancelled');
 									},
 									onError: (error) => {

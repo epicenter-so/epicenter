@@ -84,7 +84,7 @@ export function createTransformer() {
 			toast.error({ id: toastId, ...error });
 		},
 		onSuccess: (output, { toastId }) => {
-			void playSoundIfEnabled('transformationComplete');
+			playSoundIfEnabled('transformationComplete');
 			maybeCopyAndPaste({
 				text: output,
 				toastId,
@@ -180,7 +180,7 @@ export function createTransformer() {
 			toast.error({ id: toastId, ...error });
 		},
 		onSuccess: (output, { toastId }) => {
-			void playSoundIfEnabled('transformationComplete');
+			playSoundIfEnabled('transformationComplete');
 			maybeCopyAndPaste({
 				text: output,
 				toastId,
