@@ -11,6 +11,7 @@ import { recordings } from './recordings';
 import { playSoundIfEnabled, VadService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import type { WhisperingError } from '@repo/shared';
+import { executeMutation } from './recorder';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
@@ -41,11 +42,10 @@ export const vadRecorder = {
 
 	startActiveListening: () => ({
 		onMutate: async () => {
-			const createRecording = createResultMutation(recordings.createRecording);
-			const ensureVadResult = await VadService.ensureVad({
+			const { error: ensureVadError } = await VadService.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
-				onSpeechEnd: (blob) => {
+				onSpeechEnd: async (blob) => {
 					const toastId = nanoid();
 					toast.success({
 						id: toastId,
@@ -58,8 +58,8 @@ export const vadRecorder = {
 					const now = new Date().toISOString();
 					const newRecordingId = nanoid();
 
-					createRecording.mutate(
-						{
+					const { data: createdRecording, error: createRecordingError } =
+						await executeMutation(recordings.createRecording, {
 							id: newRecordingId,
 							title: '',
 							subtitle: '',
@@ -69,109 +69,104 @@ export const vadRecorder = {
 							transcribedText: '',
 							blob,
 							transcriptionStatus: 'UNPROCESSED',
-						},
-						{
-							onError(error) {
-								toast.error({
-									id: toastId,
-									title: '❌ Database Save Failed',
-									description:
-										'Your voice activated capture was captured but could not be saved to the database. Please check your storage space and permissions.',
-									action: {
-										type: 'more-details',
-										error: error,
-									},
-								});
+						});
+					if (createRecordingError) {
+						toast.error({
+							id: toastId,
+							title: '❌ Database Save Failed',
+							description:
+								'Your voice activated capture was captured but could not be saved to the database. Please check your storage space and permissions.',
+							action: {
+								type: 'more-details',
+								error: createRecordingError,
 							},
-							onSuccess: async (createdRecording) => {
-								toast.loading({
-									id: toastId,
-									title: '✨ Voice activated capture complete!',
-									description: settings.value[
-										'recording.isFasterRerecordEnabled'
-									]
-										? 'Voice activated capture complete! Ready for another take'
-										: 'Voice activated capture complete! Session closed successfully',
-								});
+						});
+						return;
+					}
+					toast.loading({
+						id: toastId,
+						title: '✨ Voice activated capture complete!',
+						description: settings.value['recording.isFasterRerecordEnabled']
+							? 'Voice activated capture complete! Ready for another take'
+							: 'Voice activated capture complete! Session closed successfully',
+					});
 
-								const transcribeToastId = nanoid();
-								toast.loading({
-									id: transcribeToastId,
-									title: '📋 Transcribing...',
-									description: 'Your recording is being transcribed...',
+					const transcribeToastId = nanoid();
+					toast.loading({
+						id: transcribeToastId,
+						title: '📋 Transcribing...',
+						description: 'Your recording is being transcribed...',
+					});
+					transcribeRecording.mutate(createdRecording, {
+						onSuccess: (transcribedText) => {
+							toast.success({
+								id: transcribeToastId,
+								title: 'Transcribed recording!',
+								description: 'Your recording has been transcribed.',
+							});
+							maybeCopyAndPaste({
+								text: transcribedText,
+								toastId,
+								shouldCopy:
+									settings.value['transcription.clipboard.copyOnSuccess'],
+								shouldPaste:
+									settings.value['transcription.clipboard.pasteOnSuccess'],
+								statusToToastText(status) {
+									switch (status) {
+										case null:
+											return '📝 Recording transcribed!';
+										case 'COPIED':
+											return '📝 Recording transcribed and copied to clipboard!';
+										case 'COPIED+PASTED':
+											return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
+									}
+								},
+							});
+							if (settings.value['transformations.selectedTransformationId']) {
+								const transformToastId = nanoid();
+								transformRecording.mutate({
+									recordingId: createdRecording.id,
+									transformationId:
+										settings.value['transformations.selectedTransformationId'],
+									toastId: transformToastId,
 								});
-								transcribeRecording.mutate(createdRecording, {
-									onSuccess: (transcribedText) => {
-										toast.success({
-											id: transcribeToastId,
-											title: 'Transcribed recording!',
-											description: 'Your recording has been transcribed.',
-										});
-										maybeCopyAndPaste({
-											text: transcribedText,
-											toastId,
-											shouldCopy:
-												settings.value['transcription.clipboard.copyOnSuccess'],
-											shouldPaste:
-												settings.value[
-													'transcription.clipboard.pasteOnSuccess'
-												],
-											statusToToastText(status) {
-												switch (status) {
-													case null:
-														return '📝 Recording transcribed!';
-													case 'COPIED':
-														return '📝 Recording transcribed and copied to clipboard!';
-													case 'COPIED+PASTED':
-														return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-												}
-											},
-										});
-										if (
-											settings.value['transformations.selectedTransformationId']
-										) {
-											const transformToastId = nanoid();
-											transformRecording.mutate({
-												recordingId: createdRecording.id,
-												transformationId:
-													settings.value[
-														'transformations.selectedTransformationId'
-													],
-												toastId: transformToastId,
-											});
-										}
-									},
-									onError: (error) => {
-										if (error.name === 'WhisperingError') {
-											toast.error({
-												id: transcribeToastId,
-												...error,
-											});
-											return;
-										}
-										toast.error({
-											id: transcribeToastId,
-											title: '❌ Failed to transcribe recording',
-											description: 'Your recording could not be transcribed.',
-											action: {
-												type: 'more-details',
-												error: error,
-											},
-										});
-									},
-								});
-							},
+							}
 						},
-					);
+						onError: (error) => {
+							if (error.name === 'WhisperingError') {
+								toast.error({
+									id: transcribeToastId,
+									...error,
+								});
+								return;
+							}
+							toast.error({
+								id: transcribeToastId,
+								title: '❌ Failed to transcribe recording',
+								description: 'Your recording could not be transcribed.',
+								action: {
+									type: 'more-details',
+									error: error,
+								},
+							});
+						},
+					});
 				},
 			});
-		},
-		mutationFn: async () => {
+			if (ensureVadError) {
+				toast.error({
+					id: toastId,
+					title: '❌ Failed to start voice activated capture',
+					description: 'Your voice activated capture could not be started.',
+				});
+				return;
+			}
 			const startVadResult = await VadService.startVad();
+			invalidateVadState();
 			return startVadResult;
 		},
-		onSettled: invalidateVadState,
 	}),
+
 	stopVad: () =>
 		({
 			mutationFn: async () => {

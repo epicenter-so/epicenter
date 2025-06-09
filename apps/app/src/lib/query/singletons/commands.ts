@@ -12,9 +12,10 @@ import {
 } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
 import { getContext, setContext } from 'svelte';
-import { recorder } from '../recorder';
+import { executeMutation, recorder } from '../recorder';
 import { vadRecorder } from '../vadRecorder';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
+import { recordings } from '../recordings';
 
 export type CommandCallbacks = ReturnType<typeof createCommandCallbacks>;
 
@@ -49,10 +50,10 @@ function createRecorderCommands() {
 					title: '⏸️ Stopping recording...',
 					description: 'Finalizing your audio capture...',
 				});
-				const { data: blob, error: stopRecordingError } =
-					await recorder.stopRecording({
-						toastId,
-					});
+				const { data: blob, error: stopRecordingError } = await executeMutation(
+					recorder.stopRecording,
+					{ toastId },
+				);
 				if (stopRecordingError) {
 					toast.error({
 						id: toastId,
@@ -75,7 +76,7 @@ function createRecorderCommands() {
 				const newRecordingId = nanoid();
 
 				const { data: createdRecording, error: createRecordingError } =
-					await DbRecordingsService.createRecording({
+					await executeMutation(recordings.createRecording, {
 						id: newRecordingId,
 						title: '',
 						subtitle: '',
@@ -200,14 +201,19 @@ function createRecorderCommands() {
 					title: '🎙️ Preparing to record...',
 					description: 'Setting up your recording environment...',
 				});
-				const { error: startRecordingError } = await recorder.startRecording({
-					toastId,
-					settings: {
-						selectedAudioInputDeviceId:
-							settings.value['recording.navigator.selectedAudioInputDeviceId'],
-						bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+				const { error: startRecordingError } = await executeMutation(
+					recorder.startRecording,
+					{
+						toastId,
+						settings: {
+							selectedAudioInputDeviceId:
+								settings.value[
+									'recording.navigator.selectedAudioInputDeviceId'
+								],
+							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+						},
 					},
-				});
+				);
 				if (startRecordingError) {
 					toast.error({
 						id: toastId,
@@ -235,9 +241,10 @@ function createRecorderCommands() {
 				title: '⏸️ Canceling recording...',
 				description: 'Cleaning up recording session...',
 			});
-			const { error: cancelRecordingError } = await recorder.cancelRecording({
-				toastId,
-			});
+			const { error: cancelRecordingError } = await executeMutation(
+				recorder.cancelRecording,
+				{ toastId },
+			);
 			if (cancelRecordingError) {
 				toast.error({
 					id: toastId,
@@ -256,10 +263,12 @@ function createRecorderCommands() {
 						'Recording discarded, but session remains open for a new take',
 				});
 			} else {
-				const { error: closeRecordingSessionError } =
-					await recorder.closeRecordingSession({
+				const { error: closeRecordingSessionError } = await executeMutation(
+					recorder.closeRecordingSession,
+					{
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-					});
+					},
+				);
 				if (closeRecordingSessionError) {
 					toast.error({
 						id: toastId,
@@ -285,12 +294,12 @@ function createRecorderCommands() {
 
 		closeManualRecordingSession: async () => {
 			const toastId = nanoid();
-			const { error: closeRecordingSessionError } =
-				await recorder.closeRecordingSession({
-					sendStatus: (status) => {
-						toast.info({ id: toastId, ...status });
-					},
-				});
+			const { error: closeRecordingSessionError } = await executeMutation(
+				recorder.closeRecordingSession,
+				{
+					sendStatus: (status) => toast.info({ id: toastId, ...status }),
+				},
+			);
 			if (closeRecordingSessionError) {
 				toast.error({
 					id: toastId,

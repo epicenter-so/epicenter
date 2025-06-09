@@ -6,6 +6,7 @@ import type {
 	CreateResultQueryOptions,
 } from '@tanstack/svelte-query';
 import { queryClient } from '.';
+import { Err, Ok } from '@epicenterhq/result';
 
 const recordingKeys = {
 	all: ['recordings'] as const,
@@ -56,32 +57,40 @@ export const recordings = {
 			DbServiceErrorProperties
 		>,
 
-	createRecording: () =>
-		({
-			mutationFn: (recording) => DbRecordingsService.createRecording(recording),
-			onSuccess: (recording) => {
-				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
-					if (!oldData) return [recording];
-					return [...oldData, recording];
-				});
-				queryClient.setQueryData<Recording>(
-					recordingKeys.byId(() => recording.id),
-					recording,
-				);
-				queryClient.invalidateQueries({
-					queryKey: recordingKeys.latest,
-				});
-			},
-		}) satisfies CreateResultMutationOptions<
-			Recording,
-			DbServiceErrorProperties,
-			Recording
-		>,
+	createRecording: {
+		mutationKey: ['recordings', 'createRecording'] as const,
+		mutationFn: async (recording) => {
+			const { data, error } =
+				await DbRecordingsService.createRecording(recording);
+			if (error) return Err(error);
+
+			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+				if (!oldData) return [recording];
+				return [...oldData, recording];
+			});
+			queryClient.setQueryData<Recording>(
+				recordingKeys.byId(() => recording.id),
+				recording,
+			);
+			queryClient.invalidateQueries({
+				queryKey: recordingKeys.latest,
+			});
+
+			return Ok(data);
+		},
+	} satisfies CreateResultMutationOptions<
+		Recording,
+		DbServiceErrorProperties,
+		Recording
+	>,
 
 	updateRecording: () =>
 		({
-			mutationFn: (recording) => DbRecordingsService.updateRecording(recording),
-			onSuccess: (recording) => {
+			mutationFn: async (recording) => {
+				const { data, error } =
+					await DbRecordingsService.updateRecording(recording);
+				if (error) return Err(error);
+
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [recording];
 					return oldData.map((item) =>
@@ -95,6 +104,8 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
+
+				return Ok(data);
 			},
 		}) satisfies CreateResultMutationOptions<
 			Recording,
@@ -104,8 +115,10 @@ export const recordings = {
 
 	deleteRecording: () =>
 		({
-			mutationFn: (recording) => DbRecordingsService.deleteRecording(recording),
-			onSuccess: (_, recording) => {
+			mutationFn: async (recording) => {
+				const { error } = await DbRecordingsService.deleteRecording(recording);
+				if (error) return Err(error);
+
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					return oldData.filter((item) => item.id !== recording.id);
@@ -116,6 +129,8 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
+
+				return Ok(undefined);
 			},
 		}) satisfies CreateResultMutationOptions<
 			void,
@@ -125,9 +140,11 @@ export const recordings = {
 
 	deleteRecordings: () =>
 		({
-			mutationFn: (recordings) =>
-				DbRecordingsService.deleteRecordings(recordings),
-			onSuccess: (_, recordings) => {
+			mutationFn: async (recordings) => {
+				const { error } =
+					await DbRecordingsService.deleteRecordings(recordings);
+				if (error) return Err(error);
+
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
 					const deletedIds = new Set(recordings.map((r) => r.id));
@@ -141,6 +158,8 @@ export const recordings = {
 				queryClient.invalidateQueries({
 					queryKey: recordingKeys.latest,
 				});
+
+				return Ok(undefined);
 			},
 		}) satisfies CreateResultMutationOptions<
 			void,
