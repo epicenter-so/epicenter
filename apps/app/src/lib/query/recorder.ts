@@ -54,45 +54,28 @@ export const recorder = {
 			{ sendStatus: UpdateStatusMessageFn }
 		>,
 
-	startRecording: () =>
-		({
-			onMutate: invalidateRecorderState,
-			mutationFn: ({ toastId }: { toastId: string }) =>
-				services.recorder.startRecording(nanoid(), {
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				}),
-			onSettled: invalidateRecorderState,
-		}) satisfies CreateResultMutationOptions<
-			void,
-			RecordingServiceError,
-			{ toastId: string }
-		>,
+	startRecording: async ({ toastId }: { toastId: string }) => {
+		invalidateRecorderState();
+		const result = await services.recorder.startRecording(nanoid(), {
+			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+		});
+		invalidateRecorderState();
+		return result;
+	},
 
-	stopRecording: () =>
-		({
-			mutationFn: ({ toastId }: { toastId: string }) =>
-				services.recorder.stopRecording({
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				}),
-			onSettled: invalidateRecorderState,
-		}) satisfies CreateResultMutationOptions<
-			Blob,
-			RecordingServiceError,
-			{ toastId: string }
-		>,
+	stopRecording: async ({ toastId }: { toastId: string }) => {
+		const result = await services.recorder.stopRecording({
+			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+		});
+		invalidateRecorderState();
+		return result;
+	},
 
-	cancelRecording: () =>
-		({
-			mutationFn: async ({ toastId }) => {
-				const cancelResult = await services.recorder.cancelRecording({
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
-				return cancelResult;
-			},
-			onSettled: invalidateRecorderState,
-		}) satisfies CreateResultMutationOptions<
-			void,
-			RecordingServiceError,
-			{ toastId: string }
-		>,
+	cancelRecording: async ({ toastId }: { toastId: string }) => {
+		const result = await services.recorder.cancelRecording({
+			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+		});
+		invalidateRecorderState();
+		return result;
+	},
 };
