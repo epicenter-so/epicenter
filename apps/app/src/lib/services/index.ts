@@ -44,7 +44,9 @@ export const SetTrayIconService = window.__TAURI_INTERNALS__
 	? createSetTrayIconDesktopService()
 	: createSetTrayIconWebService();
 
-export const DbRecordingsService = createDbRecordingsServiceDexie();
+export const DbRecordingsService = createDbRecordingsServiceDexie({
+	DownloadService,
+});
 export const DbTransformationsService = createDbTransformationsServiceDexie();
 
 const HttpService = window.__TAURI_INTERNALS__
@@ -114,6 +116,9 @@ export const services = (() => {
 			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
 			const recordingMethod = settings.value['recording.method'];
 			return recorderServices[recordingMethod];
+		},
+		get download() {
+			return DownloadService;
 		},
 	};
 })();

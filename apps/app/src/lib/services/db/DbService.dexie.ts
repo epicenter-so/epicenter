@@ -1,19 +1,19 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
-import { DownloadService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
+import type { DownloadService } from '../download/_types';
 import type {
 	DbRecordingsService,
+	DbServiceErrorProperties,
 	DbTransformationsService,
 	Recording,
 	Transformation,
 	TransformationRun,
 	TransformationStepRun,
 } from './DbService';
-import type { DbServiceErrorProperties } from './DbService';
 import type {
 	RecordingsDbSchemaV1,
 	RecordingsDbSchemaV2,
@@ -21,8 +21,6 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './DbServiceTypes';
-import { download } from '$lib/query/download';
-import { createResultMutation } from '@tanstack/svelte-query';
 
 const DB_NAME = 'RecordingDB';
 
@@ -37,7 +35,7 @@ class RecordingsDatabase extends Dexie {
 		string
 	>;
 
-	constructor() {
+	constructor({ DownloadService }: { DownloadService: DownloadService }) {
 		super(DB_NAME);
 
 		const wrapUpgradeWithErrorHandling = async ({
@@ -88,32 +86,27 @@ class RecordingsDatabase extends Dexie {
 					buttons: [
 						{
 							label: 'Download Database Dump',
-							onClick: () => {
-								const downloadIndexedDbBlob = createResultMutation(
-									download.downloadIndexedDbBlob,
-								);
+							onClick: async () => {
 								const blob = new Blob([dumpString], {
 									type: 'application/json',
 								});
-								downloadIndexedDbBlob.mutate(
-									{ name: 'recording-db-dump.json', blob },
-									{
-										onSuccess: () => {
-											toast.success({
-												title: 'IndexedDB dump downloaded!',
-												description: 'Your IndexedDB dump is being downloaded.',
-											});
-										},
-										onError: (error) => {
-											toast.error({
-												title: 'Failed to download IndexedDB dump!',
-												description:
-													'Your IndexedDB dump could not be downloaded.',
-												action: { type: 'more-details', error },
-											});
-										},
-									},
-								);
+								const { error: downloadError } =
+									await DownloadService.downloadBlob({
+										name: 'recording-db-dump.json',
+										blob,
+									});
+								if (downloadError) {
+									toast.error({
+										title: 'Failed to download IndexedDB dump!',
+										description: 'Your IndexedDB dump could not be downloaded.',
+										action: { type: 'more-details', error: downloadError },
+									});
+								} else {
+									toast.success({
+										title: 'IndexedDB dump downloaded!',
+										description: 'Your IndexedDB dump is being downloaded.',
+									});
+								}
 							},
 						},
 						{
@@ -315,8 +308,6 @@ class RecordingsDatabase extends Dexie {
 	}
 }
 
-const db = new RecordingsDatabase();
-
 // const downloadIndexedDbBlobWithToast = useDownloadIndexedDbBlobWithToast();
 
 const recordingToRecordingWithSerializedAudio = async (
@@ -347,7 +338,12 @@ const recordingWithSerializedAudioToRecording = (
 	return { ...rest, blob };
 };
 
-export function createDbRecordingsServiceDexie() {
+export function createDbRecordingsServiceDexie({
+	DownloadService,
+}: {
+	DownloadService: DownloadService;
+}) {
+	const db = new RecordingsDatabase({ DownloadService });
 	return {
 		async getAllRecordings() {
 			return tryAsync({

@@ -6,18 +6,6 @@ import type { WhisperingError } from '@repo/shared';
 import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
 
 export const download = {
-	downloadIndexedDbBlob: () =>
-		({
-			mutationFn: ({ blob, name }) =>
-				DownloadService.downloadBlob({
-					name,
-					blob,
-				}),
-		}) satisfies CreateResultMutationOptions<
-			void,
-			DownloadServiceError,
-			{ blob: Blob; name: string }
-		>,
 	downloadRecording: () =>
 		({
 			mutationFn: async (
