@@ -6,7 +6,7 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { recorder } from '$lib/query/recorder';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
+	import { vadRecorder } from '$lib/query/vadRecorder';
 	import { DbRecordingsService } from '$lib/services';
 	import { extension } from '@repo/extension';
 	import { createResultQuery } from '@tanstack/svelte-query';
@@ -19,7 +19,7 @@
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
 	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
-	const vadRecorder = getVadRecorderFromContext();
+	const getVadStateQuery = createResultQuery(vadRecorder.getVadState);
 	const commands = getCommandsFromContext();
 
 	if (window.__TAURI_INTERNALS__) {
@@ -32,7 +32,7 @@
 
 	$effect(() => {
 		getRecorderStateQuery.data;
-		vadRecorder.vadState;
+		getVadStateQuery.data;
 		void DbRecordingsService.cleanupExpiredRecordings();
 	});
 
@@ -63,7 +63,7 @@
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"
 		class="text-[48px] leading-none"
 	>
-		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
 			⏹️
 		{:else}
 			🎙️

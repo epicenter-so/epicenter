@@ -10,7 +10,6 @@
 	import { recorder } from '$lib/query/recorder';
 	import { recordings } from '$lib/query/recordings';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
@@ -19,10 +18,11 @@
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
+	import { vadRecorder } from '$lib/query/vadRecorder';
 
-	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
-	const vadRecorder = getVadRecorderFromContext();
 	const commands = getCommandsFromContext();
+	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
+	const getVadStateQuery = createResultQuery(vadRecorder.getVadState);
 	const latestRecordingQuery = createResultQuery(recordings.getLatestRecording);
 
 	const latestRecording = $derived<Recording>(
@@ -119,7 +119,7 @@
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={vadRecorder.vadState === 'SESSION+RECORDING'
+				tooltipContent={getVadStateQuery.data === 'SESSION+RECORDING'
 					? 'Stop voice activated session'
 					: 'Start voice activated session'}
 				onclick={commands.toggleVadRecording}
@@ -130,7 +130,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if vadRecorder.vadState === 'SESSION+RECORDING'}
+					{#if getVadStateQuery.data === 'SESSION+RECORDING'}
 						🛑
 					{:else}
 						🎬
@@ -168,7 +168,7 @@
 						</Button>
 					{/snippet}
 				</WhisperingButton>
-			{:else if vadRecorder.vadState === 'SESSION+RECORDING' || vadRecorder.vadState === 'SESSION'}
+			{:else if getVadStateQuery.data === 'SESSION+RECORDING' || getVadStateQuery.data === 'SESSION'}
 				<!-- Render nothing -->
 			{:else}
 				<RecordingControls />
