@@ -549,7 +549,12 @@ export function createDbRecordingsServiceDexie({
 	} satisfies DbRecordingsService;
 }
 
-export function createDbTransformationsServiceDexie() {
+export function createDbTransformationsServiceDexie({
+	DownloadService,
+}: {
+	DownloadService: DownloadService;
+}) {
+	const db = new RecordingsDatabase({ DownloadService });
 	return {
 		async getAllTransformations() {
 			return tryAsync({

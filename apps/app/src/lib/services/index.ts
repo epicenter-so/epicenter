@@ -47,7 +47,9 @@ export const SetTrayIconService = window.__TAURI_INTERNALS__
 export const DbRecordingsService = createDbRecordingsServiceDexie({
 	DownloadService,
 });
-export const DbTransformationsService = createDbTransformationsServiceDexie();
+export const DbTransformationsService = createDbTransformationsServiceDexie({
+	DownloadService,
+});
 
 const HttpService = window.__TAURI_INTERNALS__
 	? createHttpServiceDesktop()
