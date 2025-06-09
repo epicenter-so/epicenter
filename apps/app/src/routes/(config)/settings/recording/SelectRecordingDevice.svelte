@@ -2,11 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { recorder } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
-	import {
-		createResultMutation,
-		createResultQuery,
-		noop,
-	} from '@tanstack/svelte-query';
+	import { createResultQuery, noop } from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -16,11 +12,8 @@
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const closeRecordingSession = createResultMutation(
-		recorder.closeRecordingSession,
-	);
-	const getMediaDevicesQuery = createResultQuery(() =>
-		recorder.getMediaDevices(),
+	const getMediaDevicesQuery = createResultQuery(
+		() => recorder.getMediaDevices,
 	);
 
 	$effect(() => {
@@ -57,22 +50,18 @@
 		label="Recording Device"
 		{items}
 		{selected}
-		onSelectedChange={(selected) => {
-			closeRecordingSession.mutate(
-				{
-					sendStatus: noop,
-				},
-				{
-					onError: (error) => {
-						toast.error({
-							title: '❌ Failed to close session',
-							description:
-								'Your session could not be closed. Please try again.',
-							action: { type: 'more-details', error: error },
-						});
-					},
-				},
-			);
+		onSelectedChange={async (selected) => {
+			const { error } = await recorder.closeRecordingSession({
+				sendStatus: noop,
+			});
+			if (error) {
+				toast.error({
+					title: '❌ Failed to close session',
+					description: 'Your session could not be closed. Please try again.',
+					action: { type: 'more-details', error },
+				});
+				return;
+			}
 			onSelectedChange(selected);
 		}}
 		placeholder="Select a device"

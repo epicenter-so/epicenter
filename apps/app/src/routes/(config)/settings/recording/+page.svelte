@@ -7,10 +7,6 @@
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
 	import { createResultMutation, noop } from '@tanstack/svelte-query';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
-
-	const closeRecordingSession = createResultMutation(
-		recorder.closeRecordingSession,
-	);
 </script>
 
 <svelte:head>
@@ -31,20 +27,18 @@
 		label="Recording Method"
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
-		onSelectedChange={(selected) => {
-			closeRecordingSession.mutate(
-				{ sendStatus: noop },
-				{
-					onError: (error) => {
-						toast.error({
-							title: '❌ Failed to close session',
-							description:
-								'Your session could not be closed. Please try again.',
-							action: { type: 'more-details', error: error },
-						});
-					},
-				},
-			);
+		onSelectedChange={async (selected) => {
+			const { error } = await recorder.closeRecordingSession({
+				sendStatus: noop,
+			});
+			if (error) {
+				toast.error({
+					title: '❌ Failed to close session',
+					description: 'Your session could not be closed. Please try again.',
+					action: { type: 'more-details', error: error },
+				});
+				return;
+			}
 			settings.value = {
 				...settings.value,
 				'recording.method': selected,

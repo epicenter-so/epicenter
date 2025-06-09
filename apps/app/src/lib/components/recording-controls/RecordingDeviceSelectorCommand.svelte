@@ -12,11 +12,8 @@
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
-	const closeRecordingSession = createResultMutation(
-		recorder.closeRecordingSession,
-	);
-	const getMediaDevicesQuery = createResultQuery(() =>
-		recorder.getMediaDevices(),
+	const getMediaDevicesQuery = createResultQuery(
+		() => recorder.getMediaDevices,
 	);
 
 	$effect(() => {
@@ -45,22 +42,19 @@
 			{#each getMediaDevicesQuery.data as device (device.deviceId)}
 				<Command.Item
 					value={device.label}
-					onSelect={() => {
-						closeRecordingSession.mutate(
-							{
-								sendStatus: noop,
-							},
-							{
-								onError: (error) => {
-									toast.error({
-										title: '❌ Failed to close session',
-										description:
-											'Your session could not be closed. Please try again.',
-										action: { type: 'more-details', error: error },
-									});
-								},
-							},
-						);
+					onSelect={async () => {
+						const { error } = await recorder.closeRecordingSession({
+							sendStatus: noop,
+						});
+						if (error) {
+							toast.error({
+								title: '❌ Failed to close session',
+								description:
+									'Your session could not be closed. Please try again.',
+								action: { type: 'more-details', error: error },
+							});
+							return;
+						}
 						settings.value = {
 							...settings.value,
 							'recording.navigator.selectedAudioInputDeviceId':

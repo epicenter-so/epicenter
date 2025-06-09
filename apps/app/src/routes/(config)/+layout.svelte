@@ -7,7 +7,9 @@
 	import { cn } from '$lib/utils.js';
 	import { createResultQuery } from '@tanstack/svelte-query';
 
-	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
+	const getRecorderStateQuery = createResultQuery(
+		() => recorder.getRecorderState,
+	);
 	const commands = getCommandsFromContext();
 
 	let { children } = $props();
