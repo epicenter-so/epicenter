@@ -4,11 +4,8 @@ import type {
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
-import type { WhisperingRecordingState } from '@repo/shared';
-import type {
-	CreateResultMutationOptions,
-	CreateResultQueryOptions,
-} from '@tanstack/svelte-query';
+import type { Result } from '@epicenterhq/result';
+import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
 import { queryClient } from '.';
 
@@ -25,34 +22,29 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.state });
 
 export const recorder = {
-	getMediaDevices: () => ({
+	getMediaDevices: {
 		queryKey: recorderKeys.mediaDevices,
 		queryFn: () => services.recorder.enumerateRecordingDevices(),
-	}),
+	},
 
-	getRecorderState: () =>
-		({
-			queryKey: recorderKeys.state,
-			queryFn: async () => {
-				const recorderStateResult = await services.recorder.getRecorderState();
-				return recorderStateResult;
-			},
-			initialData: 'IDLE' as const,
-		}) satisfies CreateResultQueryOptions<
-			WhisperingRecordingState,
-			RecordingServiceError
-		>,
+	getRecorderState: {
+		queryKey: recorderKeys.state,
+		queryFn: async () => {
+			const recorderStateResult = await services.recorder.getRecorderState();
+			return recorderStateResult;
+		},
+		initialData: 'IDLE' as const,
+	},
 
-	closeRecordingSession: () =>
-		({
-			mutationFn: ({ sendStatus }) =>
-				services.recorder.closeRecordingSession({ sendStatus }),
-			onSettled: invalidateRecorderState,
-		}) satisfies CreateResultMutationOptions<
-			void,
-			RecordingServiceError,
-			{ sendStatus: UpdateStatusMessageFn }
-		>,
+	closeRecordingSession: async ({
+		sendStatus,
+	}: { sendStatus: UpdateStatusMessageFn }) => {
+		const result = await services.recorder.closeRecordingSession({
+			sendStatus,
+		});
+		invalidateRecorderState();
+		return result;
+	},
 
 	startRecording: async ({ toastId }: { toastId: string }) => {
 		invalidateRecorderState();
@@ -78,4 +70,8 @@ export const recorder = {
 		invalidateRecorderState();
 		return result;
 	},
-};
+} satisfies Record<
+	string,
+	| CreateResultQueryOptions<any, RecordingServiceError>
+	| ((...args: any[]) => Promise<Result<any, RecordingServiceError>>)
+>;

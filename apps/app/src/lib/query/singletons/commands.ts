@@ -38,10 +38,7 @@ function createCommandCallbacks() {
 }
 
 function createRecorderCommands() {
-	const getRecorderState = createResultQuery(recorder.getRecorderState);
-	const closeRecordingSession = createResultMutation(
-		recorder.closeRecordingSession,
-	);
+	const getRecorderState = createResultQuery(() => recorder.getRecorderState);
 
 	const startRecording = async () => {
 		const toastId = nanoid();
@@ -260,32 +257,30 @@ function createRecorderCommands() {
 						'Recording discarded, but session remains open for a new take',
 				});
 			} else {
-				closeRecordingSession.mutate(
-					{
+				const { error: closeRecordingSessionError } =
+					await recorder.closeRecordingSession({
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-					},
-					{
-						onSuccess: () => {
-							toast.success({
-								id: toastId,
-								title: '✅ All Done!',
-								description:
-									'Recording cancelled and session closed successfully',
-							});
-							playSoundIfEnabled('manual-cancel');
-							console.info('Recording cancelled');
+					});
+				if (closeRecordingSessionError) {
+					toast.error({
+						id: toastId,
+						title: '❌ Failed to close session while cancelling recording',
+						description:
+							'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
+						action: {
+							type: 'more-details',
+							error: closeRecordingSessionError,
 						},
-						onError: (error) => {
-							toast.error({
-								id: toastId,
-								title: '❌ Failed to close session while cancelling recording',
-								description:
-									'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
-								action: { type: 'more-details', error: error },
-							});
-						},
-					},
-				);
+					});
+					return;
+				}
+				toast.success({
+					id: toastId,
+					title: '✅ All Done!',
+					description: 'Recording cancelled and session closed successfully',
+				});
+				playSoundIfEnabled('manual-cancel');
+				console.info('Recording cancelled');
 			}
 		},
 
