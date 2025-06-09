@@ -5,35 +5,31 @@ import {
 	services,
 } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
+import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, partitionResults } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
+import { queryClient } from '.';
 import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
-import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
-import { nanoid } from 'nanoid/non-secure';
 
-export const transcriptionKeys = {
+const transcriptionKeys = {
 	all: ['transcription'] as const,
 	transcribe: ['transcription', 'transcribe'] as const,
 } as const;
 
 export const transcription = {
+	isCurrentlyTranscribing() {
+		return (
+			queryClient.isMutating({
+				mutationKey: transcriptionKeys.transcribe,
+			}) > 0
+		);
+	},
 	transcribeRecording: () =>
 		({
 			mutationKey: transcriptionKeys.transcribe,
-			onMutate: async ({
-				recording,
-				toastId,
-			}: {
-				recording: Recording;
-				toastId: string;
-			}) => {
-				toast.loading({
-					id: toastId,
-					title: '📋 Transcribing...',
-					description: 'Your recording is being transcribed...',
-				});
+			onMutate: async (recording) => {
 				const { error: setRecordingTranscribingError } =
 					await DbRecordingsService.updateRecording({
 						...recording,
@@ -51,12 +47,7 @@ export const transcription = {
 					});
 				}
 			},
-			mutationFn: async ({
-				recording,
-			}: {
-				recording: Recording;
-				toastId: string;
-			}) => {
+			mutationFn: async (recording) => {
 				if (!recording.blob) {
 					return Err({
 						name: 'WhisperingError',
@@ -72,19 +63,8 @@ export const transcription = {
 					temperature: settings.value['transcription.temperature'],
 				});
 			},
-			onError: async (error, { toastId }) => {
-				if (error.name === 'WhisperingError') {
-					toast.error(error);
-					return;
-				}
-				toast.error({
-					id: toastId,
-					title: '❌ Failed to transcribe recording',
-					description: 'Your recording could not be transcribed.',
-					action: { type: 'more-details', error: error },
-				});
-			},
-			onSuccess: async (transcribedText, { recording, toastId }) => {
+			onSuccess: async (transcribedText, recording) => {
+				playSoundIfEnabled('transcriptionComplete');
 				const { error: setRecordingTranscribedTextError } =
 					await DbRecordingsService.updateRecording({
 						...recording,
@@ -102,31 +82,29 @@ export const transcription = {
 						},
 					});
 				}
-				void playSoundIfEnabled('transcriptionComplete');
-				maybeCopyAndPaste({
-					text: transcribedText,
-					toastId,
-					shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
-					shouldPaste: settings.value['transcription.clipboard.pasteOnSuccess'],
-					statusToToastText(status) {
-						switch (status) {
-							case null:
-								return '📝 Recording transcribed!';
-							case 'COPIED':
-								return '📝 Recording transcribed and copied to clipboard!';
-							case 'COPIED+PASTED':
-								return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-						}
-					},
-				});
+			},
+			onError: async (error, recording) => {
+				const { error: setRecordingTranscribingError } =
+					await DbRecordingsService.updateRecording({
+						...recording,
+						transcriptionStatus: 'FAILED',
+					});
+				if (setRecordingTranscribingError) {
+					toast.error({
+						title: '⚠️ Unable to update recording after transcription',
+						description:
+							"Transcription failed but unable to update recording's transcription status in database",
+						action: {
+							type: 'more-details',
+							error: setRecordingTranscribingError,
+						},
+					});
+				}
 			},
 		}) satisfies CreateResultMutationOptions<
 			string,
 			WhisperingError | TranscriptionServiceError,
-			{
-				recording: Recording;
-				toastId: string;
-			}
+			Recording
 		>,
 
 	transcribeRecordings: () =>
@@ -161,6 +139,6 @@ export const transcription = {
 				errs: Err<WhisperingError | TranscriptionServiceError>[];
 			},
 			never,
-			Recording[]
+			Recording[],
 		>,
 };

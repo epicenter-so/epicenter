@@ -11,19 +11,14 @@ import { Ok } from '@epicenterhq/result';
 import { nanoid } from 'nanoid/non-secure';
 import { getContext, setContext } from 'svelte';
 import { queryClient } from '..';
-import type { Transcriber } from './transcriber';
 import type { Transformer } from './transformer';
+import { transcription } from '../transcription';
+import { maybeCopyAndPaste } from './maybeCopyAndPaste';
 
 export type VadRecorder = ReturnType<typeof createVadRecorder>;
 
-export const initVadRecorderInContext = ({
-	transcriber,
-	transformer,
-}: {
-	transcriber: Transcriber;
-	transformer: Transformer;
-}) => {
-	const vad = createVadRecorder({ transcriber, transformer });
+export const initVadRecorderInContext = () => {
+	const vad = createVadRecorder();
 	setContext('vad', vad);
 	return vad;
 };
@@ -37,17 +32,14 @@ const vadRecorderKeys = {
 	state: ['vadRecorder', 'state'] as const,
 };
 
-function createVadRecorder({
-	transcriber,
-	transformer,
-}: {
-	transcriber: Transcriber;
-	transformer: Transformer;
-}) {
+function createVadRecorder() {
 	const VadService = createVadServiceWeb();
 	const invalidateVadState = () =>
 		queryClient.invalidateQueries({ queryKey: vadRecorderKeys.state });
 	const createRecording = createResultMutation(recordings.createRecording);
+	const transcribeRecording = createResultMutation(
+		transcription.transcribeRecording,
+	);
 
 	const vadState = createResultQuery(() => ({
 		queryKey: vadRecorderKeys.state,
@@ -112,9 +104,64 @@ function createVadRecorder({
 								});
 
 								const transcribeToastId = nanoid();
-								transcriber.transcribeThenTransformRecording({
-									recording: createdRecording,
-									toastId: transcribeToastId,
+								toast.loading({
+									id: transcribeToastId,
+									title: '📋 Transcribing...',
+									description: 'Your recording is being transcribed...',
+								});
+								transcribeRecording.mutate(createdRecording, {
+									onSuccess: (transcribedText) => {
+										toast.success({
+											id: transcribeToastId,
+											title: 'Transcribed recording!',
+											description: 'Your recording has been transcribed.',
+										});
+										maybeCopyAndPaste({
+											text: transcribedText,
+											toastId,
+											shouldCopy:
+												settings.value['transcription.clipboard.copyOnSuccess'],
+											shouldPaste:
+												settings.value[
+													'transcription.clipboard.pasteOnSuccess'
+												],
+											statusToToastText(status) {
+												switch (status) {
+													case null:
+														return '📝 Recording transcribed!';
+													case 'COPIED':
+														return '📝 Recording transcribed and copied to clipboard!';
+													case 'COPIED+PASTED':
+														return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
+												}
+											},
+										});
+										if (
+											settings.value['transformations.selectedTransformationId']
+										) {
+											const transformToastId = nanoid();
+											transformRecording.mutate({
+												recordingId: createdRecording.id,
+												transformationId:
+													settings.value[
+														'transformations.selectedTransformationId'
+													],
+												toastId: transformToastId,
+											});
+										}
+									},
+									onError: (error) => {
+										if (error.name === 'WhisperingError') {
+											toast.error({ id: transcribeToastId, ...error });
+											return;
+										}
+										toast.error({
+											id: transcribeToastId,
+											title: '❌ Failed to transcribe recording',
+											description: 'Your recording could not be transcribed.',
+											action: { type: 'more-details', error: error },
+										});
+									},
 								});
 							},
 						},

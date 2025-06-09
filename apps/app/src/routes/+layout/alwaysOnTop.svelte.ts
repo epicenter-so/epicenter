@@ -1,11 +1,10 @@
 import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
+import { transcription } from '$lib/query/transcription';
 import { settings } from '$lib/stores/settings.svelte';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
 	const manualRecorder = getManualRecorderFromContext();
-	const transcriber = getTranscriberFromContext();
 
 	$effect(() => {
 		const setAlwaysOnTop = (value: boolean) =>
@@ -17,7 +16,7 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 			case 'When Recording and Transcribing':
 				if (
 					manualRecorder.recorderState === 'SESSION+RECORDING' ||
-					transcriber.isCurrentlyTranscribing
+					transcription.isCurrentlyTranscribing()
 				) {
 					void setAlwaysOnTop(true);
 				} else {

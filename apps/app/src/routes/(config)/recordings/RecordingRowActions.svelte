@@ -8,15 +8,17 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { download } from '$lib/query/download';
 	import { recordings } from '$lib/query/recordings';
+	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
+	import { transcription } from '$lib/query/transcription';
+	import { transformations } from '$lib/query/transformationRuns';
+	import type { Recording } from '$lib/services/db';
+	import { toast } from '$lib/services/toast';
+	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import {
 		createResultMutation,
 		createResultQuery,
 	} from '@tanstack/svelte-query';
-	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
-	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
-	import type { Recording } from '$lib/services/db';
-	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import {
 		AlertCircleIcon,
 		DownloadIcon,
@@ -29,11 +31,11 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
-	import { toast } from '$lib/services/toast';
-	import { transformations } from '$lib/query/transformationRuns';
 
-	const transcriber = getTranscriberFromContext();
 	const transformer = getTransformerFromContext();
+	const transcribeRecording = createResultMutation(
+		transcription.transcribeRecording,
+	);
 	const deleteRecordingWithToast = createResultMutation(() => ({
 		...recordings.deleteRecording(),
 		onSuccess: () => {
@@ -108,11 +110,34 @@
 					: recording.transcriptionStatus === 'DONE'
 						? 'Retry transcription'
 						: 'Transcription failed - click to try again'}
-			onclick={() =>
-				transcriber.transcribeRecording({
-					recording,
-					toastId: nanoid(),
-				})}
+			onclick={() => {
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '📋 Transcribing...',
+					description: 'Your recording is being transcribed...',
+				});
+				transcribeRecording.mutate(recording, {
+					onSuccess: () =>
+						toast.success({
+							id: toastId,
+							title: 'Transcribed recording!',
+							description: 'Your recording has been transcribed.',
+						}),
+					onError: (error) => {
+						if (error.name === 'WhisperingError') {
+							toast.error({ id: toastId, ...error });
+							return;
+						}
+						toast.error({
+							id: toastId,
+							title: '❌ Failed to transcribe recording',
+							description: 'Your recording could not be transcribed.',
+							action: { type: 'more-details', error: error },
+						});
+					},
+				});
+			}}
 			variant="ghost"
 			size="icon"
 		>
