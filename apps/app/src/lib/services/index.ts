@@ -26,6 +26,7 @@ import { createElevenLabsTranscriptionService } from './transcription/whisper/el
 import { createFasterWhisperServerTranscriptionService } from './transcription/whisper/fasterWhisperServer';
 import { createGroqTranscriptionService } from './transcription/whisper/groq';
 import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
+import { createVadServiceWeb } from './vad';
 
 export const DownloadService = window.__TAURI_INTERNALS__
 	? createDownloadServiceDesktop()
@@ -58,6 +59,8 @@ export const RunTransformationService = createRunTransformationService({
 	HttpService,
 	DbTransformationsService,
 });
+
+export const VadService = createVadServiceWeb();
 
 /**
  * Services that are determined by the user's settings.

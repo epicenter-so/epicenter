@@ -1,7 +1,7 @@
 import { Err, Ok, trySync } from '@epicenterhq/result';
 import { WhisperingError, type WhisperingRecordingState } from '@repo/shared';
 import { MicVAD, utils } from '@ricky0123/vad-web';
-import { toast } from '../toast';
+import { toast } from './toast';
 
 export function createVadServiceWeb() {
 	let maybeVad: MicVAD | null = null;
