@@ -14,25 +14,13 @@ import { nanoid } from 'nanoid/non-secure';
 import { getContext, setContext } from 'svelte';
 import { recorder } from '../recorder';
 import { transcription } from '../transcription';
-import type { ManualRecorder } from './manualRecorder';
+import { vadRecorder } from '../vadRecorder';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
-import type { Transformer } from './transformer';
-import type { VadRecorder } from './vadRecorder';
 
 export type CommandCallbacks = ReturnType<typeof createCommandCallbacks>;
 
-export const initCommandsInContext = ({
-	manualRecorder,
-	vadRecorder,
-}: {
-	manualRecorder: ManualRecorder;
-	vadRecorder: VadRecorder;
-	transformer: Transformer;
-}) => {
-	const commandCallbacks = createCommandCallbacks({
-		manualRecorder,
-		vadRecorder,
-	});
+export const initCommandsInContext = () => {
+	const commandCallbacks = createCommandCallbacks();
 	setContext('commandCallbacks', commandCallbacks);
 	return commandCallbacks;
 };
@@ -41,20 +29,19 @@ export const getCommandsFromContext = () => {
 	return getContext<CommandCallbacks>('commandCallbacks');
 };
 
-function createCommandCallbacks({
-	manualRecorder,
-	vadRecorder,
-}: {
-	manualRecorder: ManualRecorder;
-	vadRecorder: VadRecorder;
-}) {
+function createCommandCallbacks() {
 	const recorderState = createResultQuery(recorder.getRecorderState);
+	const getVadState = createResultQuery(vadRecorder.getVadState);
 	const startRecording = createResultMutation(recorder.startRecording);
 	const stopRecording = createResultMutation(recorder.stopRecording);
 	const closeRecordingSession = createResultMutation(
 		recorder.closeRecordingSession,
 	);
 	const cancelRecorder = createResultMutation(recorder.cancelRecording);
+	const startActiveListening = createResultMutation(
+		vadRecorder.startActiveListening,
+	);
+	const stopVad = createResultMutation(vadRecorder.stopVad);
 	const transcribeRecording = createResultMutation(
 		transcription.transcribeRecording,
 	);
@@ -335,7 +322,24 @@ function createCommandCallbacks({
 				},
 			);
 		},
-		toggleVadRecording: () => vadRecorder.toggleVad(),
-		pushToTalk: () => manualRecorder.toggleRecording(),
+		toggleVadRecording: () => {
+			if (getVadState.data === 'SESSION+RECORDING') {
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '⏸️ Stopping voice activated capture...',
+					description: 'Finalizing your voice activated capture...',
+				});
+				stopVad.mutate(undefined, {
+					onError: (error) => {
+						toast.error({ id: toastId, ...error });
+					},
+				});
+			} else {
+				startActiveListening.mutate();
+			}
+		},
+		// TODO: Implement push to talk
+		pushToTalk: () => {},
 	} satisfies Record<Command['id'], () => void>;
 }
