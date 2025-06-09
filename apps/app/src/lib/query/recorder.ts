@@ -21,19 +21,19 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.state });
 
 export const recorder = {
-	getMediaDevices: {
+	getMediaDevices: () => ({
 		queryKey: recorderKeys.mediaDevices,
 		queryFn: () => services.recorder.enumerateRecordingDevices(),
-	},
+	}),
 
-	getRecorderState: {
+	getRecorderState: () => ({
 		queryKey: recorderKeys.state,
 		queryFn: async () => {
 			const recorderStateResult = await services.recorder.getRecorderState();
 			return recorderStateResult;
 		},
 		initialData: 'IDLE' as const,
-	},
+	}),
 
 	closeRecordingSession: {
 		mutationKey: recorderKeys.closeSession,

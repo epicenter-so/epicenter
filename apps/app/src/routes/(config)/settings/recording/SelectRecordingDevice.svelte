@@ -12,9 +12,7 @@
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const getMediaDevicesQuery = createResultQuery(
-		() => recorder.getMediaDevices,
-	);
+	const getMediaDevicesQuery = createResultQuery(recorder.getMediaDevices);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {

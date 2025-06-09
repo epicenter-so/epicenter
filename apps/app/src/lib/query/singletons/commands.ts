@@ -39,7 +39,7 @@ function createCommandCallbacks() {
 }
 
 function createRecorderCommands() {
-	const getRecorderState = createResultQuery(() => recorder.getRecorderState);
+	const getRecorderState = createResultQuery(recorder.getRecorderState);
 
 	return {
 		toggleManualRecording: async () => {

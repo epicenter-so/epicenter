@@ -12,9 +12,7 @@
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
-	const getMediaDevicesQuery = createResultQuery(
-		() => recorder.getMediaDevices,
-	);
+	const getMediaDevicesQuery = createResultQuery(recorder.getMediaDevices);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
@@ -43,9 +41,10 @@
 				<Command.Item
 					value={device.label}
 					onSelect={async () => {
-						const { error } = await executeMutation(recorder.closeRecordingSession, {
-							sendStatus: noop,
-						});
+						const { error } = await executeMutation(
+							recorder.closeRecordingSession,
+							{ sendStatus: noop },
+						);
 						if (error) {
 							toast.error({
 								title: '❌ Failed to close session',
