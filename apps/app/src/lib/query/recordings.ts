@@ -117,11 +117,16 @@ export const recordings = {
 					queryKey: recordingKeys.latest,
 				});
 			},
-		}) satisfies CreateResultMutationOptions<void, DbServiceErrorProperties, Recording>,
+		}) satisfies CreateResultMutationOptions<
+			void,
+			DbServiceErrorProperties,
+			Recording
+		>,
 
 	deleteRecordings: () =>
 		({
-			mutationFn: (recordings) => DbRecordingsService.deleteRecordings(recordings),
+			mutationFn: (recordings) =>
+				DbRecordingsService.deleteRecordings(recordings),
 			onSuccess: (_, recordings) => {
 				queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
 					if (!oldData) return [];
@@ -137,5 +142,9 @@ export const recordings = {
 					queryKey: recordingKeys.latest,
 				});
 			},
-		}) satisfies CreateResultMutationOptions<void, DbServiceErrorProperties, Recording[]>,
+		}) satisfies CreateResultMutationOptions<
+			void,
+			DbServiceErrorProperties,
+			Recording[]
+		>,
 };
