@@ -20,7 +20,7 @@ import type { HttpService } from './http/_types';
 
 export type TransformResult<T> = Ok<T> | Err<WhisperingError>;
 
-export function createRunTransformationService({
+export function createTransformerService({
 	DbTransformationsService,
 	HttpService,
 }: {

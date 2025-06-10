@@ -19,7 +19,7 @@ import { createNotificationServiceWeb } from './notifications/web';
 import type { RecorderService } from './recorder/_types';
 import { createRecorderServiceTauri } from './recorder/tauri';
 import { createRecorderServiceWeb } from './recorder/web';
-import { createRunTransformationService } from './runTransformation';
+import { createTransformerService } from './transformer';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
 import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
@@ -59,7 +59,7 @@ const PlaySoundService = window.__TAURI_INTERNALS__
 	? createPlaySoundServiceDesktop()
 	: createPlaySoundServiceWeb();
 
-export const RunTransformationService = createRunTransformationService({
+export const TransformerService = createTransformerService({
 	HttpService,
 	DbTransformationsService,
 });

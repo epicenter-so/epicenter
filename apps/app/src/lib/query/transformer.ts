@@ -1,6 +1,6 @@
 import { DbRecordingsService, playSoundIfEnabled } from '$lib/services';
-import { RunTransformationService } from '$lib/services/index.js';
-import { TransformErrorToWhisperingErr } from '$lib/services/runTransformation';
+import { TransformerService } from '$lib/services/index.js';
+import { TransformErrorToWhisperingErr } from '$lib/services/transformer';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
@@ -37,7 +37,7 @@ export const transformer = {
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await RunTransformationService.runTransformation({
+					await TransformerService.runTransformation({
 						input,
 						transformationId,
 						recordingId: null,
@@ -142,7 +142,7 @@ export const transformer = {
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await RunTransformationService.runTransformation({
+					await TransformerService.runTransformation({
 						input: recording.transcribedText,
 						transformationId,
 						recordingId,
