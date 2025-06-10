@@ -10,17 +10,9 @@ export type WhisperingWarning = Omit<
 export type WhisperingError = Omit<TaggedError<'WhisperingError'>, 'message'> &
 	Omit<ToastAndNotifyOptions, 'variant'>;
 
-export type WhisperingErr = Err<WhisperingError>;
-export type WhisperingResult<T> = Ok<T> | WhisperingErr;
+export type WhisperingResult<T> = Ok<T> | Err<WhisperingError>;
 
 export type MaybePromise<T> = T | Promise<T>;
-
-export const WhisperingWarningProperties = (
-	args: Omit<WhisperingWarning, 'name'>,
-): WhisperingWarning => ({
-	name: 'WhisperingWarning',
-	...args,
-});
 
 export const WhisperingError = (
 	args: Omit<WhisperingError, 'name'>,
