@@ -1,15 +1,10 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
 	import { recorder } from '$lib/query/recorder';
-	import { executeMutation } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import {
-		createResultMutation,
-		createResultQuery,
-		noop,
-	} from '@tanstack/svelte-query';
+	import { createResultQuery, noop } from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
@@ -42,10 +37,9 @@
 				<Command.Item
 					value={device.label}
 					onSelect={async () => {
-						const { error } = await executeMutation(
-							recorder.closeRecordingSession,
-							{ sendStatus: noop },
-						);
+						const { error } = await recorder.closeRecordingSession.execute({
+							sendStatus: noop,
+						});
 						if (error) {
 							toast.error({
 								title: '❌ Failed to close session',

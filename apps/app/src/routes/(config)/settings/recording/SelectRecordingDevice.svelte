@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { executeMutation } from '$lib/query';
 	import { recorder } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
 	import { createResultQuery, noop } from '@tanstack/svelte-query';

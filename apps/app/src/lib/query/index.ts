@@ -9,7 +9,7 @@ export const queryClient = new QueryClient({
 	},
 });
 
-export function executeMutation<TData, TError, TVariables, TContext>(
+function executeMutation<TData, TError, TVariables, TContext>(
 	options: MutationOptions<TData, TError, TVariables, TContext>,
 	variables: TVariables,
 ) {
