@@ -3,8 +3,7 @@ import type {
 	TransformationRun,
 } from '$lib/services/db/DbService';
 import { DbTransformationsService } from '$lib/services/index.js';
-import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
-import type { Accessor } from './types';
+import type { Accessor, CreateResultQueryOptions } from '@tanstack/svelte-query';
 
 // Define the query key as a constant array
 export const transformationRunKeys = {

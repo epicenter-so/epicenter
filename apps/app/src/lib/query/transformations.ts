@@ -6,8 +6,10 @@ import type {
 import { DbTransformationsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
-import type { Accessor } from './types';
+import type {
+	Accessor,
+	CreateResultQueryOptions,
+} from '@tanstack/svelte-query';
 import { Err, Ok } from '@epicenterhq/result';
 
 // Define the query key as a constant array
