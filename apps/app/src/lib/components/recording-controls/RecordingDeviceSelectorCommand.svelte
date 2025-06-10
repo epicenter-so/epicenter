@@ -8,7 +8,9 @@
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
-	const getMediaDevicesQuery = createResultQuery(recorder.getMediaDevices);
+	const getMediaDevicesQuery = createResultQuery(
+		recorder.getMediaDevices.options,
+	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {

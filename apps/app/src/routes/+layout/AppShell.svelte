@@ -21,7 +21,7 @@
 	const getRecorderStateQuery = createResultQuery(
 		recorder.getRecorderState.options,
 	);
-	const getVadStateQuery = createResultQuery(vadRecorder.getVadState);
+	const getVadStateQuery = createResultQuery(vadRecorder.getVadState.options);
 	const commands = getCommandsFromContext();
 
 	if (window.__TAURI_INTERNALS__) {

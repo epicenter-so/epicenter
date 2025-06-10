@@ -57,7 +57,9 @@
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 	import { nanoid } from 'nanoid/non-secure';
 
-	const getAllRecordingsQuery = createResultQuery(recordings.getAllRecordings);
+	const getAllRecordingsQuery = createResultQuery(
+		recordings.getAllRecordings.options,
+	);
 	const transcribeRecordings = createResultMutation(
 		transcription.transcribeRecordings.options,
 	);

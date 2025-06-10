@@ -2,9 +2,8 @@ import { VadService, playSoundIfEnabled } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { isOk, Ok } from '@epicenterhq/result';
-import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
-import { defineMutation, queryClient } from '.';
+import { defineMutation, defineQuery, queryClient } from '.';
 import { recordings } from './recordings';
 import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
 import { transcription } from './transcription';
@@ -20,14 +19,13 @@ const invalidateVadState = () =>
 	queryClient.invalidateQueries({ queryKey: vadRecorderKeys.state });
 
 export const vadRecorder = {
-	getVadState: () =>
-		({
-			queryKey: vadRecorderKeys.state,
-			queryFn: () => {
-				const vadState = VadService.getVadState();
-				return Ok(vadState);
-			},
-		}) satisfies CreateResultQueryOptions<string, never>,
+	getVadState: defineQuery({
+		queryKey: vadRecorderKeys.state,
+		queryFn: () => {
+			const vadState = VadService.getVadState();
+			return Ok(vadState);
+		},
+	}),
 
 	closeVadSession: defineMutation({
 		mutationKey: vadRecorderKeys.closeVad,

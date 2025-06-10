@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
 import type { Result } from '@epicenterhq/result';
 import {
+	type InitialDataFunction,
 	type MutationOptions,
 	QueryClient,
 	type QueryFunction,
@@ -50,7 +51,8 @@ export function defineQuery<
 >(options: {
 	queryKey: TQueryKey;
 	queryFn: QueryFunction<Result<TQueryFnData, TError>, TQueryKey, never>;
-	initialData?: NoInfer<TData>;
+	initialData?: NoInfer<TData> | InitialDataFunction<NoInfer<TData>>;
+	initialDataUpdatedAt?: number | (() => number | undefined);
 }) {
 	return {
 		/**

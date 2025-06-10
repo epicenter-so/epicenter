@@ -1,16 +1,10 @@
-import { defineMutation, queryClient } from '$lib/query';
-import type {
-	DbServiceErrorProperties,
-	Transformation,
-} from '$lib/services/db/DbService';
+import { defineMutation, defineQuery, queryClient } from '$lib/query';
+import type { Transformation } from '$lib/services/db/DbService';
 import { DbTransformationsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import type {
-	Accessor,
-	CreateResultQueryOptions,
-} from '@tanstack/svelte-query';
 import { Err, Ok } from '@epicenterhq/result';
+import type { Accessor } from '@tanstack/svelte-query';
 
 // Define the query key as a constant array
 export const transformationsKeys = {
@@ -20,16 +14,12 @@ export const transformationsKeys = {
 
 export const transformations = {
 	queries: {
-		getAllTransformations: () =>
-			({
-				queryKey: transformationsKeys.all,
-				queryFn: () => DbTransformationsService.getAllTransformations(),
-			}) satisfies CreateResultQueryOptions<
-				Transformation[],
-				DbServiceErrorProperties
-			>,
-		getTransformationById: (id: Accessor<string>) => () =>
-			({
+		getAllTransformations: defineQuery({
+			queryKey: transformationsKeys.all,
+			queryFn: () => DbTransformationsService.getAllTransformations(),
+		}),
+		getTransformationById: (id: Accessor<string>) =>
+			defineQuery({
 				queryKey: transformationsKeys.byId(id()),
 				queryFn: () => DbTransformationsService.getTransformationById(id()),
 				initialData: () =>
@@ -39,10 +29,7 @@ export const transformations = {
 				initialDataUpdatedAt: () =>
 					queryClient.getQueryState(transformationsKeys.byId(id()))
 						?.dataUpdatedAt,
-			}) satisfies CreateResultQueryOptions<
-				Transformation | null,
-				DbServiceErrorProperties
-			>,
+			}),
 	},
 	mutations: {
 		createTransformation: defineMutation({

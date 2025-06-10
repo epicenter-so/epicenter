@@ -21,9 +21,13 @@
 	import { vadRecorder } from '$lib/query/vadRecorder';
 
 	const commands = getCommandsFromContext();
-	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
-	const getVadStateQuery = createResultQuery(vadRecorder.getVadState);
-	const latestRecordingQuery = createResultQuery(recordings.getLatestRecording);
+	const getRecorderStateQuery = createResultQuery(
+		recorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createResultQuery(vadRecorder.getVadState.options);
+	const latestRecordingQuery = createResultQuery(
+		recordings.getLatestRecording.options,
+	);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {
