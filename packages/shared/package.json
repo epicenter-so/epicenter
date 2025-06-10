@@ -13,7 +13,7 @@
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@epicenterhq/result": "^0.13.0",
+		"@epicenterhq/result": "^0.15.0",
 		"arktype": "^2.1.20",
 		"zod": "^3.25.42"
 	}

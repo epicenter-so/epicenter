@@ -21,8 +21,8 @@ importers:
   apps/app:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.13.1
-        version: 0.13.1
+        specifier: ^0.15.0
+        version: 0.15.0
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -220,8 +220,8 @@ importers:
   apps/extension:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.15.0
+        version: 0.15.0
       '@plasmohq/messaging':
         specifier: ^0.6.2
         version: 0.6.2(react@18.3.1)
@@ -317,8 +317,8 @@ importers:
   packages/shared:
     dependencies:
       '@epicenterhq/result':
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.15.0
+        version: 0.15.0
       arktype:
         specifier: ^2.1.20
         version: 2.1.20
@@ -469,11 +469,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@epicenterhq/result@0.13.0':
-    resolution: {integrity: sha512-+ztxf1TfqoitqqvgFNwFPfoYQzDww7s1Xz3O1tHqgVh8uOxCuEPrlHgcoXfy+UgAQFUBQQu0wCzORO0CDHUTfw==}
-
   '@epicenterhq/result@0.13.1':
     resolution: {integrity: sha512-Mu5XSISnaZQT6+qhiaMG6fCdyzNvQmxPgbP0cAzEO+J7TmeVXPQKwuopMKxP6kPLQ7WejYoi5Yclxxp1XMLO3Q==}
+
+  '@epicenterhq/result@0.15.0':
+    resolution: {integrity: sha512-sJVlKZOZwaazliauq+DUNYBSml/3l5AlOEwuc6nSK3WyLILUa/QOlUHYhDjlB2J/ZVMMbs3eHPyhfR3J81ZMeQ==}
 
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
@@ -5772,9 +5772,9 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@epicenterhq/result@0.13.0': {}
-
   '@epicenterhq/result@0.13.1': {}
+
+  '@epicenterhq/result@0.15.0': {}
 
   '@esbuild/aix-ppc64@0.25.5':
     optional: true
