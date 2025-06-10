@@ -1,20 +1,22 @@
 <script lang="ts">
-	import * as SectionHeader from '$lib/components/ui/section-header';
 	import { LabeledTextarea } from '$lib/components/labeled/index.js';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
+	import * as SectionHeader from '$lib/components/ui/section-header';
+	import { Separator } from '$lib/components/ui/separator';
+	import { transformer } from '$lib/query/transformer';
 	import type { Transformation } from '$lib/services/db';
+	import { createResultMutation } from '@tanstack/svelte-query';
 	import { Loader2Icon, PlayIcon } from 'lucide-svelte';
 	import { nanoid } from 'nanoid/non-secure';
-	import { Separator } from '$lib/components/ui/separator';
+
+	const transformInput = createResultMutation(
+		transformer.transformInput.options,
+	);
 
 	let { transformation }: { transformation: Transformation } = $props();
 
 	let input = $state('');
 	let output = $state('');
-
-	const transformer = getTransformerFromContext();
 </script>
 
 <div class="flex flex-col gap-6 overflow-y-auto h-full px-2">
@@ -48,19 +50,25 @@
 
 	<Button
 		onclick={() =>
-			transformer.transformInput.mutate(
+			transformInput.mutate(
 				{ input, transformationId: transformation.id, toastId: nanoid() },
-				{ onSuccess: (o) => (output = o) },
+				{
+					onSuccess: (o) => {
+						if (o) {
+							output = o;
+						}
+					},
+				},
 			)}
 		disabled={!input.trim() || transformation.steps.length === 0}
 		class="w-full"
 	>
-		{#if transformer.transformInput.isPending}
+		{#if transformInput.isPending}
 			<Loader2Icon class="mr-2 size-4 animate-spin" />
 		{:else}
 			<PlayIcon class="mr-2 size-4" />
 		{/if}
-		{transformer.transformInput.isPending
+		{transformInput.isPending
 			? 'Running Transformation...'
 			: 'Run Transformation'}
 	</Button>

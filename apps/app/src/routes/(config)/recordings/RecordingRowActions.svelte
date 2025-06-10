@@ -6,17 +6,15 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { executeMutation } from '$lib/query';
 	import { download } from '$lib/query/download';
 	import { recordings } from '$lib/query/recordings';
-	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
 	import { transcription } from '$lib/query/transcription';
 	import { transformations } from '$lib/query/transformationRuns';
+	import { transformer } from '$lib/query/transformer';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
-	import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS, WhisperingError } from '@repo/shared';
+	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import {
 		createResultMutation,
 		createResultQuery,
@@ -34,7 +32,6 @@
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
-	const transformer = getTransformerFromContext();
 	const transcribeRecording = createResultMutation(
 		transcription.transcribeRecording.options,
 	);
@@ -149,14 +146,11 @@
 
 		<SelectTransformationCombobox
 			onSelect={async (transformation) => {
-				const { error } = await executeMutation(
-					transformer.transformRecording,
-					{
-						recordingId: recording.id,
-						transformationId: transformation.id,
-						toastId: nanoid(),
-					},
-				);
+				const { error } = await transformer.transformRecording.execute({
+					recordingId: recording.id,
+					transformationId: transformation.id,
+					toastId: nanoid(),
+				});
 			}}
 		/>
 
