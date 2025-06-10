@@ -31,10 +31,11 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
+	import { executeMutation } from '$lib/query/recorder';
 
 	const transformer = getTransformerFromContext();
 	const transcribeRecording = createResultMutation(
-		transcription.transcribeRecording,
+		() => transcription.transcribeRecording,
 	);
 	const deleteRecordingWithToast = createResultMutation(() => ({
 		...recordings.deleteRecording(),
@@ -118,12 +119,13 @@
 					description: 'Your recording is being transcribed...',
 				});
 				transcribeRecording.mutate(recording, {
-					onSuccess: () =>
+					onSuccess: () => {
 						toast.success({
 							id: toastId,
 							title: 'Transcribed recording!',
 							description: 'Your recording has been transcribed.',
-						}),
+						});
+					},
 					onError: (error) => {
 						if (error.name === 'WhisperingError') {
 							toast.error({ id: toastId, ...error });
@@ -153,12 +155,16 @@
 		</WhisperingButton>
 
 		<SelectTransformationCombobox
-			onSelect={(transformation) =>
-				transformer.transformRecording.mutate({
-					recordingId: recording.id,
-					transformationId: transformation.id,
-					toastId: nanoid(),
-				})}
+			onSelect={async (transformation) => {
+				const { error } = await executeMutation(
+					transformer.transformRecording,
+					{
+						recordingId: recording.id,
+						transformationId: transformation.id,
+						toastId: nanoid(),
+					},
+				);
+			}}
 		/>
 
 		<EditRecordingDialog
