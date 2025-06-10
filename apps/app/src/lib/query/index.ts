@@ -129,8 +129,9 @@ export function defineMutation<TData, TError, TVariables, TContext>(
 		options: () =>
 			({
 				...options,
-				mutationFn: (variables: TVariables) =>
-					options.resultMutationFn(variables).then(resolve),
+				mutationFn: async (variables: TVariables) => {
+					return resolve(await options.resultMutationFn(variables));
+				},
 			}) satisfies MutationOptions<TData, TError, TVariables, TContext>,
 		/**
 		 * Bypasses the reactive mutation hooks and executes the mutation imperatively.
