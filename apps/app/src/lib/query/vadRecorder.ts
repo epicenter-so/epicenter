@@ -1,14 +1,10 @@
 import { VadService, playSoundIfEnabled } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
-import type {
-	CreateResultMutationOptions,
-	CreateResultQueryOptions,
-} from '@tanstack/svelte-query';
+import { isOk, Ok } from '@epicenterhq/result';
+import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
-import { executeMutation, queryClient } from '.';
+import { defineMutation, queryClient } from '.';
 import { recordings } from './recordings';
 import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
 import { transcription } from './transcription';
@@ -17,6 +13,7 @@ import { transformer } from './transformer';
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
 	state: ['vadRecorder', 'state'] as const,
+	closeVad: ['vadRecorder', 'closeVad'] as const,
 } as const;
 
 const invalidateVadState = () =>
@@ -32,17 +29,18 @@ export const vadRecorder = {
 			},
 		}) satisfies CreateResultQueryOptions<string, never>,
 
-	closeVadSession: () =>
-		({
-			mutationFn: async () => {
-				const closeResult = await VadService.closeVad();
-				return closeResult;
-			},
-			onSettled: invalidateVadState,
-		}) satisfies CreateResultMutationOptions<any, any, void>,
+	closeVadSession: defineMutation({
+		mutationKey: vadRecorderKeys.closeVad,
+		mutationFn: async () => {
+			const closeResult = await VadService.closeVad();
+			invalidateVadState();
+			return closeResult;
+		},
+	}),
 
-	startActiveListening: () => ({
-		onMutate: async () => {
+	startActiveListening: defineMutation({
+		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
+		mutationFn: async () => {
 			const { error: ensureVadError } = await VadService.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
@@ -60,7 +58,7 @@ export const vadRecorder = {
 					const newRecordingId = nanoid();
 
 					const { data: createdRecording, error: createRecordingError } =
-						await executeMutation(recordings.createRecording, {
+						await recordings.createRecording.execute({
 							id: newRecordingId,
 							title: '',
 							subtitle: '',
@@ -98,10 +96,8 @@ export const vadRecorder = {
 						title: '📋 Transcribing...',
 						description: 'Your recording is being transcribed...',
 					});
-					const { error } = await executeMutation(
-						transcription.transcribeRecording,
-						createdRecording,
-					);
+					const { error } =
+						await transcription.transcribeRecording.execute(createdRecording);
 					if (error) {
 						if (error.name === 'WhisperingError') {
 							toast.error({ id: transcribeToastId, ...error });
@@ -140,7 +136,7 @@ export const vadRecorder = {
 					});
 					if (settings.value['transformations.selectedTransformationId']) {
 						const transformToastId = nanoid();
-						executeMutation(transformer.transformRecording, {
+						transformer.transformRecording.execute({
 							recordingId: createdRecording.id,
 							transformationId:
 								settings.value['transformations.selectedTransformationId'],
@@ -163,16 +159,16 @@ export const vadRecorder = {
 		},
 	}),
 
-	stopVad: () =>
-		({
-			mutationFn: async () => {
-				const stopResult = await VadService.closeVad();
-				return stopResult;
-			},
-			onSuccess: () => {
+	stopVad: defineMutation({
+		mutationKey: ['vadRecorder', 'stopVad'] as const,
+		mutationFn: async () => {
+			const stopResult = await VadService.closeVad();
+			if (isOk(stopResult)) {
 				console.info('Stopping voice activated capture');
 				playSoundIfEnabled('vad-stop');
-			},
-			onSettled: invalidateVadState,
-		}) satisfies CreateResultMutationOptions<void, WhisperingError, void>,
+			}
+			invalidateVadState();
+			return stopResult;
+		},
+	}),
 };
