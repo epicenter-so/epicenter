@@ -39,14 +39,14 @@ importers:
         specifier: ^0.0.24
         version: 0.0.24
       '@tanstack/query-core':
-        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419
-        version: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419
+        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b
+        version: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b
       '@tanstack/svelte-query':
-        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419
-        version: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419(svelte@5.33.10)
+        specifier: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b
+        version: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.33.10)
       '@tanstack/svelte-query-devtools':
         specifier: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter
-        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419(svelte@5.33.10))(svelte@5.33.10)
+        version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.33.10))(svelte@5.33.10)
       '@tanstack/table-core':
         specifier: 8.21.3
         version: 8.21.3
@@ -2563,9 +2563,9 @@ packages:
   '@tanstack/query-core@5.79.0':
     resolution: {integrity: sha512-s+epTqqLM0/TbJzMAK7OEhZIzh63P9sWz5HEFc5XHL4FvKQXQkcjI8F3nee+H/xVVn7mrP610nVXwOytTSYd0w==}
 
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419':
-    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419}
-    version: 5.80.2
+  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b':
+    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b}
+    version: 5.80.6
 
   '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5':
     resolution: {tarball: https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5}
@@ -2583,9 +2583,9 @@ packages:
       '@tanstack/svelte-query': ^5.75.7
       svelte: ^5.0.0
 
-  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419':
-    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419}
-    version: 5.80.2
+  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b':
+    resolution: {tarball: https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b}
+    version: 5.80.6
     peerDependencies:
       svelte: ^5.7.0
 
@@ -7973,7 +7973,7 @@ snapshots:
 
   '@tanstack/query-core@5.79.0': {}
 
-  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419': {}
+  '@tanstack/query-core@https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b': {}
 
   '@tanstack/query-devtools@https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5': {}
 
@@ -7982,17 +7982,17 @@ snapshots:
       '@tanstack/query-core': 5.79.0
       react: 18.3.1
 
-  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419(svelte@5.33.10))(svelte@5.33.10)':
+  '@tanstack/svelte-query-devtools@https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.33.10))(svelte@5.33.10)':
     dependencies:
       '@tanstack/query-devtools': https://pkg.pr.new/TanStack/query/@tanstack/query-devtools@746b9c5
-      '@tanstack/svelte-query': https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419(svelte@5.33.10)
+      '@tanstack/svelte-query': https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.33.10)
       esm-env: 1.2.2
       svelte: 5.33.10
 
-  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@7f020898590f4d092fd8b29039fa3bf284716419(svelte@5.33.10)':
+  '@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.33.10)':
     dependencies:
       '@epicenterhq/result': 0.13.1
-      '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@7f020898590f4d092fd8b29039fa3bf284716419
+      '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b
       svelte: 5.33.10
 
   '@tanstack/table-core@8.21.3': {}
