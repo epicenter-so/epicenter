@@ -13,22 +13,9 @@
 	import { onDestroy } from 'svelte';
 	import { toast } from '$lib/services/toast';
 
-	const deleteRecordingWithToast = createResultMutation(() => ({
-		...recordings.deleteRecording(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Deleted recording!',
-				description: 'Your recording has been deleted successfully.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to delete recording!',
-				description: 'Your recording could not be deleted.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
+	const deleteRecording = createResultMutation(
+		recordings.deleteRecording.options,
+	);
 
 	let {
 		recording,
@@ -123,15 +110,26 @@
 		<Dialog.Footer>
 			<Button
 				onclick={() =>
-					deleteRecordingWithToast.mutate(recording, {
-						onSettled: () => {
+					deleteRecording.mutate(recording, {
+						onSuccess: () => {
 							isDialogOpen = false;
+							toast.success({
+								title: 'Deleted recording!',
+								description: 'Your recording has been deleted successfully.',
+							});
+						},
+						onError: (error) => {
+							toast.error({
+								title: 'Failed to delete recording!',
+								description: 'Your recording could not be deleted.',
+								action: { type: 'more-details', error },
+							});
 						},
 					})}
 				variant="destructive"
-				disabled={deleteRecordingWithToast.isPending}
+				disabled={deleteRecording.isPending}
 			>
-				{#if deleteRecordingWithToast.isPending}
+				{#if deleteRecording.isPending}
 					<Loader2Icon class="mr-2 size-4 animate-spin" />
 				{/if}
 				Delete

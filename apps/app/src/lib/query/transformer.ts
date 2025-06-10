@@ -4,7 +4,7 @@ import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
 import type { WhisperingError, WhisperingResult } from '@repo/shared';
-import { queryClient } from '.';
+import { defineMutation, queryClient } from '.';
 import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
 import { transformationRunKeys } from './transformationRuns';
 import { transformationsKeys } from './transformations';
@@ -15,7 +15,7 @@ const transformerKeys = {
 };
 
 export const transformer = {
-	transformInput: {
+	transformInput: defineMutation({
 		mutationKey: transformerKeys.transformInput,
 		mutationFn: async ({
 			input,
@@ -104,9 +104,9 @@ export const transformer = {
 
 			return transformationOutputResult;
 		},
-	},
+	}),
 
-	transformRecording: {
+	transformRecording: defineMutation({
 		mutationKey: transformerKeys.transformRecording,
 		mutationFn: async ({
 			recordingId,
@@ -226,5 +226,5 @@ export const transformer = {
 
 			return transformationOutputResult;
 		},
-	},
+	}),
 };

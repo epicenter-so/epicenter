@@ -1,4 +1,4 @@
-import { queryClient } from '$lib/query';
+import { defineMutation, queryClient } from '$lib/query';
 import type {
 	DbServiceErrorProperties,
 	Transformation,
@@ -6,11 +6,9 @@ import type {
 import { DbTransformationsService } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import type {
-	CreateResultMutationOptions,
-	CreateResultQueryOptions,
-} from '@tanstack/svelte-query';
+import type { CreateResultQueryOptions } from '@tanstack/svelte-query';
 import type { Accessor } from './types';
+import { Err, Ok } from '@epicenterhq/result';
 
 // Define the query key as a constant array
 export const transformationsKeys = {
@@ -45,57 +43,63 @@ export const transformations = {
 			>,
 	},
 	mutations: {
-		createTransformation: () =>
-			({
-				mutationFn: (transformation) =>
-					DbTransformationsService.createTransformation(transformation),
-				onSuccess: (transformation) => {
-					queryClient.setQueryData<Transformation[]>(
-						transformationsKeys.all,
-						(oldData) => {
-							if (!oldData) return [transformation];
-							return [...oldData, transformation];
-						},
-					);
-					queryClient.setQueryData<Transformation>(
-						transformationsKeys.byId(transformation.id),
-						transformation,
-					);
-				},
-			}) satisfies CreateResultMutationOptions<
-				Transformation,
-				DbServiceErrorProperties,
-				Transformation
-			>,
-		updateTransformation: () =>
-			({
-				mutationFn: (transformation: Transformation) =>
-					DbTransformationsService.updateTransformation(transformation),
-				onSuccess: (transformation) => {
-					queryClient.setQueryData<Transformation[]>(
-						transformationsKeys.all,
-						(oldData) => {
-							if (!oldData) return [transformation];
-							return oldData.map((item) =>
-								item.id === transformation.id ? transformation : item,
-							);
-						},
-					);
-					queryClient.setQueryData<Transformation>(
-						transformationsKeys.byId(transformation.id),
-						transformation,
-					);
-				},
-			}) satisfies CreateResultMutationOptions<
-				Transformation,
-				DbServiceErrorProperties,
-				Parameters<typeof DbTransformationsService.updateTransformation>[0]
-			>,
+		createTransformation: defineMutation({
+			mutationKey: ['transformations', 'createTransformation'] as const,
+			mutationFn: async (transformation: Transformation) => {
+				const { data, error } =
+					await DbTransformationsService.createTransformation(transformation);
+				if (error) return Err(error);
+
+				queryClient.setQueryData<Transformation[]>(
+					transformationsKeys.all,
+					(oldData) => {
+						if (!oldData) return [transformation];
+						return [...oldData, transformation];
+					},
+				);
+				queryClient.setQueryData<Transformation>(
+					transformationsKeys.byId(transformation.id),
+					transformation,
+				);
+
+				return Ok(data);
+			},
+		}),
+		updateTransformation: defineMutation({
+			mutationKey: ['transformations', 'updateTransformation'] as const,
+			mutationFn: async (transformation: Transformation) => {
+				const { data, error } =
+					await DbTransformationsService.updateTransformation(transformation);
+				if (error) return Err(error);
+
+				queryClient.setQueryData<Transformation[]>(
+					transformationsKeys.all,
+					(oldData) => {
+						if (!oldData) return [transformation];
+						return oldData.map((item) =>
+							item.id === transformation.id ? transformation : item,
+						);
+					},
+				);
+				queryClient.setQueryData<Transformation>(
+					transformationsKeys.byId(transformation.id),
+					transformation,
+				);
+
+				return Ok(data);
+			},
+		}),
 		updateTransformationWithToast: () =>
-			({
-				mutationFn: (transformation: Transformation) =>
-					DbTransformationsService.updateTransformation(transformation),
-				onSuccess: (transformation) => {
+			defineMutation({
+				mutationKey: [
+					'transformations',
+					'updateTransformationWithToast',
+				] as const,
+				mutationFn: async (transformation: Transformation) => {
+					const { data, error } =
+						await DbTransformationsService.updateTransformation(transformation);
+					if (error) return Err(error);
+
 					queryClient.setQueryData<Transformation[]>(
 						transformationsKeys.all,
 						(oldData) => {
@@ -114,79 +118,77 @@ export const transformations = {
 						title: 'Updated transformation!',
 						description: 'Your transformation has been updated successfully.',
 					});
+
+					return Ok(data);
 				},
-			}) satisfies CreateResultMutationOptions<
-				Transformation,
-				DbServiceErrorProperties,
-				Transformation
-			>,
-		deleteTransformation: () =>
-			({
-				mutationFn: (transformation: Transformation) =>
-					DbTransformationsService.deleteTransformation(transformation),
-				onSuccess: (_, transformation) => {
-					queryClient.setQueryData<Transformation[]>(
-						transformationsKeys.all,
-						(oldData) => {
-							if (!oldData) return [];
-							return oldData.filter((item) => item.id !== transformation.id);
-						},
-					);
+			}),
+		deleteTransformation: defineMutation({
+			mutationKey: ['transformations', 'deleteTransformation'] as const,
+			mutationFn: async (transformation: Transformation) => {
+				const { error } =
+					await DbTransformationsService.deleteTransformation(transformation);
+				if (error) return Err(error);
+
+				queryClient.setQueryData<Transformation[]>(
+					transformationsKeys.all,
+					(oldData) => {
+						if (!oldData) return [];
+						return oldData.filter((item) => item.id !== transformation.id);
+					},
+				);
+				queryClient.removeQueries({
+					queryKey: transformationsKeys.byId(transformation.id),
+				});
+
+				if (
+					transformation.id ===
+					settings.value['transformations.selectedTransformationId']
+				) {
+					settings.value = {
+						...settings.value,
+						'transformations.selectedTransformationId': null,
+					};
+				}
+
+				return Ok(undefined);
+			},
+		}),
+		deleteTransformations: defineMutation({
+			mutationKey: ['transformations', 'deleteTransformations'] as const,
+			mutationFn: async (transformations: Transformation[]) => {
+				const { error } =
+					await DbTransformationsService.deleteTransformations(transformations);
+				if (error) return Err(error);
+
+				queryClient.setQueryData<Transformation[]>(
+					transformationsKeys.all,
+					(oldData) => {
+						if (!oldData) return [];
+						const deletedIds = new Set(transformations.map((t) => t.id));
+						return oldData.filter((item) => !deletedIds.has(item.id));
+					},
+				);
+				for (const transformation of transformations) {
 					queryClient.removeQueries({
 						queryKey: transformationsKeys.byId(transformation.id),
 					});
+				}
 
-					if (
-						transformation.id ===
-						settings.value['transformations.selectedTransformationId']
-					) {
-						settings.value = {
-							...settings.value,
-							'transformations.selectedTransformationId': null,
-						};
-					}
-				},
-			}) satisfies CreateResultMutationOptions<
-				void,
-				DbServiceErrorProperties,
-				Parameters<typeof DbTransformationsService.deleteTransformation>[0]
-			>,
-		deleteTransformations: () =>
-			({
-				mutationFn: (transformations) =>
-					DbTransformationsService.deleteTransformations(transformations),
-				onSuccess: (_, transformations) => {
-					queryClient.setQueryData<Transformation[]>(
-						transformationsKeys.all,
-						(oldData) => {
-							if (!oldData) return [];
-							const deletedIds = new Set(transformations.map((t) => t.id));
-							return oldData.filter((item) => !deletedIds.has(item.id));
-						},
-					);
-					for (const transformation of transformations) {
-						queryClient.removeQueries({
-							queryKey: transformationsKeys.byId(transformation.id),
-						});
-					}
+				if (
+					transformations.some(
+						(t) =>
+							t.id ===
+							settings.value['transformations.selectedTransformationId'],
+					)
+				) {
+					settings.value = {
+						...settings.value,
+						'transformations.selectedTransformationId': null,
+					};
+				}
 
-					if (
-						transformations.some(
-							(t) =>
-								t.id ===
-								settings.value['transformations.selectedTransformationId'],
-						)
-					) {
-						settings.value = {
-							...settings.value,
-							'transformations.selectedTransformationId': null,
-						};
-					}
-				},
-			}) satisfies CreateResultMutationOptions<
-				void,
-				DbServiceErrorProperties,
-				Transformation[]
-			>,
+				return Ok(undefined);
+			},
+		}),
 	},
 };

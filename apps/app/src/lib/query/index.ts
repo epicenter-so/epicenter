@@ -18,13 +18,15 @@ export function executeMutation<TData, TError, TVariables, TContext>(
 }
 
 export function defineMutation<TData, TError, TVariables, TContext>(
-	options: MutationOptions<TData, TError, TVariables, TContext> &
-		Required<
-			Pick<MutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'>
-		>,
+	options: Required<
+		Pick<
+			MutationOptions<TData, TError, TVariables, TContext>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
 ) {
 	return {
-		options,
+		options: () => options,
 		async execute(...args: Parameters<typeof options.mutationFn>) {
 			const result = await executeMutation(options, ...args);
 			return result;

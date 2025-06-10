@@ -44,22 +44,9 @@
 	const transformationsQuery = createResultQuery(
 		transformations.queries.getAllTransformations,
 	);
-	const deleteTransformationsWithToast = createResultMutation(() => ({
-		...transformations.mutations.deleteTransformations(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Deleted transformations!',
-				description: 'Your transformations have been deleted successfully.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to delete transformations!',
-				description: 'Your transformations could not be deleted.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
+	const deleteTransformations = createResultMutation(
+		transformations.mutations.deleteTransformations.options,
+	);
 
 	const columns: ColumnDef<Transformation>[] = [
 		{
@@ -237,8 +224,24 @@
 						subtitle: 'Are you sure you want to delete these transformations?',
 						confirmText: 'Delete',
 						onConfirm: () => {
-							deleteTransformationsWithToast.mutate(
+							deleteTransformations.mutate(
 								selectedTransformationRows.map(({ original }) => original),
+								{
+									onSuccess: () => {
+										toast.success({
+											title: 'Deleted transformations!',
+											description:
+												'Your transformations have been deleted successfully.',
+										});
+									},
+									onError: (error) => {
+										toast.error({
+											title: 'Failed to delete transformations!',
+											description: 'Your transformations could not be deleted.',
+											action: { type: 'more-details', error },
+										});
+									},
+								},
 							);
 						},
 					});

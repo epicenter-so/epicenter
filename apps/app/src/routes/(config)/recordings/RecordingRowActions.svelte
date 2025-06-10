@@ -6,6 +6,7 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { executeMutation } from '$lib/query';
 	import { download } from '$lib/query/download';
 	import { recordings } from '$lib/query/recordings';
 	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
@@ -13,8 +14,9 @@
 	import { transformations } from '$lib/query/transformationRuns';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
+	import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS } from '@repo/shared';
+	import { DEBOUNCE_TIME_MS, WhisperingError } from '@repo/shared';
 	import {
 		createResultMutation,
 		createResultQuery,
@@ -31,45 +33,22 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
-	import { executeMutation } from '$lib/query';
 
 	const transformer = getTransformerFromContext();
 	const transcribeRecording = createResultMutation(
-		() => transcription.transcribeRecording,
+		transcription.transcribeRecording.options,
 	);
-	const deleteRecordingWithToast = createResultMutation(() => ({
-		...recordings.deleteRecording(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Deleted recording!',
-				description: 'Your recording has been deleted successfully.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to delete recording!',
-				description: 'Your recording could not be deleted.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
-	const updateRecordingWithToast = createResultMutation(() => ({
-		...recordings.updateRecording(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Recording updated!',
-				description: 'Your recording has been updated.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to update recording!',
-				description: 'Your recording could not be updated.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
-	const downloadRecording = createResultMutation(download.downloadRecording);
+	const deleteRecording = createResultMutation(
+		recordings.deleteRecording.options,
+	);
+
+	const updateRecording = createResultMutation(
+		recordings.updateRecording.options,
+	);
+
+	const downloadRecording = createResultMutation(
+		download.downloadRecording.options,
+	);
 
 	let { recordingId }: { recordingId: string } = $props();
 
@@ -87,7 +66,21 @@
 	function debouncedSetRecording(newRecording: Recording) {
 		clearTimeout(saveTimeout);
 		saveTimeout = setTimeout(() => {
-			updateRecordingWithToast.mutate($state.snapshot(newRecording));
+			updateRecording.mutate($state.snapshot(newRecording), {
+				onSuccess: () => {
+					toast.success({
+						title: 'Recording updated!',
+						description: 'Your recording has been updated.',
+					});
+				},
+				onError: (error) => {
+					toast.error({
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error },
+					});
+				},
+			});
 		}, DEBOUNCE_TIME_MS);
 	}
 	$effect(() => {
@@ -257,7 +250,22 @@
 					title: 'Delete recording',
 					subtitle: 'Are you sure you want to delete this recording?',
 					confirmText: 'Delete',
-					onConfirm: () => deleteRecordingWithToast.mutate(recording),
+					onConfirm: () =>
+						deleteRecording.mutate(recording, {
+							onSuccess: () => {
+								toast.success({
+									title: 'Deleted recording!',
+									description: 'Your recording has been deleted.',
+								});
+							},
+							onError: (error) => {
+								toast.error({
+									title: 'Failed to delete recording!',
+									description: 'Your recording could not be deleted.',
+									action: { type: 'more-details', error },
+								});
+							},
+						}),
 				});
 			}}
 			variant="ghost"

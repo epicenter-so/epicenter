@@ -59,24 +59,11 @@
 
 	const getAllRecordingsQuery = createResultQuery(recordings.getAllRecordings);
 	const transcribeRecordings = createResultMutation(
-		transcription.transcribeRecordings,
+		transcription.transcribeRecordings.options,
 	);
-	const deleteRecordingsWithToast = createResultMutation(() => ({
-		...recordings.deleteRecordings(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Deleted recordings!',
-				description: 'Your recordings have been deleted successfully.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to delete recordings!',
-				description: 'Your recordings could not be deleted.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
+	const deleteRecordings = createResultMutation(
+		recordings.deleteRecordings.options,
+	);
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -517,8 +504,24 @@
 								subtitle: 'Are you sure you want to delete these recordings?',
 								confirmText: 'Delete',
 								onConfirm: () => {
-									deleteRecordingsWithToast.mutate(
+									deleteRecordings.mutate(
 										selectedRecordingRows.map(({ original }) => original),
+										{
+											onSuccess: () => {
+												toast.success({
+													title: 'Deleted recordings!',
+													description:
+														'Your recordings have been deleted successfully.',
+												});
+											},
+											onError: (error) => {
+												toast.error({
+													title: 'Failed to delete recordings!',
+													description: 'Your recordings could not be deleted.',
+													action: { type: 'more-details', error },
+												});
+											},
+										},
 									);
 								},
 							});

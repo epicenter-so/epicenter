@@ -5,12 +5,11 @@ import {
 	services,
 } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
-import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, partitionResults } from '@epicenterhq/result';
+import { Err, Ok, partitionResults, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
-import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
-import { queryClient } from '.';
+import { defineMutation, queryClient } from '.';
+import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -24,9 +23,11 @@ export const transcription = {
 			}) > 0
 		);
 	},
-	transcribeRecording: {
+	transcribeRecording: defineMutation({
 		mutationKey: transcriptionKeys.isTranscribing,
-		mutationFn: async (recording) => {
+		mutationFn: async (
+			recording: Recording,
+		): Promise<Result<string, WhisperingError | TranscriptionServiceError>> => {
 			if (!recording.blob) {
 				return Err({
 					name: 'WhisperingError',
@@ -34,7 +35,7 @@ export const transcription = {
 					description: "Your recording doesn't have a blob to transcribe.",
 					context: { recording },
 					cause: undefined,
-				} satisfies WhisperingError);
+				});
 			}
 			const { error: setRecordingTranscribingError } =
 				await DbRecordingsService.updateRecording({
@@ -97,44 +98,31 @@ export const transcription = {
 			}
 			return Ok(transcribedText);
 		},
-	} satisfies CreateResultMutationOptions<
-		string,
-		WhisperingError | TranscriptionServiceError,
-		Recording
-	>,
+	}),
 
-	transcribeRecordings: () =>
-		({
-			mutationKey: transcriptionKeys.isTranscribing,
-			mutationFn: async (recordings) => {
-				const results = await Promise.all(
-					recordings.map((recording) => {
-						if (!recording.blob) {
-							return Err({
-								name: 'WhisperingError',
-								title: '⚠️ Recording blob not found',
-								description:
-									"Your recording doesn't have a blob to transcribe.",
-								context: { recording },
-								cause: undefined,
-							} satisfies WhisperingError);
-						}
-						return services.transcription.transcribe(recording.blob, {
-							outputLanguage: settings.value['transcription.outputLanguage'],
-							prompt: settings.value['transcription.prompt'],
-							temperature: settings.value['transcription.temperature'],
-						});
-					}),
-				);
-				const partitionedResults = partitionResults(results);
-				return Ok(partitionedResults);
-			},
-		}) satisfies CreateResultMutationOptions<
-			{
-				oks: Ok<string>[];
-				errs: Err<WhisperingError | TranscriptionServiceError>[];
-			},
-			never,
-			Recording[]
-		>,
+	transcribeRecordings: defineMutation({
+		mutationKey: transcriptionKeys.isTranscribing,
+		mutationFn: async (recordings: Recording[]) => {
+			const results = await Promise.all(
+				recordings.map((recording) => {
+					if (!recording.blob) {
+						return Err({
+							name: 'WhisperingError',
+							title: '⚠️ Recording blob not found',
+							description: "Your recording doesn't have a blob to transcribe.",
+							context: { recording },
+							cause: undefined,
+						} satisfies WhisperingError);
+					}
+					return services.transcription.transcribe(recording.blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+					});
+				}),
+			);
+			const partitionedResults = partitionResults(results);
+			return Ok(partitionedResults);
+		},
+	}),
 };

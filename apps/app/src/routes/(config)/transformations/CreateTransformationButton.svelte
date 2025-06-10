@@ -4,28 +4,15 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
 	import { transformations } from '$lib/query/transformations';
-	import { createResultMutation } from '@tanstack/svelte-query';
 	import { generateDefaultTransformation } from '$lib/services/db';
+	import { toast } from '$lib/services/toast';
+	import { createResultMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
-	import { toast } from '$lib/services/toast';
 
-	const createTransformationWithToast = createResultMutation(() => ({
-		...transformations.mutations.createTransformation(),
-		onSuccess: () => {
-			toast.success({
-				title: 'Created transformation!',
-				description: 'Your transformation has been created successfully.',
-			});
-		},
-		onError: (error) => {
-			toast.error({
-				title: 'Failed to create transformation!',
-				description: 'Your transformation could not be created.',
-				action: { type: 'more-details', error },
-			});
-		},
-	}));
+	const createTransformation = createResultMutation(
+		transformations.mutations.createTransformation.options,
+	);
 
 	let isDialogOpen = $state(false);
 	let transformation = $state(generateDefaultTransformation());
@@ -89,15 +76,24 @@
 			<Button
 				type="submit"
 				onclick={() =>
-					createTransformationWithToast.mutate(
-						$state.snapshot(transformation),
-						{
-							onSuccess: () => {
-								isDialogOpen = false;
-								transformation = generateDefaultTransformation();
-							},
+					createTransformation.mutate($state.snapshot(transformation), {
+						onSuccess: () => {
+							isDialogOpen = false;
+							transformation = generateDefaultTransformation();
+							toast.success({
+								title: 'Created transformation!',
+								description:
+									'Your transformation has been created successfully.',
+							});
 						},
-					)}
+						onError: (error) => {
+							toast.error({
+								title: 'Failed to create transformation!',
+								description: 'Your transformation could not be created.',
+								action: { type: 'more-details', error },
+							});
+						},
+					})}
 			>
 				Create
 			</Button>
