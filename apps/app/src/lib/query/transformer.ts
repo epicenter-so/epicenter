@@ -1,4 +1,4 @@
-import { playSoundIfEnabled } from '$lib/services';
+import { DbRecordingsService, playSoundIfEnabled } from '$lib/services';
 import { RunTransformationService } from '$lib/services/index.js';
 import { TransformErrorToWhisperingErr } from '$lib/services/runTransformation';
 import { toast } from '$lib/services/toast';
@@ -37,9 +37,10 @@ export const transformer = {
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await RunTransformationService.transformInput({
+					await RunTransformationService.runTransformation({
 						input,
 						transformationId,
+						recordingId: null,
 					});
 
 				if (transformationRunError) {
@@ -125,12 +126,24 @@ export const transformer = {
 				description:
 					'Applying your selected transformation to the transcribed text...',
 			});
+			const { data: recording, error: getRecordingError } =
+				await DbRecordingsService.getRecordingById(recordingId);
+			if (getRecordingError || !recording) {
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Recording not found',
+					description: 'Could not find the selected recording.',
+					cause: getRecordingError || undefined,
+					context: { recordingId, transformationId, getRecordingError },
+				});
+			}
 
 			const getTransformationOutput = async (): Promise<
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await RunTransformationService.transformRecording({
+					await RunTransformationService.runTransformation({
+						input: recording.transcribedText,
 						transformationId,
 						recordingId,
 					});
