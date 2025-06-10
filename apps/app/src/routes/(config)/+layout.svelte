@@ -5,11 +5,9 @@
 	import { recorder } from '$lib/query/recorder';
 	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { cn } from '$lib/utils.js';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 
-	const getRecorderStateQuery = createResultQuery(
-		recorder.getRecorderState.options,
-	);
+	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
 	const commands = getCommandsFromContext();
 
 	let { children } = $props();

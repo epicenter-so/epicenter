@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { recorder } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
-	import { createResultQuery, noop } from '@tanstack/svelte-query';
+	import { createQuery, noop } from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -12,9 +12,7 @@
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const getMediaDevicesQuery = createResultQuery(
-		recorder.getMediaDevices.options,
-	);
+	const getMediaDevicesQuery = createQuery(recorder.getMediaDevices.options);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {

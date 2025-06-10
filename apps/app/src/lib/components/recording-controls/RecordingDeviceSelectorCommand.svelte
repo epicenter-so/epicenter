@@ -4,13 +4,11 @@
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import { createResultQuery, noop } from '@tanstack/svelte-query';
+	import { createQuery, noop } from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
-	const getMediaDevicesQuery = createResultQuery(
-		recorder.getMediaDevices.options,
-	);
+	const getMediaDevicesQuery = createQuery(recorder.getMediaDevices.options);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {

@@ -14,18 +14,16 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 	import { vadRecorder } from '$lib/query/vadRecorder';
 
 	const commands = getCommandsFromContext();
-	const getRecorderStateQuery = createResultQuery(
-		recorder.getRecorderState.options,
-	);
-	const getVadStateQuery = createResultQuery(vadRecorder.getVadState.options);
-	const latestRecordingQuery = createResultQuery(
+	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
+	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
+	const latestRecordingQuery = createQuery(
 		recordings.getLatestRecording.options,
 	);
 

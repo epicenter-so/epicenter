@@ -2,7 +2,7 @@
 	import * as Resizable from '$lib/components/ui/resizable';
 	import { transformations } from '$lib/query/transformationRuns';
 	import type { Transformation } from '$lib/services/db';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import RenderTransformationConfigurationAndSteps from './RenderTransformationConfigurationAndSteps.svelte';
 	import RenderTransformationRuns from './RenderTransformationRuns.svelte';
 	import RenderTransformationTest from './RenderTransformationTest.svelte';
@@ -17,7 +17,7 @@
 		setTransformationDebounced: (transformation: Transformation) => void;
 	} = $props();
 
-	const transformationRunsByTransformationIdQuery = createResultQuery(
+	const transformationRunsByTransformationIdQuery = createQuery(
 		transformations.getTransformationRunsByTransformationId(
 			() => transformation.id,
 		).options,

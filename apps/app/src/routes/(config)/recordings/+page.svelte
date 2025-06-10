@@ -27,10 +27,7 @@
 	import { toast } from '$lib/services/toast';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
-	import {
-		createResultMutation,
-		createResultQuery,
-	} from '@tanstack/svelte-query';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -57,15 +54,13 @@
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 	import { nanoid } from 'nanoid/non-secure';
 
-	const getAllRecordingsQuery = createResultQuery(
+	const getAllRecordingsQuery = createQuery(
 		recordings.getAllRecordings.options,
 	);
-	const transcribeRecordings = createResultMutation(
+	const transcribeRecordings = createMutation(
 		transcription.transcribeRecordings.options,
 	);
-	const deleteRecordings = createResultMutation(
-		recordings.deleteRecordings.options,
-	);
+	const deleteRecordings = createMutation(recordings.deleteRecordings.options);
 
 	const columns: ColumnDef<Recording>[] = [
 		{

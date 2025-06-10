@@ -9,7 +9,7 @@
 	import { vadRecorder } from '$lib/query/vadRecorder';
 	import { DbRecordingsService } from '$lib/services';
 	import { extension } from '@repo/extension';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
@@ -18,10 +18,8 @@
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
-	const getRecorderStateQuery = createResultQuery(
-		recorder.getRecorderState.options,
-	);
-	const getVadStateQuery = createResultQuery(vadRecorder.getVadState.options);
+	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
+	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
 	const commands = getCommandsFromContext();
 
 	if (window.__TAURI_INTERNALS__) {

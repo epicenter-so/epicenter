@@ -3,13 +3,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { transformations } from '$lib/query/transformationRuns';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from 'lucide-svelte';
 	import RenderTransformationRuns from '../transformations/-components/RenderTransformationRuns.svelte';
 
 	let { recordingId }: { recordingId: string } = $props();
 
-	const transformationRunsByRecordingIdQuery = createResultQuery(
+	const transformationRunsByRecordingIdQuery = createQuery(
 		transformations.getTransformationRunsByRecordingId(() => recordingId)
 			.options,
 	);

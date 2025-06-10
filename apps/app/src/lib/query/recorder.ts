@@ -4,10 +4,9 @@ import type {
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
-import { resolve } from '@epicenterhq/result';
+import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery, queryClient } from '.';
-import type { WhisperingRecordingState } from '@repo/shared';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,

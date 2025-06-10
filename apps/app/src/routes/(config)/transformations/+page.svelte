@@ -11,10 +11,7 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { transformations } from '$lib/query/transformations';
-	import {
-		createResultMutation,
-		createResultQuery,
-	} from '@tanstack/svelte-query';
+	import { createQuery, createMutation } from '@tanstack/svelte-query';
 	import { type Transformation } from '$lib/services/db';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
@@ -41,10 +38,10 @@
 	import TransformationRowActions from './TransformationRowActions.svelte';
 	import { toast } from '$lib/services/toast';
 
-	const transformationsQuery = createResultQuery(
-		transformations.queries.getAllTransformations,
+	const transformationsQuery = createQuery(
+		transformations.queries.getAllTransformations.options,
 	);
-	const deleteTransformations = createResultMutation(
+	const deleteTransformations = createMutation(
 		transformations.mutations.deleteTransformations.options,
 	);
 

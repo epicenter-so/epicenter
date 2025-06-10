@@ -6,7 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
 	import { transformations } from '$lib/query/transformations';
-	import { createResultMutation } from '@tanstack/svelte-query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
@@ -15,11 +15,11 @@
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import { toast } from '$lib/services/toast';
 
-	const updateTransformation = createResultMutation(
+	const updateTransformation = createMutation(
 		transformations.mutations.updateTransformation.options,
 	);
 
-	const deleteTransformation = createResultMutation(
+	const deleteTransformation = createMutation(
 		transformations.mutations.deleteTransformation.options,
 	);
 

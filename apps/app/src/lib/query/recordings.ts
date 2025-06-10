@@ -25,7 +25,7 @@ export const recordings = {
 				?.toSorted(
 					(a, b) =>
 						new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-				)[0],
+				)[0] ?? null,
 		initialDataUpdatedAt: () =>
 			queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
 	}),
@@ -37,7 +37,7 @@ export const recordings = {
 			initialData: () =>
 				queryClient
 					.getQueryData<Recording[]>(recordingKeys.all)
-					?.find((r) => r.id === id()),
+					?.find((r) => r.id === id()) ?? null,
 			initialDataUpdatedAt: () =>
 				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
 		}),

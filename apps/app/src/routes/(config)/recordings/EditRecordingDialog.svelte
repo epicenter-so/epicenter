@@ -6,16 +6,14 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { recordings } from '$lib/query/recordings';
-	import { createResultMutation } from '@tanstack/svelte-query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import type { Recording } from '$lib/services/db';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import { toast } from '$lib/services/toast';
 
-	const deleteRecording = createResultMutation(
-		recordings.deleteRecording.options,
-	);
+	const deleteRecording = createMutation(recordings.deleteRecording.options);
 
 	let {
 		recording,

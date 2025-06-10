@@ -6,11 +6,11 @@
 	import { transformations } from '$lib/query/transformations';
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
-	import { createResultMutation } from '@tanstack/svelte-query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
 
-	const createTransformation = createResultMutation(
+	const createTransformation = createMutation(
 		transformations.mutations.createTransformation.options,
 	);
 

@@ -5,20 +5,18 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { transformations } from '$lib/query/transformations';
 	import { toast } from '$lib/services/toast';
-	import {
-		createResultMutation,
-		createResultQuery,
-	} from '@tanstack/svelte-query';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';
-
-	const deleteTransformation = createResultMutation(
-		transformations.mutations.deleteTransformation.options,
-	);
 
 	let { transformationId }: { transformationId: string } = $props();
 
-	const transformationQuery = createResultQuery(
-		transformations.queries.getTransformationById(() => transformationId),
+	const deleteTransformation = createMutation(
+		transformations.mutations.deleteTransformation.options,
+	);
+
+	const transformationQuery = createQuery(
+		transformations.queries.getTransformationById(() => transformationId)
+			.options,
 	);
 	const transformation = $derived(transformationQuery.data);
 </script>

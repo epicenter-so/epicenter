@@ -15,10 +15,7 @@
 	import { toast } from '$lib/services/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
-	import {
-		createResultMutation,
-		createResultQuery,
-	} from '@tanstack/svelte-query';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		AlertCircleIcon,
 		DownloadIcon,
@@ -32,29 +29,24 @@
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
-	const transcribeRecording = createResultMutation(
+	const transcribeRecording = createMutation(
 		transcription.transcribeRecording.options,
 	);
-	const deleteRecording = createResultMutation(
-		recordings.deleteRecording.options,
-	);
+	const deleteRecording = createMutation(recordings.deleteRecording.options);
 
-	const updateRecording = createResultMutation(
-		recordings.updateRecording.options,
-	);
+	const updateRecording = createMutation(recordings.updateRecording.options);
 
-	const downloadRecording = createResultMutation(
-		download.downloadRecording.options,
-	);
+	const downloadRecording = createMutation(download.downloadRecording.options);
 
 	let { recordingId }: { recordingId: string } = $props();
 
-	const latestTransformationRunByRecordingIdQuery = createResultQuery(
-		transformations.getLatestTransformationRunByRecordingId(() => recordingId),
+	const latestTransformationRunByRecordingIdQuery = createQuery(
+		transformations.getLatestTransformationRunByRecordingId(() => recordingId)
+			.options,
 	);
 
-	const recordingQuery = createResultQuery(
-		recordings.getRecordingById(() => recordingId),
+	const recordingQuery = createQuery(
+		recordings.getRecordingById(() => recordingId).options,
 	);
 
 	const recording = $derived(recordingQuery.data);

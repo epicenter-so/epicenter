@@ -1,13 +1,11 @@
 import { recorder } from '$lib/query/recorder';
 import { transcription } from '$lib/query/transcription';
 import { settings } from '$lib/stores/settings.svelte';
-import { createResultQuery } from '@tanstack/svelte-query';
+import { createQuery } from '@tanstack/svelte-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
-	const getRecorderStateQuery = createResultQuery(
-		recorder.getRecorderState.options,
-	);
+	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
 
 	$effect(() => {
 		const setAlwaysOnTop = (value: boolean) =>

@@ -3,7 +3,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { transformations } from '$lib/query/transformationRuns';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { createResultQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
 		recordingId,
@@ -11,8 +11,9 @@
 		recordingId: string;
 	} = $props();
 
-	const latestTransformationRunByRecordingIdQuery = createResultQuery(
-		transformations.getLatestTransformationRunByRecordingId(() => recordingId),
+	const latestTransformationRunByRecordingIdQuery = createQuery(
+		transformations.getLatestTransformationRunByRecordingId(() => recordingId)
+			.options,
 	);
 
 	const id = getRecordingTransitionId({
