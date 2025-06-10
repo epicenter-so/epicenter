@@ -16,12 +16,13 @@ export const transformations = {
 	queries: {
 		getAllTransformations: defineQuery({
 			queryKey: transformationsKeys.all,
-			queryFn: () => DbTransformationsService.getAllTransformations(),
+			resultQueryFn: () => DbTransformationsService.getAllTransformations(),
 		}),
 		getTransformationById: (id: Accessor<string>) =>
 			defineQuery({
 				queryKey: transformationsKeys.byId(id()),
-				queryFn: () => DbTransformationsService.getTransformationById(id()),
+				resultQueryFn: () =>
+					DbTransformationsService.getTransformationById(id()),
 				initialData: () =>
 					queryClient
 						.getQueryData<Transformation[]>(transformationsKeys.all)
@@ -34,7 +35,7 @@ export const transformations = {
 	mutations: {
 		createTransformation: defineMutation({
 			mutationKey: ['transformations', 'createTransformation'] as const,
-			mutationFn: async (transformation: Transformation) => {
+			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
 					await DbTransformationsService.createTransformation(transformation);
 				if (error) return Err(error);
@@ -56,7 +57,7 @@ export const transformations = {
 		}),
 		updateTransformation: defineMutation({
 			mutationKey: ['transformations', 'updateTransformation'] as const,
-			mutationFn: async (transformation: Transformation) => {
+			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
 					await DbTransformationsService.updateTransformation(transformation);
 				if (error) return Err(error);
@@ -84,7 +85,7 @@ export const transformations = {
 					'transformations',
 					'updateTransformationWithToast',
 				] as const,
-				mutationFn: async (transformation: Transformation) => {
+				resultMutationFn: async (transformation: Transformation) => {
 					const { data, error } =
 						await DbTransformationsService.updateTransformation(transformation);
 					if (error) return Err(error);
@@ -113,7 +114,7 @@ export const transformations = {
 			}),
 		deleteTransformation: defineMutation({
 			mutationKey: ['transformations', 'deleteTransformation'] as const,
-			mutationFn: async (transformation: Transformation) => {
+			resultMutationFn: async (transformation: Transformation) => {
 				const { error } =
 					await DbTransformationsService.deleteTransformation(transformation);
 				if (error) return Err(error);
@@ -144,7 +145,7 @@ export const transformations = {
 		}),
 		deleteTransformations: defineMutation({
 			mutationKey: ['transformations', 'deleteTransformations'] as const,
-			mutationFn: async (transformations: Transformation[]) => {
+			resultMutationFn: async (transformations: Transformation[]) => {
 				const { error } =
 					await DbTransformationsService.deleteTransformations(transformations);
 				if (error) return Err(error);

@@ -1,10 +1,13 @@
 import { browser } from '$app/environment';
-import type { Result } from '@epicenterhq/result';
+import { Err, Ok, type Result, resolve } from '@epicenterhq/result';
 import {
-	type InitialDataFunction,
+	type MutationFunction,
+	type MutationKey,
 	type MutationOptions,
 	QueryClient,
 	type QueryFunction,
+	type QueryFunctionContext,
+	type QueryOptions,
 } from '@tanstack/svelte-query';
 
 export const queryClient = new QueryClient({
@@ -47,19 +50,24 @@ export function defineQuery<
 	TError = Error,
 	TData = TQueryFnData,
 	TQueryKey extends readonly unknown[] = readonly unknown[],
->(options: {
-	queryKey: TQueryKey;
-	queryFn: QueryFunction<Result<TQueryFnData, TError>, TQueryKey, never>;
-	initialData?: NoInfer<TData> | InitialDataFunction<NoInfer<TData>>;
-	initialDataUpdatedAt?: number | (() => number | undefined);
-	select?: (data: TQueryFnData) => TData;
-}) {
+>(
+	options: QueryOptions<TQueryFnData, TError, TData, TQueryKey> & {
+		queryKey: TQueryKey;
+		resultQueryFn: QueryFunction<Result<TQueryFnData, TError>, TQueryKey>;
+	},
+) {
 	return {
 		/**
 		 * Returns the query options for reactive usage with TanStack Query hooks.
 		 * @returns The query options object
 		 */
-		options: () => options,
+		options: () =>
+			({
+				...options,
+				queryFn: async (context: QueryFunctionContext<TQueryKey>) => {
+					return resolve(await options.resultQueryFn(context));
+				},
+			}) satisfies QueryOptions<TQueryFnData, TError, TData, TQueryKey>,
 
 		/**
 		 * Fetches data for this query, returning cached data if fresh or refetching if stale/missing.
@@ -67,10 +75,14 @@ export function defineQuery<
 		 * @returns Promise that resolves with the query data
 		 */
 		async fetchCached(): Promise<Result<TData, TError>> {
-			return queryClient.fetchQuery({
-				queryKey: options.queryKey,
-				queryFn: options.queryFn,
-			});
+			try {
+				return await queryClient.fetchQuery({
+					queryKey: options.queryKey,
+					queryFn: options.queryFn,
+				});
+			} catch (error) {
+				return Err(error as TError);
+			}
 		},
 	};
 }
@@ -101,27 +113,36 @@ export function defineQuery<
  * ```
  */
 export function defineMutation<TData, TError, TVariables, TContext>(
-	options: Required<
-		Pick<
-			MutationOptions<TData, TError, TVariables, TContext>,
-			'mutationFn' | 'mutationKey'
-		>
-	>,
+	options: Omit<
+		MutationOptions<TData, TError, TVariables, TContext>,
+		'mutationFn'
+	> & {
+		mutationKey: MutationKey;
+		resultMutationFn: MutationFunction<Result<TData, TError>, TVariables>;
+	},
 ) {
 	return {
 		/**
 		 * Returns the mutation options for reactive usage with TanStack Query hooks.
 		 * @returns The mutation options object
 		 */
-		options: () => options,
+		options: () =>
+			({
+				...options,
+				mutationFn: (variables: TVariables) =>
+					options.resultMutationFn(variables).then(resolve),
+			}) satisfies MutationOptions<TData, TError, TVariables, TContext>,
 		/**
 		 * Bypasses the reactive mutation hooks and executes the mutation imperatively.
 		 * @param args - The variables to pass to the mutation function
 		 * @returns Promise that resolves with the mutation result
 		 */
-		async execute(...args: Parameters<typeof options.mutationFn>) {
-			const result = await executeMutation(options, ...args);
-			return result;
+		async execute(...args: Parameters<typeof options.resultMutationFn>) {
+			try {
+				return Ok(await executeMutation(this.options(), ...args));
+			} catch (error) {
+				return Err(error as TError);
+			}
 		},
 	};
 }

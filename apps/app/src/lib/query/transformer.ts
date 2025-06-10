@@ -17,7 +17,7 @@ const transformerKeys = {
 export const transformer = {
 	transformInput: defineMutation({
 		mutationKey: transformerKeys.transformInput,
-		mutationFn: async ({
+		resultMutationFn: async ({
 			input,
 			transformationId,
 			toastId,
@@ -108,7 +108,7 @@ export const transformer = {
 
 	transformRecording: defineMutation({
 		mutationKey: transformerKeys.transformRecording,
-		mutationFn: async ({
+		resultMutationFn: async ({
 			recordingId,
 			transformationId,
 			toastId,

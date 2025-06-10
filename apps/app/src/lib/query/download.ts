@@ -8,7 +8,7 @@ import { defineMutation } from '.';
 export const download = {
 	downloadRecording: defineMutation({
 		mutationKey: ['download', 'downloadRecording'] as const,
-		mutationFn: async (
+		resultMutationFn: async (
 			recording: Recording,
 		): Promise<Result<void, WhisperingError | DownloadServiceError>> => {
 			if (!recording.blob) {

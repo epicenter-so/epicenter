@@ -4,8 +4,10 @@ import type {
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
+import { resolve } from '@epicenterhq/result';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery, queryClient } from '.';
+import type { WhisperingRecordingState } from '@repo/shared';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
@@ -22,67 +24,50 @@ const invalidateRecorderState = () =>
 export const recorder = {
 	getMediaDevices: defineQuery({
 		queryKey: recorderKeys.mediaDevices,
-		queryFn: () => services.recorder.enumerateRecordingDevices(),
+		resultQueryFn: () => services.recorder.enumerateRecordingDevices(),
 	}),
 
 	getRecorderState: defineQuery({
 		queryKey: recorderKeys.state,
-		queryFn: async () => {
-			const recorderStateResult = await services.recorder.getRecorderState();
-			return recorderStateResult;
-		},
-		initialData: 'IDLE' as const,
+		resultQueryFn: () => services.recorder.getRecorderState(),
+		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
 	closeRecordingSession: defineMutation({
 		mutationKey: recorderKeys.closeSession,
-		mutationFn: async ({
-			sendStatus,
-		}: { sendStatus: UpdateStatusMessageFn }) => {
-			const result = await services.recorder.closeRecordingSession({
-				sendStatus,
-			});
-			invalidateRecorderState();
-			return result;
-		},
+		resultMutationFn: ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }) =>
+			services.recorder.closeRecordingSession({ sendStatus }),
+		onSettled: invalidateRecorderState,
 	}),
 
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
-		mutationFn: async ({
+		resultMutationFn: ({
 			toastId,
 			settings,
-		}: { toastId: string; settings: RecordingSessionSettings }) => {
-			const result = await services.recorder.startRecording(
+		}: { toastId: string; settings: RecordingSessionSettings }) =>
+			services.recorder.startRecording(
 				{ recordingId: nanoid(), settings },
-				{
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				},
-			);
-			invalidateRecorderState();
-			return result;
-		},
+				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
+			),
+		onSettled: invalidateRecorderState,
 	}),
 
 	stopRecording: defineMutation({
 		mutationKey: recorderKeys.stopRecording,
-		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const result = await services.recorder.stopRecording({
+		resultMutationFn: ({ toastId }: { toastId: string }) =>
+			services.recorder.stopRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-			});
-			invalidateRecorderState();
-			return result;
-		},
+			}),
+		onSettled: invalidateRecorderState,
 	}),
 
 	cancelRecording: defineMutation({
 		mutationKey: recorderKeys.cancelRecording,
-		mutationFn: async ({ toastId }: { toastId: string }) => {
-			const result = await services.recorder.cancelRecording({
+		resultMutationFn: ({ toastId }: { toastId: string }) =>
+			services.recorder.cancelRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-			});
-			invalidateRecorderState();
-			return result;
-		},
+			}),
+		onSettled: invalidateRecorderState,
 	}),
 };

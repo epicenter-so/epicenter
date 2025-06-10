@@ -15,13 +15,13 @@ export const transformations = {
 	getTransformationRunsByTransformationId: (id: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByTransformationId(id()),
-			queryFn: () =>
+			resultQueryFn: () =>
 				DbTransformationsService.getTransformationRunsByTransformationId(id()),
 		}),
 	getTransformationRunsByRecordingId: (recordingId: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
-			queryFn: () =>
+			resultQueryFn: () =>
 				DbTransformationsService.getTransformationRunsByRecordingId(
 					recordingId(),
 				),
@@ -29,7 +29,7 @@ export const transformations = {
 	getLatestTransformationRunByRecordingId: (recordingId: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
-			queryFn: () =>
+			resultQueryFn: () =>
 				DbTransformationsService.getTransformationRunsByRecordingId(
 					recordingId(),
 				),

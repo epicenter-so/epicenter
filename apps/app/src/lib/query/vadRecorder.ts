@@ -21,7 +21,7 @@ const invalidateVadState = () =>
 export const vadRecorder = {
 	getVadState: defineQuery({
 		queryKey: vadRecorderKeys.state,
-		queryFn: () => {
+		resultQueryFn: () => {
 			const vadState = VadService.getVadState();
 			return Ok(vadState);
 		},
@@ -29,7 +29,7 @@ export const vadRecorder = {
 
 	closeVadSession: defineMutation({
 		mutationKey: vadRecorderKeys.closeVad,
-		mutationFn: async () => {
+		resultMutationFn: async () => {
 			const closeResult = await VadService.closeVad();
 			invalidateVadState();
 			return closeResult;
@@ -38,7 +38,7 @@ export const vadRecorder = {
 
 	startActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
-		mutationFn: async () => {
+		resultMutationFn: async () => {
 			const { error: ensureVadError } = await VadService.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
@@ -159,7 +159,7 @@ export const vadRecorder = {
 
 	stopVad: defineMutation({
 		mutationKey: ['vadRecorder', 'stopVad'] as const,
-		mutationFn: async () => {
+		resultMutationFn: async () => {
 			const stopResult = await VadService.closeVad();
 			if (isOk(stopResult)) {
 				console.info('Stopping voice activated capture');

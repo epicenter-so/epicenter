@@ -1,10 +1,7 @@
-import type { DbServiceErrorProperties, Recording } from '$lib/services/db';
+import type { Recording } from '$lib/services/db';
 import { DbRecordingsService } from '$lib/services/index.js';
 import { Err, Ok } from '@epicenterhq/result';
-import type {
-	Accessor,
-	CreateResultQueryOptions,
-} from '@tanstack/svelte-query';
+import type { Accessor } from '@tanstack/svelte-query';
 import { defineMutation, defineQuery, queryClient } from '.';
 
 const recordingKeys = {
@@ -16,12 +13,12 @@ const recordingKeys = {
 export const recordings = {
 	getAllRecordings: defineQuery({
 		queryKey: recordingKeys.all,
-		queryFn: () => DbRecordingsService.getAllRecordings(),
+		resultQueryFn: () => DbRecordingsService.getAllRecordings(),
 	}),
 
 	getLatestRecording: defineQuery({
 		queryKey: recordingKeys.latest,
-		queryFn: () => DbRecordingsService.getLatestRecording(),
+		resultQueryFn: () => DbRecordingsService.getLatestRecording(),
 		initialData: () =>
 			queryClient
 				.getQueryData<Recording[]>(recordingKeys.all)
@@ -33,24 +30,21 @@ export const recordings = {
 			queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
 	}),
 
-	getRecordingById: (id: Accessor<string>) => () =>
-		({
+	getRecordingById: (id: Accessor<string>) =>
+		defineQuery({
 			queryKey: recordingKeys.byId(id),
-			queryFn: () => DbRecordingsService.getRecordingById(id()),
+			resultQueryFn: () => DbRecordingsService.getRecordingById(id()),
 			initialData: () =>
 				queryClient
 					.getQueryData<Recording[]>(recordingKeys.all)
 					?.find((r) => r.id === id()),
 			initialDataUpdatedAt: () =>
 				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-		}) satisfies CreateResultQueryOptions<
-			Recording | null,
-			DbServiceErrorProperties
-		>,
+		}),
 
 	createRecording: defineMutation({
 		mutationKey: ['recordings', 'createRecording'] as const,
-		mutationFn: async (recording: Recording) => {
+		resultMutationFn: async (recording: Recording) => {
 			const { data, error } =
 				await DbRecordingsService.createRecording(recording);
 			if (error) return Err(error);
@@ -73,7 +67,7 @@ export const recordings = {
 
 	updateRecording: defineMutation({
 		mutationKey: ['recordings', 'updateRecording'] as const,
-		mutationFn: async (recording: Recording) => {
+		resultMutationFn: async (recording: Recording) => {
 			const { data, error } =
 				await DbRecordingsService.updateRecording(recording);
 			if (error) return Err(error);
@@ -98,7 +92,7 @@ export const recordings = {
 
 	deleteRecording: defineMutation({
 		mutationKey: ['recordings', 'deleteRecording'] as const,
-		mutationFn: async (recording: Recording) => {
+		resultMutationFn: async (recording: Recording) => {
 			const { error } = await DbRecordingsService.deleteRecording(recording);
 			if (error) return Err(error);
 
@@ -119,7 +113,7 @@ export const recordings = {
 
 	deleteRecordings: defineMutation({
 		mutationKey: ['recordings', 'deleteRecordings'] as const,
-		mutationFn: async (recordings: Recording[]) => {
+		resultMutationFn: async (recordings: Recording[]) => {
 			const { error } = await DbRecordingsService.deleteRecordings(recordings);
 			if (error) return Err(error);
 
