@@ -18,7 +18,9 @@
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
-	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
+	const getRecorderStateQuery = createResultQuery(
+		recorder.getRecorderState.options,
+	);
 	const getVadStateQuery = createResultQuery(vadRecorder.getVadState);
 	const commands = getCommandsFromContext();
 

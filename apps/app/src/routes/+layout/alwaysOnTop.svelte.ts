@@ -5,7 +5,9 @@ import { createResultQuery } from '@tanstack/svelte-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
-	const getRecorderStateQuery = createResultQuery(recorder.getRecorderState);
+	const getRecorderStateQuery = createResultQuery(
+		recorder.getRecorderState.options,
+	);
 
 	$effect(() => {
 		const setAlwaysOnTop = (value: boolean) =>

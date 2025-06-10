@@ -34,8 +34,6 @@ function createCommandCallbacks() {
 }
 
 function createRecorderCommands() {
-	const getRecorderState = createResultQuery(recorder.getRecorderState);
-
 	return {
 		async stopManualRecording() {
 			const toastId = nanoid();
@@ -220,7 +218,18 @@ function createRecorderCommands() {
 		},
 
 		async toggleManualRecording() {
-			if (getRecorderState.data === 'SESSION+RECORDING') {
+			const { data: recorderState, error: getRecorderStateError } =
+				await recorder.getRecorderState.fetchCached();
+			if (getRecorderStateError) {
+				toast.error({
+					id: nanoid(),
+					title: '❌ Failed to get recorder state',
+					description: 'Your recording could not be started. Please try again.',
+					action: { type: 'more-details', error: getRecorderStateError },
+				});
+				return;
+			}
+			if (recorderState === 'SESSION+RECORDING') {
 				await this.stopManualRecording();
 			} else {
 				await this.startManualRecording();

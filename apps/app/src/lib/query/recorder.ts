@@ -5,7 +5,7 @@ import type {
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
 import { nanoid } from 'nanoid/non-secure';
-import { defineMutation, queryClient } from '.';
+import { defineMutation, defineQuery, queryClient } from '.';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
@@ -20,12 +20,12 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.state });
 
 export const recorder = {
-	getMediaDevices: () => ({
+	getMediaDevices: defineQuery({
 		queryKey: recorderKeys.mediaDevices,
 		queryFn: () => services.recorder.enumerateRecordingDevices(),
 	}),
 
-	getRecorderState: () => ({
+	getRecorderState: defineQuery({
 		queryKey: recorderKeys.state,
 		queryFn: async () => {
 			const recorderStateResult = await services.recorder.getRecorderState();
