@@ -1,8 +1,4 @@
-import {
-	DbRecordingsService,
-	playSoundIfEnabled,
-	services,
-} from '$lib/services/index.js';
+import { playSoundIfEnabled, services } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import type { Command } from '@repo/shared';
@@ -13,9 +9,11 @@ import {
 import { nanoid } from 'nanoid/non-secure';
 import { getContext, setContext } from 'svelte';
 import { executeMutation, recorder } from '../recorder';
+import { recordings } from '../recordings';
 import { vadRecorder } from '../vadRecorder';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
-import { recordings } from '../recordings';
+import { transcription } from '../transcription';
+import { transformer } from '../transformer';
 
 export type CommandCallbacks = ReturnType<typeof createCommandCallbacks>;
 
@@ -146,54 +144,56 @@ function createRecorderCommands() {
 					title: '📋 Transcribing...',
 					description: 'Your recording is being transcribed...',
 				});
-				transcribeRecording.mutate(createdRecording, {
-					onSuccess: (transcribedText) => {
-						toast.success({
-							id: transcribeToastId,
-							title: 'Transcribed recording!',
-							description: 'Your recording has been transcribed.',
-						});
-						maybeCopyAndPaste({
-							text: transcribedText,
-							toastId,
-							shouldCopy:
-								settings.value['transcription.clipboard.copyOnSuccess'],
-							shouldPaste:
-								settings.value['transcription.clipboard.pasteOnSuccess'],
-							statusToToastText(status) {
-								switch (status) {
-									case null:
-										return '📝 Recording transcribed!';
-									case 'COPIED':
-										return '📝 Recording transcribed and copied to clipboard!';
-									case 'COPIED+PASTED':
-										return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-								}
-							},
-						});
-						if (settings.value['transformations.selectedTransformationId']) {
-							const transformToastId = nanoid();
-							transformRecording.mutate({
-								recordingId: createdRecording.id,
-								transformationId:
-									settings.value['transformations.selectedTransformationId'],
-								toastId: transformToastId,
-							});
+				const { data: transcribedText, error: transcribeError } =
+					await executeMutation(
+						transcription.transcribeRecording,
+						createdRecording,
+					);
+
+				if (transcribeError) {
+					if (transcribeError.name === 'WhisperingError') {
+						toast.error({ id: transcribeToastId, ...transcribeError });
+						return;
+					}
+					toast.error({
+						id: transcribeToastId,
+						title: '❌ Failed to transcribe recording',
+						description: 'Your recording could not be transcribed.',
+						action: { type: 'more-details', error: transcribeError },
+					});
+					return;
+				}
+
+				toast.success({
+					id: transcribeToastId,
+					title: 'Transcribed recording!',
+					description: 'Your recording has been transcribed.',
+				});
+				maybeCopyAndPaste({
+					text: transcribedText,
+					toastId,
+					shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
+					shouldPaste: settings.value['transcription.clipboard.pasteOnSuccess'],
+					statusToToastText(status) {
+						switch (status) {
+							case null:
+								return '📝 Recording transcribed!';
+							case 'COPIED':
+								return '📝 Recording transcribed and copied to clipboard!';
+							case 'COPIED+PASTED':
+								return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
 						}
-					},
-					onError: (error) => {
-						if (error.name === 'WhisperingError') {
-							toast.error({ id: transcribeToastId, ...error });
-							return;
-						}
-						toast.error({
-							id: transcribeToastId,
-							title: '❌ Failed to transcribe recording',
-							description: 'Your recording could not be transcribed.',
-							action: { type: 'more-details', error: error },
-						});
 					},
 				});
+				if (settings.value['transformations.selectedTransformationId']) {
+					const transformToastId = nanoid();
+					await executeMutation(transformer.transformRecording, {
+						recordingId: createdRecording.id,
+						transformationId:
+							settings.value['transformations.selectedTransformationId'],
+						toastId: transformToastId,
+					});
+				}
 			} else {
 				const toastId = nanoid();
 				toast.loading({

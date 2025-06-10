@@ -13,19 +13,19 @@ import type { CreateResultMutationOptions } from '@tanstack/svelte-query';
 import { queryClient } from '.';
 
 const transcriptionKeys = {
-	transcribe: ['transcription', 'transcribe'] as const,
+	isTranscribing: ['transcription', 'isTranscribing'] as const,
 } as const;
 
 export const transcription = {
 	isCurrentlyTranscribing() {
 		return (
 			queryClient.isMutating({
-				mutationKey: transcriptionKeys.transcribe,
+				mutationKey: transcriptionKeys.isTranscribing,
 			}) > 0
 		);
 	},
 	transcribeRecording: {
-		mutationKey: transcriptionKeys.transcribe,
+		mutationKey: transcriptionKeys.isTranscribing,
 		mutationFn: async (recording) => {
 			if (!recording.blob) {
 				return Err({
@@ -105,7 +105,7 @@ export const transcription = {
 
 	transcribeRecordings: () =>
 		({
-			mutationKey: transcriptionKeys.transcribe,
+			mutationKey: transcriptionKeys.isTranscribing,
 			mutationFn: async (recordings) => {
 				const results = await Promise.all(
 					recordings.map((recording) => {

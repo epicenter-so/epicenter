@@ -12,6 +12,9 @@ import { playSoundIfEnabled, VadService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import type { WhisperingError } from '@repo/shared';
 import { executeMutation } from './recorder';
+import { transcription } from './transcription';
+import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
+import { transformer } from './transformer';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
@@ -97,60 +100,55 @@ export const vadRecorder = {
 						title: '📋 Transcribing...',
 						description: 'Your recording is being transcribed...',
 					});
-					transcribeRecording.mutate(createdRecording, {
-						onSuccess: (transcribedText) => {
-							toast.success({
-								id: transcribeToastId,
-								title: 'Transcribed recording!',
-								description: 'Your recording has been transcribed.',
-							});
-							maybeCopyAndPaste({
-								text: transcribedText,
-								toastId,
-								shouldCopy:
-									settings.value['transcription.clipboard.copyOnSuccess'],
-								shouldPaste:
-									settings.value['transcription.clipboard.pasteOnSuccess'],
-								statusToToastText(status) {
-									switch (status) {
-										case null:
-											return '📝 Recording transcribed!';
-										case 'COPIED':
-											return '📝 Recording transcribed and copied to clipboard!';
-										case 'COPIED+PASTED':
-											return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-									}
-								},
-							});
-							if (settings.value['transformations.selectedTransformationId']) {
-								const transformToastId = nanoid();
-								transformRecording.mutate({
-									recordingId: createdRecording.id,
-									transformationId:
-										settings.value['transformations.selectedTransformationId'],
-									toastId: transformToastId,
-								});
+					const { error } = await executeMutation(
+						transcription.transcribeRecording,
+						createdRecording,
+					);
+					if (error) {
+						if (error.name === 'WhisperingError') {
+							toast.error({ id: transcribeToastId, ...error });
+							return;
+						}
+						toast.error({
+							id: transcribeToastId,
+							title: '❌ Failed to transcribe recording',
+							description: 'Your recording could not be transcribed.',
+							action: { type: 'more-details', error: error },
+						});
+						return;
+					}
+
+					toast.success({
+						id: transcribeToastId,
+						title: 'Transcribed recording!',
+						description: 'Your recording has been transcribed.',
+					});
+					maybeCopyAndPaste({
+						text: transcribedText,
+						toastId,
+						shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
+						shouldPaste:
+							settings.value['transcription.clipboard.pasteOnSuccess'],
+						statusToToastText(status) {
+							switch (status) {
+								case null:
+									return '📝 Recording transcribed!';
+								case 'COPIED':
+									return '📝 Recording transcribed and copied to clipboard!';
+								case 'COPIED+PASTED':
+									return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
 							}
-						},
-						onError: (error) => {
-							if (error.name === 'WhisperingError') {
-								toast.error({
-									id: transcribeToastId,
-									...error,
-								});
-								return;
-							}
-							toast.error({
-								id: transcribeToastId,
-								title: '❌ Failed to transcribe recording',
-								description: 'Your recording could not be transcribed.',
-								action: {
-									type: 'more-details',
-									error: error,
-								},
-							});
 						},
 					});
+					if (settings.value['transformations.selectedTransformationId']) {
+						const transformToastId = nanoid();
+						executeMutation(transformer.transformRecording, {
+							recordingId: createdRecording.id,
+							transformationId:
+								settings.value['transformations.selectedTransformationId'],
+							toastId: transformToastId,
+						});
+					}
 				},
 			});
 			if (ensureVadError) {
