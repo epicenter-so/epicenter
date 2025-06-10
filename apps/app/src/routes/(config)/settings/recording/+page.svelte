@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { recorder, executeMutation } from '$lib/query/recorder';
+	import { executeMutation } from '$lib/query';
+	import { recorder } from '$lib/query/recorder';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
@@ -28,7 +29,7 @@
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
 		onSelectedChange={async (selected) => {
-			const { error } = await executeMutation(recorder.closeRecordingSession, {
+			const { error } = await recorder.closeRecordingSession.execute({
 				sendStatus: noop,
 			});
 			if (error) {

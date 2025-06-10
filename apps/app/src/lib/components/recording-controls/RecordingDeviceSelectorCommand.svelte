@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { recorder, executeMutation } from '$lib/query/recorder';
+	import { recorder } from '$lib/query/recorder';
+	import { executeMutation } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';

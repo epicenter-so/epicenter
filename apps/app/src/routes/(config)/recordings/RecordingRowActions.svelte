@@ -31,7 +31,7 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
-	import { executeMutation } from '$lib/query/recorder';
+	import { executeMutation } from '$lib/query';
 
 	const transformer = getTransformerFromContext();
 	const transcribeRecording = createResultMutation(

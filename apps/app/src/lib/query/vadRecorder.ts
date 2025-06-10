@@ -1,19 +1,17 @@
+import { VadService, playSoundIfEnabled } from '$lib/services';
+import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from '@epicenterhq/result';
-import {
-	createResultMutation,
-	type CreateResultMutationOptions,
-	type CreateResultQueryOptions,
+import type { WhisperingError } from '@repo/shared';
+import type {
+	CreateResultMutationOptions,
+	CreateResultQueryOptions,
 } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
-import { queryClient } from '.';
+import { executeMutation, queryClient } from '.';
 import { recordings } from './recordings';
-import { playSoundIfEnabled, VadService } from '$lib/services';
-import { toast } from '$lib/services/toast';
-import type { WhisperingError } from '@repo/shared';
-import { executeMutation } from './recorder';
-import { transcription } from './transcription';
 import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
+import { transcription } from './transcription';
 import { transformer } from './transformer';
 
 const vadRecorderKeys = {

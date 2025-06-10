@@ -4,9 +4,8 @@ import type {
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
 import { toast } from '$lib/services/toast';
-import type { MutationOptions } from '@tanstack/svelte-query';
 import { nanoid } from 'nanoid/non-secure';
-import { queryClient } from '.';
+import { defineMutation, queryClient } from '.';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
@@ -35,7 +34,7 @@ export const recorder = {
 		initialData: 'IDLE' as const,
 	}),
 
-	closeRecordingSession: {
+	closeRecordingSession: defineMutation({
 		mutationKey: recorderKeys.closeSession,
 		mutationFn: async ({
 			sendStatus,
@@ -46,25 +45,26 @@ export const recorder = {
 			invalidateRecorderState();
 			return result;
 		},
-	},
+	}),
 
-	startRecording: {
+	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
 		mutationFn: async ({
 			toastId,
 			settings,
 		}: { toastId: string; settings: RecordingSessionSettings }) => {
-			invalidateRecorderState();
 			const result = await services.recorder.startRecording(
 				{ recordingId: nanoid(), settings },
-				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
+				{
+					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				},
 			);
 			invalidateRecorderState();
 			return result;
 		},
-	},
+	}),
 
-	stopRecording: {
+	stopRecording: defineMutation({
 		mutationKey: recorderKeys.stopRecording,
 		mutationFn: async ({ toastId }: { toastId: string }) => {
 			const result = await services.recorder.stopRecording({
@@ -73,9 +73,9 @@ export const recorder = {
 			invalidateRecorderState();
 			return result;
 		},
-	},
+	}),
 
-	cancelRecording: {
+	cancelRecording: defineMutation({
 		mutationKey: recorderKeys.cancelRecording,
 		mutationFn: async ({ toastId }: { toastId: string }) => {
 			const result = await services.recorder.cancelRecording({
@@ -84,13 +84,5 @@ export const recorder = {
 			invalidateRecorderState();
 			return result;
 		},
-	},
+	}),
 };
-
-export function executeMutation<TData, TError, TVariables, TContext>(
-	options: MutationOptions<TData, TError, TVariables, TContext>,
-	variables: TVariables,
-) {
-	const mutation = queryClient.getMutationCache().build(queryClient, options);
-	return mutation.execute(variables);
-}
