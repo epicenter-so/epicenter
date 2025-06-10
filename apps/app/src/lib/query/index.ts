@@ -5,7 +5,6 @@ import {
 	type MutationOptions,
 	QueryClient,
 	type QueryFunction,
-	type QueryOptions,
 } from '@tanstack/svelte-query';
 
 export const queryClient = new QueryClient({
@@ -53,6 +52,7 @@ export function defineQuery<
 	queryFn: QueryFunction<Result<TQueryFnData, TError>, TQueryKey, never>;
 	initialData?: NoInfer<TData> | InitialDataFunction<NoInfer<TData>>;
 	initialDataUpdatedAt?: number | (() => number | undefined);
+	select?: (data: TQueryFnData) => TData;
 }) {
 	return {
 		/**

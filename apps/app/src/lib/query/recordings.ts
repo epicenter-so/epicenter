@@ -5,7 +5,7 @@ import type {
 	Accessor,
 	CreateResultQueryOptions,
 } from '@tanstack/svelte-query';
-import { defineMutation, queryClient } from '.';
+import { defineMutation, defineQuery, queryClient } from '.';
 
 const recordingKeys = {
 	all: ['recordings'] as const,
@@ -14,32 +14,24 @@ const recordingKeys = {
 };
 
 export const recordings = {
-	getAllRecordings: () =>
-		({
-			queryKey: recordingKeys.all,
-			queryFn: () => DbRecordingsService.getAllRecordings(),
-		}) satisfies CreateResultQueryOptions<
-			Recording[],
-			DbServiceErrorProperties
-		>,
+	getAllRecordings: defineQuery({
+		queryKey: recordingKeys.all,
+		queryFn: () => DbRecordingsService.getAllRecordings(),
+	}),
 
-	getLatestRecording: () =>
-		({
-			queryKey: recordingKeys.latest,
-			queryFn: () => DbRecordingsService.getLatestRecording(),
-			initialData: () =>
-				queryClient
-					.getQueryData<Recording[]>(recordingKeys.all)
-					?.toSorted(
-						(a, b) =>
-							new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-					)[0],
-			initialDataUpdatedAt: () =>
-				queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
-		}) satisfies CreateResultQueryOptions<
-			Recording | null,
-			DbServiceErrorProperties
-		>,
+	getLatestRecording: defineQuery({
+		queryKey: recordingKeys.latest,
+		queryFn: () => DbRecordingsService.getLatestRecording(),
+		initialData: () =>
+			queryClient
+				.getQueryData<Recording[]>(recordingKeys.all)
+				?.toSorted(
+					(a, b) =>
+						new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+				)[0],
+		initialDataUpdatedAt: () =>
+			queryClient.getQueryState(recordingKeys.all)?.dataUpdatedAt,
+	}),
 
 	getRecordingById: (id: Accessor<string>) => () =>
 		({

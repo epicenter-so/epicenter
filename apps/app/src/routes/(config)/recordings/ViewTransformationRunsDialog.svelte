@@ -10,7 +10,8 @@
 	let { recordingId }: { recordingId: string } = $props();
 
 	const transformationRunsByRecordingIdQuery = createResultQuery(
-		transformations.getTransformationRunsByRecordingId(() => recordingId),
+		transformations.getTransformationRunsByRecordingId(() => recordingId)
+			.options,
 	);
 
 	let isOpen = $state(false);

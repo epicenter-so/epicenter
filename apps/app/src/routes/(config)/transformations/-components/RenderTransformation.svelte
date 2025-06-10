@@ -20,7 +20,7 @@
 	const transformationRunsByTransformationIdQuery = createResultQuery(
 		transformations.getTransformationRunsByTransformationId(
 			() => transformation.id,
-		),
+		).options,
 	);
 </script>
 
