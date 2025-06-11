@@ -1,15 +1,12 @@
 import type { Recording } from '$lib/services/db';
-import {
-	DbRecordingsService,
-	playSoundIfEnabled,
-	services,
-} from '$lib/services/index.js';
+import { playSoundIfEnabled, services } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
+import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, partitionResults, type Result } from '@epicenterhq/result';
+import { Err, Ok, type Result, partitionResults } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import { defineMutation, queryClient } from '.';
-import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
+import { recordings } from './recordings';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -38,7 +35,7 @@ export const transcription = {
 				});
 			}
 			const { error: setRecordingTranscribingError } =
-				await DbRecordingsService.updateRecording({
+				await recordings.updateRecording.execute({
 					...recording,
 					transcriptionStatus: 'TRANSCRIBING',
 				});
@@ -61,7 +58,7 @@ export const transcription = {
 				});
 			if (transcribeError) {
 				const { error: setRecordingTranscribingError } =
-					await DbRecordingsService.updateRecording({
+					await recordings.updateRecording.execute({
 						...recording,
 						transcriptionStatus: 'FAILED',
 					});
@@ -80,7 +77,7 @@ export const transcription = {
 			}
 			playSoundIfEnabled('transcriptionComplete');
 			const { error: setRecordingTranscribedTextError } =
-				await DbRecordingsService.updateRecording({
+				await recordings.updateRecording.execute({
 					...recording,
 					transcribedText,
 					transcriptionStatus: 'DONE',
