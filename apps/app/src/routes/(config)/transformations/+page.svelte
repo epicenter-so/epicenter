@@ -10,7 +10,7 @@
 	import SelectAllPopover from '$lib/components/ui/table/SelectAllPopover.svelte';
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { transformations } from '$lib/query/transformations';
+	import { queries } from '$lib/query';
 	import { createQuery, createMutation } from '@tanstack/svelte-query';
 	import { type Transformation } from '$lib/services/db';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
@@ -39,10 +39,10 @@
 	import { toast } from '$lib/services/toast';
 
 	const transformationsQuery = createQuery(
-		transformations.queries.getAllTransformations.options,
+		queries.transformations.queries.getAllTransformations.options,
 	);
 	const deleteTransformations = createMutation(
-		transformations.mutations.deleteTransformations.options,
+		queries.transformations.mutations.deleteTransformations.options,
 	);
 
 	const columns: ColumnDef<Transformation>[] = [

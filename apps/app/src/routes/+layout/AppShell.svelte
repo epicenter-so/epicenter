@@ -4,8 +4,7 @@
 	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import { recorder } from '$lib/query/recorder';
-	import { vadRecorder } from '$lib/query/vadRecorder';
+	import { queries } from '$lib/query';
 	import { services } from '$lib/services';
 	import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -18,8 +17,10 @@
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 	import { commandCallbacks } from '$lib/commands';
 
-	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
-	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
+	const getRecorderStateQuery = createQuery(
+		queries.recorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createQuery(queries.vadRecorder.getVadState.options);
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();

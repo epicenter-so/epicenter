@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Resizable from '$lib/components/ui/resizable';
-	import { transformations } from '$lib/query/transformationRuns';
+	import { queries } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createQuery } from '@tanstack/svelte-query';
 	import RenderTransformationConfigurationAndSteps from './RenderTransformationConfigurationAndSteps.svelte';
@@ -18,7 +18,7 @@
 	} = $props();
 
 	const transformationRunsByTransformationIdQuery = createQuery(
-		transformations.getTransformationRunsByTransformationId(
+		queries.transformationRuns.getTransformationRunsByTransformationId(
 			() => transformation.id,
 		).options,
 	);

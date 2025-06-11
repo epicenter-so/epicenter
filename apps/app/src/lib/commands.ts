@@ -1,9 +1,5 @@
-import { recorder } from '$lib/query/recorder';
-import { recordings } from '$lib/query/recordings';
+import { queries } from '$lib/query';
 import { maybeCopyAndPaste } from '$lib/maybeCopyAndPaste';
-import { transcription } from '$lib/query/transcription';
-import { transformer } from '$lib/query/transformer';
-import { vadRecorder } from '$lib/query/vadRecorder';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
@@ -17,7 +13,7 @@ const stopManualRecording = async () => {
 		description: 'Finalizing your audio capture...',
 	});
 	const { data: blob, error: stopRecordingError } =
-		await recorder.stopRecording.execute({ toastId });
+		await queries.recorder.stopRecording.execute({ toastId });
 	if (stopRecordingError) {
 		toast.error({
 			id: toastId,
@@ -39,7 +35,7 @@ const stopManualRecording = async () => {
 	const newRecordingId = nanoid();
 
 	const { data: createdRecording, error: createRecordingError } =
-		await recordings.createRecording.execute({
+		await queries.recordings.createRecording.execute({
 			id: newRecordingId,
 			title: '',
 			subtitle: '',
@@ -78,7 +74,7 @@ const stopManualRecording = async () => {
 		});
 
 		const { error: closeRecordingSessionError } =
-			await recorder.closeRecordingSession.execute({
+			await queries.recorder.closeRecordingSession.execute({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			});
 
@@ -109,7 +105,7 @@ const stopManualRecording = async () => {
 		description: 'Your recording is being transcribed...',
 	});
 	const { data: transcribedText, error: transcribeError } =
-		await transcription.transcribeRecording.execute(createdRecording);
+		await queries.transcription.transcribeRecording.execute(createdRecording);
 
 	if (transcribeError) {
 		if (transcribeError.name === 'WhisperingError') {
@@ -187,7 +183,7 @@ const stopManualRecording = async () => {
 		}
 
 		const transformToastId = nanoid();
-		await transformer.transformRecording.execute({
+		await queries.transformer.transformRecording.execute({
 			recordingId: createdRecording.id,
 			transformationId:
 				settings.value['transformations.selectedTransformationId'],
@@ -203,14 +199,15 @@ const startManualRecording = async () => {
 		title: '🎙️ Preparing to record...',
 		description: 'Setting up your recording environment...',
 	});
-	const { error: startRecordingError } = await recorder.startRecording.execute({
-		toastId,
-		settings: {
-			selectedAudioInputDeviceId:
-				settings.value['recording.navigator.selectedAudioInputDeviceId'],
-			bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
-		},
-	});
+	const { error: startRecordingError } =
+		await queries.recorder.startRecording.execute({
+			toastId,
+			settings: {
+				selectedAudioInputDeviceId:
+					settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+			},
+		});
 	if (startRecordingError) {
 		toast.error({
 			id: toastId,
@@ -237,7 +234,7 @@ export const commands = [
 		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await recorder.getRecorderState.fetchCached();
+				await queries.recorder.getRecorderState.fetchCached();
 			if (getRecorderStateError) {
 				toast.error({
 					id: nanoid(),
@@ -267,7 +264,7 @@ export const commands = [
 				description: 'Cleaning up recording session...',
 			});
 			const { error: cancelRecordingError } =
-				await recorder.cancelRecording.execute({ toastId });
+				await queries.recorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				toast.error({
 					id: toastId,
@@ -287,7 +284,7 @@ export const commands = [
 				});
 			} else {
 				const { error: closeRecordingSessionError } =
-					await recorder.closeRecordingSession.execute({
+					await queries.recorder.closeRecordingSession.execute({
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 					});
 				if (closeRecordingSessionError) {
@@ -321,7 +318,7 @@ export const commands = [
 		callback: async () => {
 			const toastId = nanoid();
 			const { error: closeRecordingSessionError } =
-				await recorder.closeRecordingSession.execute({
+				await queries.recorder.closeRecordingSession.execute({
 					sendStatus: (status) => toast.info({ id: toastId, ...status }),
 				});
 			if (closeRecordingSessionError) {
@@ -349,7 +346,8 @@ export const commands = [
 		defaultLocalShortcut: 'v',
 		defaultGlobalShortcut: "CommandOrControl+Shift+'",
 		callback: async () => {
-			const { data: vadState } = await vadRecorder.getVadState.fetchCached();
+			const { data: vadState } =
+				await queries.vadRecorder.getVadState.fetchCached();
 			if (vadState === 'SESSION+RECORDING') {
 				const toastId = nanoid();
 				toast.loading({
@@ -358,12 +356,12 @@ export const commands = [
 					description: 'Finalizing your voice activated capture...',
 				});
 				const { error: stopVadError } =
-					await vadRecorder.stopVad.execute(undefined);
+					await queries.vadRecorder.stopVad.execute(undefined);
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
 				}
 			} else {
-				vadRecorder.startActiveListening.execute(undefined);
+				queries.vadRecorder.startActiveListening.execute(undefined);
 			}
 		},
 	},

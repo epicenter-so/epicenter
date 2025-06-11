@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { recordings } from '$lib/query/recordings';
+	import { queries } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import type { Recording } from '$lib/services/db';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
@@ -13,7 +13,7 @@
 	import { onDestroy } from 'svelte';
 	import { toast } from '$lib/services/toast';
 
-	const deleteRecording = createMutation(recordings.deleteRecording.options);
+	const deleteRecording = createMutation(queries.recordings.deleteRecording.options);
 
 	let {
 		recording,

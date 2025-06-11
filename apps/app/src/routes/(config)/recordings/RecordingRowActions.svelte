@@ -6,11 +6,7 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { download } from '$lib/query/download';
-	import { recordings } from '$lib/query/recordings';
-	import { transcription } from '$lib/query/transcription';
-	import { transformations } from '$lib/query/transformationRuns';
-	import { transformer } from '$lib/query/transformer';
+	import { queries } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
@@ -30,23 +26,30 @@
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
 	const transcribeRecording = createMutation(
-		transcription.transcribeRecording.options,
+		queries.transcription.transcribeRecording.options,
 	);
-	const deleteRecording = createMutation(recordings.deleteRecording.options);
+	const deleteRecording = createMutation(
+		queries.recordings.deleteRecording.options,
+	);
 
-	const updateRecording = createMutation(recordings.updateRecording.options);
+	const updateRecording = createMutation(
+		queries.recordings.updateRecording.options,
+	);
 
-	const downloadRecording = createMutation(download.downloadRecording.options);
+	const downloadRecording = createMutation(
+		queries.download.downloadRecording.options,
+	);
 
 	let { recordingId }: { recordingId: string } = $props();
 
 	const latestTransformationRunByRecordingIdQuery = createQuery(
-		transformations.getLatestTransformationRunByRecordingId(() => recordingId)
-			.options,
+		queries.transformationRuns.getLatestTransformationRunByRecordingId(
+			() => recordingId,
+		).options,
 	);
 
 	const recordingQuery = createQuery(
-		recordings.getRecordingById(() => recordingId).options,
+		queries.recordings.getRecordingById(() => recordingId).options,
 	);
 
 	const recording = $derived(recordingQuery.data);
@@ -138,7 +141,7 @@
 
 		<SelectTransformationCombobox
 			onSelect={async (transformation) => {
-				const { error } = await transformer.transformRecording.execute({
+				const { error } = await queries.transformer.transformRecording.execute({
 					recordingId: recording.id,
 					transformationId: transformation.id,
 					toastId: nanoid(),

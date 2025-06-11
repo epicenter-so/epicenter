@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { recorder } from '$lib/query/recorder';
+	import { queries } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
@@ -8,7 +8,9 @@
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
 	import { combobox } from './index';
 
-	const getMediaDevicesQuery = createQuery(recorder.getMediaDevices.options);
+	const getMediaDevicesQuery = createQuery(
+		queries.recorder.getMediaDevices.options,
+	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
@@ -37,9 +39,10 @@
 				<Command.Item
 					value={device.label}
 					onSelect={async () => {
-						const { error } = await recorder.closeRecordingSession.execute({
-							sendStatus: noop,
-						});
+						const { error } =
+							await queries.recorder.closeRecordingSession.execute({
+								sendStatus: noop,
+							});
 						if (error) {
 							toast.error({
 								title: '❌ Failed to close session',

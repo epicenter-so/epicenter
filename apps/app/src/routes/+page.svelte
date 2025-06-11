@@ -7,8 +7,7 @@
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
-	import { recorder } from '$lib/query/recorder';
-	import { recordings } from '$lib/query/recordings';
+	import { queries } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
@@ -17,13 +16,14 @@
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { vadRecorder } from '$lib/query/vadRecorder';
 	import { commandCallbacks } from '$lib/commands';
 
-	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
-	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
+	const getRecorderStateQuery = createQuery(
+		queries.recorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createQuery(queries.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
-		recordings.getLatestRecording.options,
+		queries.recordings.getLatestRecording.options,
 	);
 
 	const latestRecording = $derived<Recording>(

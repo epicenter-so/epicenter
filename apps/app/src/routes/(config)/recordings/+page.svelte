@@ -20,9 +20,7 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { clipboard } from '$lib/query/clipboard';
-	import { recordings } from '$lib/query/recordings';
-	import { transcription } from '$lib/query/transcription';
+	import { queries } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
 	import { cn } from '$lib/utils';
@@ -55,13 +53,17 @@
 	import { nanoid } from 'nanoid/non-secure';
 
 	const getAllRecordingsQuery = createQuery(
-		recordings.getAllRecordings.options,
+		queries.recordings.getAllRecordings.options,
 	);
 	const transcribeRecordings = createMutation(
-		transcription.transcribeRecordings.options,
+		queries.transcription.transcribeRecordings.options,
 	);
-	const deleteRecordings = createMutation(recordings.deleteRecordings.options);
-	const copyToClipboard = createMutation(clipboard.copyToClipboard.options);
+	const deleteRecordings = createMutation(
+		queries.recordings.deleteRecordings.options,
+	);
+	const copyToClipboard = createMutation(
+		queries.clipboard.copyToClipboard.options,
+	);
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -365,7 +367,7 @@
 							const toastId = nanoid();
 							toast.loading({
 								id: toastId,
-								title: 'Transcribing recordings...',
+								title: 'Transcribing queries.recordings...',
 								description: 'This may take a while.',
 							});
 							transcribeRecordings.mutate(

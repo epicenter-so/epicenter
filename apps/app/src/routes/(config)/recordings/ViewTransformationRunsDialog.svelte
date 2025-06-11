@@ -2,7 +2,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { transformations } from '$lib/query/transformationRuns';
+	import { queries } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from 'lucide-svelte';
 	import RenderTransformationRuns from '../transformations/-components/RenderTransformationRuns.svelte';
@@ -10,8 +10,9 @@
 	let { recordingId }: { recordingId: string } = $props();
 
 	const transformationRunsByRecordingIdQuery = createQuery(
-		transformations.getTransformationRunsByRecordingId(() => recordingId)
-			.options,
+		queries.transformationRuns.getTransformationRunsByRecordingId(
+			() => recordingId,
+		).options,
 	);
 
 	let isOpen = $state(false);

@@ -3,7 +3,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { transformations } from '$lib/query/transformations';
+	import { queries } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';
@@ -11,12 +11,13 @@
 	let { transformationId }: { transformationId: string } = $props();
 
 	const deleteTransformation = createMutation(
-		transformations.mutations.deleteTransformation.options,
+		queries.transformations.mutations.deleteTransformation.options,
 	);
 
 	const transformationQuery = createQuery(
-		transformations.queries.getTransformationById(() => transformationId)
-			.options,
+		queries.transformations.queries.getTransformationById(
+			() => transformationId,
+		).options,
 	);
 	const transformation = $derived(transformationQuery.data);
 </script>

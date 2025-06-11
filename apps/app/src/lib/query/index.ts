@@ -175,3 +175,32 @@ function executeMutation<TData, TError, TVariables, TContext>(
 	const mutation = queryClient.getMutationCache().build(queryClient, options);
 	return mutation.execute(variables);
 }
+
+// Import all query modules
+import { clipboard } from './clipboard';
+import { download } from './download';
+import { recorder } from './recorder';
+import { recordings } from './recordings';
+import { shortcuts } from './shortcuts';
+import { transcription } from './transcription';
+import { transformations } from './transformations';
+import { transformationRuns } from './transformationRuns';
+import { transformer } from './transformer';
+import { vadRecorder } from './vadRecorder';
+
+/**
+ * Unified namespace for all query operations.
+ * Provides a single entry point for all TanStack Query-based operations.
+ */
+export const queries = {
+	clipboard,
+	download,
+	recorder,
+	recordings,
+	shortcuts,
+	transcription,
+	transformations,
+	transformationRuns,
+	transformer,
+	vadRecorder,
+};
