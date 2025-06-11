@@ -13,7 +13,7 @@
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
+	import { bindKeyboardShortcutsOnLoad } from './registerCommands.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 	import { commandCallbacks } from '$lib/commands';
