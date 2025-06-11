@@ -18,7 +18,10 @@ export type RecorderService = {
 		Result<WhisperingRecordingState, RecordingServiceError>
 	>;
 	enumerateRecordingDevices: () => Promise<
-		Result<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[], RecordingServiceError>
+		Result<
+			{ readonly deviceId: string; readonly label: string }[],
+			RecordingServiceError
+		>
 	>;
 	closeRecordingSession: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
