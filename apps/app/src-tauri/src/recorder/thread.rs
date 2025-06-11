@@ -474,16 +474,6 @@ fn build_stream_u16(
 
 /// Find a recording device by name
 fn find_device(host: &cpal::Host, device_name: &str) -> Result<cpal::Device, String> {
-    // First try exact match
-    let exact_match = host
-        .input_devices()
-        .map_err(|e| e.to_string())?
-        .find(|d| matches!(d.name(), Ok(name) if name == device_name));
-
-    if let Some(device) = exact_match {
-        return Ok(device);
-    }
-
     // If "default" is requested, return default device
     if device_name.to_lowercase() == "default" {
         return host
@@ -491,8 +481,37 @@ fn find_device(host: &cpal::Host, device_name: &str) -> Result<cpal::Device, Str
             .ok_or_else(|| "No default input device available".to_string());
     }
 
-    // Otherwise, error
-    Err(format!("Device '{}' not found", device_name))
+    // Get all available devices
+    let devices: Vec<_> = host
+        .input_devices()
+        .map_err(|e| e.to_string())?
+        .collect();
+
+    if devices.is_empty() {
+        return Err("No recording devices available".to_string());
+    }
+
+    // Try exact match
+    for device in &devices {
+        if let Ok(name) = device.name() {
+            if name == device_name {
+                info!("Found exact device match: '{}'", name);
+                return Ok(device.clone());
+            }
+        }
+    }
+
+    // List available devices in error message for better debugging
+    let available_devices: Vec<String> = devices
+        .iter()
+        .filter_map(|d| d.name().ok())
+        .collect();
+
+    Err(format!(
+        "Device '{}' not found. Available devices: [{}]",
+        device_name,
+        available_devices.join(", ")
+    ))
 }
 
 /// Get an optimal audio configuration for voice recording
