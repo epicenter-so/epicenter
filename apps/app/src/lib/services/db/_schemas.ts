@@ -1,4 +1,4 @@
-import type { Recording, Transformation, TransformationRun } from './DbService';
+import type { Recording, Transformation, TransformationRun } from './models';
 
 export type RecordingsDbSchemaV5 = {
 	recordings: Omit<Recording, 'blob'> & {

@@ -11,7 +11,8 @@ import { createAnthropicCompletionService } from './completion/anthropic';
 import { createGoogleCompletionService } from './completion/google';
 import { createGroqCompletionService } from './completion/groq';
 import { createOpenAiCompletionService } from './completion/openai';
-import type { DbService, TransformationRun, TransformationStep } from './db';
+import type { TransformationRun, TransformationStep } from './db/models';
+import type { DbService } from './db/types';
 import type { HttpService } from './http/_types';
 
 export type TransformResult<T> = Ok<T> | Err<WhisperingError>;

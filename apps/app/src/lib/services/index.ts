@@ -6,7 +6,7 @@ import {
 } from './SetTrayIconService';
 import { createClipboardServiceDesktop } from './clipboard/desktop';
 import { createClipboardServiceWeb } from './clipboard/web';
-import { createDbServiceDexie } from './db/DbService.dexie';
+import { createDbServiceDexie } from './db/dexie';
 import { createDownloadServiceDesktop } from './download/desktop';
 import { createDownloadServiceWeb } from './download/web';
 import { createHttpServiceDesktop } from './http/desktop';

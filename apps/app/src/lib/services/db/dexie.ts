@@ -5,21 +5,21 @@ import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type { DownloadService } from '../download/_types';
+import type { DbService } from './types';
 import type {
-	DbService,
 	DbServiceErrorProperties,
 	Recording,
 	Transformation,
 	TransformationRun,
 	TransformationStepRun,
-} from './DbService';
+} from './models';
 import type {
 	RecordingsDbSchemaV1,
 	RecordingsDbSchemaV2,
 	RecordingsDbSchemaV3,
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
-} from './DbServiceTypes';
+} from './_schemas';
 
 const DB_NAME = 'RecordingDB';
 

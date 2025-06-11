@@ -1,5 +1,5 @@
 import { defineMutation, defineQuery, queryClient } from '$lib/query';
-import type { Transformation } from '$lib/services/db/DbService';
+import type { Transformation } from '$lib/services/db/models';
 import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
@@ -21,8 +21,7 @@ export const transformations = {
 		getTransformationById: (id: Accessor<string>) =>
 			defineQuery({
 				queryKey: transformationsKeys.byId(id()),
-				resultQueryFn: () =>
-					services.db.getTransformationById(id()),
+				resultQueryFn: () => services.db.getTransformationById(id()),
 				initialData: () =>
 					queryClient
 						.getQueryData<Transformation[]>(transformationsKeys.all)
