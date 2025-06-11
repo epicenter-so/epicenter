@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Copyable from '$lib/components/copyable/Copyable.svelte';
+	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
@@ -117,14 +117,14 @@
 					</Tabs.List>
 
 					<Tabs.Content value="cpu-mode">
-						<Copyable
+						<CopyablePre
 							variant="code"
 							label="For computers without CUDA support:"
 							copyableText={`docker run -e ALLOW_ORIGINS='["${WHISPERING_URL}"]' --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu`}
 						/>
 					</Tabs.Content>
 					<Tabs.Content value="gpu-mode">
-						<Copyable
+						<CopyablePre
 							variant="code"
 							label="For computers with CUDA support:"
 							copyableText={`docker run -e ALLOW_ORIGINS='["${WHISPERING_URL}"]' --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda`}
