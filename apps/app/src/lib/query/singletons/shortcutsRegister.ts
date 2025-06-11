@@ -1,5 +1,5 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
-import type { Command } from '@repo/shared';
+import type { Command } from '$lib/commands';
 import type { WhisperingError } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
 import { getContext, setContext } from 'svelte';

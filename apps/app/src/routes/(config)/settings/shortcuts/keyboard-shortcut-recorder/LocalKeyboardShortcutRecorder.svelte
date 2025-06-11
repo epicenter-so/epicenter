@@ -3,7 +3,7 @@
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { trySync } from '@epicenterhq/result';
-	import type { Command } from '@repo/shared';
+	import type { Command } from '$lib/commands';
 	import { WhisperingError } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';

@@ -3,7 +3,8 @@
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync } from '@epicenterhq/result';
-	import { type Command, WhisperingError } from '@repo/shared';
+	import { WhisperingError } from '@repo/shared';
+	import type { Command } from '$lib/commands';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 	import { createGlobalKeyMapper } from './key-mappers';

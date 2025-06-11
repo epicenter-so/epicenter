@@ -2,6 +2,9 @@
 	"name": "@repo/app",
 	"version": "6.5.0",
 	"private": true,
+	"exports": {
+		"./commands": "./src/lib/commands.ts"
+	},
 	"scripts": {
 		"dev:web": "vite dev",
 		"dev": "pnpm tauri dev",

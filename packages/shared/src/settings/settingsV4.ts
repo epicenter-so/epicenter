@@ -1,5 +1,5 @@
 import { type ZodBoolean, type ZodString, z } from 'zod';
-import type { Command } from '../commands.js';
+import type { Command } from '@repo/app/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,

@@ -3,7 +3,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { commands } from '@repo/shared';
+	import { commands } from '$lib/commands';
 	import { Search } from 'lucide-svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
 

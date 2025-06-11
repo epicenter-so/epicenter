@@ -10,7 +10,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "^22.15.29",
-		"typescript": "^5.8.3"
+		"typescript": "^5.8.3",
+		"@repo/app": "workspace:*"
 	},
 	"dependencies": {
 		"@epicenterhq/result": "^0.15.0",

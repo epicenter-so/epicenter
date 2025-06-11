@@ -1,7 +1,7 @@
 import { playSoundIfEnabled, services } from '$lib/services/index.js';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import type { Command } from '@repo/shared';
+import type { Command } from '$lib/commands';
 import { nanoid } from 'nanoid/non-secure';
 import { getContext, setContext } from 'svelte';
 import { recorder } from '../recorder';

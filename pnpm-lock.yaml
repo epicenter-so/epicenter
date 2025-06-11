@@ -326,6 +326,9 @@ importers:
         specifier: ^3.25.42
         version: 3.25.46
     devDependencies:
+      '@repo/app':
+        specifier: workspace:*
+        version: link:../../apps/app
       '@types/node':
         specifier: ^22.15.29
         version: 22.15.29

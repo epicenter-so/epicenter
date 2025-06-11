@@ -1,6 +1,6 @@
 import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 import { settings } from '$lib/stores/settings.svelte';
-import { commands } from '@repo/shared';
+import { commands } from '$lib/commands';
 import { onMount } from 'svelte';
 
 export function bindKeyboardShortcutsOnLoad() {
