@@ -10,7 +10,7 @@ import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery, queryClient } from '.';
 import { recordings } from './recordings';
-import { maybeCopyAndPaste } from './singletons/maybeCopyAndPaste';
+import { maybeCopyAndPaste } from '../maybeCopyAndPaste';
 import { transcription } from './transcription';
 import { transformer } from './transformer';
 

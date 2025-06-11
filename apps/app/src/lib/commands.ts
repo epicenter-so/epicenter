@@ -1,6 +1,6 @@
 import { recorder } from '$lib/query/recorder';
 import { recordings } from '$lib/query/recordings';
-import { maybeCopyAndPaste } from '$lib/query/singletons/maybeCopyAndPaste';
+import { maybeCopyAndPaste } from '$lib/maybeCopyAndPaste';
 import { transcription } from '$lib/query/transcription';
 import { transformer } from '$lib/query/transformer';
 import { vadRecorder } from '$lib/query/vadRecorder';
