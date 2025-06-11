@@ -1,5 +1,5 @@
 import { ClipboardService } from '$lib/services';
-import { toast } from '$lib/services/toast';
+import { defineMutation } from '.';
 
 export type CopyToClipboardLabel =
 	| 'transcribed text'
@@ -11,23 +11,10 @@ export type CopyToClipboardLabel =
 	| 'key'
 	| 'key combination';
 
-export const copyTextToClipboardWithToast = async (
-	{ label, text }: { label: CopyToClipboardLabel; text: string },
-	{ onSuccess }: { onSuccess?: () => void } = {},
-) => {
-	const { error } = await ClipboardService.setClipboardText(text);
-	if (error) {
-		toast.error({
-			title: `Error copying ${label} to clipboard`,
-			description: error.message,
-			action: { type: 'more-details', error },
-		});
-	} else {
-		toast.success({
-			title: `Copied ${label} to clipboard!`,
-			description: text,
-			descriptionClass: 'line-clamp-2',
-		});
-		onSuccess?.();
-	}
+export const clipboard = {
+	copyToClipboard: defineMutation({
+		mutationKey: ['clipboard', 'copyToClipboard'],
+		resultMutationFn: ({ text }: { text: string }) =>
+			ClipboardService.setClipboardText(text),
+	}),
 };

@@ -1,7 +1,7 @@
 import { ClipboardService } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
-import { copyTextToClipboardWithToast } from './query/clipboard';
+import { clipboard } from './query/clipboard';
 
 export async function maybeCopyAndPaste({
 	text,
@@ -24,11 +24,23 @@ export async function maybeCopyAndPaste({
 			action: {
 				type: 'button',
 				label: 'Copy to clipboard',
-				onClick: () =>
-					copyTextToClipboardWithToast({
-						label: 'transcribed text',
-						text: text,
-					}),
+				onClick: async () => {
+					const { error } = await clipboard.copyToClipboard.execute({
+						text,
+					});
+					if (error) {
+						toast.error({
+							title: 'Error copying transcribed text to clipboard',
+							description: error.message,
+							action: { type: 'more-details', error },
+						});
+					}
+					toast.success({
+						id: toastId,
+						title: 'Copied transcribed text to clipboard!',
+						description: text,
+					});
+				},
 			},
 		});
 

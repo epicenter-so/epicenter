@@ -20,7 +20,7 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard';
+	import { clipboard } from '$lib/query/clipboard';
 	import { recordings } from '$lib/query/recordings';
 	import { transcription } from '$lib/query/transcription';
 	import type { Recording } from '$lib/services/db';
@@ -61,6 +61,7 @@
 		transcription.transcribeRecordings.options,
 	);
 	const deleteRecordings = createMutation(recordings.deleteRecordings.options);
+	const copyToClipboard = createMutation(clipboard.copyToClipboard.options);
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -473,13 +474,24 @@
 								<WhisperingButton
 									tooltipContent="Copy transcriptions"
 									onclick={() => {
-										copyTextToClipboardWithToast(
+										copyToClipboard.mutate(
+											{ text: joinedTranscriptionsText },
 											{
-												label: 'transcribed text (joined)',
-												text: joinedTranscriptionsText,
-											},
-											{
-												onSuccess: () => (isDialogOpen = false),
+												onSuccess: () => {
+													isDialogOpen = false;
+													toast.success({
+														title: 'Copied transcribed texts to clipboard!',
+														description: joinedTranscriptionsText,
+													});
+												},
+												onError: (error) => {
+													toast.error({
+														title:
+															'Error copying transcribed texts to clipboard',
+														description: error.message,
+														action: { type: 'more-details', error },
+													});
+												},
 											},
 										);
 									}}
