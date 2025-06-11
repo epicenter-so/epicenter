@@ -276,7 +276,14 @@ pub fn spawn_audio_thread(
                             // First stop recording to prevent new data from coming in
                             session.is_recording.store(false, Ordering::Release);
 
-                            // Get a copy of all recorded audio data
+                            // Pause the stream immediately to stop audio callback
+                            if let Err(e) = session.stream.pause() {
+                                warn!("Error pausing stream: {}", e);
+                            }
+
+                            // The atomic store above prevents new data from being written
+                            // Safe to read buffer now that stream is paused
+
                             let audio_data = if let Ok(buffer) = session.audio_buffer.lock() {
                                 buffer.clone()
                             } else {
@@ -294,11 +301,6 @@ pub fn spawn_audio_thread(
                                 session.sample_rate,
                                 session.channels
                             );
-
-                            // Properly stop the stream - first pause it
-                            if let Err(e) = session.stream.pause() {
-                                warn!("Error pausing stream: {}", e);
-                            }
 
                             // Create complete AudioRecording object with metadata
                             let audio_recording = AudioRecording {
