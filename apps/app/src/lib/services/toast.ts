@@ -46,7 +46,10 @@ function createToastService() {
 
 			const durationInMs = getDurationInMs();
 
-			notificationLog.addLog({ variant: toastVariant, ...toastOptions });
+			notificationLog.addLog({
+				variant: toastVariant,
+				...toastOptions,
+			});
 
 			if (dev) {
 				switch (toastVariant) {
@@ -71,6 +74,7 @@ function createToastService() {
 			const { title, action, ...options } = toastOptions;
 			const id = sonnerToast[toastVariant](title, {
 				...options,
+				descriptionClass: 'line-clamp-2',
 				duration: durationInMs,
 				action: convertActionToToastAction(action),
 			});

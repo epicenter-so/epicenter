@@ -13,7 +13,6 @@ export const toastAndNotificationOptionsSchema = z.object({
 	variant: toastVariantSchema,
 	title: z.string(),
 	description: z.string(),
-	descriptionClass: z.string().optional(),
 	action: z
 		.discriminatedUnion('type', [
 			z.object({

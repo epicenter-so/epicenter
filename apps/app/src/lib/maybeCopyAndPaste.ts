@@ -21,7 +21,6 @@ export async function maybeCopyAndPaste({
 			id: toastId,
 			title: statusToToastText(null),
 			description: text,
-			descriptionClass: 'line-clamp-2',
 			action: {
 				type: 'button',
 				label: 'Copy to clipboard',
@@ -38,7 +37,6 @@ export async function maybeCopyAndPaste({
 			id: toastId,
 			title: statusToToastText('COPIED'),
 			description: text,
-			descriptionClass: 'line-clamp-2',
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
@@ -51,7 +49,6 @@ export async function maybeCopyAndPaste({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
 			description: text,
-			descriptionClass: 'line-clamp-2',
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
