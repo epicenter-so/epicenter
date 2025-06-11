@@ -377,13 +377,6 @@ fn build_stream_f32(
 
                     // Directly extend with f32 data
                     buffer.extend_from_slice(data);
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
@@ -417,13 +410,6 @@ fn build_stream_i16(
 
                     // Convert i16 to f32 and store
                     buffer.extend(data.iter().map(|&s| f32::from_sample(s)));
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
@@ -457,13 +443,6 @@ fn build_stream_u16(
 
                     // Convert u16 to f32 and store
                     buffer.extend(data.iter().map(|&s| f32::from_sample(s)));
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
