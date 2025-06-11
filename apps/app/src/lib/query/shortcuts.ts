@@ -1,34 +1,13 @@
+import { type Command, commandCallbacks } from '$lib/commands';
 import { tryAsync, trySync } from '@epicenterhq/result';
-import type { Command } from '$lib/commands';
 import type { WhisperingError } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
-import { getContext, setContext } from 'svelte';
-import type { CommandCallbacks } from './commands';
+import { defineMutation } from '.';
 
-export const initShortcutsRegisterInContext = ({
-	commandCallbacks,
-}: {
-	commandCallbacks: CommandCallbacks;
-}) => {
-	setContext(
-		'shortcutsRegister',
-		createShortcutsRegister({ commandCallbacks }),
-	);
-};
-
-export const getShortcutsRegisterFromContext = () => {
-	return getContext<ReturnType<typeof createShortcutsRegister>>(
-		'shortcutsRegister',
-	);
-};
-
-function createShortcutsRegister({
-	commandCallbacks,
-}: {
-	commandCallbacks: CommandCallbacks;
-}) {
-	return {
-		registerCommandLocally: ({
+export const shortcuts = {
+	registerCommandLocally: defineMutation({
+		mutationKey: ['shortcuts', 'registerCommandLocally'] as const,
+		resultMutationFn: async ({
 			command,
 			keyCombination,
 		}: {
@@ -83,7 +62,11 @@ function createShortcutsRegister({
 			});
 			return registerNewCommandLocallyResult;
 		},
-		registerCommandGlobally: async ({
+	}),
+
+	registerCommandGlobally: defineMutation({
+		mutationKey: ['shortcuts', 'registerCommandGlobally'] as const,
+		resultMutationFn: async ({
 			command,
 			keyCombination,
 		}: {
@@ -140,5 +123,5 @@ function createShortcutsRegister({
 			});
 			return registerNewShortcutKeyResult;
 		},
-	};
-}
+	}),
+};

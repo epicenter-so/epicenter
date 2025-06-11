@@ -1,23 +1,27 @@
-import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
-import { settings } from '$lib/stores/settings.svelte';
 import { commands } from '$lib/commands';
-import { onMount } from 'svelte';
+import { shortcuts } from '$lib/query/shortcuts';
+import { settings } from '$lib/stores/settings.svelte';
 
 export function bindKeyboardShortcutsOnLoad() {
-	const shortcutsRegister = getShortcutsRegisterFromContext();
+	$effect(() => {
+		Promise.all(
+			commands.map((command) => {
+				const keyCombination = settings.value[`shortcuts.local.${command.id}`];
+				if (!keyCombination) return;
+				return shortcuts.registerCommandLocally.execute({
+					command,
+					keyCombination,
+				});
+			}),
+		);
+	});
 
-	onMount(async () => {
-		for (const command of commands) {
-			const keyCombination = settings.value[`shortcuts.local.${command.id}`];
-			if (!keyCombination) continue;
-			shortcutsRegister.registerCommandLocally({ command, keyCombination });
-		}
-
-		await Promise.all(
+	$effect(() => {
+		Promise.all(
 			commands.map((command) => {
 				const keyCombination = settings.value[`shortcuts.global.${command.id}`];
 				if (!keyCombination) return;
-				return shortcutsRegister.registerCommandGlobally({
+				return shortcuts.registerCommandGlobally.execute({
 					command,
 					keyCombination,
 				});
