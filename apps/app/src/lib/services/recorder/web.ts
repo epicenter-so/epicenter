@@ -1,5 +1,6 @@
 import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
+import type { WhisperingRecordingState } from '@repo/shared';
 import type {
 	RecorderService,
 	RecordingServiceError,
@@ -89,17 +90,25 @@ export function createRecorderServiceWeb(): RecorderService {
 
 		closeRecordingSession: async ({ sendStatus }) => {
 			if (!maybeCurrentSession) return Ok(undefined);
-			const currentSession = maybeCurrentSession;
+
 			sendStatus({
 				title: '🧹 Cleaning Up',
 				description:
 					'Closing your audio stream and freeing system resources...',
 			});
-			for (const track of currentSession.stream.getTracks()) {
+
+			// Stop recorder first if it exists
+			if (maybeCurrentSession.recorder?.mediaRecorder.state === 'recording') {
+				maybeCurrentSession.recorder.mediaRecorder.stop();
+			}
+
+			// Then stop tracks
+			for (const track of maybeCurrentSession.stream.getTracks()) {
 				track.stop();
 			}
-			maybeCurrentSession.recorder = null;
+
 			maybeCurrentSession = null;
+
 			return Ok(undefined);
 		},
 
@@ -147,7 +156,7 @@ export function createRecorderServiceWeb(): RecorderService {
 				sendStatus({
 					title: '🎙️ Starting Session',
 					description: 'Setting up recording environment...',
-					});
+				});
 				const { data: stream, error: acquireStreamError } = await acquireStream(
 					settings,
 					{ sendStatus },
@@ -176,15 +185,19 @@ export function createRecorderServiceWeb(): RecorderService {
 				}),
 			});
 			if (newRecorderError) return Err(newRecorderError);
+
+			// Create recorder object synchronously before starting
 			maybeCurrentSession.recorder = {
 				mediaRecorder: newRecorder,
 				recordedChunks: [],
 				recordingId,
 			};
+
 			newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
 				if (!event.data.size) return;
 				maybeCurrentSession?.recorder?.recordedChunks.push(event.data);
 			});
+
 			newRecorder.start(TIMESLICE_MS);
 			return Ok(undefined);
 		},
@@ -203,6 +216,10 @@ export function createRecorderServiceWeb(): RecorderService {
 				});
 			}
 			const recorder = maybeCurrentSession.recorder;
+
+			// Clear recorder immediately
+			maybeCurrentSession.recorder = null;
+
 			sendStatus({
 				title: '⏸️ Finishing Up',
 				description:
@@ -237,7 +254,6 @@ export function createRecorderServiceWeb(): RecorderService {
 				title: '✅ Recording Complete',
 				description: 'Successfully saved your audio recording!',
 			});
-			maybeCurrentSession.recorder = null;
 			return Ok(blob);
 		},
 
@@ -255,16 +271,22 @@ export function createRecorderServiceWeb(): RecorderService {
 				});
 			}
 			const recorder = maybeCurrentSession.recorder;
+
+			// Clear recorder immediately
+			maybeCurrentSession.recorder = null;
+
 			sendStatus({
 				title: '🛑 Cancelling',
 				description: 'Safely cancelling your recording...',
 			});
+
 			recorder.mediaRecorder.stop();
+
 			sendStatus({
 				title: '✨ Cancelled',
 				description: 'Recording successfully cancelled!',
 			});
-			maybeCurrentSession.recorder = null;
+
 			return Ok(undefined);
 		},
 	};
