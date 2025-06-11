@@ -50,9 +50,9 @@ export const queryClient = new QueryClient({
 export function defineQuery<
 	TQueryFnData,
 	TError,
-	TData,
-	TQueryKey extends QueryKey,
-	TPageParam,
+	TData = TQueryFnData,
+	TQueryKey extends QueryKey = QueryKey,
+	TPageParam = never,
 >(
 	options: Omit<
 		QueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
