@@ -6,7 +6,7 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { recorder } from '$lib/query/recorder';
 	import { vadRecorder } from '$lib/query/vadRecorder';
-	import { DbRecordingsService } from '$lib/services';
+	import { services } from '$lib/services';
 	import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
@@ -32,7 +32,7 @@
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
-		DbRecordingsService.cleanupExpiredRecordings();
+		services.db.cleanupExpiredRecordings();
 	});
 
 	onMount(async () => {

@@ -1,5 +1,5 @@
 import type { Recording } from '$lib/services/db';
-import { playSoundIfEnabled, services } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 import { settings } from '$lib/stores/settings.svelte';
@@ -75,7 +75,7 @@ export const transcription = {
 				}
 				return Err(transcribeError);
 			}
-			playSoundIfEnabled('transcriptionComplete');
+			services.sound.playSoundIfEnabled('transcriptionComplete');
 			const { error: setRecordingTranscribedTextError } =
 				await recordings.updateRecording.execute({
 					...recording,

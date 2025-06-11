@@ -1,4 +1,4 @@
-import { services } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import type {
 	RecordingSessionSettings,
 	UpdateStatusMessageFn,

@@ -1,4 +1,4 @@
-import { DbTransformationsService } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import type { Accessor } from '@tanstack/svelte-query';
 import { defineQuery } from '.';
 
@@ -16,13 +16,13 @@ export const transformations = {
 		defineQuery({
 			queryKey: transformationRunKeys.runsByTransformationId(id()),
 			resultQueryFn: () =>
-				DbTransformationsService.getTransformationRunsByTransformationId(id()),
+				services.db.getTransformationRunsByTransformationId(id()),
 		}),
 	getTransformationRunsByRecordingId: (recordingId: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
 			resultQueryFn: () =>
-				DbTransformationsService.getTransformationRunsByRecordingId(
+				services.db.getTransformationRunsByRecordingId(
 					recordingId(),
 				),
 		}),
@@ -30,7 +30,7 @@ export const transformations = {
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
 			resultQueryFn: () =>
-				DbTransformationsService.getTransformationRunsByRecordingId(
+				services.db.getTransformationRunsByRecordingId(
 					recordingId(),
 				),
 			select: (data) => data.at(0),

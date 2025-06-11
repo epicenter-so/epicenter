@@ -2,7 +2,7 @@ import { dev } from '$app/environment';
 import { goto } from '$app/navigation';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { notificationLog } from '$lib/components/NotificationLog.svelte';
-import { NotificationService } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import { extension } from '@repo/extension';
 import type { ToastAndNotifyOptions } from '@repo/shared';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -27,7 +27,7 @@ function createToastService() {
 
 			(async () => {
 				if (toastVariant !== 'loading' && !(await isFocused())) {
-					const { error: notifyError } = await NotificationService.notify({
+					const { error: notifyError } = await services.notification.notify({
 						variant: toastVariant,
 						...toastOptions,
 					});

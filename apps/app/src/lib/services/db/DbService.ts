@@ -42,7 +42,8 @@ export function generateDefaultTransformationStep(): TransformationStep {
 	};
 }
 
-export type DbRecordingsService = {
+export type DbService = {
+	// Recording methods
 	getAllRecordings: () => Promise<
 		Result<Recording[], DbServiceErrorProperties>
 	>;
@@ -77,9 +78,8 @@ export type DbRecordingsService = {
 	cleanupExpiredRecordings: () => Promise<
 		Result<void, DbServiceErrorProperties>
 	>;
-};
 
-export type DbTransformationsService = {
+	// Transformation methods
 	getAllTransformations: () => Promise<
 		Result<Transformation[], DbServiceErrorProperties>
 	>;
@@ -99,6 +99,7 @@ export type DbTransformationsService = {
 		transformations: Transformation[],
 	) => Promise<Result<void, DbServiceErrorProperties>>;
 
+	// Transformation run methods
 	getTransformationRunById: (
 		id: string,
 	) => Promise<Result<TransformationRun | null, DbServiceErrorProperties>>;

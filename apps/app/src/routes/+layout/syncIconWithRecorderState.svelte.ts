@@ -1,5 +1,5 @@
 import { recorder } from '$lib/query/recorder';
-import { SetTrayIconService } from '$lib/services';
+import { services } from '$lib/services';
 import { createQuery } from '@tanstack/svelte-query';
 
 export function syncIconWithRecorderState() {
@@ -7,7 +7,7 @@ export function syncIconWithRecorderState() {
 
 	$effect(() => {
 		if (getRecorderStateQuery.data) {
-			SetTrayIconService.setTrayIcon(getRecorderStateQuery.data);
+			services.setTrayIcon.setTrayIcon(getRecorderStateQuery.data);
 		}
 	});
 }

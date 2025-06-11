@@ -7,7 +7,7 @@ import { vadRecorder } from '$lib/query/vadRecorder';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import { DbTransformationsService, playSoundIfEnabled } from './services';
+import { services } from './services';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -33,7 +33,7 @@ const stopManualRecording = async () => {
 		description: 'Your recording has been saved',
 	});
 	console.info('Recording stopped');
-	playSoundIfEnabled('manual-stop');
+	services.sound.playSoundIfEnabled('manual-stop');
 
 	const now = new Date().toISOString();
 	const newRecordingId = nanoid();
@@ -150,7 +150,7 @@ const stopManualRecording = async () => {
 	// Run recording through a transformation if a transformation is selected
 	if (settings.value['transformations.selectedTransformationId']) {
 		const { data: transformation, error: getTransformationError } =
-			await DbTransformationsService.getTransformationById(
+			await services.db.getTransformationById(
 				settings.value['transformations.selectedTransformationId'],
 			);
 
@@ -226,7 +226,7 @@ const startManualRecording = async () => {
 		description: 'Speak now and stop recording when done',
 	});
 	console.info('Recording started');
-	playSoundIfEnabled('manual-start');
+	services.sound.playSoundIfEnabled('manual-start');
 };
 
 export const commands = [
@@ -308,7 +308,7 @@ export const commands = [
 					title: '✅ All Done!',
 					description: 'Recording cancelled and session closed successfully',
 				});
-				playSoundIfEnabled('manual-cancel');
+				services.sound.playSoundIfEnabled('manual-cancel');
 				console.info('Recording cancelled');
 			}
 		},

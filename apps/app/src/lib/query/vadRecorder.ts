@@ -1,8 +1,4 @@
-import {
-	DbTransformationsService,
-	VadService,
-	playSoundIfEnabled,
-} from '$lib/services';
+import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, isOk } from '@epicenterhq/result';
@@ -27,7 +23,7 @@ export const vadRecorder = {
 	getVadState: defineQuery({
 		queryKey: vadRecorderKeys.state,
 		resultQueryFn: () => {
-			const vadState = VadService.getVadState();
+			const vadState = services.vad.getVadState();
 			return Ok(vadState);
 		},
 		initialData: 'IDLE' as WhisperingRecordingState,
@@ -36,7 +32,7 @@ export const vadRecorder = {
 	closeVadSession: defineMutation({
 		mutationKey: vadRecorderKeys.closeVad,
 		resultMutationFn: async () => {
-			const closeResult = await VadService.closeVad();
+			const closeResult = await services.vad.closeVad();
 			invalidateVadState();
 			return closeResult;
 		},
@@ -45,7 +41,7 @@ export const vadRecorder = {
 	startActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
 		resultMutationFn: async () => {
-			const { error: ensureVadError } = await VadService.ensureVad({
+			const { error: ensureVadError } = await services.vad.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
 				onSpeechEnd: async (blob) => {
@@ -56,7 +52,7 @@ export const vadRecorder = {
 						description: 'Your voice activated speech has been captured.',
 					});
 					console.info('Voice activated speech captured');
-					playSoundIfEnabled('vad-capture');
+					services.sound.playSoundIfEnabled('vad-capture');
 
 					const now = new Date().toISOString();
 					const newRecordingId = nanoid();
@@ -141,7 +137,7 @@ export const vadRecorder = {
 
 					if (settings.value['transformations.selectedTransformationId']) {
 						const { data: transformation, error: getTransformationError } =
-							await DbTransformationsService.getTransformationById(
+							await services.db.getTransformationById(
 								settings.value['transformations.selectedTransformationId'],
 							);
 
@@ -198,7 +194,7 @@ export const vadRecorder = {
 				});
 				return;
 			}
-			const startVadResult = await VadService.startVad();
+			const startVadResult = await services.vad.startVad();
 			invalidateVadState();
 			return startVadResult;
 		},
@@ -207,10 +203,10 @@ export const vadRecorder = {
 	stopVad: defineMutation({
 		mutationKey: ['vadRecorder', 'stopVad'] as const,
 		resultMutationFn: async () => {
-			const stopResult = await VadService.closeVad();
+			const stopResult = await services.vad.closeVad();
 			if (isOk(stopResult)) {
 				console.info('Stopping voice activated capture');
-				playSoundIfEnabled('vad-stop');
+				services.sound.playSoundIfEnabled('vad-stop');
 			}
 			invalidateVadState();
 			return stopResult;

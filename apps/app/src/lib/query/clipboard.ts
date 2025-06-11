@@ -1,10 +1,10 @@
-import { ClipboardService } from '$lib/services';
+import { services } from '$lib/services';
 import { defineMutation } from '.';
 
 export const clipboard = {
 	copyToClipboard: defineMutation({
 		mutationKey: ['clipboard', 'copyToClipboard'],
 		resultMutationFn: ({ text }: { text: string }) =>
-			ClipboardService.setClipboardText(text),
+			services.clipboard.setClipboardText(text),
 	}),
 };

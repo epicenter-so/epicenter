@@ -1,5 +1,4 @@
-import { DbRecordingsService, playSoundIfEnabled } from '$lib/services';
-import { TransformerService } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
@@ -36,7 +35,7 @@ export const transformer = {
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await TransformerService.runTransformation({
+					await services.transformer.runTransformation({
 						input,
 						transformationId,
 						recordingId: null,
@@ -74,7 +73,7 @@ export const transformer = {
 				toast.error({ id: toastId, ...transformationOutputResult.error });
 			} else {
 				const output = transformationOutputResult.data;
-				playSoundIfEnabled('transformationComplete');
+				services.sound.playSoundIfEnabled('transformationComplete');
 				maybeCopyAndPaste({
 					text: output,
 					toastId,
@@ -124,7 +123,7 @@ export const transformer = {
 					'Applying your selected transformation to the transcribed text...',
 			});
 			const { data: recording, error: getRecordingError } =
-				await DbRecordingsService.getRecordingById(recordingId);
+				await services.db.getRecordingById(recordingId);
 			if (getRecordingError || !recording) {
 				return Err({
 					name: 'WhisperingError',
@@ -139,7 +138,7 @@ export const transformer = {
 				Result<string, WhisperingError>
 			> => {
 				const { data: transformationRun, error: transformationRunError } =
-					await TransformerService.runTransformation({
+					await services.transformer.runTransformation({
 						input: recording.transcribedText,
 						transformationId,
 						recordingId,
@@ -193,7 +192,7 @@ export const transformer = {
 				toast.error({ id: toastId, ...transformationOutputResult.error });
 			} else {
 				const output = transformationOutputResult.data;
-				playSoundIfEnabled('transformationComplete');
+				services.sound.playSoundIfEnabled('transformationComplete');
 				maybeCopyAndPaste({
 					text: output,
 					toastId,

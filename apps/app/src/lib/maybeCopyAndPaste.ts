@@ -1,4 +1,4 @@
-import { ClipboardService } from '$lib/services';
+import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
 import { clipboard } from './query/clipboard';
@@ -69,7 +69,7 @@ export async function maybeCopyAndPaste({
 		});
 	if (!shouldCopy) return toastNull();
 
-	const { error: copyError } = await ClipboardService.setClipboardText(text);
+	const { error: copyError } = await services.clipboard.setClipboardText(text);
 	if (copyError) {
 		toast.warning(copyError);
 		toastNull();
@@ -78,7 +78,8 @@ export async function maybeCopyAndPaste({
 
 	if (!shouldPaste) return toastCopied();
 
-	const { error: pasteError } = await ClipboardService.writeTextToCursor(text);
+	const { error: pasteError } =
+		await services.clipboard.writeTextToCursor(text);
 	if (pasteError) {
 		toast.warning({
 			title: '⚠️ Paste Operation Failed',

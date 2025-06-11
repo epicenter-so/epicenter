@@ -11,20 +11,16 @@ import { createAnthropicCompletionService } from './completion/anthropic';
 import { createGoogleCompletionService } from './completion/google';
 import { createGroqCompletionService } from './completion/groq';
 import { createOpenAiCompletionService } from './completion/openai';
-import type {
-	DbTransformationsService,
-	TransformationRun,
-	TransformationStep,
-} from './db';
+import type { DbService, TransformationRun, TransformationStep } from './db';
 import type { HttpService } from './http/_types';
 
 export type TransformResult<T> = Ok<T> | Err<WhisperingError>;
 
 export function createTransformerService({
-	DbTransformationsService,
+	DbService,
 	HttpService,
 }: {
-	DbTransformationsService: DbTransformationsService;
+	DbService: DbService;
 	HttpService: HttpService;
 }) {
 	const handleStep = async ({
@@ -212,7 +208,7 @@ export function createTransformerService({
 				});
 			}
 			const { data: transformation, error: getTransformationError } =
-				await DbTransformationsService.getTransformationById(transformationId);
+				await DbService.getTransformationById(transformationId);
 			if (getTransformationError || !transformation) {
 				return Err({
 					name: 'WhisperingError',
@@ -234,7 +230,7 @@ export function createTransformerService({
 			}
 
 			const { data: transformationRun, error: createTransformationRunError } =
-				await DbTransformationsService.createTransformationRun({
+				await DbService.createTransformationRun({
 					transformationId: transformation.id,
 					recordingId,
 					input,
@@ -260,10 +256,11 @@ export function createTransformerService({
 				const {
 					data: newTransformationStepRun,
 					error: addTransformationStepRunError,
-				} =
-					await DbTransformationsService.addTransformationStepRunToTransformationRun(
-						{ transformationRun, stepId: step.id, input: currentInput },
-					);
+				} = await DbService.addTransformationStepRunToTransformationRun({
+					transformationRun,
+					stepId: step.id,
+					input: currentInput,
+				});
 
 				if (addTransformationStepRunError)
 					return Err({
@@ -289,14 +286,11 @@ export function createTransformerService({
 					const {
 						data: markedFailedTransformationRun,
 						error: markTransformationRunAndRunStepAsFailedError,
-					} =
-						await DbTransformationsService.markTransformationRunAndRunStepAsFailed(
-							{
-								transformationRun,
-								stepRunId: newTransformationStepRun.id,
-								error: handleStepResult.error,
-							},
-						);
+					} = await DbService.markTransformationRunAndRunStepAsFailed({
+						transformationRun,
+						stepRunId: newTransformationStepRun.id,
+						error: handleStepResult.error,
+					});
 					if (markTransformationRunAndRunStepAsFailedError)
 						return Err({
 							name: 'WhisperingError',
@@ -317,7 +311,7 @@ export function createTransformerService({
 				const handleStepOutput = handleStepResult.data;
 
 				const { error: markTransformationRunStepAsCompletedError } =
-					await DbTransformationsService.markTransformationRunStepAsCompleted({
+					await DbService.markTransformationRunStepAsCompleted({
 						transformationRun,
 						stepRunId: newTransformationStepRun.id,
 						output: handleStepOutput,
@@ -344,7 +338,7 @@ export function createTransformerService({
 			const {
 				data: markedCompletedTransformationRun,
 				error: markTransformationRunAsCompletedError,
-			} = await DbTransformationsService.markTransformationRunAsCompleted({
+			} = await DbService.markTransformationRunAsCompleted({
 				transformationRun,
 				output: currentInput,
 			});

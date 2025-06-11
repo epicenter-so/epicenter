@@ -1,4 +1,4 @@
-import { DownloadService } from '$lib/services';
+import { services } from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import type { DownloadServiceError } from '$lib/services/download/_types';
 import { Err, type Result } from '@epicenterhq/result';
@@ -21,7 +21,7 @@ export const download = {
 				} satisfies WhisperingError);
 			}
 
-			return await DownloadService.downloadBlob({
+			return await services.download.downloadBlob({
 				name: `whispering_recording_${recording.id}`,
 				blob: recording.blob,
 			});

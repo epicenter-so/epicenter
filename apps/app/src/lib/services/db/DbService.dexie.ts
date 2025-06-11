@@ -6,9 +6,8 @@ import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type { DownloadService } from '../download/_types';
 import type {
-	DbRecordingsService,
+	DbService,
 	DbServiceErrorProperties,
-	DbTransformationsService,
 	Recording,
 	Transformation,
 	TransformationRun,
@@ -24,7 +23,7 @@ import type {
 
 const DB_NAME = 'RecordingDB';
 
-class RecordingsDatabase extends Dexie {
+class WhisperingDatabase extends Dexie {
 	recordings!: Dexie.Table<RecordingsDbSchemaV5['recordings'], string>;
 	transformations!: Dexie.Table<
 		RecordingsDbSchemaV5['transformations'],
@@ -338,12 +337,12 @@ const recordingWithSerializedAudioToRecording = (
 	return { ...rest, blob };
 };
 
-export function createDbRecordingsServiceDexie({
+export function createDbServiceDexie({
 	DownloadService,
 }: {
 	DownloadService: DownloadService;
-}) {
-	const db = new RecordingsDatabase({ DownloadService });
+}): DbService {
+	const db = new WhisperingDatabase({ DownloadService });
 	return {
 		async getAllRecordings() {
 			return tryAsync({
@@ -546,16 +545,6 @@ export function createDbRecordingsServiceDexie({
 				}
 			}
 		},
-	} satisfies DbRecordingsService;
-}
-
-export function createDbTransformationsServiceDexie({
-	DownloadService,
-}: {
-	DownloadService: DownloadService;
-}) {
-	const db = new RecordingsDatabase({ DownloadService });
-	return {
 		async getAllTransformations() {
 			return tryAsync({
 				try: () => db.transformations.toArray(),
@@ -885,5 +874,5 @@ export function createDbTransformationsServiceDexie({
 			markTransformationRunAsCompleted(transformationRun);
 			return Ok(transformationRun);
 		},
-	} satisfies DbTransformationsService;
+	};
 }

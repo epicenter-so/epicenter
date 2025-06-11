@@ -1,6 +1,6 @@
 import { defineMutation, defineQuery, queryClient } from '$lib/query';
 import type { Transformation } from '$lib/services/db/DbService';
-import { DbTransformationsService } from '$lib/services/index.js';
+import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from '@epicenterhq/result';
@@ -16,13 +16,13 @@ export const transformations = {
 	queries: {
 		getAllTransformations: defineQuery({
 			queryKey: transformationsKeys.all,
-			resultQueryFn: () => DbTransformationsService.getAllTransformations(),
+			resultQueryFn: () => services.db.getAllTransformations(),
 		}),
 		getTransformationById: (id: Accessor<string>) =>
 			defineQuery({
 				queryKey: transformationsKeys.byId(id()),
 				resultQueryFn: () =>
-					DbTransformationsService.getTransformationById(id()),
+					services.db.getTransformationById(id()),
 				initialData: () =>
 					queryClient
 						.getQueryData<Transformation[]>(transformationsKeys.all)
@@ -37,7 +37,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'createTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
-					await DbTransformationsService.createTransformation(transformation);
+					await services.db.createTransformation(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -59,7 +59,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'updateTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
-					await DbTransformationsService.updateTransformation(transformation);
+					await services.db.updateTransformation(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -87,7 +87,7 @@ export const transformations = {
 				] as const,
 				resultMutationFn: async (transformation: Transformation) => {
 					const { data, error } =
-						await DbTransformationsService.updateTransformation(transformation);
+						await services.db.updateTransformation(transformation);
 					if (error) return Err(error);
 
 					queryClient.setQueryData<Transformation[]>(
@@ -116,7 +116,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'deleteTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { error } =
-					await DbTransformationsService.deleteTransformation(transformation);
+					await services.db.deleteTransformation(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -147,7 +147,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'deleteTransformations'] as const,
 			resultMutationFn: async (transformations: Transformation[]) => {
 				const { error } =
-					await DbTransformationsService.deleteTransformations(transformations);
+					await services.db.deleteTransformations(transformations);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
