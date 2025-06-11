@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { Err, Ok, type Result, resolve } from '@epicenterhq/result';
 import {
-	type DefaultError,
+	type CreateQueryOptions,
 	type MutationFunction,
 	type MutationKey,
 	type MutationOptions,
@@ -9,7 +9,6 @@ import {
 	type QueryFunction,
 	type QueryFunctionContext,
 	type QueryKey,
-	type QueryOptions,
 } from '@tanstack/svelte-query';
 
 export const queryClient = new QueryClient({
@@ -52,10 +51,9 @@ export function defineQuery<
 	TError,
 	TData = TQueryFnData,
 	TQueryKey extends QueryKey = QueryKey,
-	TPageParam = never,
 >(
 	options: Omit<
-		QueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
+		CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
 		'queryFn'
 	> & {
 		queryKey: TQueryKey;
@@ -67,7 +65,7 @@ export function defineQuery<
 		queryFn: async (context: QueryFunctionContext<TQueryKey>) => {
 			return resolve(await options.resultQueryFn(context));
 		},
-	} satisfies QueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>;
+	} satisfies CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>;
 
 	return {
 		/**
@@ -83,7 +81,12 @@ export function defineQuery<
 		 */
 		async fetchCached(): Promise<Result<TData, TError>> {
 			try {
-				return Ok(await queryClient.fetchQuery(newOptions));
+				return Ok(
+					await queryClient.fetchQuery<TQueryFnData, Error, TData, TQueryKey>({
+						queryKey: newOptions.queryKey,
+						queryFn: newOptions.queryFn,
+					}),
+				);
 			} catch (error) {
 				return Err(error as TError);
 			}
