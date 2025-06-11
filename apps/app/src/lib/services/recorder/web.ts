@@ -91,24 +91,14 @@ export function createRecorderServiceWeb(): RecorderService {
 			if (!maybeCurrentSession) return Ok(undefined);
 			const currentSession = maybeCurrentSession;
 			sendStatus({
-				title: '🎙️ Cleaning Up',
+				title: '🧹 Cleaning Up',
 				description:
-					'Safely stopping your audio stream to free up system resources...',
+					'Closing your audio stream and freeing system resources...',
 			});
 			for (const track of currentSession.stream.getTracks()) {
 				track.stop();
 			}
-			sendStatus({
-				title: '🧹 Almost Done',
-				description:
-					'Cleaning up recording resources and preparing for next session...',
-			});
 			maybeCurrentSession.recorder = null;
-			sendStatus({
-				title: '✨ All Set',
-				description:
-					'Recording session successfully closed and resources freed',
-			});
 			maybeCurrentSession = null;
 			return Ok(undefined);
 		},
@@ -124,16 +114,11 @@ export function createRecorderServiceWeb(): RecorderService {
 
 				if (settingsMatch && currentSession.stream.active) {
 					// Settings match and stream is active, reuse the session
-					sendStatus({
-						title: '🎯 Using Existing Session',
-						description: 'Reusing your existing microphone connection...',
-					});
 				} else if (settingsMatch && !currentSession.stream.active) {
 					// Settings match but stream expired, reacquire with same settings
 					sendStatus({
-						title: '🔄 Session Expired',
-						description:
-							'Your recording session timed out. Reconnecting to your microphone...',
+						title: '🔄 Reconnecting',
+						description: 'Session expired, reconnecting to microphone...',
 					});
 					const { data: stream, error: acquireStreamError } =
 						await acquireStream(settings, { sendStatus });
@@ -146,9 +131,8 @@ export function createRecorderServiceWeb(): RecorderService {
 				} else {
 					// Settings changed, close current session and create new one
 					sendStatus({
-						title: '🔄 Settings Changed',
-						description:
-							'Audio settings changed. Closing current session and creating a new one...',
+						title: '🔄 Updating Settings',
+						description: 'Audio settings changed, creating new session...',
 					});
 					for (const track of currentSession.stream.getTracks()) {
 						track.stop();
@@ -161,9 +145,9 @@ export function createRecorderServiceWeb(): RecorderService {
 			} else {
 				// No existing session, create new one
 				sendStatus({
-					title: '🎙️ Starting New Session',
-					description: 'Setting up your recording environment...',
-				});
+					title: '🎙️ Starting Session',
+					description: 'Setting up recording environment...',
+					});
 				const { data: stream, error: acquireStreamError } = await acquireStream(
 					settings,
 					{ sendStatus },
@@ -172,10 +156,6 @@ export function createRecorderServiceWeb(): RecorderService {
 				maybeCurrentSession = { settings, stream, recorder: null };
 			}
 			const currentSession = maybeCurrentSession;
-			sendStatus({
-				title: '🎯 Getting Ready',
-				description: 'Initializing your microphone and preparing to record...',
-			});
 			const { data: newRecorder, error: newRecorderError } = await tryAsync({
 				try: async () => {
 					return new MediaRecorder(currentSession.stream, {
@@ -196,11 +176,6 @@ export function createRecorderServiceWeb(): RecorderService {
 				}),
 			});
 			if (newRecorderError) return Err(newRecorderError);
-			sendStatus({
-				title: '🎤 Recording Active',
-				description:
-					'Your microphone is now recording. Speak clearly and naturally!',
-			});
 			maybeCurrentSession.recorder = {
 				mediaRecorder: newRecorder,
 				recordedChunks: [],
