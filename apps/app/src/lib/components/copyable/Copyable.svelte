@@ -43,7 +43,7 @@
 {copyableText}
 	<CopyToClipboardButton
 			class="absolute right-4 top-4"
-			label={variant === 'code' ? 'code' : 'transcribed text'}
+			contentName={variant === 'code' ? 'code' : 'transcribed text'}
 			{copyableText}></CopyToClipboardButton>
 </pre>
 </div>

@@ -2,7 +2,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import type { Props } from '$lib/components/ui/button';
-	import { type CopyToClipboardLabel, clipboard } from '$lib/query/clipboard';
+	import { clipboard } from '$lib/query/clipboard';
 	import { toast } from '$lib/services/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
@@ -11,7 +11,7 @@
 	const copyToClipboard = createMutation(clipboard.copyToClipboard.options);
 
 	let {
-		label,
+		contentName,
 		copyableText,
 		viewTransitionName,
 		copyIcon: providedCopyIcon,
@@ -20,7 +20,14 @@
 		variant = 'ghost',
 		disabled,
 	}: {
-		label: CopyToClipboardLabel;
+		/**
+		 * A brief description of what content is being copied (e.g., "transcribed text", "API key").
+		 * Used in tooltips, success messages, and error messages to provide context to the user.
+		 */
+		contentName:
+			| 'transcribed text'
+			| 'latest transformation run output'
+			| 'code';
 		copyableText: string;
 		viewTransitionName?: string;
 		copyIcon?: Snippet;
@@ -39,7 +46,7 @@
 </script>
 
 <WhisperingButton
-	tooltipContent="Copy {label} to clipboard"
+	tooltipContent="Copy {contentName} to clipboard"
 	onclick={() =>
 		copyToClipboard.mutate(
 			{ text: copyableText },
@@ -47,13 +54,13 @@
 				onSuccess: () => {
 					hasCopied = true;
 					toast.success({
-						title: `Copied ${label} to clipboard!`,
+						title: `Copied ${contentName} to clipboard!`,
 						description: copyableText,
 					});
 				},
 				onError: (error) => {
 					toast.error({
-						title: `Error copying ${label} to clipboard`,
+						title: `Error copying ${contentName} to clipboard`,
 						description: error.message,
 						action: { type: 'more-details', error },
 					});

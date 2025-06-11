@@ -189,7 +189,7 @@
 					rows={1}
 				/>
 				<CopyToClipboardButton
-					label="transcribed text"
+					contentName="transcribed text"
 					copyableText={latestRecording.transcribedText}
 					viewTransitionName={getRecordingTransitionId({
 						recordingId: latestRecording.id,

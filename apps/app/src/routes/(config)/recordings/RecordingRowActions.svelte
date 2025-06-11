@@ -154,7 +154,7 @@
 		/>
 
 		<CopyToClipboardButton
-			label="transcribed text"
+			contentName="transcribed text"
 			copyableText={recording.transcribedText}
 			viewTransitionName={getRecordingTransitionId({
 				recordingId,
@@ -181,7 +181,7 @@
 			</WhisperingTooltip>
 		{:else}
 			<CopyToClipboardButton
-				label="latest transformation run output"
+				contentName="latest transformation run output"
 				copyableText={latestTransformationRunByRecordingIdQuery.data?.output ??
 					''}
 				viewTransitionName={getRecordingTransitionId({
