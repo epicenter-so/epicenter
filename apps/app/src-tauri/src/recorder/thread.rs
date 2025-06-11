@@ -151,7 +151,7 @@ pub fn spawn_audio_thread(
                             channels,
                             sample_rate: cpal::SampleRate(sample_rate),
                             buffer_size: match config.buffer_size() {
-                                cpal::SupportedBufferSize::Range { min, max } => {
+                                cpal::SupportedBufferSize::Range { min: _, max: _ } => {
                                     cpal::BufferSize::Default
                                 }
                                 cpal::SupportedBufferSize::Unknown => cpal::BufferSize::Default,
@@ -359,8 +359,8 @@ fn build_stream_f32(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     let err_fn = |err| error!("Error in audio stream: {}", err);
 
@@ -391,8 +391,8 @@ fn build_stream_i16(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     use cpal::Sample; // Bring Sample trait into scope
     let err_fn = |err| error!("Error in audio stream: {}", err);
@@ -424,8 +424,8 @@ fn build_stream_u16(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     use cpal::Sample; // Bring Sample trait into scope
     let err_fn = |err| error!("Error in audio stream: {}", err);
