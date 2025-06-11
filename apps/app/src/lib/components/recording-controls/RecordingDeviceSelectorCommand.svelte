@@ -82,7 +82,7 @@
 	<Command.Item
 		value="Refresh devices"
 		onSelect={() => {
-			void getMediaDevicesQuery.refetch();
+			getMediaDevicesQuery.refetch();
 			combobox.closeAndFocusTrigger();
 		}}
 		class="rounded-none p-2 bg-muted/50 text-muted-foreground"

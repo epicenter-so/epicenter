@@ -127,6 +127,6 @@ export const services = (() => {
 
 export const playSoundIfEnabled = (soundName: WhisperingSoundNames) => {
 	if (settings.value[`sound.playOn.${soundName}`]) {
-		void PlaySoundService.playSound(soundName);
+		PlaySoundService.playSound(soundName);
 	}
 };

@@ -12,27 +12,27 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 			getCurrentWindow().setAlwaysOnTop(value);
 		switch (settings.value['system.alwaysOnTop']) {
 			case 'Always':
-				void setAlwaysOnTop(true);
+				setAlwaysOnTop(true);
 				break;
 			case 'When Recording and Transcribing':
 				if (
 					getRecorderStateQuery.data === 'SESSION+RECORDING' ||
 					transcription.isCurrentlyTranscribing()
 				) {
-					void setAlwaysOnTop(true);
+					setAlwaysOnTop(true);
 				} else {
-					void setAlwaysOnTop(false);
+					setAlwaysOnTop(false);
 				}
 				break;
 			case 'When Recording':
 				if (getRecorderStateQuery.data === 'SESSION+RECORDING') {
-					void setAlwaysOnTop(true);
+					setAlwaysOnTop(true);
 				} else {
-					void setAlwaysOnTop(false);
+					setAlwaysOnTop(false);
 				}
 				break;
 			case 'Never':
-				void setAlwaysOnTop(false);
+				setAlwaysOnTop(false);
 				break;
 		}
 	});

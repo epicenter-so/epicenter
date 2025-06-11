@@ -347,7 +347,7 @@ async function enumerateRecordingDevices(): Promise<
 > {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		void extension.openWhisperingTab({});
+		extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {
@@ -376,7 +376,7 @@ async function enumerateRecordingDevices(): Promise<
 async function getStreamForDeviceId(recordingDeviceId: string) {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		void extension.openWhisperingTab({});
+		extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {

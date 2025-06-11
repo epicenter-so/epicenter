@@ -32,7 +32,7 @@
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
-		void DbRecordingsService.cleanupExpiredRecordings();
+		DbRecordingsService.cleanupExpiredRecordings();
 	});
 
 	onMount(async () => {

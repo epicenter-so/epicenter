@@ -22,7 +22,7 @@ function createToastService() {
 		(toastVariant: ToastAndNotifyOptions['variant']) =>
 		(toastOptions: Omit<ToastAndNotifyOptions, 'variant'>) => {
 			if (toastVariant === 'error') {
-				void extension.openWhisperingTab({});
+				extension.openWhisperingTab({});
 			}
 
 			(async () => {
