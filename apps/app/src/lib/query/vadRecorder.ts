@@ -122,7 +122,7 @@ export const vadRecorder = {
 						description: 'Your recording has been transcribed.',
 					});
 					maybeCopyAndPaste({
-						text: transcribedText,
+						text: createdRecording.transcribedText,
 						toastId,
 						shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
 						shouldPaste:
