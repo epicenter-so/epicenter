@@ -135,8 +135,10 @@ pub fn spawn_audio_thread(
                         let config = match get_optimal_config(&device) {
                             Ok(config) => config,
                             Err(e) => {
-                                error!("Failed to get device config: {}", e);
-                                response_tx.send(AudioResponse::Error(e))?;
+                                error!("Failed to get device config for '{}': {}", device_name, e);
+                                response_tx.send(AudioResponse::Error(format!(
+                                    "Device '{}' configuration error: {}", device_name, e
+                                )))?;
                                 continue;
                             }
                         };
