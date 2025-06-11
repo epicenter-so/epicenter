@@ -9,7 +9,6 @@
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { recorder } from '$lib/query/recorder';
 	import { recordings } from '$lib/query/recordings';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
@@ -19,8 +18,8 @@
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 	import { vadRecorder } from '$lib/query/vadRecorder';
+	import { commandCallbacks } from '$lib/commands';
 
-	const commands = getCommandsFromContext();
 	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
 	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
@@ -104,7 +103,7 @@
 				tooltipContent={getRecorderStateQuery.data === 'SESSION+RECORDING'
 					? 'Stop recording'
 					: 'Start recording'}
-				onclick={commands.toggleManualRecording}
+				onclick={commandCallbacks.toggleManualRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -124,7 +123,7 @@
 				tooltipContent={getVadStateQuery.data === 'SESSION+RECORDING'
 					? 'Stop voice activated session'
 					: 'Start voice activated session'}
-				onclick={commands.toggleVadRecording}
+				onclick={commandCallbacks.toggleVadRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -144,7 +143,7 @@
 			{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
-					onclick={commands.cancelManualRecording}
+					onclick={commandCallbacks.cancelManualRecording}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: cancel-icon;"
@@ -153,7 +152,7 @@
 				</WhisperingButton>
 			{:else if getRecorderStateQuery.data === 'SESSION'}
 				<WhisperingButton
-					onclick={commands.closeManualRecordingSession}
+					onclick={commandCallbacks.closeManualRecordingSession}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: end-session-icon;"

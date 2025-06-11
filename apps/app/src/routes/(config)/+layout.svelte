@@ -1,14 +1,13 @@
 <script lang="ts">
+	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { recorder } from '$lib/query/recorder';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { cn } from '$lib/utils.js';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
-	const commands = getCommandsFromContext();
 
 	let { children } = $props();
 </script>
@@ -33,7 +32,7 @@
 	<RecordingControls class="hidden sm:flex" />
 	<WhisperingButton
 		tooltipContent="Toggle recording"
-		onclick={commands.toggleManualRecording}
+		onclick={commandCallbacks.toggleManualRecording}
 		variant="ghost"
 		size="icon"
 		style="view-transition-name: microphone-icon"

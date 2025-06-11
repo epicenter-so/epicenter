@@ -5,7 +5,6 @@
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { recorder } from '$lib/query/recorder';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
 	import { vadRecorder } from '$lib/query/vadRecorder';
 	import { DbRecordingsService } from '$lib/services';
 	import { extension } from '@repo/extension';
@@ -17,10 +16,10 @@
 	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { commandCallbacks } from '$lib/commands';
 
 	const getRecorderStateQuery = createQuery(recorder.getRecorderState.options);
 	const getVadStateQuery = createQuery(vadRecorder.getVadState.options);
-	const commands = getCommandsFromContext();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
@@ -37,7 +36,7 @@
 	});
 
 	onMount(async () => {
-		window.commands = commands;
+		window.commands = commandCallbacks;
 		window.goto = goto;
 		if (!window.__TAURI_INTERNALS__) {
 			const _notifyWhisperingTabReadyResult =
@@ -57,7 +56,7 @@
 
 <button
 	class="xxs:hidden hover:bg-accent hover:text-accent-foreground h-screen w-screen transform duration-300 ease-in-out"
-	onclick={commands.toggleManualRecording}
+	onclick={commandCallbacks.toggleManualRecording}
 >
 	<span
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"

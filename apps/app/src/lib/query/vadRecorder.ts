@@ -1,7 +1,8 @@
 import { VadService, playSoundIfEnabled } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { isOk, Ok } from '@epicenterhq/result';
+import { Ok, isOk } from '@epicenterhq/result';
+import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery, queryClient } from '.';
 import { recordings } from './recordings';
@@ -25,6 +26,7 @@ export const vadRecorder = {
 			const vadState = VadService.getVadState();
 			return Ok(vadState);
 		},
+		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
 	closeVadSession: defineMutation({
