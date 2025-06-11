@@ -62,9 +62,7 @@ export function createRecorderServiceTauri(): RecorderService {
 			});
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{
-					deviceName: settings.selectedAudioInputDeviceId,
-				},
+				{ deviceName: settings.selectedAudioInputDeviceId },
 			);
 			if (initRecordingSessionError)
 				return Err({
@@ -98,8 +96,12 @@ export function createRecorderServiceTauri(): RecorderService {
 			return Ok(undefined);
 		},
 		stopRecording: async () => {
-			const { data: float32ArrayRaw, error: stopRecordingError } =
-				await invoke<number[]>('stop_recording');
+			const { data: audioRecording, error: stopRecordingError } = await invoke<{
+				audioData: number[];
+				sampleRate: number;
+				channels: number;
+				durationSeconds: number;
+			}>('stop_recording');
 			if (stopRecordingError) {
 				return Err({
 					name: 'RecordingServiceError',
@@ -109,8 +111,12 @@ export function createRecorderServiceTauri(): RecorderService {
 				} satisfies RecordingServiceError);
 			}
 
-			const float32Array = new Float32Array(float32ArrayRaw);
-			const blob = createWavFromFloat32(float32Array);
+			const float32Array = new Float32Array(audioRecording.audioData);
+			const blob = createWavFromFloat32(
+				float32Array,
+				audioRecording.sampleRate,
+				audioRecording.channels,
+			);
 			return Ok(blob);
 		},
 		cancelRecording: async ({ sendStatus: sendUpdateStatus }) => {
@@ -141,9 +147,12 @@ async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	});
 }
 
-function createWavFromFloat32(float32Array: Float32Array, sampleRate = 96000) {
+function createWavFromFloat32(
+	float32Array: Float32Array,
+	sampleRate: number,
+	numChannels: number,
+) {
 	// WAV header parameters
-	const numChannels = 1; // Mono
 	const bitsPerSample = 32;
 	const bytesPerSample = bitsPerSample / 8;
 

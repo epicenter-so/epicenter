@@ -33,13 +33,23 @@ pub enum AudioCommand {
     StopRecording,
 }
 
+/// Audio recording data with metadata - matches TypeScript interface
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AudioRecording {
+    pub audio_data: Vec<f32>,
+    pub sample_rate: u32,
+    pub channels: u16,
+    pub duration_seconds: f32,
+}
+
 /// Responses from the audio thread
 #[derive(Debug)]
 pub enum AudioResponse {
     /// List of available recording devices
     RecordingDeviceList(Vec<String>),
-    /// Recorded audio data
-    AudioData(Vec<f32>),
+    /// Recorded audio data with metadata
+    AudioData(AudioRecording),
     /// Error message
     Error(String),
     /// Success message
@@ -288,7 +298,15 @@ pub fn spawn_audio_thread(
                                 warn!("Error pausing stream: {}", e);
                             }
 
-                            response_tx.send(AudioResponse::AudioData(audio_data))?;
+                            // Create complete AudioRecording object with metadata
+                            let audio_recording = AudioRecording {
+                                audio_data,
+                                sample_rate: session.sample_rate,
+                                channels: session.channels,
+                                duration_seconds: duration_secs,
+                            };
+
+                            response_tx.send(AudioResponse::AudioData(audio_recording))?;
                         } else {
                             error!("Cannot stop recording: no active session");
                             response_tx

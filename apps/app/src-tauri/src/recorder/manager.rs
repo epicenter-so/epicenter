@@ -207,15 +207,17 @@ impl AudioManager {
     fn handle_audio_response(
         response: AudioResponse,
         context: &str,
-    ) -> Result<(Vec<f32>, Option<bool>)> {
+    ) -> Result<(super::AudioRecording, Option<bool>)> {
         match response {
-            AudioResponse::AudioData(data) => {
+            AudioResponse::AudioData(audio_recording) => {
                 info!(
-                    "{} completed successfully ({} samples)",
+                    "{} completed successfully ({} samples, {:.2}s at {}Hz)",
                     context,
-                    data.len()
+                    audio_recording.audio_data.len(),
+                    audio_recording.duration_seconds,
+                    audio_recording.sample_rate
                 );
-                Ok((data, Some(false)))
+                Ok((audio_recording, Some(false)))
             }
             AudioResponse::Error(e) => {
                 error!("Error in {}: {}", context, e);
@@ -231,8 +233,8 @@ impl AudioManager {
         }
     }
 
-    /// Stop recording and return the recorded audio data
-    pub fn stop_recording(&mut self) -> Result<Vec<f32>> {
+    /// Stop recording and return the recorded audio data with metadata
+    pub fn stop_recording(&mut self) -> Result<super::AudioRecording> {
         info!("Stopping recording");
         self.with_thread(|tx, rx| {
             tx.send(AudioCommand::StopRecording)?;
