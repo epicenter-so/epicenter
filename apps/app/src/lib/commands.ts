@@ -7,7 +7,7 @@ import { vadRecorder } from '$lib/query/vadRecorder';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import { playSoundIfEnabled, services } from './services';
+import { playSoundIfEnabled } from './services';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -78,7 +78,7 @@ const stopManualRecording = async () => {
 		});
 
 		const { error: closeRecordingSessionError } =
-			await services.recorder.closeRecordingSession({
+			await recorder.closeRecordingSession.execute({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			});
 
