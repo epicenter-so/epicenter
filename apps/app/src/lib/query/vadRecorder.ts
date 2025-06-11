@@ -1,4 +1,8 @@
-import { VadService, playSoundIfEnabled } from '$lib/services';
+import {
+	DbTransformationsService,
+	VadService,
+	playSoundIfEnabled,
+} from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, isOk } from '@epicenterhq/result';
@@ -134,9 +138,50 @@ export const vadRecorder = {
 							}
 						},
 					});
+
 					if (settings.value['transformations.selectedTransformationId']) {
+						const { data: transformation, error: getTransformationError } =
+							await DbTransformationsService.getTransformationById(
+								settings.value['transformations.selectedTransformationId'],
+							);
+
+						// Might have matching transformation, but we couldn't get it
+						if (getTransformationError) {
+							toast.error({
+								id: nanoid(),
+								title: '❌ Failed to get transformation',
+								description:
+									'Your transformation could not be retrieved. Please try again.',
+								action: {
+									type: 'more-details',
+									error: getTransformationError,
+								},
+							});
+							return;
+						}
+
+						// No matching transformation found, so we need to clear the selected transformation
+						if (!transformation) {
+							settings.value = {
+								...settings.value,
+								'transformations.selectedTransformationId': null,
+							};
+							toast.warning({
+								id: nanoid(),
+								title: '⚠️ No matching transformation found',
+								description:
+									'No matching transformation found. Please select a different transformation.',
+								action: {
+									type: 'link',
+									label: 'Select a different transformation',
+									goto: '/transformations',
+								},
+							});
+							return;
+						}
+
 						const transformToastId = nanoid();
-						transformer.transformRecording.execute({
+						await transformer.transformRecording.execute({
 							recordingId: createdRecording.id,
 							transformationId:
 								settings.value['transformations.selectedTransformationId'],
