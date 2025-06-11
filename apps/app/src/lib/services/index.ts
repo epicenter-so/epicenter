@@ -29,8 +29,7 @@ import { createVadServiceWeb } from './vad';
  * Unified services object providing consistent access to all services.
  */
 export const services = (() => {
-	const RecorderServiceTauri = createRecorderServiceTauri();
-	const RecorderServiceWeb = createRecorderServiceWeb();
+	// Static services (platform-dependent but not settings-dependent)
 	const DownloadService = window.__TAURI_INTERNALS__
 		? createDownloadServiceDesktop()
 		: createDownloadServiceWeb();
@@ -55,6 +54,7 @@ export const services = (() => {
 		? createPlaySoundServiceDesktop()
 		: createPlaySoundServiceWeb();
 
+	// Static services (platform-agnostic)
 	const VadService = createVadServiceWeb();
 
 	const DbService = createDbServiceDexie({
@@ -67,7 +67,6 @@ export const services = (() => {
 	});
 
 	return {
-		// Static services (platform-dependent but not settings-dependent)
 		clipboard: ClipboardService,
 
 		download: DownloadService,
@@ -76,11 +75,11 @@ export const services = (() => {
 
 		setTrayIcon: SetTrayIconService,
 
+		vad: VadService,
+
 		db: DbService,
 
 		transformer: TransformerService,
-
-		vad: VadService,
 
 		// Dynamic services (settings-dependent)
 		get transcription() {
@@ -123,8 +122,8 @@ export const services = (() => {
 
 		get recorder() {
 			const recorderServices = {
-				tauri: RecorderServiceTauri,
-				navigator: RecorderServiceWeb,
+				tauri: createRecorderServiceTauri(),
+				navigator: createRecorderServiceWeb(),
 			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
 			const recordingMethod = settings.value['recording.method'];
 			return recorderServices[recordingMethod];
