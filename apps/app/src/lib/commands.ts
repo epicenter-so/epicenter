@@ -360,25 +360,25 @@ export const commands = [
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
 				}
-			} else {
-				const toastId = nanoid();
-				toast.loading({
-					id: toastId,
-					title: '🎙️ Starting voice activated capture',
-					description: 'Your voice activated capture is starting...',
-				});
-				const { error: startActiveListeningError } =
-					await rpc.vadRecorder.startActiveListening.execute(undefined);
-				if (startActiveListeningError) {
-					toast.error({ id: toastId, ...startActiveListeningError });
-					return;
-				}
-				toast.success({
-					id: toastId,
-					title: '🎙️ Voice activated capture started',
-					description: 'Your voice activated capture has been started.',
-				});
+				return;
 			}
+			const toastId = nanoid();
+			toast.loading({
+				id: toastId,
+				title: '🎙️ Starting voice activated capture',
+				description: 'Your voice activated capture is starting...',
+			});
+			const { error: startActiveListeningError } =
+				await rpc.vadRecorder.startActiveListening.execute(undefined);
+			if (startActiveListeningError) {
+				toast.error({ id: toastId, ...startActiveListeningError });
+				return;
+			}
+			toast.success({
+				id: toastId,
+				title: '🎙️ Voice activated capture started',
+				description: 'Your voice activated capture has been started.',
+			});
 		},
 	},
 ] as const;
