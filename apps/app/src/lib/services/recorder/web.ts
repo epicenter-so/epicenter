@@ -124,6 +124,7 @@ export function createRecorderServiceWeb(): RecorderService {
 					currentSession?.settings.bitrateKbps === settings.bitrateKbps;
 
 				if (canReuseCurrentSession) {
+					// biome-ignore lint/style/noNonNullAssertion: currentSession is guaranteed non-null by canReuseCurrentSession condition above
 					return Ok(currentSession!);
 				}
 
