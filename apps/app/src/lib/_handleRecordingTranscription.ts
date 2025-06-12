@@ -1,5 +1,5 @@
 import { services } from '$lib/services';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { maybeCopyAndPaste } from './maybeCopyAndPaste';
@@ -96,8 +96,10 @@ export async function saveRecordingAndTranscribe({
 	maybeCopyAndPaste({
 		text: transcribedText,
 		toastId: transcribeToastId,
-		shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
-		shouldPaste: settings.value['transcription.clipboard.pasteOnSuccess'],
+		userWantsClipboardCopy:
+			settings.value['transcription.clipboard.copyOnSuccess'],
+		userWantsCursorPaste:
+			settings.value['transcription.clipboard.pasteOnSuccess'],
 		statusToToastText(status) {
 			switch (status) {
 				case null:

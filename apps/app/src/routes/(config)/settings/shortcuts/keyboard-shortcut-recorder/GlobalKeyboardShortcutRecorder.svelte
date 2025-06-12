@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { tryAsync } from '@epicenterhq/result';
 	import { WhisperingError } from '@repo/shared';

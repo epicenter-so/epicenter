@@ -36,7 +36,7 @@
 	import CreateTransformationButton from './CreateTransformationButton.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import TransformationRowActions from './TransformationRowActions.svelte';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,

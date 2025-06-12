@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
 	import { noop } from '@tanstack/svelte-query';

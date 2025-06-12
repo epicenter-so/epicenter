@@ -8,7 +8,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';

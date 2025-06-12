@@ -1,4 +1,4 @@
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 import {
 	getDefaultSettingsV1,

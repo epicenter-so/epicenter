@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
 	import { createQuery, noop } from '@tanstack/svelte-query';

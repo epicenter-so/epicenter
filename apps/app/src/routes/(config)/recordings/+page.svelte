@@ -22,7 +22,7 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';

@@ -8,7 +8,7 @@
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 
 	let {
 		id,

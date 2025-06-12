@@ -4,7 +4,7 @@
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';
 

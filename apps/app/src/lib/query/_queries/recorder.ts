@@ -3,7 +3,7 @@ import type {
 	RecordingSessionSettings,
 	UpdateStatusMessageFn,
 } from '$lib/services/recorder/_types';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';

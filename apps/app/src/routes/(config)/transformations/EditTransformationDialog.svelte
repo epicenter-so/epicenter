@@ -13,7 +13,7 @@
 	import { onDestroy } from 'svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 
 	const updateTransformation = createMutation(
 		rpc.transformations.mutations.updateTransformation.options,

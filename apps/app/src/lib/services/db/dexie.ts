@@ -1,5 +1,5 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';

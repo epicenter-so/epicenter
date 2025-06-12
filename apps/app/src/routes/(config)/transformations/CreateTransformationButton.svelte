@@ -5,7 +5,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';

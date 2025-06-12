@@ -1,5 +1,5 @@
 import { services } from '$lib/services';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
 import type { WhisperingError, WhisperingResult } from '@repo/shared';
@@ -78,8 +78,9 @@ export const transformer = {
 				maybeCopyAndPaste({
 					text: output,
 					toastId,
-					shouldCopy: settings.value['transformation.clipboard.copyOnSuccess'],
-					shouldPaste:
+					userWantsClipboardCopy:
+						settings.value['transformation.clipboard.copyOnSuccess'],
+					userWantsCursorPaste:
 						settings.value['transformation.clipboard.pasteOnSuccess'],
 					statusToToastText: (status) => {
 						switch (status) {
@@ -197,8 +198,9 @@ export const transformer = {
 				maybeCopyAndPaste({
 					text: output,
 					toastId,
-					shouldCopy: settings.value['transformation.clipboard.copyOnSuccess'],
-					shouldPaste:
+					userWantsClipboardCopy:
+						settings.value['transformation.clipboard.copyOnSuccess'],
+					userWantsCursorPaste:
 						settings.value['transformation.clipboard.pasteOnSuccess'],
 					statusToToastText: (status) => {
 						switch (status) {

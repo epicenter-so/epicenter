@@ -1,5 +1,5 @@
 import { rpc } from '$lib/query';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { services } from './services';

@@ -11,7 +11,7 @@
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 
 	const deleteRecording = createMutation(
 		rpc.recordings.deleteRecording.options,

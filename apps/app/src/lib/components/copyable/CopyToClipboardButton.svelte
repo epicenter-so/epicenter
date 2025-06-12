@@ -3,7 +3,7 @@
 	import { ClipboardIcon } from '$lib/components/icons';
 	import type { Props } from '$lib/components/ui/button';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
