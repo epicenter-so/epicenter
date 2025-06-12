@@ -178,37 +178,34 @@
 	</div>
 
 	<div class="xxs:flex hidden w-full max-w-xs flex-col items-center gap-2">
-		{#if latestRecording.transcribedText !== ''}
-			<div class="flex w-full items-center gap-2">
-				<TranscribedTextDialog
-					recordingId={latestRecording.id}
-					transcribedText={latestRecording.transcriptionStatus ===
-					'TRANSCRIBING'
-						? '...'
-						: latestRecording.transcribedText}
-					rows={1}
-				/>
-				<CopyToClipboardButton
-					contentName="transcribed text"
-					copyableText={latestRecording.transcribedText}
-					viewTransitionName={getRecordingTransitionId({
-						recordingId: latestRecording.id,
-						propertyName: 'transcribedText',
-					})}
-					size="default"
-					variant="secondary"
-					disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-				>
-					{#snippet copyIcon()}
-						{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-							<Loader2Icon class="size-6 animate-spin" />
-						{:else}
-							<ClipboardIcon class="size-6" />
-						{/if}
-					{/snippet}
-				</CopyToClipboardButton>
-			</div>
-		{/if}
+		<div class="flex w-full items-center gap-2">
+			<TranscribedTextDialog
+				recordingId={latestRecording.id}
+				transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
+					? '...'
+					: latestRecording.transcribedText}
+				rows={1}
+			/>
+			<CopyToClipboardButton
+				contentName="transcribed text"
+				copyableText={latestRecording.transcribedText}
+				viewTransitionName={getRecordingTransitionId({
+					recordingId: latestRecording.id,
+					propertyName: 'transcribedText',
+				})}
+				size="default"
+				variant="secondary"
+				disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+			>
+				{#snippet copyIcon()}
+					{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+						<Loader2Icon class="size-6 animate-spin" />
+					{:else}
+						<ClipboardIcon class="size-6" />
+					{/if}
+				{/snippet}
+			</CopyToClipboardButton>
+		</div>
 
 		{#if blobUrl}
 			<audio
