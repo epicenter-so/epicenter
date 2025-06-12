@@ -6,7 +6,12 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import {
+		deliverTranscribedText,
+		deliverTransformedText,
+	} from '$lib/deliverTextToUser';
 	import { rpc } from '$lib/query';
+	import { services } from '$lib/services';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
@@ -24,9 +29,6 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
-	import { services } from '$lib/services';
-	import { deliverTextToUser } from '$lib/deliverTextToUser';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	const transcribeRecording = createMutation(
 		rpc.transcription.transcribeRecording.options,
@@ -112,13 +114,6 @@
 					description: 'Your recording is being transcribed...',
 				});
 				transcribeRecording.mutate(recording, {
-					onSuccess: () => {
-						toast.success({
-							id: toastId,
-							title: 'Transcribed recording!',
-							description: 'Your recording has been transcribed.',
-						});
-					},
 					onError: (error) => {
 						if (error.name === 'WhisperingError') {
 							toast.error({ id: toastId, ...error });
@@ -130,6 +125,11 @@
 							description: 'Your recording could not be transcribed.',
 							action: { type: 'more-details', error: error },
 						});
+					},
+					onSuccess: (transcribedText) => {
+						services.sound.playSoundIfEnabled('transcriptionComplete');
+
+						deliverTranscribedText({ text: transcribedText, toastId });
 					},
 				});
 			}}
@@ -149,11 +149,17 @@
 
 		<SelectTransformationCombobox
 			onSelect={(transformation) => {
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '🔄 Running transformation...',
+					description:
+						'Applying your selected transformation to the transcribed text...',
+				});
 				transformRecording.mutate(
 					{
 						recordingId: recording.id,
 						transformationId: transformation.id,
-						toastId: nanoid(),
 					},
 					{
 						onError: (error) => toast.error(error),
@@ -171,23 +177,10 @@
 							}
 
 							services.sound.playSoundIfEnabled('transformationComplete');
-							deliverTextToUser({
+
+							deliverTransformedText({
 								text: transformationRun.output,
-								toastId: nanoid(),
-								userWantsClipboardCopy:
-									settings.value['transformation.clipboard.copyOnSuccess'],
-								userWantsCursorPaste:
-									settings.value['transformation.clipboard.pasteOnSuccess'],
-								statusToToastText: (status) => {
-									switch (status) {
-										case null:
-											return '🔄 Transformation complete!';
-										case 'COPIED':
-											return '🔄 Transformation complete and copied to clipboard!';
-										case 'COPIED+PASTED':
-											return '🔄 Transformation complete, copied to clipboard, and pasted!';
-									}
-								},
+								toastId,
 							});
 						},
 					},

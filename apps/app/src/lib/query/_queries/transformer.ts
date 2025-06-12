@@ -1,18 +1,14 @@
 import { services } from '$lib/services';
-import { toast } from '$lib/toast';
-import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
-import type { WhisperingError, WhisperingResult } from '@repo/shared';
-import { defineMutation } from '../_utils';
-import { queryClient } from '../index';
-import { deliverTextToUser } from '../../deliverTextToUser';
-import { transformationRunKeys } from './transformationRuns';
-import { transformationsKeys } from './transformations';
 import type {
-	TransformationRun,
 	TransformationRunCompleted,
 	TransformationRunFailed,
 } from '$lib/services/db';
+import { Err, Ok, type Result } from '@epicenterhq/result';
+import type { WhisperingError, WhisperingResult } from '@repo/shared';
+import { defineMutation } from '../_utils';
+import { queryClient } from '../index';
+import { transformationRunKeys } from './transformationRuns';
+import { transformationsKeys } from './transformations';
 
 const transformerKeys = {
 	transformInput: ['transformer', 'transformInput'] as const,
@@ -25,18 +21,10 @@ export const transformer = {
 		resultMutationFn: async ({
 			input,
 			transformationId,
-			toastId,
 		}: {
 			input: string;
 			transformationId: string;
-			toastId: string;
 		}): Promise<WhisperingResult<string>> => {
-			toast.loading({
-				id: toastId,
-				title: '🔄 Running transformation...',
-				description: 'Applying your selected transformation to the input...',
-			});
-
 			const getTransformationOutput = async (): Promise<
 				Result<string, WhisperingError>
 			> => {
@@ -47,7 +35,15 @@ export const transformer = {
 						recordingId: null,
 					});
 
-				if (transformationRunError) return Err(transformationRunError);
+				if (transformationRunError)
+					return Err({
+						name: 'WhisperingError',
+						title: '⚠️ Transformation failed',
+						description: transformationRunError.message,
+						action: { type: 'more-details', error: transformationRunError },
+						context: {},
+						cause: transformationRunError,
+					});
 
 				if (transformationRun.error) {
 					return Err({
@@ -75,31 +71,6 @@ export const transformer = {
 
 			const transformationOutputResult = await getTransformationOutput();
 
-			if (isErr(transformationOutputResult)) {
-				toast.error({ id: toastId, ...transformationOutputResult.error });
-			} else {
-				const output = transformationOutputResult.data;
-				services.sound.playSoundIfEnabled('transformationComplete');
-				await deliverTextToUser({
-					text: output,
-					toastId,
-					userWantsClipboardCopy:
-						settings.value['transformation.clipboard.copyOnSuccess'],
-					userWantsCursorPaste:
-						settings.value['transformation.clipboard.pasteOnSuccess'],
-					statusToToastText: (status) => {
-						switch (status) {
-							case null:
-								return '🔄 Transformation complete!';
-							case 'COPIED':
-								return '🔄 Transformation complete and copied to clipboard!';
-							case 'COPIED+PASTED':
-								return '🔄 Transformation complete, copied to clipboard, and pasted!';
-						}
-					},
-				});
-			}
-
 			queryClient.invalidateQueries({
 				queryKey:
 					transformationRunKeys.runsByTransformationId(transformationId),
@@ -117,23 +88,15 @@ export const transformer = {
 		resultMutationFn: async ({
 			recordingId,
 			transformationId,
-			toastId,
 		}: {
 			recordingId: string;
 			transformationId: string;
-			toastId: string;
 		}): Promise<
 			Result<
 				TransformationRunCompleted | TransformationRunFailed,
 				WhisperingError
 			>
 		> => {
-			toast.loading({
-				id: toastId,
-				title: '🔄 Running transformation...',
-				description:
-					'Applying your selected transformation to the transcribed text...',
-			});
 			const { data: recording, error: getRecordingError } =
 				await services.db.getRecordingById(recordingId);
 			if (getRecordingError || !recording) {
@@ -153,7 +116,13 @@ export const transformer = {
 					recordingId,
 				});
 
-			if (transformationRunError) return Err(transformationRunError);
+			if (transformationRunError)
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation failed',
+					description: transformationRunError.message,
+					action: { type: 'more-details', error: transformationRunError },
+				});
 
 			queryClient.invalidateQueries({
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),

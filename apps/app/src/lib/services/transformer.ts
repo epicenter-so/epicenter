@@ -3,10 +3,10 @@ import {
 	Err,
 	Ok,
 	type Result,
+	type TaggedError,
 	extractErrorMessage,
 	isErr,
 } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
 import { createAnthropicCompletionService } from './completion/anthropic';
 import { createGoogleCompletionService } from './completion/google';
 import { createGroqCompletionService } from './completion/groq';
@@ -19,7 +19,7 @@ import type {
 import type { DbService } from './db/types';
 import type { HttpService } from './http/_types';
 
-export type TransformResult<T> = Ok<T> | Err<WhisperingError>;
+type TransformServiceError = TaggedError<'TransformServiceError'>;
 
 export function createTransformerService({
 	DbService,
@@ -203,13 +203,15 @@ export function createTransformerService({
 			transformationId: string;
 			recordingId: string | null;
 		}): Promise<
-			TransformResult<TransformationRunCompleted | TransformationRunFailed>
+			Result<
+				TransformationRunCompleted | TransformationRunFailed,
+				TransformServiceError
+			>
 		> => {
 			if (!input.trim()) {
 				return Err({
-					name: 'WhisperingError',
-					title: '⚠️ Empty input',
-					description: 'Please enter some text to transform',
+					name: 'TransformServiceError',
+					message: 'Empty input. Please enter some text to transform',
 					cause: undefined,
 					context: { input, transformationId },
 				});
@@ -218,9 +220,8 @@ export function createTransformerService({
 				await DbService.getTransformationById(transformationId);
 			if (getTransformationError || !transformation) {
 				return Err({
-					name: 'WhisperingError',
-					title: '⚠️ Transformation not found',
-					description: 'Could not find the selected transformation.',
+					name: 'TransformServiceError',
+					message: 'Could not find the selected transformation.',
 					cause: getTransformationError ?? undefined,
 					context: { transformationId, getTransformationError },
 				});
@@ -228,9 +229,9 @@ export function createTransformerService({
 
 			if (transformation.steps.length === 0) {
 				return Err({
-					name: 'WhisperingError',
-					title: 'No steps configured',
-					description: 'Please add at least one transformation step',
+					name: 'TransformServiceError',
+					message:
+						'No steps configured. Please add at least one transformation step',
 					cause: undefined,
 					context: { transformationId, transformation },
 				});
@@ -245,9 +246,8 @@ export function createTransformerService({
 
 			if (createTransformationRunError)
 				return Err({
-					name: 'WhisperingError',
-					title: '⚠️ Failed to create transformation run',
-					description: 'Could not create the transformation run.',
+					name: 'TransformServiceError',
+					message: 'Unable to start transformation run',
 					cause: createTransformationRunError,
 					context: {
 						transformationId,
@@ -271,9 +271,8 @@ export function createTransformerService({
 
 				if (addTransformationStepRunError)
 					return Err({
-						name: 'WhisperingError',
-						title: '⚠️ Failed to add transformation step run',
-						description: 'Could not add the transformation step run.',
+						name: 'TransformServiceError',
+						message: 'Unable to initialize transformation step',
 						cause: addTransformationStepRunError,
 						context: {
 							transformationRun,
@@ -300,10 +299,8 @@ export function createTransformerService({
 					});
 					if (markTransformationRunAndRunStepAsFailedError)
 						return Err({
-							name: 'WhisperingError',
-							title: '⚠️ Failed to mark transformation run and step as failed',
-							description:
-								'Could not mark the transformation run and step as failed.',
+							name: 'TransformServiceError',
+							message: 'Unable to save failed transformation step result',
 							cause: markTransformationRunAndRunStepAsFailedError,
 							context: {
 								transformationRun,
@@ -326,10 +323,8 @@ export function createTransformerService({
 
 				if (markTransformationRunStepAsCompletedError)
 					return Err({
-						name: 'WhisperingError',
-						title: '⚠️ Failed to mark transformation run step as completed',
-						description:
-							'Could not mark the transformation run step as completed.',
+						name: 'TransformServiceError',
+						message: 'Unable to save completed transformation step result',
 						cause: markTransformationRunStepAsCompletedError,
 						context: {
 							transformationRun,
@@ -352,9 +347,8 @@ export function createTransformerService({
 
 			if (markTransformationRunAsCompletedError)
 				return Err({
-					name: 'WhisperingError',
-					title: '⚠️ Failed to mark transformation run as completed',
-					description: 'Could not mark the transformation run as completed.',
+					name: 'TransformServiceError',
+					message: 'Unable to save completed transformation run',
 					cause: markTransformationRunAsCompletedError,
 					context: {
 						transformationRun,

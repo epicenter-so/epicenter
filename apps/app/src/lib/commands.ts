@@ -1,4 +1,7 @@
-import { deliverTextToUser } from './deliverTextToUser';
+import {
+	deliverTranscribedText,
+	deliverTransformedText,
+} from './deliverTextToUser';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
@@ -63,7 +66,7 @@ const stopManualRecording = async () => {
 	console.info('Recording stopped');
 	services.sound.playSoundIfEnabled('manual-stop');
 
-	await saveRecordingAndTranscribe({
+	await saveRecordingAndTranscribeTransform({
 		blob,
 		toastId,
 		completionTitle: '✨ Recording Complete!',
@@ -261,7 +264,7 @@ export const commands = [
 						console.info('Voice activated speech captured');
 						services.sound.playSoundIfEnabled('vad-capture');
 
-						await saveRecordingAndTranscribe({
+						await saveRecordingAndTranscribeTransform({
 							blob,
 							toastId,
 							completionTitle: '✨ Voice activated capture complete!',
@@ -310,7 +313,7 @@ export const commandCallbacks = commands.reduce<CommandCallbacks>(
  * @param completionTitle - Title for the completion toast
  * @param completionDescription - Description for the completion toast
  */
-async function saveRecordingAndTranscribe({
+async function saveRecordingAndTranscribeTransform({
 	blob,
 	toastId,
 	completionTitle,
@@ -377,6 +380,11 @@ async function saveRecordingAndTranscribe({
 		});
 		return;
 	}
+
+	services.sound.playSoundIfEnabled('transcriptionComplete');
+
+	await deliverTranscribedText({ text: transcribedText, toastId });
+
 	// Determine if we need to chain to transformation
 	const needsTransformation =
 		settings.value['transformations.selectedTransformationId'];
@@ -419,28 +427,23 @@ async function saveRecordingAndTranscribe({
 			return;
 		}
 
-		// Valid transformation found - will run after transcription success
-	}
-
-	// Handle transcription success
-	await handleTranscriptionSuccess({
-		text: transcribedText,
-		toastId: transcribeToastId,
-	});
-
-	// Run transformation if one was configured and validated
-	if (needsTransformation) {
 		const transformToastId = nanoid();
+		toast.loading({
+			id: transformToastId,
+			title: '🔄 Running transformation...',
+			description:
+				'Applying your selected transformation to the transcribed text...',
+		});
 		const { data: transformationRun, error: transformError } =
 			await rpc.transformer.transformRecording.execute({
 				recordingId: createdRecording.id,
 				transformationId: needsTransformation,
-				toastId: transformToastId,
 			});
 		if (transformError) {
 			toast.error({ id: transformToastId, ...transformError });
 			return;
 		}
+
 		if (transformationRun.status === 'failed') {
 			toast.error({
 				id: transformToastId,
@@ -452,68 +455,7 @@ async function saveRecordingAndTranscribe({
 		}
 
 		services.sound.playSoundIfEnabled('transformationComplete');
-		await deliverTextToUser({
-			text: transformationRun.output,
-			toastId,
-			userWantsClipboardCopy:
-				settings.value['transformation.clipboard.copyOnSuccess'],
-			userWantsCursorPaste:
-				settings.value['transformation.clipboard.pasteOnSuccess'],
-			statusToToastText: (status) => {
-				switch (status) {
-					case null:
-						return '🔄 Transformation complete!';
-					case 'COPIED':
-						return '🔄 Transformation complete and copied to clipboard!';
-					case 'COPIED+PASTED':
-						return '🔄 Transformation complete, copied to clipboard, and pasted!';
-				}
-			},
-		});
+
+		await deliverTransformedText({ text: transformationRun.output, toastId });
 	}
-}
-
-/**
- * Handles successful transcription completion.
- *
- * This function manages the transcription success flow:
- * 1. Shows transcription success toast
- * 2. Delivers text to user based on their clipboard preferences
- *
- * @param text - The transcribed text
- * @param toastId - Toast ID for consistent notifications
- */
-async function handleTranscriptionSuccess({
-	text,
-	toastId,
-}: {
-	text: string;
-	toastId: string;
-}) {
-	// Show transcription success toast
-	toast.success({
-		id: toastId,
-		title: 'Transcribed recording!',
-		description: 'Your recording has been transcribed.',
-	});
-
-	// Deliver transcribed text to user
-	await deliverTextToUser({
-		text,
-		toastId,
-		userWantsClipboardCopy:
-			settings.value['transcription.clipboard.copyOnSuccess'],
-		userWantsCursorPaste:
-			settings.value['transcription.clipboard.pasteOnSuccess'],
-		statusToToastText: (status) => {
-			switch (status) {
-				case null:
-					return '📝 Recording transcribed!';
-				case 'COPIED':
-					return '📝 Recording transcribed and copied to clipboard!';
-				case 'COPIED+PASTED':
-					return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
-			}
-		},
-	});
 }

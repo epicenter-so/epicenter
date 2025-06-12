@@ -76,7 +76,7 @@ export const transcription = {
 				}
 				return Err(transcribeError);
 			}
-			services.sound.playSoundIfEnabled('transcriptionComplete');
+
 			const { error: setRecordingTranscribedTextError } =
 				await recordings.updateRecording.execute({
 					...recording,
