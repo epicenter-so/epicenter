@@ -1,4 +1,10 @@
-import { Err, Ok, trySync } from '@epicenterhq/result';
+import {
+	Err,
+	extractErrorMessage,
+	Ok,
+	tryAsync,
+	trySync,
+} from '@epicenterhq/result';
 import { WhisperingError, type WhisperingRecordingState } from '@repo/shared';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 import { toast } from './toast';
@@ -21,25 +27,37 @@ export function createVadServiceWeb() {
 			deviceId: string | null;
 		}) => {
 			if (maybeVad) return Ok(maybeVad);
-			maybeVad = await MicVAD.new({
-				additionalAudioConstraints: deviceId ? { deviceId } : undefined,
-				submitUserSpeechOnPause: true,
-				onSpeechStart: () => {
-					toast.success({
-						title: '🎙️ Speech started',
-						description: 'Recording started. Speak clearly and loudly.',
-					});
-				},
-				onSpeechEnd: (audio) => {
-					const wavBuffer = utils.encodeWAV(audio);
-					const blob = new Blob([wavBuffer], { type: 'audio/wav' });
-					onSpeechEnd(blob);
-				},
-				onVADMisfire: () => {
-					console.log('VAD misfire');
-				},
-				model: 'v5',
+			const { data: newVad, error: ensureVadError } = await tryAsync({
+				try: () =>
+					MicVAD.new({
+						additionalAudioConstraints: deviceId ? { deviceId } : undefined,
+						submitUserSpeechOnPause: true,
+						onSpeechStart: () => {
+							toast.success({
+								title: '🎙️ Speech started',
+								description: 'Recording started. Speak clearly and loudly.',
+							});
+						},
+						onSpeechEnd: (audio) => {
+							const wavBuffer = utils.encodeWAV(audio);
+							const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+							onSpeechEnd(blob);
+						},
+						onVADMisfire: () => {
+							console.log('VAD misfire');
+						},
+						model: 'v5',
+					}),
+				mapError: (error) => ({
+					name: 'WhisperingError',
+					title: '❌ Failed to start voice activated capture',
+					description: 'Your voice activated capture could not be started.',
+					context: {},
+					cause: error,
+				}),
 			});
+			if (ensureVadError) return Err(ensureVadError);
+			maybeVad = newVad;
 			return Ok(maybeVad);
 		},
 		closeVad: async () => {

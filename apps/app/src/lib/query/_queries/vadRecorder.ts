@@ -1,7 +1,7 @@
 import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok, isOk } from '@epicenterhq/result';
+import { Err, Ok, isOk } from '@epicenterhq/result';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
@@ -187,14 +187,9 @@ export const vadRecorder = {
 					}
 				},
 			});
-			if (ensureVadError) {
-				toast.error({
-					id: toastId,
-					title: '❌ Failed to start voice activated capture',
-					description: 'Your voice activated capture could not be started.',
-				});
-				return;
-			}
+
+			if (ensureVadError) return Err(ensureVadError);
+
 			const startVadResult = await services.vad.startVad();
 			invalidateVadState();
 			return startVadResult;
