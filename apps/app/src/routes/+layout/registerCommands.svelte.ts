@@ -2,7 +2,7 @@ import { commands } from '$lib/commands';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
-export function bindKeyboardShortcutsOnLoad() {
+export function registerCommandsOnLoad() {
 	$effect(() => {
 		Promise.all(
 			commands.map((command) => {
