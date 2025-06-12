@@ -250,7 +250,26 @@ export const commands = [
 				description: 'Your voice activated capture is starting...',
 			});
 			const { error: startActiveListeningError } =
-				await rpc.vadRecorder.startActiveListening.execute(undefined);
+				await rpc.vadRecorder.startActiveListening.execute({
+					onSpeechEnd: async (blob) => {
+						const toastId = nanoid();
+						toast.success({
+							id: toastId,
+							title: '🎙️ Voice activated speech captured',
+							description: 'Your voice activated speech has been captured.',
+						});
+						console.info('Voice activated speech captured');
+						services.sound.playSoundIfEnabled('vad-capture');
+
+						await saveRecordingAndTranscribe({
+							blob,
+							toastId,
+							completionTitle: '✨ Voice activated capture complete!',
+							completionDescription:
+								'Voice activated capture complete! Ready for another take',
+						});
+					},
+				});
 			if (startActiveListeningError) {
 				toast.error({ id: toastId, ...startActiveListeningError });
 				return;

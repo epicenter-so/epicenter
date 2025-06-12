@@ -1,12 +1,9 @@
 import { services } from '$lib/services';
-import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, isOk } from '@epicenterhq/result';
 import type { WhisperingRecordingState } from '@repo/shared';
-import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
-import { saveRecordingAndTranscribe } from '../../handleRecordingTranscription';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
@@ -38,28 +35,13 @@ export const vadRecorder = {
 
 	startActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
-		resultMutationFn: async () => {
+		resultMutationFn: async ({
+			onSpeechEnd,
+		}: { onSpeechEnd: (blob: Blob) => void }) => {
 			const { error: ensureVadError } = await services.vad.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
-				onSpeechEnd: async (blob) => {
-					const toastId = nanoid();
-					toast.success({
-						id: toastId,
-						title: '🎙️ Voice activated speech captured',
-						description: 'Your voice activated speech has been captured.',
-					});
-					console.info('Voice activated speech captured');
-					services.sound.playSoundIfEnabled('vad-capture');
-
-					await saveRecordingAndTranscribe({
-						blob,
-						toastId,
-						completionTitle: '✨ Voice activated capture complete!',
-						completionDescription:
-							'Voice activated capture complete! Ready for another take',
-					});
-				},
+				onSpeechEnd,
 			});
 
 			if (ensureVadError) return Err(ensureVadError);
