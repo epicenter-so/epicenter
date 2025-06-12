@@ -76,10 +76,7 @@ export const vadRecorder = {
 							title: '❌ Database Save Failed',
 							description:
 								'Your voice activated capture was captured but could not be saved to the database. Please check your storage space and permissions.',
-							action: {
-								type: 'more-details',
-								error: createRecordingError,
-							},
+							action: { type: 'more-details', error: createRecordingError },
 						});
 						return;
 					}
@@ -97,18 +94,19 @@ export const vadRecorder = {
 						title: '📋 Transcribing...',
 						description: 'Your recording is being transcribed...',
 					});
-					const { error } =
+					const { data: transcribedText, error: transcribeError } =
 						await transcription.transcribeRecording.execute(createdRecording);
-					if (error) {
-						if (error.name === 'WhisperingError') {
-							toast.error({ id: transcribeToastId, ...error });
+
+					if (transcribeError) {
+						if (transcribeError.name === 'WhisperingError') {
+							toast.error({ id: transcribeToastId, ...transcribeError });
 							return;
 						}
 						toast.error({
 							id: transcribeToastId,
 							title: '❌ Failed to transcribe recording',
 							description: 'Your recording could not be transcribed.',
-							action: { type: 'more-details', error: error },
+							action: { type: 'more-details', error: transcribeError },
 						});
 						return;
 					}
@@ -119,7 +117,7 @@ export const vadRecorder = {
 						description: 'Your recording has been transcribed.',
 					});
 					maybeCopyAndPaste({
-						text: createdRecording.transcribedText,
+						text: transcribedText,
 						toastId,
 						shouldCopy: settings.value['transcription.clipboard.copyOnSuccess'],
 						shouldPaste:
@@ -136,6 +134,7 @@ export const vadRecorder = {
 						},
 					});
 
+					// Run recording through a transformation if a transformation is selected
 					if (settings.value['transformations.selectedTransformationId']) {
 						const { data: transformation, error: getTransformationError } =
 							await services.db.getTransformationById(
@@ -149,10 +148,7 @@ export const vadRecorder = {
 								title: '❌ Failed to get transformation',
 								description:
 									'Your transformation could not be retrieved. Please try again.',
-								action: {
-									type: 'more-details',
-									error: getTransformationError,
-								},
+								action: { type: 'more-details', error: getTransformationError },
 							});
 							return;
 						}
