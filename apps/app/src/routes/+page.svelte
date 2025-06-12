@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { commandCallbacks } from '$lib/commands';
 	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import CopyableTextDialog from '$lib/components/copyable/CopyableTextDialog.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -15,8 +17,6 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
-	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { commandCallbacks } from '$lib/commands';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -179,9 +179,13 @@
 
 	<div class="xxs:flex hidden w-full max-w-xs flex-col items-center gap-2">
 		<div class="flex w-full items-center gap-2">
-			<TranscribedTextDialog
-				recordingId={latestRecording.id}
-				transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
+			<CopyableTextDialog
+				id={getRecordingTransitionId({
+					recordingId: latestRecording.id,
+					propertyName: 'transcribedText',
+				})}
+				label="Transcribed Text"
+				text={latestRecording.transcriptionStatus === 'TRANSCRIBING'
 					? '...'
 					: latestRecording.transcribedText}
 				rows={1}
