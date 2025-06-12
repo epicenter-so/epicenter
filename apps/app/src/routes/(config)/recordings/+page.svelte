@@ -20,7 +20,7 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
 	import { cn } from '$lib/utils';
@@ -53,17 +53,15 @@
 	import { nanoid } from 'nanoid/non-secure';
 
 	const getAllRecordingsQuery = createQuery(
-		queries.recordings.getAllRecordings.options,
+		rpc.recordings.getAllRecordings.options,
 	);
 	const transcribeRecordings = createMutation(
-		queries.transcription.transcribeRecordings.options,
+		rpc.transcription.transcribeRecordings.options,
 	);
 	const deleteRecordings = createMutation(
-		queries.recordings.deleteRecordings.options,
+		rpc.recordings.deleteRecordings.options,
 	);
-	const copyToClipboard = createMutation(
-		queries.clipboard.copyToClipboard.options,
-	);
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
 
 	const columns: ColumnDef<Recording>[] = [
 		{

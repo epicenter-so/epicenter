@@ -2,13 +2,13 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import type { Props } from '$lib/components/ui/button';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
-	const copyToClipboard = createMutation(queries.clipboard.copyToClipboard.options);
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
 
 	let {
 		contentName,

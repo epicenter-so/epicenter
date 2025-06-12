@@ -1,7 +1,7 @@
 import { services } from '$lib/services';
 import { toast } from '$lib/services/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
-import { queries } from './query';
+import { rpc } from './query';
 
 export async function maybeCopyAndPaste({
 	text,
@@ -25,7 +25,7 @@ export async function maybeCopyAndPaste({
 				type: 'button',
 				label: 'Copy to clipboard',
 				onClick: async () => {
-					const { error } = await queries.clipboard.copyToClipboard.execute({
+					const { error } = await rpc.clipboard.copyToClipboard.execute({
 						text,
 					});
 					if (error) {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
@@ -9,7 +9,7 @@
 	import { combobox } from './index';
 
 	const getMediaDevicesQuery = createQuery(
-		queries.recorder.getMediaDevices.options,
+		rpc.recorder.getMediaDevices.options,
 	);
 
 	$effect(() => {
@@ -39,10 +39,9 @@
 				<Command.Item
 					value={device.label}
 					onSelect={async () => {
-						const { error } =
-							await queries.recorder.closeRecordingSession.execute({
-								sendStatus: noop,
-							});
+						const { error } = await rpc.recorder.closeRecordingSession.execute({
+							sendStatus: noop,
+						});
 						if (error) {
 							toast.error({
 								title: '❌ Failed to close session',

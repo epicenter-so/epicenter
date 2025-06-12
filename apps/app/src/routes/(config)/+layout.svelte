@@ -3,12 +3,12 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RecordingControls } from '$lib/components/recording-controls';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { cn } from '$lib/utils.js';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(
-		queries.recorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
 
 	let { children } = $props();

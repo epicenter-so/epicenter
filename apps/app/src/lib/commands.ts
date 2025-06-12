@@ -1,4 +1,4 @@
-import { queries } from '$lib/query';
+import { rpc } from '$lib/query';
 import { maybeCopyAndPaste } from '$lib/maybeCopyAndPaste';
 import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
@@ -13,7 +13,7 @@ const stopManualRecording = async () => {
 		description: 'Finalizing your audio capture...',
 	});
 	const { data: blob, error: stopRecordingError } =
-		await queries.recorder.stopRecording.execute({ toastId });
+		await rpc.recorder.stopRecording.execute({ toastId });
 	if (stopRecordingError) {
 		toast.error({
 			id: toastId,
@@ -35,7 +35,7 @@ const stopManualRecording = async () => {
 	const newRecordingId = nanoid();
 
 	const { data: createdRecording, error: createRecordingError } =
-		await queries.recordings.createRecording.execute({
+		await rpc.recordings.createRecording.execute({
 			id: newRecordingId,
 			title: '',
 			subtitle: '',
@@ -74,7 +74,7 @@ const stopManualRecording = async () => {
 		});
 
 		const { error: closeRecordingSessionError } =
-			await queries.recorder.closeRecordingSession.execute({
+			await rpc.recorder.closeRecordingSession.execute({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			});
 
@@ -105,7 +105,7 @@ const stopManualRecording = async () => {
 		description: 'Your recording is being transcribed...',
 	});
 	const { data: transcribedText, error: transcribeError } =
-		await queries.transcription.transcribeRecording.execute(createdRecording);
+		await rpc.transcription.transcribeRecording.execute(createdRecording);
 
 	if (transcribeError) {
 		if (transcribeError.name === 'WhisperingError') {
@@ -183,7 +183,7 @@ const stopManualRecording = async () => {
 		}
 
 		const transformToastId = nanoid();
-		await queries.transformer.transformRecording.execute({
+		await rpc.transformer.transformRecording.execute({
 			recordingId: createdRecording.id,
 			transformationId:
 				settings.value['transformations.selectedTransformationId'],
@@ -200,7 +200,7 @@ const startManualRecording = async () => {
 		description: 'Setting up your recording environment...',
 	});
 	const { error: startRecordingError } =
-		await queries.recorder.startRecording.execute({
+		await rpc.recorder.startRecording.execute({
 			toastId,
 			settings: {
 				selectedAudioInputDeviceId:
@@ -234,7 +234,7 @@ export const commands = [
 		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await queries.recorder.getRecorderState.fetchCached();
+				await rpc.recorder.getRecorderState.fetchCached();
 			if (getRecorderStateError) {
 				toast.error({
 					id: nanoid(),
@@ -264,7 +264,7 @@ export const commands = [
 				description: 'Cleaning up recording session...',
 			});
 			const { error: cancelRecordingError } =
-				await queries.recorder.cancelRecording.execute({ toastId });
+				await rpc.recorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				toast.error({
 					id: toastId,
@@ -284,7 +284,7 @@ export const commands = [
 				});
 			} else {
 				const { error: closeRecordingSessionError } =
-					await queries.recorder.closeRecordingSession.execute({
+					await rpc.recorder.closeRecordingSession.execute({
 						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 					});
 				if (closeRecordingSessionError) {
@@ -318,7 +318,7 @@ export const commands = [
 		callback: async () => {
 			const toastId = nanoid();
 			const { error: closeRecordingSessionError } =
-				await queries.recorder.closeRecordingSession.execute({
+				await rpc.recorder.closeRecordingSession.execute({
 					sendStatus: (status) => toast.info({ id: toastId, ...status }),
 				});
 			if (closeRecordingSessionError) {
@@ -347,7 +347,7 @@ export const commands = [
 		defaultGlobalShortcut: "CommandOrControl+Shift+'",
 		callback: async () => {
 			const { data: vadState } =
-				await queries.vadRecorder.getVadState.fetchCached();
+				await rpc.vadRecorder.getVadState.fetchCached();
 			if (vadState === 'SESSION+RECORDING') {
 				const toastId = nanoid();
 				toast.loading({
@@ -356,12 +356,12 @@ export const commands = [
 					description: 'Finalizing your voice activated capture...',
 				});
 				const { error: stopVadError } =
-					await queries.vadRecorder.stopVad.execute(undefined);
+					await rpc.vadRecorder.stopVad.execute(undefined);
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
 				}
 			} else {
-				queries.vadRecorder.startActiveListening.execute(undefined);
+				rpc.vadRecorder.startActiveListening.execute(undefined);
 			}
 		},
 	},

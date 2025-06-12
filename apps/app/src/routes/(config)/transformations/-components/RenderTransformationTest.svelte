@@ -3,15 +3,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as SectionHeader from '$lib/components/ui/section-header';
 	import { Separator } from '$lib/components/ui/separator';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { Loader2Icon, PlayIcon } from 'lucide-svelte';
 	import { nanoid } from 'nanoid/non-secure';
 
-	const transformInput = createMutation(
-		queries.transformer.transformInput.options,
-	);
+	const transformInput = createMutation(rpc.transformer.transformInput.options);
 
 	let { transformation }: { transformation: Transformation } = $props();
 

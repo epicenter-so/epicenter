@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { LayersIcon } from 'lucide-svelte';
@@ -11,7 +11,7 @@
 	import { useCombobox } from './useCombobox.svelte';
 
 	const transformationsQuery = createQuery(
-		queries.transformations.queries.getAllTransformations.options,
+		rpc.transformations.queries.getAllTransformations.options,
 	);
 
 	const transformations = $derived(transformationsQuery.data ?? []);

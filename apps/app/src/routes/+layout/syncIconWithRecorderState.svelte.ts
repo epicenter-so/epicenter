@@ -1,10 +1,10 @@
-import { queries } from '$lib/query';
+import { rpc } from '$lib/query';
 import { services } from '$lib/services';
 import { createQuery } from '@tanstack/svelte-query';
 
 export function syncIconWithRecorderState() {
 	const getRecorderStateQuery = createQuery(
-		queries.recorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
 
 	$effect(() => {

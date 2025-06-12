@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { toast } from '$lib/services/toast';
 	import { createQuery, noop } from '@tanstack/svelte-query';
 
@@ -13,7 +13,7 @@
 	} = $props();
 
 	const getMediaDevicesQuery = createQuery(
-		queries.recorder.getMediaDevices.options,
+		rpc.recorder.getMediaDevices.options,
 	);
 
 	$effect(() => {
@@ -51,7 +51,7 @@
 		{items}
 		{selected}
 		onSelectedChange={async (selected) => {
-			const { error } = await queries.recorder.closeRecordingSession.execute({
+			const { error } = await rpc.recorder.closeRecordingSession.execute({
 				sendStatus: noop,
 			});
 			if (error) {

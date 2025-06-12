@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
@@ -16,11 +16,11 @@
 	import { toast } from '$lib/services/toast';
 
 	const updateTransformation = createMutation(
-		queries.transformations.mutations.updateTransformation.options,
+		rpc.transformations.mutations.updateTransformation.options,
 	);
 
 	const deleteTransformation = createMutation(
-		queries.transformations.mutations.deleteTransformation.options,
+		rpc.transformations.mutations.deleteTransformation.options,
 	);
 
 	let {

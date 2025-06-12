@@ -8,7 +8,7 @@
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 	import { createLocalKeyMapper } from './key-mappers';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 
 	const {
 		command,
@@ -54,7 +54,7 @@
 			},
 			onRegister: async (keyCombination) => {
 				const { error: registerError } =
-					await queries.shortcuts.registerCommandLocally.execute({
+					await rpc.shortcuts.registerCommandLocally.execute({
 						command,
 						keyCombination,
 					});

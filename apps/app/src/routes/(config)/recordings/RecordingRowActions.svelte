@@ -6,7 +6,7 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
@@ -26,30 +26,30 @@
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
 	const transcribeRecording = createMutation(
-		queries.transcription.transcribeRecording.options,
+		rpc.transcription.transcribeRecording.options,
 	);
 	const deleteRecording = createMutation(
-		queries.recordings.deleteRecording.options,
+		rpc.recordings.deleteRecording.options,
 	);
 
 	const updateRecording = createMutation(
-		queries.recordings.updateRecording.options,
+		rpc.recordings.updateRecording.options,
 	);
 
 	const downloadRecording = createMutation(
-		queries.download.downloadRecording.options,
+		rpc.download.downloadRecording.options,
 	);
 
 	let { recordingId }: { recordingId: string } = $props();
 
 	const latestTransformationRunByRecordingIdQuery = createQuery(
-		queries.transformationRuns.getLatestTransformationRunByRecordingId(
+		rpc.transformationRuns.getLatestTransformationRunByRecordingId(
 			() => recordingId,
 		).options,
 	);
 
 	const recordingQuery = createQuery(
-		queries.recordings.getRecordingById(() => recordingId).options,
+		rpc.recordings.getRecordingById(() => recordingId).options,
 	);
 
 	const recording = $derived(recordingQuery.data);
@@ -141,7 +141,7 @@
 
 		<SelectTransformationCombobox
 			onSelect={async (transformation) => {
-				const { error } = await queries.transformer.transformRecording.execute({
+				const { error } = await rpc.transformer.transformRecording.execute({
 					recordingId: recording.id,
 					transformationId: transformation.id,
 					toastId: nanoid(),

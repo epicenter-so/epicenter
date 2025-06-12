@@ -192,7 +192,7 @@ import { vadRecorder } from './vadRecorder';
  * Unified namespace for all query operations.
  * Provides a single entry point for all TanStack Query-based operations.
  */
-export const queries = {
+export const rpc = {
 	clipboard,
 	download,
 	recorder,

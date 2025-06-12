@@ -2,14 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { toast } from '$lib/services/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import RenderTransformation from '../-components/RenderTransformation.svelte';
 
 	const createTransformation = createMutation(
-		queries.transformations.mutations.createTransformation.options,
+		rpc.transformations.mutations.createTransformation.options,
 	);
 
 	let transformation = $state(generateDefaultTransformation());

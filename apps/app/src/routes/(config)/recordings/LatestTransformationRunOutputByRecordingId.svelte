@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CopyableTextDialog from '$lib/components/copyable/CopyableTextDialog.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { createQuery } from '@tanstack/svelte-query';
 
@@ -12,7 +12,7 @@
 	} = $props();
 
 	const latestTransformationRunByRecordingIdQuery = createQuery(
-		queries.transformationRuns.getLatestTransformationRunByRecordingId(
+		rpc.transformationRuns.getLatestTransformationRunByRecordingId(
 			() => recordingId,
 		).options,
 	);

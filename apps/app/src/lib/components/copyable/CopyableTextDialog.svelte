@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
@@ -24,9 +24,7 @@
 
 	let isDialogOpen = $state(false);
 
-	const copyToClipboard = createMutation(
-		queries.clipboard.copyToClipboard.options,
-	);
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
 </script>
 
 <Dialog.Root bind:open={isDialogOpen}>

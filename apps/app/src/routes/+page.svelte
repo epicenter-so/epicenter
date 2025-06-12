@@ -7,7 +7,7 @@
 	import { RecordingControls } from '$lib/components/recording-controls';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
-	import { queries } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
@@ -19,11 +19,11 @@
 	import { commandCallbacks } from '$lib/commands';
 
 	const getRecorderStateQuery = createQuery(
-		queries.recorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
-	const getVadStateQuery = createQuery(queries.vadRecorder.getVadState.options);
+	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
-		queries.recordings.getLatestRecording.options,
+		rpc.recordings.getLatestRecording.options,
 	);
 
 	const latestRecording = $derived<Recording>(
