@@ -5,6 +5,8 @@ import type {
 	TransformationStepRun,
 	TransformationRun,
 	Transformation,
+	TransformationRunCompleted,
+	TransformationRunFailed,
 } from './models';
 
 export type DbService = {
@@ -89,7 +91,7 @@ export type DbService = {
 		transformationRun: TransformationRun;
 		stepRunId: string;
 		error: string;
-	}) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
+	}) => Promise<Result<TransformationRunFailed, DbServiceErrorProperties>>;
 	markTransformationRunStepAsCompleted: (opts: {
 		transformationRun: TransformationRun;
 		stepRunId: string;
@@ -98,5 +100,5 @@ export type DbService = {
 	markTransformationRunAsCompleted: (opts: {
 		transformationRun: TransformationRun;
 		output: string;
-	}) => Promise<Result<TransformationRun, DbServiceErrorProperties>>;
+	}) => Promise<Result<TransformationRunCompleted, DbServiceErrorProperties>>;
 };

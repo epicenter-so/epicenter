@@ -11,7 +11,11 @@ import { createAnthropicCompletionService } from './completion/anthropic';
 import { createGoogleCompletionService } from './completion/google';
 import { createGroqCompletionService } from './completion/groq';
 import { createOpenAiCompletionService } from './completion/openai';
-import type { TransformationRun, TransformationStep } from './db/models';
+import type {
+	TransformationRunCompleted,
+	TransformationRunFailed,
+	TransformationStep,
+} from './db/models';
 import type { DbService } from './db/types';
 import type { HttpService } from './http/_types';
 
@@ -198,7 +202,9 @@ export function createTransformerService({
 			input: string;
 			transformationId: string;
 			recordingId: string | null;
-		}): Promise<TransformResult<TransformationRun>> => {
+		}): Promise<
+			TransformResult<TransformationRunCompleted | TransformationRunFailed>
+		> => {
 			if (!input.trim()) {
 				return Err({
 					name: 'WhisperingError',

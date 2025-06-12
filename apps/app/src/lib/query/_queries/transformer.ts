@@ -117,7 +117,7 @@ export const transformer = {
 			recordingId: string;
 			transformationId: string;
 			toastId: string;
-		}): Promise<WhisperingResult<string>> => {
+		}): Promise<Result<string, WhisperingError>> => {
 			toast.loading({
 				id: toastId,
 				title: '🔄 Running transformation...',
@@ -136,84 +136,48 @@ export const transformer = {
 				});
 			}
 
-			const getTransformationOutput = async (): Promise<
-				Result<string, WhisperingError>
-			> => {
-				const { data: transformationRun, error: transformationRunError } =
-					await services.transformer.runTransformation({
-						input: recording.transcribedText,
-						transformationId,
-						recordingId,
-					});
+			const { data: transformationRun, error: transformationRunError } =
+				await services.transformer.runTransformation({
+					input: recording.transcribedText,
+					transformationId,
+					recordingId,
+				});
 
-				if (transformationRunError) {
-					return Err({
-						name: 'WhisperingError',
-						title: '⚠️ Transformation failed',
-						description:
-							'Failed to apply the transformation on the recording..',
-						action: {
-							type: 'more-details',
-							error: transformationRunError,
-						},
-						context: {},
-						cause: transformationRunError,
-					});
-				}
+			if (transformationRunError) return Err(transformationRunError);
 
-				if (transformationRun.error) {
-					return Err({
-						name: 'WhisperingError',
-						title: '⚠️ Transformation error',
-						description: 'Failed to apply the transformation on the recording.',
-						action: {
-							type: 'more-details',
-							error: transformationRun.error,
-						},
-						context: {},
-						cause: transformationRun.error,
-					});
-				}
-
-				if (!transformationRun.output) {
-					return Err({
-						name: 'WhisperingError',
-						title: '⚠️ Transformation produced no output',
-						description: 'The transformation completed but produced no output.',
-						context: {},
-						cause: transformationRun.error,
-					});
-				}
-
-				return Ok(transformationRun.output);
-			};
-
-			const transformationOutputResult = await getTransformationOutput();
-
-			if (isErr(transformationOutputResult)) {
-				toast.error({ id: toastId, ...transformationOutputResult.error });
-			} else {
-				const output = transformationOutputResult.data;
-				services.sound.playSoundIfEnabled('transformationComplete');
-				await deliverTextToUser({
-					text: output,
-					toastId,
-					userWantsClipboardCopy:
-						settings.value['transformation.clipboard.copyOnSuccess'],
-					userWantsCursorPaste:
-						settings.value['transformation.clipboard.pasteOnSuccess'],
-					statusToToastText: (status) => {
-						switch (status) {
-							case null:
-								return '🔄 Transformation complete!';
-							case 'COPIED':
-								return '🔄 Transformation complete and copied to clipboard!';
-							case 'COPIED+PASTED':
-								return '🔄 Transformation complete, copied to clipboard, and pasted!';
-						}
+			if (transformationRun.status === 'failed') {
+				return Err({
+					name: 'WhisperingError',
+					title: '⚠️ Transformation error',
+					description: 'Failed to apply the transformation on the recording.',
+					action: {
+						type: 'more-details',
+						error: transformationRun.error,
 					},
+					context: {},
+					cause: transformationRun.error,
 				});
 			}
+
+			services.sound.playSoundIfEnabled('transformationComplete');
+			await deliverTextToUser({
+				text: transformationRun.output,
+				toastId,
+				userWantsClipboardCopy:
+					settings.value['transformation.clipboard.copyOnSuccess'],
+				userWantsCursorPaste:
+					settings.value['transformation.clipboard.pasteOnSuccess'],
+				statusToToastText: (status) => {
+					switch (status) {
+						case null:
+							return '🔄 Transformation complete!';
+						case 'COPIED':
+							return '🔄 Transformation complete and copied to clipboard!';
+						case 'COPIED+PASTED':
+							return '🔄 Transformation complete, copied to clipboard, and pasted!';
+					}
+				},
+			});
 
 			queryClient.invalidateQueries({
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
@@ -226,7 +190,7 @@ export const transformer = {
 				queryKey: transformationsKeys.byId(transformationId),
 			});
 
-			return transformationOutputResult;
+			return Ok(transformationRun.output);
 		},
 	}),
 };

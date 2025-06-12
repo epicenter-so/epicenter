@@ -152,13 +152,13 @@ type TransformationRunRunning = BaseTransformationRun & {
 	status: 'running';
 };
 
-type TransformationRunCompleted = BaseTransformationRun & {
+export type TransformationRunCompleted = BaseTransformationRun & {
 	status: 'completed';
 	output: string;
 	error: null;
 };
 
-type TransformationRunFailed = BaseTransformationRun & {
+export type TransformationRunFailed = BaseTransformationRun & {
 	status: 'failed';
 	output: null;
 	error: string;
