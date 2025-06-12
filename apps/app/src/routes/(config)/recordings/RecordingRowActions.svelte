@@ -24,10 +24,18 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
+	import { services } from '$lib/services';
+	import { deliverTextToUser } from '$lib/deliverTextToUser';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	const transcribeRecording = createMutation(
 		rpc.transcription.transcribeRecording.options,
 	);
+
+	const transformRecording = createMutation(
+		rpc.transformer.transformRecording.options,
+	);
+
 	const deleteRecording = createMutation(
 		rpc.recordings.deleteRecording.options,
 	);
@@ -140,12 +148,50 @@
 		</WhisperingButton>
 
 		<SelectTransformationCombobox
-			onSelect={async (transformation) => {
-				const { error } = await rpc.transformer.transformRecording.execute({
-					recordingId: recording.id,
-					transformationId: transformation.id,
-					toastId: nanoid(),
-				});
+			onSelect={(transformation) => {
+				transformRecording.mutate(
+					{
+						recordingId: recording.id,
+						transformationId: transformation.id,
+						toastId: nanoid(),
+					},
+					{
+						onError: (error) => toast.error(error),
+						onSuccess: (transformationRun) => {
+							if (transformationRun.status === 'failed') {
+								toast.error({
+									title: '⚠️ Transformation error',
+									description: transformationRun.error,
+									action: {
+										type: 'more-details',
+										error: transformationRun.error,
+									},
+								});
+								return;
+							}
+
+							services.sound.playSoundIfEnabled('transformationComplete');
+							deliverTextToUser({
+								text: transformationRun.output,
+								toastId: nanoid(),
+								userWantsClipboardCopy:
+									settings.value['transformation.clipboard.copyOnSuccess'],
+								userWantsCursorPaste:
+									settings.value['transformation.clipboard.pasteOnSuccess'],
+								statusToToastText: (status) => {
+									switch (status) {
+										case null:
+											return '🔄 Transformation complete!';
+										case 'COPIED':
+											return '🔄 Transformation complete and copied to clipboard!';
+										case 'COPIED+PASTED':
+											return '🔄 Transformation complete, copied to clipboard, and pasted!';
+									}
+								},
+							});
+						},
+					},
+				);
 			}}
 		/>
 
@@ -185,8 +231,10 @@
 		{:else}
 			<CopyToClipboardButton
 				contentName="latest transformation run output"
-				copyableText={latestTransformationRunByRecordingIdQuery.data?.output ??
-					''}
+				copyableText={latestTransformationRunByRecordingIdQuery.data?.status ===
+				'completed'
+					? latestTransformationRunByRecordingIdQuery.data.output
+					: ''}
 				viewTransitionName={getRecordingTransitionId({
 					recordingId,
 					propertyName: 'latestTransformationRunOutput',

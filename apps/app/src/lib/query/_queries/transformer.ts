@@ -8,6 +8,11 @@ import { queryClient } from '../index';
 import { deliverTextToUser } from '../../deliverTextToUser';
 import { transformationRunKeys } from './transformationRuns';
 import { transformationsKeys } from './transformations';
+import type {
+	TransformationRun,
+	TransformationRunCompleted,
+	TransformationRunFailed,
+} from '$lib/services/db';
 
 const transformerKeys = {
 	transformInput: ['transformer', 'transformInput'] as const,
@@ -117,7 +122,12 @@ export const transformer = {
 			recordingId: string;
 			transformationId: string;
 			toastId: string;
-		}): Promise<Result<string, WhisperingError>> => {
+		}): Promise<
+			Result<
+				TransformationRunCompleted | TransformationRunFailed,
+				WhisperingError
+			>
+		> => {
 			toast.loading({
 				id: toastId,
 				title: '🔄 Running transformation...',
@@ -145,40 +155,6 @@ export const transformer = {
 
 			if (transformationRunError) return Err(transformationRunError);
 
-			if (transformationRun.status === 'failed') {
-				return Err({
-					name: 'WhisperingError',
-					title: '⚠️ Transformation error',
-					description: 'Failed to apply the transformation on the recording.',
-					action: {
-						type: 'more-details',
-						error: transformationRun.error,
-					},
-					context: {},
-					cause: transformationRun.error,
-				});
-			}
-
-			services.sound.playSoundIfEnabled('transformationComplete');
-			await deliverTextToUser({
-				text: transformationRun.output,
-				toastId,
-				userWantsClipboardCopy:
-					settings.value['transformation.clipboard.copyOnSuccess'],
-				userWantsCursorPaste:
-					settings.value['transformation.clipboard.pasteOnSuccess'],
-				statusToToastText: (status) => {
-					switch (status) {
-						case null:
-							return '🔄 Transformation complete!';
-						case 'COPIED':
-							return '🔄 Transformation complete and copied to clipboard!';
-						case 'COPIED+PASTED':
-							return '🔄 Transformation complete, copied to clipboard, and pasted!';
-					}
-				},
-			});
-
 			queryClient.invalidateQueries({
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
 			});
@@ -190,7 +166,7 @@ export const transformer = {
 				queryKey: transformationsKeys.byId(transformationId),
 			});
 
-			return Ok(transformationRun.output);
+			return Ok(transformationRun);
 		},
 	}),
 };

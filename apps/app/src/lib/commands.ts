@@ -431,10 +431,44 @@ async function saveRecordingAndTranscribe({
 	// Run transformation if one was configured and validated
 	if (needsTransformation) {
 		const transformToastId = nanoid();
-		await rpc.transformer.transformRecording.execute({
-			recordingId: createdRecording.id,
-			transformationId: needsTransformation,
-			toastId: transformToastId,
+		const { data: transformationRun, error: transformError } =
+			await rpc.transformer.transformRecording.execute({
+				recordingId: createdRecording.id,
+				transformationId: needsTransformation,
+				toastId: transformToastId,
+			});
+		if (transformError) {
+			toast.error({ id: transformToastId, ...transformError });
+			return;
+		}
+		if (transformationRun.status === 'failed') {
+			toast.error({
+				id: transformToastId,
+				title: '⚠️ Transformation error',
+				description: transformationRun.error,
+				action: { type: 'more-details', error: transformationRun.error },
+			});
+			return;
+		}
+
+		services.sound.playSoundIfEnabled('transformationComplete');
+		await deliverTextToUser({
+			text: transformationRun.output,
+			toastId,
+			userWantsClipboardCopy:
+				settings.value['transformation.clipboard.copyOnSuccess'],
+			userWantsCursorPaste:
+				settings.value['transformation.clipboard.pasteOnSuccess'],
+			statusToToastText: (status) => {
+				switch (status) {
+					case null:
+						return '🔄 Transformation complete!';
+					case 'COPIED':
+						return '🔄 Transformation complete and copied to clipboard!';
+					case 'COPIED+PASTED':
+						return '🔄 Transformation complete, copied to clipboard, and pasted!';
+				}
+			},
 		});
 	}
 }
