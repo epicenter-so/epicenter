@@ -1,22 +1,39 @@
 import { services } from '$lib/services';
-import { toast } from '$lib/services/toast';
+import { toast } from '$lib/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
 import { rpc } from './query';
 
+/**
+ * Handles text completion with optional clipboard copy and paste actions.
+ *
+ * This function follows the user's clipboard preferences to:
+ * 1. Show a success toast with the completed text
+ * 2. Optionally copy the text to clipboard
+ * 3. Optionally paste the text at the cursor location
+ *
+ * The function provides appropriate toast notifications and fallback actions
+ * based on what operations succeed or fail.
+ *
+ * @param text - The text to handle (transcription, transformation output, etc.)
+ * @param toastId - Unique ID for toast notifications to avoid duplicates
+ * @param userWantsClipboardCopy - Whether to copy text to clipboard based on user preferences
+ * @param userWantsCursorPaste - Whether to paste text at cursor based on user preferences
+ * @param statusToToastText - Function that generates context-appropriate toast messages
+ */
 export async function maybeCopyAndPaste({
 	text,
 	toastId,
-	shouldCopy,
-	shouldPaste,
+	userWantsClipboardCopy,
+	userWantsCursorPaste,
 	statusToToastText,
 }: {
 	text: string;
 	toastId: string;
-	shouldCopy: boolean;
-	shouldPaste: boolean;
+	userWantsClipboardCopy: boolean;
+	userWantsCursorPaste: boolean;
 	statusToToastText: (status: null | 'COPIED' | 'COPIED+PASTED') => string;
 }) {
-	const toastNull = () =>
+	const showBasicToast = () =>
 		toast.success({
 			id: toastId,
 			title: statusToToastText(null),
@@ -44,7 +61,7 @@ export async function maybeCopyAndPaste({
 			},
 		});
 
-	const toastCopied = () =>
+	const showCopiedToast = () =>
 		toast.success({
 			id: toastId,
 			title: statusToToastText('COPIED'),
@@ -56,7 +73,7 @@ export async function maybeCopyAndPaste({
 			},
 		});
 
-	const toastCopiedAndPasted = () =>
+	const showCopiedAndPastedToast = () =>
 		toast.success({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
@@ -67,19 +84,35 @@ export async function maybeCopyAndPaste({
 				goto: WHISPERING_RECORDINGS_PATHNAME,
 			},
 		});
-	if (!shouldCopy) return toastNull();
 
+	// Do I need to copy to clipboard?
+	if (!userWantsClipboardCopy) {
+		return showBasicToast(); // Just show the text with manual copy option
+	}
+
+	// Can I copy to clipboard?
 	const { error: copyError } = await services.clipboard.setClipboardText(text);
-	if (copyError) {
-		toast.warning(copyError);
-		toastNull();
+	const clipboardCopyFailed = copyError;
+
+	if (clipboardCopyFailed) {
+		toast.warning({
+			title: '⚠️ Copy Operation Failed',
+			description: 'Text could not be copied to clipboard automatically.',
+			action: { type: 'more-details', error: copyError },
+		});
+		showBasicToast();
 		return;
 	}
 
-	if (!shouldPaste) return toastCopied();
+	// Do I need to paste at cursor?
+	if (!userWantsCursorPaste) {
+		return showCopiedToast(); // Text copied but no paste needed
+	}
 
+	// Can I paste at cursor?
 	const { error: pasteError } =
 		await services.clipboard.writeTextToCursor(text);
+
 	if (pasteError) {
 		toast.warning({
 			title: '⚠️ Paste Operation Failed',
@@ -87,9 +120,10 @@ export async function maybeCopyAndPaste({
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
 			action: { type: 'more-details', error: pasteError },
 		});
-		toastCopied();
+		showCopiedToast();
 		return;
 	}
 
-	toastCopiedAndPasted();
+	// Success - both copy and paste worked
+	showCopiedAndPastedToast();
 }
