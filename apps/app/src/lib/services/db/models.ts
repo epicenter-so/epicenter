@@ -109,15 +109,14 @@ export type InsertTransformationStep = Omit<
 >;
 
 /**
- * Represents an execution of a transformation, which can be run on either
- * a recording's transcribed text or arbitrary input text.
+ * Base properties shared by all transformation run variants.
  *
  * Status transitions:
  * 1. 'running' - Initial state when created and transformation is immediately invoked
  * 2. 'completed' - When all steps have completed successfully
  * 3. 'failed' - If any step fails or an error occurs
  */
-export type TransformationRun = {
+type BaseTransformationRun = {
 	id: string;
 	transformationId: string;
 	/**
@@ -125,7 +124,6 @@ export type TransformationRun = {
 	 * Null if the transformation is invoked on arbitrary text input.
 	 */
 	recordingId: string | null;
-	status: 'running' | 'completed' | 'failed';
 	startedAt: string;
 	completedAt: string | null;
 	/**
@@ -133,8 +131,6 @@ export type TransformationRun = {
 	 * we store a snapshot of the transcribedText at the time of invoking.
 	 */
 	input: string;
-	output: string | null;
-	error: string | null;
 
 	stepRuns: {
 		id: string;
@@ -149,9 +145,32 @@ export type TransformationRun = {
 		startedAt: string;
 		completedAt: string | null;
 		input: string;
-		output: string | null;
-		error: string | null;
 	}[];
 };
+
+type TransformationRunRunning = BaseTransformationRun & {
+	status: 'running';
+};
+
+type TransformationRunCompleted = BaseTransformationRun & {
+	status: 'completed';
+	output: string;
+	error: null;
+};
+
+type TransformationRunFailed = BaseTransformationRun & {
+	status: 'failed';
+	output: null;
+	error: string;
+};
+
+/**
+ * Represents an execution of a transformation, which can be run on either
+ * a recording's transcribed text or arbitrary input text.
+ */
+export type TransformationRun =
+	| TransformationRunRunning
+	| TransformationRunCompleted
+	| TransformationRunFailed;
 
 export type TransformationStepRun = TransformationRun['stepRuns'][number];
