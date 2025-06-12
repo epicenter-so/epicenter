@@ -116,30 +116,30 @@ export function createRecorderServiceWeb(): RecorderService {
 				settings: RecordingSessionSettings,
 				{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
 			): Promise<Result<RecordingSession, RecordingServiceError>> => {
-				// Check if we can reuse the existing session
-				if (currentSession) {
-					const settingsMatch =
-						currentSession.settings.selectedAudioInputDeviceId ===
-							settings.selectedAudioInputDeviceId &&
-						currentSession.settings.bitrateKbps === settings.bitrateKbps;
+				// Can I use what I already have?
+				const canReuseCurrentSession =
+					currentSession?.stream.active &&
+					currentSession?.settings.selectedAudioInputDeviceId ===
+						settings.selectedAudioInputDeviceId &&
+					currentSession?.settings.bitrateKbps === settings.bitrateKbps;
 
-					if (settingsMatch && currentSession.stream.active) {
-						// Settings match and stream is active, reuse the session
-						return Ok(currentSession);
-					}
-					if (settingsMatch && !currentSession.stream.active) {
-						// Settings match but stream expired, reacquire with same settings
-						sendStatus({
-							title: '🔄 Reconnecting',
-							description: 'Session expired, reconnecting to microphone...',
-						});
-						const { data: stream, error: acquireStreamError } =
-							await acquireStream(settings, { sendStatus });
-						if (acquireStreamError) return Err(acquireStreamError);
-						currentSession = { settings, stream, recorder: null };
-						return Ok(currentSession);
-					}
-					// Settings changed, close current session and create new one
+				if (canReuseCurrentSession) {
+					return Ok(currentSession!);
+				}
+
+				// I need a new session. What's my situation?
+				if (!currentSession) {
+					sendStatus({
+						title: '🎙️ Starting Session',
+						description: 'Setting up recording environment...',
+					});
+				} else if (!currentSession.stream.active) {
+					sendStatus({
+						title: '🔄 Reconnecting',
+						description: 'Session expired, reconnecting to microphone...',
+					});
+				} else {
+					// currentSession exists and is active, so settings must be wrong
 					sendStatus({
 						title: '🔄 Updating Settings',
 						description: 'Audio settings changed, creating new session...',
@@ -147,22 +147,15 @@ export function createRecorderServiceWeb(): RecorderService {
 					for (const track of currentSession.stream.getTracks()) {
 						track.stop();
 					}
-					const { data: stream, error: acquireStreamError } =
-						await acquireStream(settings, { sendStatus });
-					if (acquireStreamError) return Err(acquireStreamError);
-					currentSession = { settings, stream, recorder: null };
-					return Ok(currentSession);
 				}
-				// No existing session, create new one
-				sendStatus({
-					title: '🎙️ Starting Session',
-					description: 'Setting up recording environment...',
-				});
+
+				// Get what I need
 				const { data: stream, error: acquireStreamError } = await acquireStream(
 					settings,
 					{ sendStatus },
 				);
 				if (acquireStreamError) return Err(acquireStreamError);
+
 				currentSession = { settings, stream, recorder: null };
 				return Ok(currentSession);
 			};
