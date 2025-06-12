@@ -210,10 +210,7 @@ export function createRecorderServiceWeb(): RecorderService {
 					name: 'RecordingServiceError',
 					message:
 						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
-					context: {
-						hasSession: !!currentSession,
-						hasRecorder: !!currentSession?.recorder,
-					},
+					context: {},
 					cause: undefined,
 				});
 			}
@@ -265,10 +262,7 @@ export function createRecorderServiceWeb(): RecorderService {
 					name: 'RecordingServiceError',
 					message:
 						'Cannot cancel recording because no active recording session was found. There is currently nothing to cancel.',
-					context: {
-						hasSession: !!currentSession,
-						hasRecorder: !!currentSession?.recorder,
-					},
+					context: {},
 					cause: undefined,
 				});
 			}
