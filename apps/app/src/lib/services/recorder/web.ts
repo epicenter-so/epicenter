@@ -112,30 +112,37 @@ export function createRecorderServiceWeb(): RecorderService {
 		},
 
 		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
-			// Check if we can reuse the existing session
-			if (currentSession) {
-				const settingsMatch =
-					currentSession.settings.selectedAudioInputDeviceId ===
-						settings.selectedAudioInputDeviceId &&
-					currentSession.settings.bitrateKbps === settings.bitrateKbps;
+			const ensureActiveSession = async (
+				settings: RecordingSessionSettings,
+				{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
+			): Promise<Result<RecordingSession, RecordingServiceError>> => {
+				// Check if we can reuse the existing session
+				if (currentSession) {
+					const settingsMatch =
+						currentSession.settings.selectedAudioInputDeviceId ===
+							settings.selectedAudioInputDeviceId &&
+						currentSession.settings.bitrateKbps === settings.bitrateKbps;
 
-				if (settingsMatch && currentSession.stream.active) {
-					// Settings match and stream is active, reuse the session
-				} else if (settingsMatch && !currentSession.stream.active) {
-					// Settings match but stream expired, reacquire with same settings
-					sendStatus({
-						title: '🔄 Reconnecting',
-						description: 'Session expired, reconnecting to microphone...',
-					});
-					const { data: stream, error: acquireStreamError } =
-						await acquireStream(settings, { sendStatus });
-					if (acquireStreamError) return Err(acquireStreamError);
-					currentSession = {
-						settings,
-						stream,
-						recorder: null,
-					};
-				} else {
+					if (settingsMatch && currentSession.stream.active) {
+						// Settings match and stream is active, reuse the session
+						return Ok(currentSession);
+					}
+					if (settingsMatch && !currentSession.stream.active) {
+						// Settings match but stream expired, reacquire with same settings
+						sendStatus({
+							title: '🔄 Reconnecting',
+							description: 'Session expired, reconnecting to microphone...',
+						});
+						const { data: stream, error: acquireStreamError } =
+							await acquireStream(settings, { sendStatus });
+						if (acquireStreamError) return Err(acquireStreamError);
+						currentSession = {
+							settings,
+							stream,
+							recorder: null,
+						};
+						return Ok(currentSession);
+					}
 					// Settings changed, close current session and create new one
 					sendStatus({
 						title: '🔄 Updating Settings',
@@ -148,8 +155,8 @@ export function createRecorderServiceWeb(): RecorderService {
 						await acquireStream(settings, { sendStatus });
 					if (acquireStreamError) return Err(acquireStreamError);
 					currentSession = { settings, stream, recorder: null };
+					return Ok(currentSession);
 				}
-			} else {
 				// No existing session, create new one
 				sendStatus({
 					title: '🎙️ Starting Session',
@@ -161,11 +168,20 @@ export function createRecorderServiceWeb(): RecorderService {
 				);
 				if (acquireStreamError) return Err(acquireStreamError);
 				currentSession = { settings, stream, recorder: null };
-			}
+				return Ok(currentSession);
+			};
+
+			// Ensure we have an active session
+			const { data: session, error: sessionError } = await ensureActiveSession(
+				settings,
+				{ sendStatus },
+			);
+			if (sessionError) return Err(sessionError);
+
 			const { data: newRecorder, error: newRecorderError } = await tryAsync({
 				try: async () => {
-					return new MediaRecorder(currentSession.stream, {
-						bitsPerSecond: Number(currentSession.settings.bitrateKbps) * 1000,
+					return new MediaRecorder(session.stream, {
+						bitsPerSecond: Number(session.settings.bitrateKbps) * 1000,
 					});
 				},
 				mapError: (error): RecordingServiceError => ({
@@ -174,9 +190,9 @@ export function createRecorderServiceWeb(): RecorderService {
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
 					context: {
 						recordingId,
-						bitrateKbps: currentSession.settings.bitrateKbps,
-						streamActive: currentSession.stream.active,
-						streamTracks: currentSession.stream.getTracks().length,
+						bitrateKbps: session.settings.bitrateKbps,
+						streamActive: session.stream.active,
+						streamTracks: session.stream.getTracks().length,
 					},
 					cause: error,
 				}),
@@ -184,7 +200,7 @@ export function createRecorderServiceWeb(): RecorderService {
 			if (newRecorderError) return Err(newRecorderError);
 
 			// Create recorder object synchronously before starting
-			currentSession.recorder = {
+			session.recorder = {
 				mediaRecorder: newRecorder,
 				recordedChunks: [],
 				recordingId,
@@ -192,7 +208,7 @@ export function createRecorderServiceWeb(): RecorderService {
 
 			newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
 				if (!event.data.size) return;
-				currentSession?.recorder?.recordedChunks.push(event.data);
+				session.recorder?.recordedChunks.push(event.data);
 			});
 
 			newRecorder.start(TIMESLICE_MS);
