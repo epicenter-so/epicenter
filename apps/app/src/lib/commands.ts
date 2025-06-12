@@ -3,7 +3,7 @@ import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { services } from './services';
-import { saveRecordingAndTranscribe } from './_handleRecordingTranscription';
+import { saveRecordingAndTranscribe } from './handleRecordingTranscription';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();

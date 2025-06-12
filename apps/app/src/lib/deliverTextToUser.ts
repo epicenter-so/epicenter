@@ -4,23 +4,24 @@ import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
 import { rpc } from './query';
 
 /**
- * Handles text completion with optional clipboard copy and paste actions.
+ * Delivers processed text to the user in their preferred way.
  *
- * This function follows the user's clipboard preferences to:
- * 1. Show a success toast with the completed text
- * 2. Optionally copy the text to clipboard
- * 3. Optionally paste the text at the cursor location
+ * This function presents completed text processing results to the user by:
+ * 1. Always showing a success toast with the processed text
+ * 2. Optionally copying the text to clipboard based on user preferences
+ * 3. Optionally pasting the text at the cursor location based on user preferences
+ * 4. Providing fallback actions (manual copy button or navigation to recordings)
  *
- * The function provides appropriate toast notifications and fallback actions
- * based on what operations succeed or fail.
+ * The function handles all clipboard operation errors gracefully with appropriate
+ * fallback notifications and actions.
  *
- * @param text - The text to handle (transcription, transformation output, etc.)
+ * @param text - The processed text to deliver (transcription, transformation output, etc.)
  * @param toastId - Unique ID for toast notifications to avoid duplicates
  * @param userWantsClipboardCopy - Whether to copy text to clipboard based on user preferences
  * @param userWantsCursorPaste - Whether to paste text at cursor based on user preferences
  * @param statusToToastText - Function that generates context-appropriate toast messages
  */
-export async function maybeCopyAndPaste({
+export async function deliverTextToUser({
 	text,
 	toastId,
 	userWantsClipboardCopy,

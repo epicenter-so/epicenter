@@ -2,7 +2,7 @@ import { services } from '$lib/services';
 import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import { maybeCopyAndPaste } from './maybeCopyAndPaste';
+import { deliverTextToUser } from './deliverTextToUser';
 import { rpc } from './query';
 
 /**
@@ -87,20 +87,101 @@ export async function saveRecordingAndTranscribe({
 		});
 		return;
 	}
+	// Determine if we need to chain to transformation
+	const needsTransformation =
+		settings.value['transformations.selectedTransformationId'];
+
+	// Check if transformation is valid if specified
+	if (needsTransformation) {
+		const { data: transformation, error: getTransformationError } =
+			await services.db.getTransformationById(needsTransformation);
+
+		const couldNotRetrieveTransformation = getTransformationError;
+		const transformationNoLongerExists = !transformation;
+
+		if (couldNotRetrieveTransformation) {
+			toast.error({
+				id: nanoid(),
+				title: '❌ Failed to get transformation',
+				description:
+					'Your transformation could not be retrieved. Please try again.',
+				action: { type: 'more-details', error: getTransformationError },
+			});
+			return;
+		}
+
+		if (transformationNoLongerExists) {
+			settings.value = {
+				...settings.value,
+				'transformations.selectedTransformationId': null,
+			};
+			toast.warning({
+				id: nanoid(),
+				title: '⚠️ No matching transformation found',
+				description:
+					'No matching transformation found. Please select a different transformation.',
+				action: {
+					type: 'link',
+					label: 'Select a different transformation',
+					goto: '/transformations',
+				},
+			});
+			return;
+		}
+
+		// Valid transformation found - will run after transcription success
+	}
+
+	// Handle transcription success
+	await handleTranscriptionSuccess({
+		text: transcribedText,
+		toastId: transcribeToastId,
+	});
+
+	// Run transformation if one was configured and validated
+	if (needsTransformation) {
+		const transformToastId = nanoid();
+		await rpc.transformer.transformRecording.execute({
+			recordingId: createdRecording.id,
+			transformationId: needsTransformation,
+			toastId: transformToastId,
+		});
+	}
+}
+
+/**
+ * Handles successful transcription completion.
+ *
+ * This function manages the transcription success flow:
+ * 1. Shows transcription success toast
+ * 2. Delivers text to user based on their clipboard preferences
+ *
+ * @param text - The transcribed text
+ * @param toastId - Toast ID for consistent notifications
+ */
+async function handleTranscriptionSuccess({
+	text,
+	toastId,
+}: {
+	text: string;
+	toastId: string;
+}) {
+	// Show transcription success toast
 	toast.success({
-		id: transcribeToastId,
+		id: toastId,
 		title: 'Transcribed recording!',
 		description: 'Your recording has been transcribed.',
 	});
 
-	maybeCopyAndPaste({
-		text: transcribedText,
-		toastId: transcribeToastId,
+	// Deliver transcribed text to user
+	await deliverTextToUser({
+		text,
+		toastId,
 		userWantsClipboardCopy:
 			settings.value['transcription.clipboard.copyOnSuccess'],
 		userWantsCursorPaste:
 			settings.value['transcription.clipboard.pasteOnSuccess'],
-		statusToToastText(status) {
+		statusToToastText: (status) => {
 			switch (status) {
 				case null:
 					return '📝 Recording transcribed!';
@@ -110,57 +191,5 @@ export async function saveRecordingAndTranscribe({
 					return '📝📋✍️ Recording transcribed, copied to clipboard, and pasted!';
 			}
 		},
-	});
-
-	// Do I need to transform this text further?
-	const needsTransformation =
-		settings.value['transformations.selectedTransformationId'];
-	if (!needsTransformation) {
-		return; // We're done - no transformation needed
-	}
-
-	// Can I get the transformation I need?
-	const { data: transformation, error: getTransformationError } =
-		await services.db.getTransformationById(needsTransformation);
-
-	const couldNotRetrieveTransformation = getTransformationError;
-	const transformationNoLongerExists = !transformation;
-
-	if (couldNotRetrieveTransformation) {
-		toast.error({
-			id: nanoid(),
-			title: '❌ Failed to get transformation',
-			description:
-				'Your transformation could not be retrieved. Please try again.',
-			action: { type: 'more-details', error: getTransformationError },
-		});
-		return;
-	}
-
-	if (transformationNoLongerExists) {
-		settings.value = {
-			...settings.value,
-			'transformations.selectedTransformationId': null,
-		};
-		toast.warning({
-			id: nanoid(),
-			title: '⚠️ No matching transformation found',
-			description:
-				'No matching transformation found. Please select a different transformation.',
-			action: {
-				type: 'link',
-				label: 'Select a different transformation',
-				goto: '/transformations',
-			},
-		});
-		return;
-	}
-
-	// Apply the transformation
-	const transformToastId = nanoid();
-	await rpc.transformer.transformRecording.execute({
-		recordingId: createdRecording.id,
-		transformationId: needsTransformation,
-		toastId: transformToastId,
 	});
 }

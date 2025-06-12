@@ -6,7 +6,7 @@ import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
-import { saveRecordingAndTranscribe } from '../../_handleRecordingTranscription';
+import { saveRecordingAndTranscribe } from '../../handleRecordingTranscription';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,

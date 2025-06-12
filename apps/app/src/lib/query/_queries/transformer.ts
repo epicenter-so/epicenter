@@ -5,7 +5,7 @@ import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
 import type { WhisperingError, WhisperingResult } from '@repo/shared';
 import { defineMutation } from '../_utils';
 import { queryClient } from '../index';
-import { maybeCopyAndPaste } from '../../maybeCopyAndPaste';
+import { deliverTextToUser } from '../../deliverTextToUser';
 import { transformationRunKeys } from './transformationRuns';
 import { transformationsKeys } from './transformations';
 
@@ -75,7 +75,7 @@ export const transformer = {
 			} else {
 				const output = transformationOutputResult.data;
 				services.sound.playSoundIfEnabled('transformationComplete');
-				maybeCopyAndPaste({
+				await deliverTextToUser({
 					text: output,
 					toastId,
 					userWantsClipboardCopy:
@@ -195,7 +195,7 @@ export const transformer = {
 			} else {
 				const output = transformationOutputResult.data;
 				services.sound.playSoundIfEnabled('transformationComplete');
-				maybeCopyAndPaste({
+				await deliverTextToUser({
 					text: output,
 					toastId,
 					userWantsClipboardCopy:
