@@ -2,7 +2,7 @@ import { type Command, commandCallbacks } from '$lib/commands';
 import { tryAsync, trySync } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
 import hotkeys from 'hotkeys-js';
-import { defineMutation } from '.';
+import { defineMutation } from '../_utils';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({

@@ -3,8 +3,9 @@ import { toast } from '$lib/services/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, isErr } from '@epicenterhq/result';
 import type { WhisperingError, WhisperingResult } from '@repo/shared';
-import { defineMutation, queryClient } from '.';
-import { maybeCopyAndPaste } from '../maybeCopyAndPaste';
+import { defineMutation } from '../_utils';
+import { queryClient } from '../index';
+import { maybeCopyAndPaste } from '../../maybeCopyAndPaste';
 import { transformationRunKeys } from './transformationRuns';
 import { transformationsKeys } from './transformations';
 

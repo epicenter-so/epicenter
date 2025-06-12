@@ -1,5 +1,5 @@
 import { services } from '$lib/services';
-import { defineMutation } from '.';
+import { defineMutation } from '../_utils';
 
 export const clipboard = {
 	copyToClipboard: defineMutation({

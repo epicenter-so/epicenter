@@ -2,7 +2,8 @@ import type { Recording } from '$lib/services/db';
 import { services } from '$lib/services';
 import { Err, Ok } from '@epicenterhq/result';
 import type { Accessor } from '@tanstack/svelte-query';
-import { defineMutation, defineQuery, queryClient } from '.';
+import { defineMutation, defineQuery } from '../_utils';
+import { queryClient } from '../index';
 
 const recordingKeys = {
 	all: ['recordings'] as const,

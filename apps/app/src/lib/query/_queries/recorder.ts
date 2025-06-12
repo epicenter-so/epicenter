@@ -6,7 +6,8 @@ import type {
 import { toast } from '$lib/services/toast';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
-import { defineMutation, defineQuery, queryClient } from '.';
+import { defineMutation, defineQuery } from '../_utils';
+import { queryClient } from '../index';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
