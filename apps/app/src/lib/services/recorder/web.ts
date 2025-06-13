@@ -112,81 +112,93 @@ export function createRecorderServiceWeb(): RecorderService {
 		},
 
 		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
+			const createAndStartRecorder = async (
+				currentSession: RecordingSession,
+			): Promise<Result<undefined, RecordingServiceError>> => {
+				const { data: newRecorder, error: newRecorderError } = await tryAsync({
+					try: async () => {
+						return new MediaRecorder(currentSession.stream, {
+							bitsPerSecond: Number(currentSession.settings.bitrateKbps) * 1000,
+						});
+					},
+					mapError: (error): RecordingServiceError => ({
+						name: 'RecordingServiceError',
+						message:
+							'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
+						context: { recordingId, maybeCurrentSession },
+						cause: error,
+					}),
+				});
+				if (newRecorderError) return Err(newRecorderError);
+
+				// Create recorder object synchronously before starting
+				currentSession.recorder = {
+					mediaRecorder: newRecorder,
+					recordedChunks: [],
+					recordingId,
+				};
+
+				newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
+					if (!event.data.size) return;
+					currentSession.recorder?.recordedChunks.push(event.data);
+				});
+
+				newRecorder.start(TIMESLICE_MS);
+				return Ok(undefined);
+			};
+
 			const isSessionSettingsSame = (recordingSession: RecordingSession) =>
 				recordingSession.settings.selectedAudioInputDeviceId ===
 					settings.selectedAudioInputDeviceId &&
 				recordingSession.settings.bitrateKbps === settings.bitrateKbps;
 
-			// Do I need a new session?
-			const needsNewSession =
-				!maybeCurrentSession ||
-				!maybeCurrentSession.stream.active ||
-				!isSessionSettingsSame(maybeCurrentSession);
-
-			if (needsNewSession) {
-				// I need a new session. What's my situation?
-				if (!maybeCurrentSession) {
-					sendStatus({
-						title: '🎙️ Starting Session',
-						description: 'Setting up recording environment...',
-					});
-				} else if (!maybeCurrentSession.stream.active) {
-					sendStatus({
-						title: '🔄 Reconnecting',
-						description: 'Session expired, reconnecting to microphone...',
-					});
-				} else {
-					// currentSession exists and is active, so settings must be wrong
-					sendStatus({
-						title: '🔄 Updating Settings',
-						description: 'Audio settings changed, creating new session...',
-					});
-					for (const track of maybeCurrentSession.stream.getTracks()) {
-						track.stop();
-					}
-				}
-
-				// Get what I need
-				const { data: stream, error: acquireStreamError } = await acquireStream(
-					settings,
-					{ sendStatus },
+			// Can I use what I already have? (happy path)
+			if (
+				maybeCurrentSession?.stream.active &&
+				isSessionSettingsSame(maybeCurrentSession)
+			) {
+				console.log(
+					'🚀 ~ startRecording: ~ maybeCurrentSession:',
+					maybeCurrentSession,
 				);
-				if (acquireStreamError) return Err(acquireStreamError);
-
-				maybeCurrentSession = { settings, stream, recorder: null };
+				return await createAndStartRecorder(maybeCurrentSession);
 			}
 
-			const { data: newRecorder, error: newRecorderError } = await tryAsync({
-				try: async () => {
-					return new MediaRecorder(maybeCurrentSession!.stream, {
-						bitsPerSecond:
-							Number(maybeCurrentSession!.settings.bitrateKbps) * 1000,
-					});
-				},
-				mapError: (error): RecordingServiceError => ({
-					name: 'RecordingServiceError',
-					message:
-						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: { recordingId, maybeCurrentSession },
-					cause: error,
-				}),
-			});
-			if (newRecorderError) return Err(newRecorderError);
+			// If we reach here, I need a new session. What's my situation?
+			if (!maybeCurrentSession) {
+				sendStatus({
+					title: '🎙️ Starting Session',
+					description: 'Setting up recording environment...',
+				});
+			} else if (!maybeCurrentSession.stream.active) {
+				sendStatus({
+					title: '🔄 Reconnecting',
+					description: 'Session expired, reconnecting to microphone...',
+				});
+			} else {
+				// Settings must be different
+				sendStatus({
+					title: '🔄 Updating Settings',
+					description: 'Audio settings changed, creating new session...',
+				});
+				for (const track of maybeCurrentSession.stream.getTracks()) {
+					track.stop();
+				}
+			}
 
-			// Create recorder object synchronously before starting
-			maybeCurrentSession!.recorder = {
-				mediaRecorder: newRecorder,
-				recordedChunks: [],
-				recordingId,
-			};
+			// Clear the current session
+			maybeCurrentSession = null;
 
-			newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
-				if (!event.data.size) return;
-				maybeCurrentSession!.recorder?.recordedChunks.push(event.data);
-			});
+			// Recreate the session
+			const { data: stream, error: acquireStreamError } = await acquireStream(
+				settings,
+				{ sendStatus },
+			);
+			if (acquireStreamError) return Err(acquireStreamError);
+			maybeCurrentSession = { settings, stream, recorder: null };
 
-			newRecorder.start(TIMESLICE_MS);
-			return Ok(undefined);
+			// Create the recorder with the new session
+			return await createAndStartRecorder(maybeCurrentSession);
 		},
 
 		stopRecording: async ({ sendStatus }) => {
