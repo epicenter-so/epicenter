@@ -25,47 +25,47 @@ import { createOpenaiTranscriptionService } from './transcription/whisper/openai
 import { createTransformerService } from './transformer';
 import { createVadServiceWeb } from './vad';
 
+// Static services (platform-dependent but not settings-dependent)
+const DownloadService = window.__TAURI_INTERNALS__
+	? createDownloadServiceDesktop()
+	: createDownloadServiceWeb();
+
+const NotificationService = window.__TAURI_INTERNALS__
+	? createNotificationServiceDesktop()
+	: createNotificationServiceWeb();
+
+const ClipboardService = window.__TAURI_INTERNALS__
+	? createClipboardServiceDesktop()
+	: createClipboardServiceWeb();
+
+const SetTrayIconService = window.__TAURI_INTERNALS__
+	? createSetTrayIconDesktopService()
+	: createSetTrayIconWebService();
+
+const HttpService = window.__TAURI_INTERNALS__
+	? createHttpServiceDesktop()
+	: createHttpServiceWeb();
+
+const PlaySoundService = window.__TAURI_INTERNALS__
+	? createPlaySoundServiceDesktop()
+	: createPlaySoundServiceWeb();
+
+// Static services (platform-agnostic)
+const VadService = createVadServiceWeb();
+
+const DbService = createDbServiceDexie({
+	DownloadService,
+});
+
+const TransformerService = createTransformerService({
+	HttpService,
+	DbService,
+});
+
 /**
  * Unified services object providing consistent access to all services.
  */
 export const services = (() => {
-	// Static services (platform-dependent but not settings-dependent)
-	const DownloadService = window.__TAURI_INTERNALS__
-		? createDownloadServiceDesktop()
-		: createDownloadServiceWeb();
-
-	const NotificationService = window.__TAURI_INTERNALS__
-		? createNotificationServiceDesktop()
-		: createNotificationServiceWeb();
-
-	const ClipboardService = window.__TAURI_INTERNALS__
-		? createClipboardServiceDesktop()
-		: createClipboardServiceWeb();
-
-	const SetTrayIconService = window.__TAURI_INTERNALS__
-		? createSetTrayIconDesktopService()
-		: createSetTrayIconWebService();
-
-	const HttpService = window.__TAURI_INTERNALS__
-		? createHttpServiceDesktop()
-		: createHttpServiceWeb();
-
-	const PlaySoundService = window.__TAURI_INTERNALS__
-		? createPlaySoundServiceDesktop()
-		: createPlaySoundServiceWeb();
-
-	// Static services (platform-agnostic)
-	const VadService = createVadServiceWeb();
-
-	const DbService = createDbServiceDexie({
-		DownloadService,
-	});
-
-	const TransformerService = createTransformerService({
-		HttpService,
-		DbService,
-	});
-
 	return {
 		clipboard: ClipboardService,
 
