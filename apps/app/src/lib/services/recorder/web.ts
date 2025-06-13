@@ -4,7 +4,6 @@ import type {
 	RecorderService,
 	RecordingServiceError,
 	RecordingSessionSettings,
-	UpdateStatusMessageFn,
 } from './_types';
 import { toast } from '$lib/toast';
 
@@ -25,10 +24,14 @@ type RecordingSession = {
 	} | null;
 };
 
-export function createRecorderServiceWeb(): RecorderService {
+export function createRecorderServiceWebFactory() {
 	let maybeCurrentSession: RecordingSession | null = null;
 
-	return {
+	return ({
+		setSettingsDeviceId,
+	}: {
+		setSettingsDeviceId: (deviceId: string) => void;
+	}): RecorderService => ({
 		getRecorderState: () => {
 			if (!maybeCurrentSession) return Ok('IDLE');
 			if (maybeCurrentSession.recorder) return Ok('SESSION+RECORDING');
@@ -172,7 +175,7 @@ export function createRecorderServiceWeb(): RecorderService {
 				}
 
 				// Take action: Get fallback stream
-				const { data: fallbackStream, error: getFallbackStreamError } =
+				const { data: fallbackStreamData, error: getFallbackStreamError } =
 					await getFirstAvailableStream();
 				if (getFallbackStreamError) {
 					const errorMessage = needsFallbackStream
@@ -186,9 +189,23 @@ export function createRecorderServiceWeb(): RecorderService {
 					});
 				}
 
-				// Handle consequences of fallback
-				if (preferredDeviceFailed) {
-					settings.selectedAudioInputDeviceId = null;
+				const { stream: fallbackStream, deviceId: fallbackDeviceId } =
+					fallbackStreamData;
+
+				if (needsFallbackStream) {
+					setSettingsDeviceId(fallbackDeviceId);
+					toast.info({
+						title: '🎙️ Switched to different microphone',
+						description:
+							'You had no microphone selected, so we automatically connected to an available one. You can update your microphone selection in settings.',
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+				} else if (preferredDeviceFailed) {
+					setSettingsDeviceId(fallbackDeviceId);
 					toast.info({
 						title: '🎙️ Switched to different microphone',
 						description:
@@ -292,7 +309,7 @@ export function createRecorderServiceWeb(): RecorderService {
 
 			return Ok(undefined);
 		},
-	};
+	});
 }
 
 async function hasExistingAudioPermission(): Promise<boolean> {
@@ -331,7 +348,7 @@ async function getFirstAvailableStream() {
 		const { data: stream, error: getStreamForDeviceIdError } =
 			await getStreamForDeviceId(device.deviceId);
 		if (!getStreamForDeviceIdError) {
-			return Ok(stream);
+			return Ok({ stream, deviceId: device.deviceId });
 		}
 	}
 	return Err({

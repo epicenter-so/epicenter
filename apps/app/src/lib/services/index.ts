@@ -15,7 +15,7 @@ import { createNotificationServiceDesktop } from './notifications/desktop';
 import { createNotificationServiceWeb } from './notifications/web';
 import type { RecorderService } from './recorder/_types';
 import { createRecorderServiceTauri } from './recorder/tauri';
-import { createRecorderServiceWeb } from './recorder/web';
+import { createRecorderServiceWebFactory } from './recorder/web';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
 import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
@@ -62,8 +62,7 @@ const TransformerService = createTransformerService({
 	DbService,
 });
 
-const RecorderServiceTauri = createRecorderServiceTauri();
-const RecorderServiceWeb = createRecorderServiceWeb();
+const createRecorderServiceWeb = createRecorderServiceWebFactory();
 
 /**
  * Unified services object providing consistent access to all services.
@@ -126,8 +125,13 @@ export const services = (() => {
 		get recorder() {
 			return (
 				{
-					tauri: RecorderServiceTauri,
-					navigator: RecorderServiceWeb,
+					tauri: createRecorderServiceTauri(),
+					navigator: createRecorderServiceWeb({
+						setSettingsDeviceId: (deviceId: string) => {
+							settings.value['recording.navigator.selectedAudioInputDeviceId'] =
+								deviceId;
+						},
+					}),
 				} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>
 			)[settings.value['recording.method']];
 		},

@@ -8,6 +8,7 @@ import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
+import { settings } from '$lib/stores/settings.svelte';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
@@ -44,10 +45,13 @@ export const recorder = {
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: ({
 			toastId,
-			settings,
-		}: { toastId: string; settings: RecordingSessionSettings }) =>
+			recordingSessionSettings,
+		}: {
+			toastId: string;
+			recordingSessionSettings: RecordingSessionSettings;
+		}) =>
 			services.recorder.startRecording(
-				{ recordingId: nanoid(), settings },
+				{ recordingId: nanoid(), settings: recordingSessionSettings },
 				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
 			),
 		onSettled: invalidateRecorderState,
