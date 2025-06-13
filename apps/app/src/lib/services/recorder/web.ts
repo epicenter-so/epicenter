@@ -63,6 +63,7 @@ export function createRecorderServiceWeb(): RecorderService {
 				description:
 					"That microphone isn't working. Let's try finding another one...",
 			});
+
 			const { data: firstStream, error: getFirstStreamError } =
 				await getFirstAvailableStream();
 			if (getFirstStreamError) {
@@ -74,6 +75,17 @@ export function createRecorderServiceWeb(): RecorderService {
 					cause: getFirstStreamError,
 				});
 			}
+
+			// Reset the selected audio input device id
+			settings.selectedAudioInputDeviceId = null;
+
+			toast.info({
+				title: '🎙️ Switched to different microphone',
+				description:
+					"Your previously selected microphone wasn't found, so we automatically connected to an available one. You can update your microphone selection in settings.",
+				action: { type: 'link', label: 'Open Settings', goto: '/settings' },
+			});
+
 			return Ok(firstStream);
 		}
 		return Ok(preferredStream);
