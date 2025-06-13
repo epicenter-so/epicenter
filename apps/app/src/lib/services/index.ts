@@ -62,6 +62,9 @@ const TransformerService = createTransformerService({
 	DbService,
 });
 
+const RecorderServiceTauri = createRecorderServiceTauri();
+const RecorderServiceWeb = createRecorderServiceWeb();
+
 /**
  * Unified services object providing consistent access to all services.
  */
@@ -121,12 +124,12 @@ export const services = (() => {
 		},
 
 		get recorder() {
-			const recorderServices = {
-				tauri: createRecorderServiceTauri(),
-				navigator: createRecorderServiceWeb(),
-			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
-			const recordingMethod = settings.value['recording.method'];
-			return recorderServices[recordingMethod];
+			return (
+				{
+					tauri: RecorderServiceTauri,
+					navigator: RecorderServiceWeb,
+				} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>
+			)[settings.value['recording.method']];
 		},
 		sound: {
 			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
