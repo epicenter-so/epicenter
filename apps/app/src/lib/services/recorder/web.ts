@@ -174,10 +174,6 @@ export function createRecorderServiceWeb(): RecorderService {
 				maybeCurrentSession?.stream.active &&
 				isSessionSettingsSame(maybeCurrentSession)
 			) {
-				console.log(
-					'🚀 ~ startRecording: ~ maybeCurrentSession:',
-					maybeCurrentSession,
-				);
 				return await createAndStartRecorder(maybeCurrentSession);
 			}
 
