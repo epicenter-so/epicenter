@@ -167,12 +167,7 @@ export function createRecorderServiceWeb(): RecorderService {
 					name: 'RecordingServiceError',
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: {
-						recordingId,
-						bitrateKbps: maybeCurrentSession!.settings.bitrateKbps,
-						streamActive: maybeCurrentSession!.stream.active,
-						streamTracks: maybeCurrentSession!.stream.getTracks().length,
-					},
+					context: { recordingId, maybeCurrentSession },
 					cause: error,
 				}),
 			});
