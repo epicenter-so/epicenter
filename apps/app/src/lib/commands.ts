@@ -26,36 +26,35 @@ const stopManualRecording = async () => {
 		});
 		return;
 	}
-	if (!settings.value['recording.isFasterRerecordEnabled']) {
-		toast.loading({
-			id: toastId,
-			title: '⏳ Closing recording session...',
-			description: 'Wrapping things up, just a moment...',
+	// Always close the recording session after stopping
+	toast.loading({
+		id: toastId,
+		title: '⏳ Closing recording session...',
+		description: 'Wrapping things up, just a moment...',
+	});
+
+	const { error: closeRecordingSessionError } =
+		await rpc.recorder.closeRecordingSession.execute({
+			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 		});
 
-		const { error: closeRecordingSessionError } =
-			await rpc.recorder.closeRecordingSession.execute({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-			});
-
-		if (closeRecordingSessionError) {
-			toast.warning({
-				id: toastId,
-				title: '⚠️ Unable to close session after recording',
-				description:
-					'You might need to restart the application to continue recording',
-				action: {
-					type: 'more-details',
-					error: closeRecordingSessionError,
-				},
-			});
-		} else {
-			toast.success({
-				id: toastId,
-				title: '✨ Session Closed Successfully',
-				description: 'Your recording session has been neatly wrapped up',
-			});
-		}
+	if (closeRecordingSessionError) {
+		toast.warning({
+			id: toastId,
+			title: '⚠️ Unable to close session after recording',
+			description:
+				'You might need to restart the application to continue recording',
+			action: {
+				type: 'more-details',
+				error: closeRecordingSessionError,
+			},
+		});
+	} else {
+		toast.success({
+			id: toastId,
+			title: '✨ Session Closed Successfully',
+			description: 'Your recording session has been neatly wrapped up',
+		});
 	}
 
 	toast.success({
@@ -70,9 +69,7 @@ const stopManualRecording = async () => {
 		blob,
 		toastId,
 		completionTitle: '✨ Recording Complete!',
-		completionDescription: settings.value['recording.isFasterRerecordEnabled']
-			? 'Recording saved! Ready for another take'
-			: 'Recording saved and session closed successfully',
+		completionDescription: 'Recording saved and session closed successfully',
 	});
 };
 
@@ -128,7 +125,7 @@ export const commands = [
 				});
 				return;
 			}
-			if (recorderState === 'SESSION+RECORDING') {
+			if (recorderState === 'RECORDING') {
 				await stopManualRecording();
 			} else {
 				await startManualRecording();
@@ -159,60 +156,31 @@ export const commands = [
 				});
 				return;
 			}
-			if (settings.value['recording.isFasterRerecordEnabled']) {
-				toast.success({
-					id: toastId,
-					title: '🚫 Recording Cancelled',
-					description:
-						'Recording discarded, but session remains open for a new take',
-				});
-			} else {
-				const { error: closeRecordingSessionError } =
-					await rpc.recorder.closeRecordingSession.execute({
-						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-					});
-				if (closeRecordingSessionError) {
-					toast.error({
-						id: toastId,
-						title: '❌ Failed to close session while cancelling recording',
-						description:
-							'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
-						action: {
-							type: 'more-details',
-							error: closeRecordingSessionError,
-						},
-					});
-					return;
-				}
-				toast.success({
-					id: toastId,
-					title: '✅ All Done!',
-					description: 'Recording cancelled and session closed successfully',
-				});
-				services.sound.playSoundIfEnabled('manual-cancel');
-				console.info('Recording cancelled');
-			}
-		},
-	},
-	{
-		id: 'closeManualRecordingSession',
-		title: 'Close manual recording session',
-		defaultLocalShortcut: 'shift+c',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+\\',
-		callback: async () => {
-			const toastId = nanoid();
+			// Always close the recording session after cancelling
 			const { error: closeRecordingSessionError } =
 				await rpc.recorder.closeRecordingSession.execute({
-					sendStatus: (status) => toast.info({ id: toastId, ...status }),
+					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 				});
 			if (closeRecordingSessionError) {
 				toast.error({
 					id: toastId,
-					title: '❌ Failed to close session',
-					description: 'Your session could not be closed. Please try again.',
-					action: { type: 'more-details', error: closeRecordingSessionError },
+					title: '❌ Failed to close session while cancelling recording',
+					description:
+						'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
+					action: {
+						type: 'more-details',
+						error: closeRecordingSessionError,
+					},
 				});
+				return;
 			}
+			toast.success({
+				id: toastId,
+				title: '✅ All Done!',
+				description: 'Recording cancelled and session closed successfully',
+			});
+			services.sound.playSoundIfEnabled('manual-cancel');
+			console.info('Recording cancelled');
 		},
 	},
 	{
@@ -232,7 +200,7 @@ export const commands = [
 		callback: async () => {
 			const { data: vadState } =
 				await rpc.vadRecorder.getVadState.fetchCached();
-			if (vadState === 'SESSION+RECORDING') {
+			if (vadState === 'RECORDING') {
 				const toastId = nanoid();
 				toast.loading({
 					id: toastId,

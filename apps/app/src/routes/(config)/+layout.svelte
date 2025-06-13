@@ -39,7 +39,7 @@
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
 			⏹️
 		{:else}
 			🎙️

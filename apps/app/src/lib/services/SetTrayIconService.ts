@@ -151,8 +151,7 @@ async function initTray() {
 async function getIconPath(recorderState: WhisperingRecordingState) {
 	const iconPaths = {
 		IDLE: 'recorder-state-icons/studio_microphone.png',
-		SESSION: 'recorder-state-icons/studio_microphone.png',
-		'SESSION+RECORDING': 'recorder-state-icons/red_large_square.png',
+		RECORDING: 'recorder-state-icons/red_large_square.png',
 	} as const satisfies Record<WhisperingRecordingState, string>;
 	return await resolveResource(iconPaths[recorderState]);
 }

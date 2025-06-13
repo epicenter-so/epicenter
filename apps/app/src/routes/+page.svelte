@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
@@ -100,7 +99,7 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={getRecorderStateQuery.data === 'SESSION+RECORDING'
+				tooltipContent={getRecorderStateQuery.data === 'RECORDING'
 					? 'Stop recording'
 					: 'Start recording'}
 				onclick={commandCallbacks.toggleManualRecording}
@@ -111,7 +110,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+					{#if getRecorderStateQuery.data === 'RECORDING'}
 						⏹️
 					{:else}
 						🎙️
@@ -120,7 +119,7 @@
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={getVadStateQuery.data === 'SESSION+RECORDING'
+				tooltipContent={getVadStateQuery.data === 'RECORDING'
 					? 'Stop voice activated session'
 					: 'Start voice activated session'}
 				onclick={commandCallbacks.toggleVadRecording}
@@ -131,7 +130,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getVadStateQuery.data === 'SESSION+RECORDING'}
+					{#if getVadStateQuery.data === 'RECORDING'}
 						🛑
 					{:else}
 						🎬
@@ -140,7 +139,7 @@
 			</WhisperingButton>
 		{/if}
 		<div class="flex-1 flex-justify-center mb-2">
-			{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+			{#if getRecorderStateQuery.data === 'RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
 					onclick={commandCallbacks.cancelManualRecording}
@@ -150,26 +149,7 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if getRecorderStateQuery.data === 'SESSION'}
-				<WhisperingButton
-					onclick={commandCallbacks.closeManualRecordingSession}
-					variant="ghost"
-					size="icon"
-					style="view-transition-name: end-session-icon;"
-				>
-					🔴
-					{#snippet tooltipContent()}
-						End recording session
-						<Button
-							variant="link"
-							size="inline"
-							onclick={() => fasterRerecordExplainedDialog.open()}
-						>
-							(What's that?)
-						</Button>
-					{/snippet}
-				</WhisperingButton>
-			{:else if getVadStateQuery.data === 'SESSION+RECORDING' || getVadStateQuery.data === 'SESSION'}
+			{:else if getVadStateQuery.data === 'RECORDING' || getVadStateQuery.data === 'SESSION'}
 				<!-- Render nothing -->
 			{:else}
 				<RecordingControls />

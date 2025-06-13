@@ -53,16 +53,14 @@ export const ALWAYS_ON_TOP_OPTIONS = ALWAYS_ON_TOP_VALUES.map((option) => ({
 
 export const recordingStateSchema = z.enum([
 	'IDLE',
-	'SESSION',
-	'SESSION+RECORDING',
+	'RECORDING',
 ]);
 
 export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
 
 export const recorderStateToIcons = {
 	IDLE: '🎙️',
-	SESSION: '🎙️',
-	'SESSION+RECORDING': '⏹️',
+	RECORDING: '⏹️',
 } as const satisfies Record<WhisperingRecordingState, string>;
 
 /** Supported languages pulled from OpenAI Website: https://platform.openai.com/docs/guides/speech-to-text/supported-languages */

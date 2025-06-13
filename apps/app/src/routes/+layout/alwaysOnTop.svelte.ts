@@ -17,7 +17,7 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 				break;
 			case 'When Recording and Transcribing':
 				if (
-					getRecorderStateQuery.data === 'SESSION+RECORDING' ||
+					getRecorderStateQuery.data === 'RECORDING' ||
 					rpc.transcription.isCurrentlyTranscribing()
 				) {
 					setAlwaysOnTop(true);
@@ -26,7 +26,7 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 				}
 				break;
 			case 'When Recording':
-				if (getRecorderStateQuery.data === 'SESSION+RECORDING') {
+				if (getRecorderStateQuery.data === 'RECORDING') {
 					setAlwaysOnTop(true);
 				} else {
 					setAlwaysOnTop(false);
