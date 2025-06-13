@@ -45,13 +45,13 @@ export const recorder = {
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: ({
 			toastId,
-			recordingSessionSettings,
+			settings,
 		}: {
 			toastId: string;
-			recordingSessionSettings: RecordingSessionSettings;
+			settings: RecordingSessionSettings;
 		}) =>
 			services.recorder.startRecording(
-				{ recordingId: nanoid(), settings: recordingSessionSettings },
+				{ recordingId: nanoid(), settings },
 				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
 			),
 		onSettled: invalidateRecorderState,

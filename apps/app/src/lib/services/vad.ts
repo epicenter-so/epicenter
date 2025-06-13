@@ -1,13 +1,6 @@
-import {
-	Err,
-	extractErrorMessage,
-	Ok,
-	tryAsync,
-	trySync,
-} from '@epicenterhq/result';
+import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
 import { WhisperingError, type WhisperingRecordingState } from '@repo/shared';
 import { MicVAD, utils } from '@ricky0123/vad-web';
-import { toast } from './toast';
 
 export function createVadServiceWeb() {
 	let maybeVad: MicVAD | null = null;
@@ -20,9 +13,11 @@ export function createVadServiceWeb() {
 			return 'SESSION';
 		},
 		ensureVad: async ({
+			onSpeechStart,
 			onSpeechEnd,
 			deviceId,
 		}: {
+			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 			deviceId: string | null;
 		}) => {
@@ -32,12 +27,7 @@ export function createVadServiceWeb() {
 					MicVAD.new({
 						additionalAudioConstraints: deviceId ? { deviceId } : undefined,
 						submitUserSpeechOnPause: true,
-						onSpeechStart: () => {
-							toast.success({
-								title: '🎙️ Speech started',
-								description: 'Recording started. Speak clearly and loudly.',
-							});
-						},
+						onSpeechStart,
 						onSpeechEnd: (audio) => {
 							const wavBuffer = utils.encodeWAV(audio);
 							const blob = new Blob([wavBuffer], { type: 'audio/wav' });

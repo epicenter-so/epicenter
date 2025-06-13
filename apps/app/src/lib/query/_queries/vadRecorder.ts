@@ -36,11 +36,16 @@ export const vadRecorder = {
 	startActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
 		resultMutationFn: async ({
+			onSpeechStart,
 			onSpeechEnd,
-		}: { onSpeechEnd: (blob: Blob) => void }) => {
+		}: {
+			onSpeechStart: () => void;
+			onSpeechEnd: (blob: Blob) => void;
+		}) => {
 			const { error: ensureVadError } = await services.vad.ensureVad({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				onSpeechStart,
 				onSpeechEnd,
 			});
 
