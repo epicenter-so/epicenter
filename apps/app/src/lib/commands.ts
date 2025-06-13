@@ -254,6 +254,12 @@ export const commands = [
 			});
 			const { error: startActiveListeningError } =
 				await rpc.vadRecorder.startActiveListening.execute({
+					onSpeechStart: () => {
+						toast.success({
+							title: '🎙️ Speech started',
+							description: 'Recording started. Speak clearly and loudly.',
+						});
+					},
 					onSpeechEnd: async (blob) => {
 						const toastId = nanoid();
 						toast.success({
