@@ -6,6 +6,7 @@ import type {
 	RecordingSessionSettings,
 	UpdateStatusMessageFn,
 } from './_types';
+import { toast } from '$lib/toast';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
