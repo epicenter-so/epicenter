@@ -84,7 +84,11 @@ export function createRecorderServiceWeb(): RecorderService {
 				title: '🎙️ Switched to different microphone',
 				description:
 					"Your previously selected microphone wasn't found, so we automatically connected to an available one. You can update your microphone selection in settings.",
-				action: { type: 'link', label: 'Open Settings', goto: '/settings' },
+				action: {
+					type: 'link',
+					label: 'Open Settings',
+					goto: '/settings/recording',
+				},
 			});
 
 			return Ok(firstStream);
