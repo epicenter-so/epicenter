@@ -28,58 +28,62 @@ type RecordingSession = {
 export function createRecorderServiceWeb(): RecorderService {
 	let maybeCurrentSession: RecordingSession | null = null;
 
-	const acquireStream = async (
+	const getRecordingStream = async (
 		settings: RecordingSessionSettings,
 		{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
 	): Promise<Result<MediaStream, RecordingServiceError>> => {
-		if (!settings.selectedAudioInputDeviceId) {
+		const hasPreferredDevice = !!settings.selectedAudioInputDeviceId;
+
+		// Can I use my preferred device?
+		if (hasPreferredDevice && settings.selectedAudioInputDeviceId) {
+			sendStatus({
+				title: '🎯 Connecting Device',
+				description:
+					'Almost there! Just need your permission to use the microphone...',
+			});
+			const { data: preferredStream, error: getPreferredStreamError } =
+				await getStreamForDeviceId(settings.selectedAudioInputDeviceId);
+			if (!getPreferredStreamError) {
+				return Ok(preferredStream);
+			}
+		}
+
+		// What's my situation? I need a fallback stream
+		const needsFallbackStream = !hasPreferredDevice;
+		const preferredDeviceFailed = hasPreferredDevice;
+
+		if (needsFallbackStream) {
 			sendStatus({
 				title: '🔍 No Device Selected',
 				description:
 					"No worries! We'll find the best microphone for you automatically...",
 			});
-			const { data: firstStream, error: getFirstStreamError } =
-				await getFirstAvailableStream();
-			if (getFirstStreamError) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						"Hmm... We couldn't find any microphones to use. Check your connections and try again!",
-					context: { settings },
-					cause: getFirstStreamError,
-				});
-			}
-			return Ok(firstStream);
-		}
-		sendStatus({
-			title: '🎯 Connecting Device',
-			description:
-				'Almost there! Just need your permission to use the microphone...',
-		});
-		const { data: preferredStream, error: getPreferredStreamError } =
-			await getStreamForDeviceId(settings.selectedAudioInputDeviceId);
-		if (getPreferredStreamError) {
+		} else if (preferredDeviceFailed) {
 			sendStatus({
 				title: '⚠️ Finding a New Microphone',
 				description:
 					"That microphone isn't working. Let's try finding another one...",
 			});
+		}
 
-			const { data: firstStream, error: getFirstStreamError } =
-				await getFirstAvailableStream();
-			if (getFirstStreamError) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						"We couldn't connect to any microphones. Make sure they're plugged in and try again!",
-					context: { settings },
-					cause: getFirstStreamError,
-				});
-			}
+		// Take action: Get fallback stream
+		const { data: fallbackStream, error: getFallbackStreamError } =
+			await getFirstAvailableStream();
+		if (getFallbackStreamError) {
+			const errorMessage = needsFallbackStream
+				? "Hmm... We couldn't find any microphones to use. Check your connections and try again!"
+				: "We couldn't connect to any microphones. Make sure they're plugged in and try again!";
+			return Err({
+				name: 'RecordingServiceError',
+				message: errorMessage,
+				context: { settings },
+				cause: getFallbackStreamError,
+			});
+		}
 
-			// Reset the selected audio input device id
+		// Handle consequences of fallback
+		if (preferredDeviceFailed) {
 			settings.selectedAudioInputDeviceId = null;
-
 			toast.info({
 				title: '🎙️ Switched to different microphone',
 				description:
@@ -90,10 +94,9 @@ export function createRecorderServiceWeb(): RecorderService {
 					goto: '/settings/recording',
 				},
 			});
-
-			return Ok(firstStream);
 		}
-		return Ok(preferredStream);
+
+		return Ok(fallbackStream);
 	};
 
 	return {
@@ -203,7 +206,7 @@ export function createRecorderServiceWeb(): RecorderService {
 			maybeCurrentSession = null;
 
 			// Recreate the session
-			const { data: stream, error: acquireStreamError } = await acquireStream(
+			const { data: stream, error: acquireStreamError } = await getRecordingStream(
 				settings,
 				{ sendStatus },
 			);
