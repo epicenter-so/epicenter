@@ -63,6 +63,20 @@ export const recorderStateToIcons = {
 	RECORDING: '⏹️',
 } as const satisfies Record<WhisperingRecordingState, string>;
 
+export const vadStateSchema = z.enum([
+	'IDLE',
+	'LISTENING',
+	'SPEECH_DETECTED',
+]);
+
+export type VadState = z.infer<typeof vadStateSchema>;
+
+export const vadStateToIcons = {
+	IDLE: '🔇',
+	LISTENING: '👂',
+	SPEECH_DETECTED: '🗣️',
+} as const satisfies Record<VadState, string>;
+
 /** Supported languages pulled from OpenAI Website: https://platform.openai.com/docs/guides/speech-to-text/supported-languages */
 export const SUPPORTED_LANGUAGES = [
 	'auto',

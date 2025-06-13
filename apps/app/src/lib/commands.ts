@@ -156,28 +156,11 @@ export const commands = [
 				});
 				return;
 			}
-			// Always close the recording session after cancelling
-			const { error: closeRecordingSessionError } =
-				await rpc.recorder.closeRecordingSession.execute({
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-				});
-			if (closeRecordingSessionError) {
-				toast.error({
-					id: toastId,
-					title: '❌ Failed to close session while cancelling recording',
-					description:
-						'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
-					action: {
-						type: 'more-details',
-						error: closeRecordingSessionError,
-					},
-				});
-				return;
-			}
+			// Session cleanup is now handled internally by the recorder service
 			toast.success({
 				id: toastId,
 				title: '✅ All Done!',
-				description: 'Recording cancelled and session closed successfully',
+				description: 'Recording cancelled successfully',
 			});
 			services.sound.playSoundIfEnabled('manual-cancel');
 			console.info('Recording cancelled');
@@ -200,8 +183,9 @@ export const commands = [
 		callback: async () => {
 			const { data: vadState } =
 				await rpc.vadRecorder.getVadState.fetchCached();
-			if (vadState === 'RECORDING') {
+			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
 				const toastId = nanoid();
+				console.info('Stopping voice activated capture');
 				toast.loading({
 					id: toastId,
 					title: '⏸️ Stopping voice activated capture...',
@@ -211,10 +195,18 @@ export const commands = [
 					await rpc.vadRecorder.stopVad.execute(undefined);
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
+					return;
 				}
+				toast.success({
+					id: toastId,
+					title: '🎙️ Voice activated capture stopped',
+					description: 'Your voice activated capture has been stopped.',
+				});
+				services.sound.playSoundIfEnabled('vad-stop');
 				return;
 			}
 			const toastId = nanoid();
+			console.info('Starting voice activated capture');
 			toast.loading({
 				id: toastId,
 				title: '🎙️ Starting voice activated capture',
@@ -256,6 +248,7 @@ export const commands = [
 				title: '🎙️ Voice activated capture started',
 				description: 'Your voice activated capture has been started.',
 			});
+			services.sound.playSoundIfEnabled('vad-start');
 		},
 	},
 ] as const;

@@ -119,7 +119,8 @@
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={getVadStateQuery.data === 'RECORDING'
+				tooltipContent={getVadStateQuery.data === 'LISTENING' ||
+				getVadStateQuery.data === 'SPEECH_DETECTED'
 					? 'Stop voice activated session'
 					: 'Start voice activated session'}
 				onclick={commandCallbacks.toggleVadRecording}
@@ -130,10 +131,12 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getVadStateQuery.data === 'RECORDING'}
-						🛑
+					{#if getVadStateQuery.data === 'SPEECH_DETECTED'}
+						🗣️
+					{:else if getVadStateQuery.data === 'LISTENING'}
+						👂
 					{:else}
-						🎬
+						🔇
 					{/if}
 				</span>
 			</WhisperingButton>
@@ -149,7 +152,7 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if getVadStateQuery.data === 'RECORDING' || getVadStateQuery.data === 'SESSION'}
+			{:else if getVadStateQuery.data === 'LISTENING' || getVadStateQuery.data === 'SPEECH_DETECTED'}
 				<!-- Render nothing -->
 			{:else}
 				<RecordingControls />
