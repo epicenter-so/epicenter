@@ -117,12 +117,13 @@ export function createRecorderServiceWeb(): RecorderService {
 					settings.selectedAudioInputDeviceId &&
 				recordingSession.settings.bitrateKbps === settings.bitrateKbps;
 
-			// Can I use what I already have?
-			const canReuseCurrentSession =
-				maybeCurrentSession?.stream.active &&
-				isSessionSettingsSame(maybeCurrentSession);
+			// Do I need a new session?
+			const needsNewSession =
+				!maybeCurrentSession ||
+				!maybeCurrentSession.stream.active ||
+				!isSessionSettingsSame(maybeCurrentSession);
 
-			if (!canReuseCurrentSession) {
+			if (needsNewSession) {
 				// I need a new session. What's my situation?
 				if (!maybeCurrentSession) {
 					sendStatus({
