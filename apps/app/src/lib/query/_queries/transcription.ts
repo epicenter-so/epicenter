@@ -102,7 +102,7 @@ export const transcription = {
 		mutationKey: transcriptionKeys.isTranscribing,
 		resultMutationFn: async (recordings: Recording[]) => {
 			const results = await Promise.all(
-				recordings.map((recording) => {
+				recordings.map(async (recording) => {
 					if (!recording.blob) {
 						return Err({
 							name: 'WhisperingError',
@@ -112,7 +112,7 @@ export const transcription = {
 							cause: undefined,
 						} satisfies WhisperingError);
 					}
-					return services.transcription.transcribe(recording.blob, {
+					return await services.transcription.transcribe(recording.blob, {
 						outputLanguage: settings.value['transcription.outputLanguage'],
 						prompt: settings.value['transcription.prompt'],
 						temperature: settings.value['transcription.temperature'],
