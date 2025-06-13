@@ -25,7 +25,7 @@ type RecordingSession = {
 };
 
 export function createRecorderServiceWeb(): RecorderService {
-	let currentSession: RecordingSession | null = null;
+	let maybeCurrentSession: RecordingSession | null = null;
 
 	const acquireStream = async (
 		settings: RecordingSessionSettings,
@@ -81,14 +81,14 @@ export function createRecorderServiceWeb(): RecorderService {
 
 	return {
 		getRecorderState: () => {
-			if (!currentSession) return Ok('IDLE');
-			if (currentSession.recorder) return Ok('SESSION+RECORDING');
+			if (!maybeCurrentSession) return Ok('IDLE');
+			if (maybeCurrentSession.recorder) return Ok('SESSION+RECORDING');
 			return Ok('SESSION');
 		},
 		enumerateRecordingDevices,
 
 		closeRecordingSession: async ({ sendStatus }) => {
-			if (!currentSession) return Ok(undefined);
+			if (!maybeCurrentSession) return Ok(undefined);
 
 			sendStatus({
 				title: '🧹 Cleaning Up',
@@ -97,36 +97,39 @@ export function createRecorderServiceWeb(): RecorderService {
 			});
 
 			// Stop recorder first if it exists
-			if (currentSession.recorder?.mediaRecorder.state === 'recording') {
-				currentSession.recorder.mediaRecorder.stop();
+			if (maybeCurrentSession.recorder?.mediaRecorder.state === 'recording') {
+				maybeCurrentSession.recorder.mediaRecorder.stop();
 			}
 
 			// Then stop tracks
-			for (const track of currentSession.stream.getTracks()) {
+			for (const track of maybeCurrentSession.stream.getTracks()) {
 				track.stop();
 			}
 
-			currentSession = null;
+			maybeCurrentSession = null;
 
 			return Ok(undefined);
 		},
 
 		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
+			const isSessionSettingsSame = (recordingSession: RecordingSession) =>
+				recordingSession.settings.selectedAudioInputDeviceId ===
+					settings.selectedAudioInputDeviceId &&
+				recordingSession.settings.bitrateKbps === settings.bitrateKbps;
+
 			// Can I use what I already have?
 			const canReuseCurrentSession =
-				currentSession?.stream.active &&
-				currentSession?.settings.selectedAudioInputDeviceId ===
-					settings.selectedAudioInputDeviceId &&
-				currentSession?.settings.bitrateKbps === settings.bitrateKbps;
+				maybeCurrentSession?.stream.active &&
+				isSessionSettingsSame(maybeCurrentSession);
 
 			if (!canReuseCurrentSession) {
 				// I need a new session. What's my situation?
-				if (!currentSession) {
+				if (!maybeCurrentSession) {
 					sendStatus({
 						title: '🎙️ Starting Session',
 						description: 'Setting up recording environment...',
 					});
-				} else if (!currentSession.stream.active) {
+				} else if (!maybeCurrentSession.stream.active) {
 					sendStatus({
 						title: '🔄 Reconnecting',
 						description: 'Session expired, reconnecting to microphone...',
@@ -137,7 +140,7 @@ export function createRecorderServiceWeb(): RecorderService {
 						title: '🔄 Updating Settings',
 						description: 'Audio settings changed, creating new session...',
 					});
-					for (const track of currentSession.stream.getTracks()) {
+					for (const track of maybeCurrentSession.stream.getTracks()) {
 						track.stop();
 					}
 				}
@@ -149,14 +152,14 @@ export function createRecorderServiceWeb(): RecorderService {
 				);
 				if (acquireStreamError) return Err(acquireStreamError);
 
-				currentSession = { settings, stream, recorder: null };
+				maybeCurrentSession = { settings, stream, recorder: null };
 			}
 
 			const { data: newRecorder, error: newRecorderError } = await tryAsync({
 				try: async () => {
-					return new MediaRecorder(currentSession!.stream, {
+					return new MediaRecorder(maybeCurrentSession!.stream, {
 						bitsPerSecond:
-							Number(currentSession!.settings.bitrateKbps) * 1000,
+							Number(maybeCurrentSession!.settings.bitrateKbps) * 1000,
 					});
 				},
 				mapError: (error): RecordingServiceError => ({
@@ -165,9 +168,9 @@ export function createRecorderServiceWeb(): RecorderService {
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
 					context: {
 						recordingId,
-						bitrateKbps: currentSession!.settings.bitrateKbps,
-						streamActive: currentSession!.stream.active,
-						streamTracks: currentSession!.stream.getTracks().length,
+						bitrateKbps: maybeCurrentSession!.settings.bitrateKbps,
+						streamActive: maybeCurrentSession!.stream.active,
+						streamTracks: maybeCurrentSession!.stream.getTracks().length,
 					},
 					cause: error,
 				}),
@@ -175,7 +178,7 @@ export function createRecorderServiceWeb(): RecorderService {
 			if (newRecorderError) return Err(newRecorderError);
 
 			// Create recorder object synchronously before starting
-			currentSession!.recorder = {
+			maybeCurrentSession!.recorder = {
 				mediaRecorder: newRecorder,
 				recordedChunks: [],
 				recordingId,
@@ -183,7 +186,7 @@ export function createRecorderServiceWeb(): RecorderService {
 
 			newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
 				if (!event.data.size) return;
-				currentSession!.recorder?.recordedChunks.push(event.data);
+				maybeCurrentSession!.recorder?.recordedChunks.push(event.data);
 			});
 
 			newRecorder.start(TIMESLICE_MS);
@@ -191,7 +194,7 @@ export function createRecorderServiceWeb(): RecorderService {
 		},
 
 		stopRecording: async ({ sendStatus }) => {
-			if (!currentSession?.recorder) {
+			if (!maybeCurrentSession?.recorder) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
@@ -200,10 +203,10 @@ export function createRecorderServiceWeb(): RecorderService {
 					cause: undefined,
 				});
 			}
-			const recorder = currentSession.recorder;
+			const recorder = maybeCurrentSession.recorder;
 
 			// Clear recorder immediately
-			currentSession.recorder = null;
+			maybeCurrentSession.recorder = null;
 
 			sendStatus({
 				title: '⏸️ Finishing Up',
@@ -243,7 +246,7 @@ export function createRecorderServiceWeb(): RecorderService {
 		},
 
 		cancelRecording: async ({ sendStatus }) => {
-			if (!currentSession?.recorder) {
+			if (!maybeCurrentSession?.recorder) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
@@ -258,8 +261,8 @@ export function createRecorderServiceWeb(): RecorderService {
 				description: 'Safely cancelling your recording...',
 			});
 
-			currentSession.recorder.mediaRecorder.stop();
-			currentSession.recorder = null;
+			maybeCurrentSession.recorder.mediaRecorder.stop();
+			maybeCurrentSession.recorder = null;
 
 			sendStatus({
 				title: '✨ Cancelled',
