@@ -32,7 +32,7 @@ export const vadRecorder = {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
-			const { error: initializeVadError } = await services.vad.initializeVad({
+			const result = await services.vad.startActiveListening({
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
 				onSpeechStart: () => {
@@ -45,20 +45,17 @@ export const vadRecorder = {
 				},
 			});
 
-			if (initializeVadError) return Err(initializeVadError);
-
-			const startListeningResult = await services.vad.startListening();
 			invalidateVadState();
-			return startListeningResult;
+			return result;
 		},
 	}),
 
-	stopVad: defineMutation({
-		mutationKey: ['vadRecorder', 'stopVad'] as const,
+	stopActiveListening: defineMutation({
+		mutationKey: ['vadRecorder', 'stopActiveListening'] as const,
 		resultMutationFn: async () => {
-			const destroyResult = await services.vad.destroyVad();
+			const result = await services.vad.stopActiveListening();
 			invalidateVadState();
-			return destroyResult;
+			return result;
 		},
 	}),
 };

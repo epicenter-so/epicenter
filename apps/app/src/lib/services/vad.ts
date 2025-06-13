@@ -10,7 +10,8 @@ export function createVadServiceWeb() {
 		getVadState: (): VadState => {
 			return vadState;
 		},
-		initializeVad: async ({
+
+		startActiveListening: async ({
 			onSpeechStart,
 			onSpeechEnd,
 			deviceId,
@@ -19,69 +20,41 @@ export function createVadServiceWeb() {
 			onSpeechEnd: (blob: Blob) => void;
 			deviceId: string | null;
 		}) => {
-			if (maybeVad) return Ok(maybeVad);
-			const { data: newVad, error: initializeVadError } = await tryAsync({
-				try: () =>
-					MicVAD.new({
-						additionalAudioConstraints: deviceId ? { deviceId } : undefined,
-						submitUserSpeechOnPause: true,
-						onSpeechStart: () => {
-							vadState = 'SPEECH_DETECTED';
-							onSpeechStart();
-						},
-						onSpeechEnd: (audio) => {
-							vadState = 'LISTENING';
-							const wavBuffer = utils.encodeWAV(audio);
-							const blob = new Blob([wavBuffer], { type: 'audio/wav' });
-							onSpeechEnd(blob);
-						},
-						onVADMisfire: () => {
-							console.log('VAD misfire');
-						},
-						model: 'v5',
-					}),
-				mapError: (error) => ({
-					name: 'WhisperingError',
-					title: '❌ Failed to start voice activated capture',
-					description: 'Your voice activated capture could not be started.',
-					context: {},
-					cause: error,
-				}),
-			});
-			if (initializeVadError) return Err(initializeVadError);
-			maybeVad = newVad;
-			return Ok(maybeVad);
-		},
-		destroyVad: async () => {
-			if (!maybeVad) return Ok(undefined);
-			const vad = maybeVad;
-			const { error: destroyError } = trySync({
-				try: () => vad.destroy(),
-				mapError: (error) =>
-					WhisperingError({
-						title: 'Failed to destroy Voice Activity Detector',
-						description:
-							error instanceof Error ? error.message : 'Failed to destroy VAD',
+			// Initialize VAD if not already initialized
+			if (!maybeVad) {
+				const { data: newVad, error: initializeVadError } = await tryAsync({
+					try: () =>
+						MicVAD.new({
+							additionalAudioConstraints: deviceId ? { deviceId } : undefined,
+							submitUserSpeechOnPause: true,
+							onSpeechStart: () => {
+								vadState = 'SPEECH_DETECTED';
+								onSpeechStart();
+							},
+							onSpeechEnd: (audio) => {
+								vadState = 'LISTENING';
+								const wavBuffer = utils.encodeWAV(audio);
+								const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+								onSpeechEnd(blob);
+							},
+							onVADMisfire: () => {
+								console.log('VAD misfire');
+							},
+							model: 'v5',
+						}),
+					mapError: (error) => ({
+						name: 'WhisperingError',
+						title: '❌ Failed to start voice activated capture',
+						description: 'Your voice activated capture could not be started.',
 						context: {},
 						cause: error,
 					}),
-			});
-			if (destroyError) return Err(destroyError);
-			maybeVad = null;
-			vadState = 'IDLE';
-			return Ok(undefined);
-		},
-		startListening: async () => {
-			if (!maybeVad)
-				return Err(
-					WhisperingError({
-						title: 'Voice Activity Detector not initialized',
-						description:
-							'The voice activity detector has not been initialized. Please ensure that the VAD is initialized before starting it.',
-						context: {},
-						cause: new Error('VAD not initialized'),
-					}),
-				);
+				});
+				if (initializeVadError) return Err(initializeVadError);
+				maybeVad = newVad;
+			}
+
+			// Start listening
 			const vad = maybeVad;
 			const { error: startError } = trySync({
 				try: () => vad.start(),
@@ -100,31 +73,25 @@ export function createVadServiceWeb() {
 			vadState = 'LISTENING';
 			return Ok(undefined);
 		},
-		stopListening: async () => {
-			if (!maybeVad)
-				return Err(
-					WhisperingError({
-						title: 'Voice Activity Detector not initialized',
-						description: 'VAD not initialized',
-						context: {},
-						cause: new Error('VAD not initialized'),
-					}),
-				);
+
+		stopActiveListening: async () => {
+			if (!maybeVad) return Ok(undefined);
+
 			const vad = maybeVad;
-			const { error: pauseError } = trySync({
-				try: () => vad.pause(),
+			const { error: destroyError } = trySync({
+				try: () => vad.destroy(),
 				mapError: (error) =>
 					WhisperingError({
-						title: 'Failed to pause Voice Activity Detector',
+						title: 'Failed to stop Voice Activity Detector',
 						description:
-							error instanceof Error
-								? error.message
-								: 'An unknown error occurred while pausing the VAD.',
+							error instanceof Error ? error.message : 'Failed to stop VAD',
 						context: {},
 						cause: error,
 					}),
 			});
-			if (pauseError) return Err(pauseError);
+			if (destroyError) return Err(destroyError);
+
+			maybeVad = null;
 			vadState = 'IDLE';
 			return Ok(undefined);
 		},
