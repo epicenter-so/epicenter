@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { RecordingControls } from '$lib/components/recording-controls';
+	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
 	import { rpc } from '$lib/query';
 	import { cn } from '$lib/utils.js';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -31,7 +32,8 @@
 			<span class="text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
-	<RecordingControls class="hidden sm:flex" />
+	<RecordingDeviceSelector />
+	<TransformationSelector />
 	<WhisperingButton
 		tooltipContent="Toggle recording"
 		onclick={commandCallbacks.toggleManualRecording}
@@ -39,7 +41,7 @@
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
 			⏹️
 		{:else}
 			🎙️

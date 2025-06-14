@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import { macOSAppNapExplainedDialog } from '$lib/components/MacOSAppNapExplainedDialog.svelte';
 	import MacOSAppNapExplainedDialog from '$lib/components/MacOSAppNapExplainedDialog.svelte';
 	import {
@@ -81,26 +80,6 @@
 
 	<Separator />
 
-	<LabeledSwitch
-		id="faster-rerecord"
-		checked={settings.value['recording.isFasterRerecordEnabled']}
-		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'recording.isFasterRerecordEnabled': v,
-			};
-		}}
-	>
-		{#snippet label()}
-			Enable faster rerecord. <Button
-				variant="link"
-				size="inline"
-				onclick={() => fasterRerecordExplainedDialog.open()}
-			>
-				(What's that?)
-			</Button>
-		{/snippet}
-	</LabeledSwitch>
 
 	{#if window.__TAURI_INTERNALS__}
 		<LabeledSwitch

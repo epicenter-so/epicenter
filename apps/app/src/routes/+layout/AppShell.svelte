@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
-	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { rpc } from '$lib/query';
@@ -63,7 +62,7 @@
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"
 		class="text-[48px] leading-none"
 	>
-		{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
 			⏹️
 		{:else}
 			🎙️
@@ -82,7 +81,6 @@
 	{...TOASTER_SETTINGS}
 />
 <ModeWatcher />
-<FasterRerecordExplainedDialog />
 <ConfirmationDialog />
 <MoreDetailsDialog />
 <NotificationLog />

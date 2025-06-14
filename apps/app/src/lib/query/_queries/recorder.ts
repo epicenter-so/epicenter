@@ -1,14 +1,9 @@
 import { services } from '$lib/services';
-import type {
-	RecordingSessionSettings,
-	UpdateStatusMessageFn,
-} from '$lib/services/recorder/_types';
+import type { RecordingSessionSettings } from '$lib/services/recorder/_types';
 import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '@repo/shared';
-import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
-import { settings } from '$lib/stores/settings.svelte';
 
 const recorderKeys = {
 	mediaDevices: ['recorder', 'mediaDevices'] as const,
@@ -16,7 +11,6 @@ const recorderKeys = {
 	startRecording: ['recorder', 'startRecording'] as const,
 	stopRecording: ['recorder', 'stopRecording'] as const,
 	cancelRecording: ['recorder', 'cancelRecording'] as const,
-	closeSession: ['recorder', 'closeSession'] as const,
 } as const;
 
 const invalidateRecorderState = () =>
@@ -34,13 +28,6 @@ export const recorder = {
 		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
-	closeRecordingSession: defineMutation({
-		mutationKey: recorderKeys.closeSession,
-		resultMutationFn: ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }) =>
-			services.recorder.closeRecordingSession({ sendStatus }),
-		onSettled: invalidateRecorderState,
-	}),
-
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: ({
@@ -51,7 +38,7 @@ export const recorder = {
 			settings: RecordingSessionSettings;
 		}) =>
 			services.recorder.startRecording(
-				{ recordingId: nanoid(), settings },
+				{ settings },
 				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
 			),
 		onSettled: invalidateRecorderState,

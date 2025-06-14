@@ -1,14 +1,13 @@
 import { services } from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, isOk } from '@epicenterhq/result';
-import type { WhisperingRecordingState } from '@repo/shared';
+import type { VadState } from '@repo/shared';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
 	state: ['vadRecorder', 'state'] as const,
-	closeVad: ['vadRecorder', 'closeVad'] as const,
 } as const;
 
 const invalidateVadState = () =>
@@ -21,16 +20,7 @@ export const vadRecorder = {
 			const vadState = services.vad.getVadState();
 			return Ok(vadState);
 		},
-		initialData: 'IDLE' as WhisperingRecordingState,
-	}),
-
-	closeVadSession: defineMutation({
-		mutationKey: vadRecorderKeys.closeVad,
-		resultMutationFn: async () => {
-			const closeResult = await services.vad.closeVad();
-			invalidateVadState();
-			return closeResult;
-		},
+		initialData: 'IDLE' as VadState,
 	}),
 
 	startActiveListening: defineMutation({
@@ -42,31 +32,31 @@ export const vadRecorder = {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
-			const { error: ensureVadError } = await services.vad.ensureVad({
+			const result = await services.vad.startActiveListening({
+				// TODO: This always uses the navigator device ID, but the SelectRecordingDevice component changes its displayed value when the user selects a Tauri device. This will mislead users into thinking that the selected Tauri device is used.
 				deviceId:
 					settings.value['recording.navigator.selectedAudioInputDeviceId'],
-				onSpeechStart,
-				onSpeechEnd,
+				onSpeechStart: () => {
+					invalidateVadState();
+					onSpeechStart();
+				},
+				onSpeechEnd: (blob) => {
+					invalidateVadState();
+					onSpeechEnd(blob);
+				},
 			});
 
-			if (ensureVadError) return Err(ensureVadError);
-
-			const startVadResult = await services.vad.startVad();
 			invalidateVadState();
-			return startVadResult;
+			return result;
 		},
 	}),
 
-	stopVad: defineMutation({
-		mutationKey: ['vadRecorder', 'stopVad'] as const,
+	stopActiveListening: defineMutation({
+		mutationKey: ['vadRecorder', 'stopActiveListening'] as const,
 		resultMutationFn: async () => {
-			const stopResult = await services.vad.closeVad();
-			if (isOk(stopResult)) {
-				console.info('Stopping voice activated capture');
-				services.sound.playSoundIfEnabled('vad-stop');
-			}
+			const result = await services.vad.stopActiveListening();
 			invalidateVadState();
-			return stopResult;
+			return result;
 		},
 	}),
 };

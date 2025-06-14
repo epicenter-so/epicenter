@@ -26,37 +26,6 @@ const stopManualRecording = async () => {
 		});
 		return;
 	}
-	if (!settings.value['recording.isFasterRerecordEnabled']) {
-		toast.loading({
-			id: toastId,
-			title: '⏳ Closing recording session...',
-			description: 'Wrapping things up, just a moment...',
-		});
-
-		const { error: closeRecordingSessionError } =
-			await rpc.recorder.closeRecordingSession.execute({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-			});
-
-		if (closeRecordingSessionError) {
-			toast.warning({
-				id: toastId,
-				title: '⚠️ Unable to close session after recording',
-				description:
-					'You might need to restart the application to continue recording',
-				action: {
-					type: 'more-details',
-					error: closeRecordingSessionError,
-				},
-			});
-		} else {
-			toast.success({
-				id: toastId,
-				title: '✨ Session Closed Successfully',
-				description: 'Your recording session has been neatly wrapped up',
-			});
-		}
-	}
 
 	toast.success({
 		id: toastId,
@@ -70,9 +39,7 @@ const stopManualRecording = async () => {
 		blob,
 		toastId,
 		completionTitle: '✨ Recording Complete!',
-		completionDescription: settings.value['recording.isFasterRerecordEnabled']
-			? 'Recording saved! Ready for another take'
-			: 'Recording saved and session closed successfully',
+		completionDescription: 'Recording saved and session closed successfully',
 	});
 };
 
@@ -83,7 +50,7 @@ const startManualRecording = async () => {
 		title: '🎙️ Preparing to record...',
 		description: 'Setting up your recording environment...',
 	});
-	const { error: startRecordingError } =
+	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 		await rpc.recorder.startRecording.execute({
 			toastId,
 			settings: {
@@ -92,6 +59,7 @@ const startManualRecording = async () => {
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 			},
 		});
+
 	if (startRecordingError) {
 		toast.error({
 			id: toastId,
@@ -101,11 +69,51 @@ const startManualRecording = async () => {
 		});
 		return;
 	}
-	toast.success({
-		id: toastId,
-		title: '🎙️ Whispering is recording...',
-		description: 'Speak now and stop recording when done',
-	});
+
+	switch (deviceAcquisitionOutcome.outcome) {
+		case 'success': {
+			toast.success({
+				id: toastId,
+				title: '🎙️ Whispering is recording...',
+				description: 'Speak now and stop recording when done',
+			});
+			break;
+		}
+		case 'fallback': {
+			settings.value['recording.navigator.selectedAudioInputDeviceId'] =
+				deviceAcquisitionOutcome.fallbackDeviceId;
+			switch (deviceAcquisitionOutcome.reason) {
+				case 'no-device-selected': {
+					toast.info({
+						id: toastId,
+						title: '🎙️ Switched to available microphone',
+						description:
+							'No microphone was selected, so we automatically connected to an available one. You can update your selection in settings.',
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+				case 'preferred-device-unavailable': {
+					toast.info({
+						id: toastId,
+						title: '🎙️ Switched to different microphone',
+						description:
+							"Your previously selected microphone wasn't found, so we automatically connected to an available one.",
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+			}
+		}
+	}
 	console.info('Recording started');
 	services.sound.playSoundIfEnabled('manual-start');
 };
@@ -128,7 +136,7 @@ export const commands = [
 				});
 				return;
 			}
-			if (recorderState === 'SESSION+RECORDING') {
+			if (recorderState === 'RECORDING') {
 				await stopManualRecording();
 			} else {
 				await startManualRecording();
@@ -159,60 +167,14 @@ export const commands = [
 				});
 				return;
 			}
-			if (settings.value['recording.isFasterRerecordEnabled']) {
-				toast.success({
-					id: toastId,
-					title: '🚫 Recording Cancelled',
-					description:
-						'Recording discarded, but session remains open for a new take',
-				});
-			} else {
-				const { error: closeRecordingSessionError } =
-					await rpc.recorder.closeRecordingSession.execute({
-						sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-					});
-				if (closeRecordingSessionError) {
-					toast.error({
-						id: toastId,
-						title: '❌ Failed to close session while cancelling recording',
-						description:
-							'Your recording was cancelled but we encountered an issue while closing your session. You may need to restart the application.',
-						action: {
-							type: 'more-details',
-							error: closeRecordingSessionError,
-						},
-					});
-					return;
-				}
-				toast.success({
-					id: toastId,
-					title: '✅ All Done!',
-					description: 'Recording cancelled and session closed successfully',
-				});
-				services.sound.playSoundIfEnabled('manual-cancel');
-				console.info('Recording cancelled');
-			}
-		},
-	},
-	{
-		id: 'closeManualRecordingSession',
-		title: 'Close manual recording session',
-		defaultLocalShortcut: 'shift+c',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+\\',
-		callback: async () => {
-			const toastId = nanoid();
-			const { error: closeRecordingSessionError } =
-				await rpc.recorder.closeRecordingSession.execute({
-					sendStatus: (status) => toast.info({ id: toastId, ...status }),
-				});
-			if (closeRecordingSessionError) {
-				toast.error({
-					id: toastId,
-					title: '❌ Failed to close session',
-					description: 'Your session could not be closed. Please try again.',
-					action: { type: 'more-details', error: closeRecordingSessionError },
-				});
-			}
+			// Session cleanup is now handled internally by the recorder service
+			toast.success({
+				id: toastId,
+				title: '✅ All Done!',
+				description: 'Recording cancelled successfully',
+			});
+			services.sound.playSoundIfEnabled('manual-cancel');
+			console.info('Recording cancelled');
 		},
 	},
 	{
@@ -232,21 +194,30 @@ export const commands = [
 		callback: async () => {
 			const { data: vadState } =
 				await rpc.vadRecorder.getVadState.fetchCached();
-			if (vadState === 'SESSION+RECORDING') {
+			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
 				const toastId = nanoid();
+				console.info('Stopping voice activated capture');
 				toast.loading({
 					id: toastId,
 					title: '⏸️ Stopping voice activated capture...',
 					description: 'Finalizing your voice activated capture...',
 				});
 				const { error: stopVadError } =
-					await rpc.vadRecorder.stopVad.execute(undefined);
+					await rpc.vadRecorder.stopActiveListening.execute(undefined);
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
+					return;
 				}
+				toast.success({
+					id: toastId,
+					title: '🎙️ Voice activated capture stopped',
+					description: 'Your voice activated capture has been stopped.',
+				});
+				services.sound.playSoundIfEnabled('vad-stop');
 				return;
 			}
 			const toastId = nanoid();
+			console.info('Starting voice activated capture');
 			toast.loading({
 				id: toastId,
 				title: '🎙️ Starting voice activated capture',
@@ -288,6 +259,7 @@ export const commands = [
 				title: '🎙️ Voice activated capture started',
 				description: 'Your voice activated capture has been started.',
 			});
+			services.sound.playSoundIfEnabled('vad-start');
 		},
 	},
 ] as const;

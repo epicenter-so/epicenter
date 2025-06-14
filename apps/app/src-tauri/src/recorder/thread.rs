@@ -226,7 +226,7 @@ pub fn spawn_audio_thread(
                         debug!("Audio thread: Getting recorder state");
                         let state = if let Some(session) = &current_session {
                             if session.is_recording.load(Ordering::Acquire) {
-                                "SESSION+RECORDING"
+                                "RECORDING"
                             } else {
                                 "SESSION"
                             }

@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
+	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
-	import { RecordingControls } from '$lib/components/recording-controls';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { commandCallbacks } from '$lib/commands';
+	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -100,9 +100,9 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={getRecorderStateQuery.data === 'SESSION+RECORDING'
-					? 'Stop recording'
-					: 'Start recording'}
+				tooltipContent={getRecorderStateQuery.data === 'IDLE'
+					? 'Start recording'
+					: 'Stop recording'}
 				onclick={commandCallbacks.toggleManualRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
@@ -111,18 +111,14 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
-						⏹️
-					{:else}
-						🎙️
-					{/if}
+					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={getVadStateQuery.data === 'SESSION+RECORDING'
-					? 'Stop voice activated session'
-					: 'Start voice activated session'}
+				tooltipContent={getVadStateQuery.data === 'IDLE'
+					? 'Start voice activated session'
+					: 'Stop voice activated session'}
 				onclick={commandCallbacks.toggleVadRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
@@ -131,16 +127,12 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getVadStateQuery.data === 'SESSION+RECORDING'}
-						🛑
-					{:else}
-						🎬
-					{/if}
+					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{/if}
 		<div class="flex-1 flex-justify-center mb-2">
-			{#if getRecorderStateQuery.data === 'SESSION+RECORDING'}
+			{#if getRecorderStateQuery.data === 'RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
 					onclick={commandCallbacks.cancelManualRecording}
@@ -150,29 +142,11 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if getRecorderStateQuery.data === 'SESSION'}
-				<WhisperingButton
-					onclick={commandCallbacks.closeManualRecordingSession}
-					variant="ghost"
-					size="icon"
-					style="view-transition-name: end-session-icon;"
-				>
-					🔴
-					{#snippet tooltipContent()}
-						End recording session
-						<Button
-							variant="link"
-							size="inline"
-							onclick={() => fasterRerecordExplainedDialog.open()}
-						>
-							(What's that?)
-						</Button>
-					{/snippet}
-				</WhisperingButton>
-			{:else if getVadStateQuery.data === 'SESSION+RECORDING' || getVadStateQuery.data === 'SESSION'}
-				<!-- Render nothing -->
 			{:else}
-				<RecordingControls />
+				<div class="flex items-center gap-1.5">
+					<RecordingDeviceSelector />
+					<TransformationSelector />
+				</div>
 			{/if}
 		</div>
 	</div>
