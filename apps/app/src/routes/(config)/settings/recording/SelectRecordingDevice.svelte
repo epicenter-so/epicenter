@@ -50,20 +50,7 @@
 		label="Recording Device"
 		{items}
 		{selected}
-		onSelectedChange={async (selected) => {
-			const { error } = await rpc.recorder.closeRecordingSession.execute({
-				sendStatus: noop,
-			});
-			if (error) {
-				toast.error({
-					title: '❌ Failed to close session',
-					description: 'Your session could not be closed. Please try again.',
-					action: { type: 'more-details', error },
-				});
-				return;
-			}
-			onSelectedChange(selected);
-		}}
+		{onSelectedChange}
 		placeholder="Select a device"
 	/>
 {/if}

@@ -26,36 +26,6 @@ const stopManualRecording = async () => {
 		});
 		return;
 	}
-	// Always close the recording session after stopping
-	toast.loading({
-		id: toastId,
-		title: '⏳ Closing recording session...',
-		description: 'Wrapping things up, just a moment...',
-	});
-
-	const { error: closeRecordingSessionError } =
-		await rpc.recorder.closeRecordingSession.execute({
-			sendStatus: (options) => toast.loading({ id: toastId, ...options }),
-		});
-
-	if (closeRecordingSessionError) {
-		toast.warning({
-			id: toastId,
-			title: '⚠️ Unable to close session after recording',
-			description:
-				'You might need to restart the application to continue recording',
-			action: {
-				type: 'more-details',
-				error: closeRecordingSessionError,
-			},
-		});
-	} else {
-		toast.success({
-			id: toastId,
-			title: '✨ Session Closed Successfully',
-			description: 'Your recording session has been neatly wrapped up',
-		});
-	}
 
 	toast.success({
 		id: toastId,

@@ -38,19 +38,7 @@
 			{#each getMediaDevicesQuery.data as device (device.deviceId)}
 				<Command.Item
 					value={device.label}
-					onSelect={async () => {
-						const { error } = await rpc.recorder.closeRecordingSession.execute({
-							sendStatus: noop,
-						});
-						if (error) {
-							toast.error({
-								title: '❌ Failed to close session',
-								description:
-									'Your session could not be closed. Please try again.',
-								action: { type: 'more-details', error: error },
-							});
-							return;
-						}
+					onSelect={() => {
 						settings.value = {
 							...settings.value,
 							'recording.navigator.selectedAudioInputDeviceId':

@@ -23,9 +23,6 @@ export type RecorderService = {
 			RecordingServiceError
 		>
 	>;
-	closeRecordingSession: (callbacks: {
-		sendStatus: UpdateStatusMessageFn;
-	}) => Promise<Result<void, RecordingServiceError>>;
 	startRecording: (
 		{
 			recordingId,

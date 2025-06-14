@@ -35,25 +35,6 @@ export function createRecorderServiceTauri(): RecorderService {
 			}
 			return Ok(deviceInfos);
 		},
-		closeRecordingSession: async ({ sendStatus: sendUpdateStatus }) => {
-			sendUpdateStatus({
-				title: '🔄 Closing Session',
-				description:
-					'Safely closing your recording session and freeing up resources...',
-			});
-			const { error: closeRecordingSessionError } = await invoke<void>(
-				'close_recording_session',
-			);
-			if (closeRecordingSessionError)
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						'Unable to properly close the recording session. Please try again.',
-					context: {},
-					cause: closeRecordingSessionError,
-				} satisfies RecordingServiceError);
-			return Ok(undefined);
-		},
 		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
 			sendStatus({
 				title: '🎤 Setting Up',
@@ -95,7 +76,7 @@ export function createRecorderServiceTauri(): RecorderService {
 				} satisfies RecordingServiceError);
 			return Ok(undefined);
 		},
-		stopRecording: async () => {
+		stopRecording: async ({ sendStatus }) => {
 			const { data: audioRecording, error: stopRecordingError } = await invoke<{
 				audioData: number[];
 				sampleRate: number;
@@ -117,6 +98,18 @@ export function createRecorderServiceTauri(): RecorderService {
 				audioRecording.sampleRate,
 				audioRecording.channels,
 			);
+			
+			// Close the recording session after stopping
+			sendStatus({
+				title: '🔄 Closing Session',
+				description: 'Cleaning up recording resources...',
+			});
+			const { error: closeError } = await invoke<void>('close_recording_session');
+			if (closeError) {
+				// Log but don't fail the stop operation
+				console.error('Failed to close recording session:', closeError);
+			}
+			
 			return Ok(blob);
 		},
 		cancelRecording: async ({ sendStatus: sendUpdateStatus }) => {
@@ -134,6 +127,18 @@ export function createRecorderServiceTauri(): RecorderService {
 					context: {},
 					cause: cancelRecordingError,
 				} satisfies RecordingServiceError);
+			
+			// Close the recording session after cancelling
+			sendUpdateStatus({
+				title: '🔄 Closing Session',
+				description: 'Cleaning up recording resources...',
+			});
+			const { error: closeError } = await invoke<void>('close_recording_session');
+			if (closeError) {
+				// Log but don't fail the cancel operation
+				console.error('Failed to close recording session:', closeError);
+			}
+			
 			return Ok(undefined);
 		},
 	};

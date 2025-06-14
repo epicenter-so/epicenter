@@ -27,18 +27,7 @@
 		label="Recording Method"
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
-		onSelectedChange={async (selected) => {
-			const { error } = await rpc.recorder.closeRecordingSession.execute({
-				sendStatus: noop,
-			});
-			if (error) {
-				toast.error({
-					title: '❌ Failed to close session',
-					description: 'Your session could not be closed. Please try again.',
-					action: { type: 'more-details', error: error },
-				});
-				return;
-			}
+		onSelectedChange={(selected) => {
 			settings.value = {
 				...settings.value,
 				'recording.method': selected,

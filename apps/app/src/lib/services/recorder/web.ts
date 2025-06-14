@@ -25,6 +25,12 @@ type ActiveRecording = {
 export function createRecorderServiceWebFactory() {
 	let activeRecording: ActiveRecording | null = null;
 
+	const cleanupRecordingStream = (stream: MediaStream) => {
+		for (const track of stream.getTracks()) {
+			track.stop();
+		}
+	};
+
 	return ({
 		setSettingsDeviceId,
 	}: {
@@ -35,22 +41,13 @@ export function createRecorderServiceWebFactory() {
 		},
 		enumerateRecordingDevices,
 
-		closeRecordingSession: async ({ sendStatus }) => {
-			// This method is now just a no-op since we don't maintain sessions
-			// It's kept for API compatibility but will be removed in future refactoring
-			sendStatus({
-				title: '✅ Session Management',
-				description: 'Recording sessions are now managed automatically',
-			});
-			return Ok(undefined);
-		},
-
 		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
 			// Ensure we're not already recording
 			if (activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
-					message: 'A recording is already in progress. Please stop the current recording before starting a new one.',
+					message:
+						'A recording is already in progress. Please stop the current recording before starting a new one.',
 					context: { recordingId, activeRecording },
 					cause: undefined,
 				});
@@ -83,9 +80,7 @@ export function createRecorderServiceWebFactory() {
 			});
 			if (recorderError) {
 				// Clean up stream if recorder creation fails
-				for (const track of stream.getTracks()) {
-					track.stop();
-				}
+				cleanupRecordingStream(stream);
 				return Err(recorderError);
 			}
 
@@ -156,9 +151,7 @@ export function createRecorderServiceWebFactory() {
 			});
 
 			// Always clean up the stream
-			for (const track of recording.stream.getTracks()) {
-				track.stop();
-			}
+			cleanupRecordingStream(recording.stream);
 
 			if (stopError) return Err(stopError);
 
@@ -192,9 +185,7 @@ export function createRecorderServiceWebFactory() {
 			recording.mediaRecorder.stop();
 
 			// Clean up the stream
-			for (const track of recording.stream.getTracks()) {
-				track.stop();
-			}
+			cleanupRecordingStream(recording.stream);
 
 			sendStatus({
 				title: '✨ Cancelled',
