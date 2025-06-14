@@ -1,7 +1,5 @@
 import { services } from '$lib/services';
-import type {
-	RecordingSessionSettings
-} from '$lib/services/recorder/_types';
+import type { RecordingSessionSettings } from '$lib/services/recorder/_types';
 import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { nanoid } from 'nanoid/non-secure';
@@ -31,7 +29,6 @@ export const recorder = {
 		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
-
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: ({
@@ -42,7 +39,7 @@ export const recorder = {
 			settings: RecordingSessionSettings;
 		}) =>
 			services.recorder.startRecording(
-				{ recordingId: nanoid(), settings },
+				{ settings },
 				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
 			),
 		onSettled: invalidateRecorderState,

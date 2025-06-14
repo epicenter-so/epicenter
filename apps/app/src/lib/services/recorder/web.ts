@@ -19,7 +19,6 @@ type ActiveRecording = {
 	stream: MediaStream;
 	mediaRecorder: MediaRecorder;
 	recordedChunks: Blob[];
-	recordingId: string;
 };
 
 export function createRecorderServiceWebFactory() {
@@ -41,14 +40,14 @@ export function createRecorderServiceWebFactory() {
 		},
 		enumerateRecordingDevices,
 
-		startRecording: async ({ recordingId, settings }, { sendStatus }) => {
+		startRecording: async ({ settings }, { sendStatus }) => {
 			// Ensure we're not already recording
 			if (activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
 						'A recording is already in progress. Please stop the current recording before starting a new one.',
-					context: { recordingId, activeRecording },
+					context: { activeRecording },
 					cause: undefined,
 				});
 			}
@@ -74,7 +73,7 @@ export function createRecorderServiceWebFactory() {
 					name: 'RecordingServiceError',
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: { recordingId, settings },
+					context: { settings },
 					cause: error,
 				}),
 			});
@@ -91,7 +90,6 @@ export function createRecorderServiceWebFactory() {
 				stream,
 				mediaRecorder,
 				recordedChunks,
-				recordingId,
 			};
 
 			// Set up event handlers
@@ -141,7 +139,6 @@ export function createRecorderServiceWebFactory() {
 					message:
 						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
 					context: {
-						recordingId: recording.recordingId,
 						chunksCount: recording.recordedChunks.length,
 						mimeType: recording.mediaRecorder.mimeType,
 						state: recording.mediaRecorder.state,

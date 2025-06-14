@@ -24,10 +24,7 @@ export type RecorderService = {
 		>
 	>;
 	startRecording: (
-		{
-			recordingId,
-			settings,
-		}: { recordingId: string; settings: RecordingSessionSettings },
+		{ settings }: { settings: RecordingSessionSettings },
 		callbacks: { sendStatus: UpdateStatusMessageFn },
 	) => Promise<Result<void, RecordingServiceError>>;
 	stopRecording: (callbacks: {
