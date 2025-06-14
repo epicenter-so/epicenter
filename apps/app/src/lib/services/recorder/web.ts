@@ -4,8 +4,8 @@ import type {
 	RecorderService,
 	RecordingServiceError,
 	RecordingSessionSettings,
+	RecordingDeviceResult,
 } from './_types';
-import { toast } from '$lib/toast';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
@@ -21,7 +21,7 @@ type ActiveRecording = {
 	recordedChunks: Blob[];
 };
 
-export function createRecorderServiceWebFactory() {
+export function createRecorderServiceWeb() {
 	let activeRecording: ActiveRecording | null = null;
 
 	const cleanupRecordingStream = (stream: MediaStream) => {
@@ -30,11 +30,7 @@ export function createRecorderServiceWebFactory() {
 		}
 	};
 
-	return ({
-		setSettingsDeviceId,
-	}: {
-		setSettingsDeviceId: (deviceId: string) => void;
-	}): RecorderService => ({
+	return {
 		getRecorderState: () => {
 			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
@@ -58,9 +54,11 @@ export function createRecorderServiceWebFactory() {
 			});
 
 			// Get the recording stream
-			const { data: stream, error: acquireStreamError } =
-				await getRecordingStream(settings, setSettingsDeviceId, sendStatus);
+			const { data: streamResult, error: acquireStreamError } =
+				await getRecordingStream(settings, sendStatus);
 			if (acquireStreamError) return Err(acquireStreamError);
+
+			const { stream, deviceResult } = streamResult;
 
 			// Create the MediaRecorder
 			const { data: mediaRecorder, error: recorderError } = await tryAsync({
@@ -100,7 +98,9 @@ export function createRecorderServiceWebFactory() {
 
 			// Start recording
 			mediaRecorder.start(TIMESLICE_MS);
-			return Ok(undefined);
+
+			// Return the device result
+			return Ok(deviceResult);
 		},
 
 		stopRecording: async ({ sendStatus }) => {
@@ -191,14 +191,18 @@ export function createRecorderServiceWebFactory() {
 
 			return Ok(undefined);
 		},
-	});
+	} satisfies RecorderService;
 }
 
 async function getRecordingStream(
 	settings: RecordingSessionSettings,
-	setSettingsDeviceId: (deviceId: string) => void,
 	sendStatus: (args: { title: string; description: string }) => void,
-): Promise<Result<MediaStream, RecordingServiceError>> {
+): Promise<
+	Result<
+		{ stream: MediaStream; deviceResult: RecordingDeviceResult },
+		RecordingServiceError
+	>
+> {
 	const hasPreferredDevice = !!settings.selectedAudioInputDeviceId;
 
 	// Try to use the preferred device if specified
@@ -211,15 +215,17 @@ async function getRecordingStream(
 		const { data: preferredStream, error: getPreferredStreamError } =
 			await getStreamForDeviceId(settings.selectedAudioInputDeviceId);
 		if (!getPreferredStreamError) {
-			return Ok(preferredStream);
+			return Ok({
+				stream: preferredStream,
+				deviceResult: { outcome: 'success' },
+			});
 		}
 	}
 
-	// Need to fall back to any available device
-	const needsFallbackStream = !hasPreferredDevice;
+	const noDeviceSelected = !hasPreferredDevice;
 	const preferredDeviceFailed = hasPreferredDevice;
 
-	if (needsFallbackStream) {
+	if (noDeviceSelected) {
 		sendStatus({
 			title: '🔍 No Device Selected',
 			description:
@@ -237,7 +243,7 @@ async function getRecordingStream(
 	const { data: fallbackStreamData, error: getFallbackStreamError } =
 		await getFirstAvailableStream();
 	if (getFallbackStreamError) {
-		const errorMessage = needsFallbackStream
+		const errorMessage = noDeviceSelected
 			? "Hmm... We couldn't find any microphones to use. Check your connections and try again!"
 			: "We couldn't connect to any microphones. Make sure they're plugged in and try again!";
 		return Err({
@@ -251,34 +257,26 @@ async function getRecordingStream(
 	const { stream: fallbackStream, deviceId: fallbackDeviceId } =
 		fallbackStreamData;
 
-	// Update settings with the fallback device
-	if (needsFallbackStream) {
-		setSettingsDeviceId(fallbackDeviceId);
-		toast.info({
-			title: '🎙️ Switched to different microphone',
-			description:
-				'You had no microphone selected, so we automatically connected to an available one. You can update your microphone selection in settings.',
-			action: {
-				type: 'link',
-				label: 'Open Settings',
-				goto: '/settings/recording',
-			},
-		});
-	} else if (preferredDeviceFailed) {
-		setSettingsDeviceId(fallbackDeviceId);
-		toast.info({
-			title: '🎙️ Switched to different microphone',
-			description:
-				"Your previously selected microphone wasn't found, so we automatically connected to an available one. You can update your microphone selection in settings.",
-			action: {
-				type: 'link',
-				label: 'Open Settings',
-				goto: '/settings/recording',
+	// Return the stream with appropriate device result
+	if (noDeviceSelected) {
+		return Ok({
+			stream: fallbackStream,
+			deviceResult: {
+				outcome: 'fallback',
+				reason: 'no-device-selected',
+				fallbackDeviceId,
 			},
 		});
 	}
-
-	return Ok(fallbackStream);
+	return Ok({
+		stream: fallbackStream,
+		deviceResult: {
+			outcome: 'fallback',
+			reason: 'preferred-device-unavailable',
+			fallbackDeviceId,
+			originalDeviceId: settings.selectedAudioInputDeviceId,
+		},
+	});
 }
 
 async function hasExistingAudioPermission(): Promise<boolean> {

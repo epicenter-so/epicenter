@@ -72,7 +72,8 @@ export function createRecorderServiceTauri(): RecorderService {
 					context: {},
 					cause: startRecordingError,
 				} satisfies RecordingServiceError);
-			return Ok(undefined);
+			// Tauri always uses the device specified by the user
+			return Ok({ outcome: 'success' });
 		},
 		stopRecording: async ({ sendStatus }) => {
 			const { data: audioRecording, error: stopRecordingError } = await invoke<{

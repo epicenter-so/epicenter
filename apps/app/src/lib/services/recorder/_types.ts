@@ -13,6 +13,15 @@ export type RecordingSessionSettings = {
 
 export type RecordingServiceError = TaggedError<'RecordingServiceError'>;
 
+export type RecordingDeviceResult =
+	| { outcome: 'success' }
+	| {
+			outcome: 'fallback';
+			reason: 'no-device-selected' | 'preferred-device-unavailable';
+			fallbackDeviceId: string;
+			originalDeviceId?: string | null;
+	  };
+
 export type RecorderService = {
 	getRecorderState: () => MaybePromise<
 		Result<WhisperingRecordingState, RecordingServiceError>
@@ -26,7 +35,7 @@ export type RecorderService = {
 	startRecording: (
 		{ settings }: { settings: RecordingSessionSettings },
 		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<Result<void, RecordingServiceError>>;
+	) => Promise<Result<RecordingDeviceResult, RecordingServiceError>>;
 	stopRecording: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
 	}) => Promise<Result<Blob, RecordingServiceError>>;

@@ -50,7 +50,7 @@ const startManualRecording = async () => {
 		title: '🎙️ Preparing to record...',
 		description: 'Setting up your recording environment...',
 	});
-	const { error: startRecordingError } =
+	const { data: recordingDeviceResult, error: startRecordingError } =
 		await rpc.recorder.startRecording.execute({
 			toastId,
 			settings: {
@@ -59,6 +59,7 @@ const startManualRecording = async () => {
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 			},
 		});
+
 	if (startRecordingError) {
 		toast.error({
 			id: toastId,
@@ -68,11 +69,51 @@ const startManualRecording = async () => {
 		});
 		return;
 	}
-	toast.success({
-		id: toastId,
-		title: '🎙️ Whispering is recording...',
-		description: 'Speak now and stop recording when done',
-	});
+
+	switch (recordingDeviceResult.outcome) {
+		case 'success': {
+			toast.success({
+				id: toastId,
+				title: '🎙️ Whispering is recording...',
+				description: 'Speak now and stop recording when done',
+			});
+			break;
+		}
+		case 'fallback': {
+			settings.value['recording.navigator.selectedAudioInputDeviceId'] =
+				recordingDeviceResult.fallbackDeviceId;
+			switch (recordingDeviceResult.reason) {
+				case 'no-device-selected': {
+					toast.info({
+						id: toastId,
+						title: '🎙️ Switched to available microphone',
+						description:
+							'No microphone was selected, so we automatically connected to an available one. You can update your selection in settings.',
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+				case 'preferred-device-unavailable': {
+					toast.info({
+						id: toastId,
+						title: '🎙️ Switched to different microphone',
+						description:
+							"Your previously selected microphone wasn't found, so we automatically connected to an available one.",
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+			}
+		}
+	}
 	console.info('Recording started');
 	services.sound.playSoundIfEnabled('manual-start');
 };

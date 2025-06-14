@@ -50,7 +50,7 @@ export const settingsV6Schema = z.object({
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// Tauri-specific recording settings
-	'recording.tauri.selectedAudioInputName': z.string().nullable(),
+	'recording.tauri.selectedAudioInputDeviceId': z.string().nullable(),
 
 	// Shared transcription settings
 	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
@@ -98,12 +98,17 @@ export type SettingsV6 = z.infer<typeof settingsV6Schema>;
 
 export const migrateV5ToV6 = (settings: SettingsV5): SettingsV6 => {
 	// Remove the deprecated settings
-	const { 
+	const {
 		'recording.isFasterRerecordEnabled': _removed1,
 		'shortcuts.local.closeManualRecordingSession': _removed2,
 		'shortcuts.global.closeManualRecordingSession': _removed3,
-		...restSettings 
+		'recording.tauri.selectedAudioInputName': tauriSelectedAudioInputDeviceId,
+		...restSettings
 	} = settings;
-	
-	return settingsV6Schema.parse(restSettings);
+
+	return settingsV6Schema.parse({
+		...restSettings,
+		'recording.tauri.selectedAudioInputDeviceId':
+			tauriSelectedAudioInputDeviceId,
+	});
 };
