@@ -9,7 +9,7 @@
 	import { cn } from '$lib/utils';
 	import { createQuery, noop } from '@tanstack/svelte-query';
 	import { CheckIcon, RefreshCwIcon } from 'lucide-svelte';
-	import { combobox } from './index';
+	import { combobox } from './_combobox';
 
 	const getMediaDevicesQuery = createQuery(
 		rpc.recorder.getMediaDevices.options,

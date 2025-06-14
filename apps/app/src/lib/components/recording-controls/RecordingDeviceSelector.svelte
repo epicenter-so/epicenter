@@ -4,7 +4,7 @@
 	import { MicIcon } from 'lucide-svelte';
 	import WhisperingButton from '../WhisperingButton.svelte';
 	import RecordingDeviceSelectorCommand from './RecordingDeviceSelectorCommand.svelte';
-	import { combobox } from './index';
+	import { combobox } from './_combobox';
 
 	let { class: className }: { class?: string } = $props();
 

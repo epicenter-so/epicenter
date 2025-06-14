@@ -4,7 +4,6 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
-	import { RecordingControls } from '$lib/components/recording-controls';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
@@ -16,6 +15,8 @@
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
+	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -142,7 +143,10 @@
 					🚫
 				</WhisperingButton>
 			{:else}
-				<RecordingControls />
+				<div class="flex items-center gap-1.5">
+					<RecordingDeviceSelector />
+					<TransformationSelector />
+				</div>
 			{/if}
 		</div>
 	</div>
