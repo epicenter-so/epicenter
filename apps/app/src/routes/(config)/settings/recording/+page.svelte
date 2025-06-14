@@ -86,12 +86,13 @@
 			</div>
 
 			<SelectRecordingDevice
-				selected={settings.value['recording.tauri.selectedAudioInputName'] ??
-					''}
+				selected={settings.value[
+					'recording.tauri.selectedAudioInputDeviceId'
+				] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.tauri.selectedAudioInputName': selected,
+						'recording.tauri.selectedAudioInputDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>
