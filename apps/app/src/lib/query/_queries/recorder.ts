@@ -2,7 +2,6 @@ import { services } from '$lib/services';
 import type { RecordingSessionSettings } from '$lib/services/recorder/_types';
 import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '@repo/shared';
-import { nanoid } from 'nanoid/non-secure';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
