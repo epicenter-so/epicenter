@@ -4,7 +4,7 @@ import type {
 	RecorderService,
 	RecordingServiceError,
 	RecordingSessionSettings,
-	RecordingDeviceResult,
+	DeviceAcquisitionOutcome,
 } from './_types';
 
 const TIMESLICE_MS = 1000;
@@ -58,7 +58,7 @@ export function createRecorderServiceWeb() {
 				await getRecordingStream(settings, sendStatus);
 			if (acquireStreamError) return Err(acquireStreamError);
 
-			const { stream, deviceResult } = streamResult;
+			const { stream, deviceOutcome } = streamResult;
 
 			// Create the MediaRecorder
 			const { data: mediaRecorder, error: recorderError } = await tryAsync({
@@ -99,8 +99,8 @@ export function createRecorderServiceWeb() {
 			// Start recording
 			mediaRecorder.start(TIMESLICE_MS);
 
-			// Return the device result
-			return Ok(deviceResult);
+			// Return the device acquisition outcome
+			return Ok(deviceOutcome);
 		},
 
 		stopRecording: async ({ sendStatus }) => {
@@ -199,7 +199,7 @@ async function getRecordingStream(
 	sendStatus: (args: { title: string; description: string }) => void,
 ): Promise<
 	Result<
-		{ stream: MediaStream; deviceResult: RecordingDeviceResult },
+		{ stream: MediaStream; deviceOutcome: DeviceAcquisitionOutcome },
 		RecordingServiceError
 	>
 > {
@@ -217,7 +217,7 @@ async function getRecordingStream(
 		if (!getPreferredStreamError) {
 			return Ok({
 				stream: preferredStream,
-				deviceResult: { outcome: 'success' },
+				deviceOutcome: { outcome: 'success' },
 			});
 		}
 	}
@@ -257,11 +257,11 @@ async function getRecordingStream(
 	const { stream: fallbackStream, deviceId: fallbackDeviceId } =
 		fallbackStreamData;
 
-	// Return the stream with appropriate device result
+	// Return the stream with appropriate device outcome
 	if (noDeviceSelected) {
 		return Ok({
 			stream: fallbackStream,
-			deviceResult: {
+			deviceOutcome: {
 				outcome: 'fallback',
 				reason: 'no-device-selected',
 				fallbackDeviceId,
@@ -270,11 +270,10 @@ async function getRecordingStream(
 	}
 	return Ok({
 		stream: fallbackStream,
-		deviceResult: {
+		deviceOutcome: {
 			outcome: 'fallback',
 			reason: 'preferred-device-unavailable',
 			fallbackDeviceId,
-			originalDeviceId: settings.selectedAudioInputDeviceId,
 		},
 	});
 }
