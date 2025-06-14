@@ -51,10 +51,7 @@ export const ALWAYS_ON_TOP_OPTIONS = ALWAYS_ON_TOP_VALUES.map((option) => ({
 	value: option,
 }));
 
-export const recordingStateSchema = z.enum([
-	'IDLE',
-	'RECORDING',
-]);
+export const recordingStateSchema = z.enum(['IDLE', 'RECORDING']);
 
 export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
 
@@ -63,16 +60,12 @@ export const recorderStateToIcons = {
 	RECORDING: '⏹️',
 } as const satisfies Record<WhisperingRecordingState, string>;
 
-export const vadStateSchema = z.enum([
-	'IDLE',
-	'LISTENING',
-	'SPEECH_DETECTED',
-]);
+export const vadStateSchema = z.enum(['IDLE', 'LISTENING', 'SPEECH_DETECTED']);
 
 export type VadState = z.infer<typeof vadStateSchema>;
 
 export const vadStateToIcons = {
-	IDLE: '🔇',
+	IDLE: '🎬',
 	LISTENING: '👂',
 	SPEECH_DETECTED: '🗣️',
 } as const satisfies Record<VadState, string>;

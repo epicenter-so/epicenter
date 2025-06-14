@@ -1,21 +1,21 @@
 <script lang="ts">
+	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import { RecordingControls } from '$lib/components/recording-controls';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { commandCallbacks } from '$lib/commands';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -99,9 +99,9 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={getRecorderStateQuery.data === 'RECORDING'
-					? 'Stop recording'
-					: 'Start recording'}
+				tooltipContent={getRecorderStateQuery.data === 'IDLE'
+					? 'Start recording'
+					: 'Stop recording'}
 				onclick={commandCallbacks.toggleManualRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
@@ -110,19 +110,14 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getRecorderStateQuery.data === 'RECORDING'}
-						⏹️
-					{:else}
-						🎙️
-					{/if}
+					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={getVadStateQuery.data === 'LISTENING' ||
-				getVadStateQuery.data === 'SPEECH_DETECTED'
-					? 'Stop voice activated session'
-					: 'Start voice activated session'}
+				tooltipContent={getVadStateQuery.data === 'IDLE'
+					? 'Start voice activated session'
+					: 'Stop voice activated session'}
 				onclick={commandCallbacks.toggleVadRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
@@ -131,13 +126,7 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if getVadStateQuery.data === 'SPEECH_DETECTED'}
-						🗣️
-					{:else if getVadStateQuery.data === 'LISTENING'}
-						👂
-					{:else}
-						🔇
-					{/if}
+					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{/if}
@@ -152,8 +141,6 @@
 				>
 					🚫
 				</WhisperingButton>
-			{:else if getVadStateQuery.data === 'LISTENING' || getVadStateQuery.data === 'SPEECH_DETECTED'}
-				<!-- Render nothing -->
 			{:else}
 				<RecordingControls />
 			{/if}
