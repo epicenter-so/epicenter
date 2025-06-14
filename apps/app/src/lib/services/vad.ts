@@ -1,5 +1,5 @@
 import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
-import { WhisperingError, type VadState } from '@repo/shared';
+import { type VadState, WhisperingError } from '@repo/shared';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 
 export function createVadServiceWeb() {

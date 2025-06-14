@@ -192,7 +192,7 @@ export const commands = [
 					description: 'Finalizing your voice activated capture...',
 				});
 				const { error: stopVadError } =
-					await rpc.vadRecorder.stopVad.execute(undefined);
+					await rpc.vadRecorder.stopActiveListening.execute(undefined);
 				if (stopVadError) {
 					toast.error({ id: toastId, ...stopVadError });
 					return;
