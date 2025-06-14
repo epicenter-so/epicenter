@@ -54,8 +54,8 @@ const startManualRecording = async () => {
 		await rpc.recorder.startRecording.execute({
 			toastId,
 			settings: {
-				selectedAudioInputDeviceId:
-					settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				selectedDeviceId:
+					settings.value['recording.navigator.selectedDeviceId'],
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 			},
 		});
@@ -80,8 +80,11 @@ const startManualRecording = async () => {
 			break;
 		}
 		case 'fallback': {
-			settings.value['recording.navigator.selectedAudioInputDeviceId'] =
-				deviceAcquisitionOutcome.fallbackDeviceId;
+			settings.value = {
+				...settings.value,
+				'recording.navigator.selectedDeviceId':
+					deviceAcquisitionOutcome.fallbackDeviceId,
+			};
 			switch (deviceAcquisitionOutcome.reason) {
 				case 'no-device-selected': {
 					toast.info({

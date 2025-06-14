@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { rpc } from '$lib/query';
-	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
-	import { noop } from '@tanstack/svelte-query';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 </script>
 
@@ -47,13 +44,11 @@
 			</div>
 
 			<SelectRecordingDevice
-				selected={settings.value[
-					'recording.navigator.selectedAudioInputDeviceId'
-				] ?? ''}
+				selected={settings.value['recording.navigator.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.navigator.selectedAudioInputDeviceId': selected,
+						'recording.navigator.selectedDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>
@@ -86,13 +81,11 @@
 			</div>
 
 			<SelectRecordingDevice
-				selected={settings.value[
-					'recording.tauri.selectedAudioInputDeviceId'
-				] ?? ''}
+				selected={settings.value['recording.tauri.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.tauri.selectedAudioInputDeviceId': selected,
+						'recording.tauri.selectedDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>

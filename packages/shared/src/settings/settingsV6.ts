@@ -43,14 +43,14 @@ export const settingsV6Schema = z.object({
 	'recording.method': z.enum(RECORDING_METHODS).default('navigator'),
 
 	// Navigator-specific recording settings
-	'recording.navigator.selectedAudioInputDeviceId': z.string().nullable(),
+	'recording.navigator.selectedDeviceId': z.string().nullable(),
 	'recording.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// Tauri-specific recording settings
-	'recording.tauri.selectedAudioInputDeviceId': z.string().nullable(),
+	'recording.tauri.selectedDeviceId': z.string().nullable(),
 
 	// Shared transcription settings
 	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
@@ -100,15 +100,14 @@ export const migrateV5ToV6 = (settings: SettingsV5): SettingsV6 => {
 	// Remove the deprecated settings
 	const {
 		'recording.isFasterRerecordEnabled': _removed1,
-		'shortcuts.local.closeManualRecordingSession': _removed2,
-		'shortcuts.global.closeManualRecordingSession': _removed3,
-		'recording.tauri.selectedAudioInputName': tauriSelectedAudioInputDeviceId,
+		'recording.tauri.selectedAudioInputName': tauriSelectedDeviceId,
+		'recording.navigator.selectedAudioInputDeviceId': navigatorSelectedDeviceId,
 		...restSettings
 	} = settings;
 
-	return settingsV6Schema.parse({
+	return {
 		...restSettings,
-		'recording.tauri.selectedAudioInputDeviceId':
-			tauriSelectedAudioInputDeviceId,
-	});
+		'recording.tauri.selectedDeviceId': tauriSelectedDeviceId,
+		'recording.navigator.selectedDeviceId': navigatorSelectedDeviceId,
+	};
 };

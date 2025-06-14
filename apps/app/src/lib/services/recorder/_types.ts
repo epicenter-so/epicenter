@@ -7,7 +7,7 @@ export type UpdateStatusMessageFn = (args: {
 }) => void;
 
 export type RecordingSessionSettings = {
-	selectedAudioInputDeviceId: string | null;
+	selectedDeviceId: string | null;
 	bitrateKbps: string;
 };
 

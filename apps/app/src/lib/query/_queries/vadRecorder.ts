@@ -34,8 +34,7 @@ export const vadRecorder = {
 		}) => {
 			const result = await services.vad.startActiveListening({
 				// TODO: This always uses the navigator device ID, but the SelectRecordingDevice component changes its displayed value when the user selects a Tauri device. This will mislead users into thinking that the selected Tauri device is used.
-				deviceId:
-					settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				deviceId: settings.value['recording.navigator.selectedDeviceId'],
 				onSpeechStart: () => {
 					invalidateVadState();
 					onSpeechStart();

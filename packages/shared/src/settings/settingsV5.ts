@@ -74,7 +74,6 @@ export const settingsV5Schema = z.object({
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable(),
 		'shortcuts.local.cancelManualRecording': z.string().nullable(),
-		'shortcuts.local.closeManualRecordingSession': z.string().nullable(),
 		'shortcuts.local.toggleVadRecording': z.string().nullable(),
 		'shortcuts.local.pushToTalk': z.string().nullable(),
 	} satisfies Record<
@@ -85,7 +84,6 @@ export const settingsV5Schema = z.object({
 	...({
 		'shortcuts.global.toggleManualRecording': z.string().nullable(),
 		'shortcuts.global.cancelManualRecording': z.string().nullable(),
-		'shortcuts.global.closeManualRecordingSession': z.string().nullable(),
 		'shortcuts.global.toggleVadRecording': z.string().nullable(),
 		'shortcuts.global.pushToTalk': z.string().nullable(),
 	} satisfies Record<
@@ -97,7 +95,7 @@ export const settingsV5Schema = z.object({
 export type SettingsV5 = z.infer<typeof settingsV5Schema>;
 
 export const migrateV4ToV5 = (settings: SettingsV4) =>
-	settingsV5Schema.parse({
+	({
 		...settings,
 		'recording.method': 'navigator',
 		'recording.navigator.selectedAudioInputDeviceId':
@@ -106,4 +104,4 @@ export const migrateV4ToV5 = (settings: SettingsV4) =>
 		'recording.tauri.selectedAudioInputName': null,
 
 		'apiKeys.elevenlabs': '',
-	} satisfies SettingsV5);
+	}) satisfies SettingsV5;
