@@ -131,7 +131,7 @@
 				</span>
 			</WhisperingButton>
 		{/if}
-		<div class="flex-1 flex-justify-center mb-2">
+		<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 			{#if getRecorderStateQuery.data === 'RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
@@ -143,10 +143,8 @@
 					🚫
 				</WhisperingButton>
 			{:else}
-				<div class="flex items-center gap-1.5">
-					<RecordingDeviceSelector />
-					<TransformationSelector />
-				</div>
+				<RecordingDeviceSelector />
+				<TransformationSelector />
 			{/if}
 		</div>
 	</div>

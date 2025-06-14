@@ -6,6 +6,7 @@
 	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
 	import { rpc } from '$lib/query';
 	import { cn } from '$lib/utils.js';
+	import { recorderStateToIcons } from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(
@@ -32,8 +33,20 @@
 			<span class="text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
-	<RecordingDeviceSelector />
-	<TransformationSelector />
+	{#if getRecorderStateQuery.data === 'RECORDING'}
+		<WhisperingButton
+			tooltipContent="Cancel recording"
+			onclick={commandCallbacks.cancelManualRecording}
+			variant="ghost"
+			size="icon"
+			style="view-transition-name: cancel-icon;"
+		>
+			🚫
+		</WhisperingButton>
+	{:else}
+		<RecordingDeviceSelector />
+		<TransformationSelector />
+	{/if}
 	<WhisperingButton
 		tooltipContent="Toggle recording"
 		onclick={commandCallbacks.toggleManualRecording}
@@ -41,11 +54,7 @@
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if getRecorderStateQuery.data === 'RECORDING'}
-			⏹️
-		{:else}
-			🎙️
-		{/if}
+		{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 	</WhisperingButton>
 	<NavItems class="-mr-4" />
 </header>
