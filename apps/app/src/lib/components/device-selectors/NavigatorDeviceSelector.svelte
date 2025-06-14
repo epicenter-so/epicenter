@@ -2,12 +2,9 @@
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
 	import { rpc } from '$lib/query';
-	import {
-		getSelectedDeviceId,
-		setSelectedDeviceId,
-	} from '$lib/services/_deviceSelection';
 	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from 'lucide-svelte';
 	import WhisperingButton from '../WhisperingButton.svelte';
@@ -17,7 +14,8 @@
 
 	let { class: className }: { class?: string } = $props();
 
-	const isDeviceSelected = $derived(!!getSelectedDeviceId());
+	const selectedDeviceId = $derived(settings.value['recording.navigator.selectedDeviceId']);
+	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getMediaDevicesQuery = createQuery(() => ({
 		...rpc.recorder.getMediaDevices.options(),
@@ -32,6 +30,13 @@
 			});
 		}
 	});
+
+	function updateSelectedDevice(deviceId: string | null) {
+		settings.value = {
+			...settings.value,
+			'recording.navigator.selectedDeviceId': deviceId,
+		};
+	}
 </script>
 
 <Popover.Root bind:open={combobox.open}>
@@ -74,8 +79,8 @@
 						<Command.Item
 							value={device.label}
 							onSelect={() => {
-								const currentDeviceId = getSelectedDeviceId();
-								setSelectedDeviceId(
+								const currentDeviceId = selectedDeviceId;
+								updateSelectedDevice(
 									currentDeviceId === device.deviceId ? null : device.deviceId,
 								);
 								combobox.closeAndFocusTrigger();
@@ -85,7 +90,7 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									getSelectedDeviceId() !== device.deviceId &&
+									selectedDeviceId !== device.deviceId &&
 										'text-transparent',
 								)}
 							/>

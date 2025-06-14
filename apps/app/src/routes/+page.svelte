@@ -15,7 +15,8 @@
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
+	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
+	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
 	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
@@ -143,7 +144,11 @@
 					🚫
 				</WhisperingButton>
 			{:else}
-				<RecordingDeviceSelector />
+				{#if settings.value['recording.method'] === 'navigator'}
+					<NavigatorDeviceSelector />
+				{:else}
+					<TauriDeviceSelector />
+				{/if}
 				<TransformationSelector />
 			{/if}
 		</div>

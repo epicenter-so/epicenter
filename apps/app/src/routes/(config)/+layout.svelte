@@ -3,7 +3,9 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import RecordingDeviceSelector from '$lib/components/recording-controls/RecordingDeviceSelector.svelte';
+	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
+	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { rpc } from '$lib/query';
 	import { cn } from '$lib/utils.js';
 	import { recorderStateToIcons } from '@repo/shared';
@@ -44,7 +46,11 @@
 			🚫
 		</WhisperingButton>
 	{:else}
-		<RecordingDeviceSelector />
+		{#if settings.value['recording.method'] === 'navigator'}
+			<NavigatorDeviceSelector />
+		{:else}
+			<TauriDeviceSelector />
+		{/if}
 		<TransformationSelector />
 	{/if}
 	<WhisperingButton
