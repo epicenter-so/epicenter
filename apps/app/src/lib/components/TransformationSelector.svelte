@@ -3,10 +3,11 @@
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
 	import { rpc } from '$lib/query';
-	import { createQuery } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
+	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		CheckIcon,
 		FilterIcon,
@@ -25,16 +26,15 @@
 
 	let {
 		class: className,
-		selectedTransformationId,
-		onSelect,
 	}: {
 		class?: string;
-		selectedTransformationId: string | null;
-		onSelect: (transformation: Transformation) => void;
 	} = $props();
 
 	const selectedTransformation = $derived(
-		transformations.find((t) => t.id === selectedTransformationId),
+		transformations.find(
+			(t) =>
+				t.id === settings.value['transformations.selectedTransformationId'],
+		),
 	);
 
 	const combobox = useCombobox();
@@ -88,11 +88,19 @@
 			<Command.Group class="overflow-y-auto max-h-[400px]">
 				{#each transformations as transformation (transformation.id)}
 					{@const isSelectedTransformation =
-						selectedTransformationId === transformation.id}
+						settings.value['transformations.selectedTransformationId'] ===
+						transformation.id}
 					<Command.Item
 						value="${transformation.id} - ${transformation.title} - ${transformation.description}"
 						onSelect={() => {
-							onSelect(transformation);
+							settings.value = {
+								...settings.value,
+								'transformations.selectedTransformationId':
+									settings.value['transformations.selectedTransformationId'] ===
+									transformation.id
+										? null
+										: transformation.id,
+							};
 							combobox.closeAndFocusTrigger();
 						}}
 						class="flex items-center gap-2 p-2"

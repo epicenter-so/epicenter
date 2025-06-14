@@ -6,9 +6,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { LayersIcon } from 'lucide-svelte';
-	import WhisperingButton from './WhisperingButton.svelte';
-	import { Badge } from './ui/badge';
-	import { useCombobox } from './useCombobox.svelte';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { Badge } from '$lib/components/ui/badge';
+	import { useCombobox } from '$lib/components/useCombobox.svelte';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,

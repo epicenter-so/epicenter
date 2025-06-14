@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import SelectTransformationCombobox from '$lib/components/SelectTransformationCombobox.svelte';
+	import TransformationPicker from './TransformationPicker.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import WhisperingTooltip from '$lib/components/WhisperingTooltip.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
@@ -147,7 +147,7 @@
 			{/if}
 		</WhisperingButton>
 
-		<SelectTransformationCombobox
+		<TransformationPicker
 			onSelect={(transformation) => {
 				const toastId = nanoid();
 				toast.loading({
