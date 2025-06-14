@@ -70,7 +70,7 @@ export const settingsV3Schema = z.object({
 export type SettingsV3 = z.infer<typeof settingsV3Schema>;
 
 export const migrateV2ToV3 = (settings: SettingsV2) =>
-	settingsV3Schema.parse({
+	({
 		...settings,
 		'sound.playOn.manual-start': true,
 		'sound.playOn.manual-stop': true,
@@ -78,4 +78,4 @@ export const migrateV2ToV3 = (settings: SettingsV2) =>
 		'sound.playOn.vad-start': true,
 		'sound.playOn.vad-capture': true,
 		'sound.playOn.vad-stop': true,
-	} satisfies SettingsV3);
+	}) satisfies SettingsV3;

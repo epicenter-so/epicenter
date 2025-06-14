@@ -3,6 +3,10 @@ import {
 	deliverTransformedText,
 } from './deliverTextToUser';
 import { rpc } from '$lib/query';
+import {
+	getSelectedDeviceId,
+	setSelectedDeviceId,
+} from '$lib/services/_deviceSelection';
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
 import { nanoid } from 'nanoid/non-secure';
@@ -54,8 +58,7 @@ const startManualRecording = async () => {
 		await rpc.recorder.startRecording.execute({
 			toastId,
 			settings: {
-				selectedAudioInputDeviceId:
-					settings.value['recording.navigator.selectedAudioInputDeviceId'],
+				selectedDeviceId: getSelectedDeviceId(),
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 			},
 		});
@@ -80,8 +83,7 @@ const startManualRecording = async () => {
 			break;
 		}
 		case 'fallback': {
-			settings.value['recording.navigator.selectedAudioInputDeviceId'] =
-				deviceAcquisitionOutcome.fallbackDeviceId;
+			setSelectedDeviceId(deviceAcquisitionOutcome.fallbackDeviceId);
 			switch (deviceAcquisitionOutcome.reason) {
 				case 'no-device-selected': {
 					toast.info({

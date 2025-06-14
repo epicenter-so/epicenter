@@ -203,17 +203,17 @@ async function getRecordingStream(
 		RecordingServiceError
 	>
 > {
-	const hasPreferredDevice = !!settings.selectedAudioInputDeviceId;
+	const hasPreferredDevice = !!settings.selectedDeviceId;
 
 	// Try to use the preferred device if specified
-	if (hasPreferredDevice && settings.selectedAudioInputDeviceId) {
+	if (hasPreferredDevice && settings.selectedDeviceId) {
 		sendStatus({
 			title: '🎯 Connecting Device',
 			description:
 				'Almost there! Just need your permission to use the microphone...',
 		});
 		const { data: preferredStream, error: getPreferredStreamError } =
-			await getStreamForDeviceId(settings.selectedAudioInputDeviceId);
+			await getStreamForDeviceId(settings.selectedDeviceId);
 		if (!getPreferredStreamError) {
 			return Ok({
 				stream: preferredStream,

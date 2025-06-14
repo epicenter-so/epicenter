@@ -43,7 +43,7 @@ export function createRecorderServiceTauri(): RecorderService {
 			});
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{ deviceName: settings.selectedAudioInputDeviceId },
+				{ deviceName: settings.selectedDeviceId },
 			);
 			if (initRecordingSessionError)
 				return Err({
@@ -52,7 +52,7 @@ export function createRecorderServiceTauri(): RecorderService {
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
 						settings,
-						deviceName: settings.selectedAudioInputDeviceId,
+						deviceName: settings.selectedDeviceId,
 					},
 					cause: initRecordingSessionError,
 				} satisfies RecordingServiceError);

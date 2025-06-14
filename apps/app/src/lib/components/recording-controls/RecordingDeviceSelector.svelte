@@ -3,8 +3,8 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { rpc } from '$lib/query';
 	import {
-		getSelectedAudioInputDeviceId,
-		setSelectedAudioInputDeviceId,
+		getSelectedDeviceId,
+		setSelectedDeviceId,
 	} from '$lib/services/_deviceSelection';
 	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
@@ -17,7 +17,7 @@
 
 	let { class: className }: { class?: string } = $props();
 
-	const isDeviceSelected = $derived(!!getSelectedAudioInputDeviceId());
+	const isDeviceSelected = $derived(!!getSelectedDeviceId());
 
 	const getMediaDevicesQuery = createQuery(() => ({
 		...rpc.recorder.getMediaDevices.options(),
@@ -74,8 +74,8 @@
 						<Command.Item
 							value={device.label}
 							onSelect={() => {
-								const currentDeviceId = getSelectedAudioInputDeviceId();
-								setSelectedAudioInputDeviceId(
+								const currentDeviceId = getSelectedDeviceId();
+								setSelectedDeviceId(
 									currentDeviceId === device.deviceId ? null : device.deviceId,
 								);
 								combobox.closeAndFocusTrigger();
@@ -85,7 +85,7 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									getSelectedAudioInputDeviceId() !== device.deviceId &&
+									getSelectedDeviceId() !== device.deviceId &&
 										'text-transparent',
 								)}
 							/>
