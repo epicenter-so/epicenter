@@ -4,9 +4,15 @@ import { createQuery } from '@tanstack/svelte-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
-	const getRecorderStateQuery = createQuery(
-		rpc.recorder.getRecorderState.options,
-	);
+	const getRecorderStateQuery = createQuery(() => ({
+		...rpc.manualRecorder.getRecorderState.options(),
+		enabled: settings.value['recording.mode'] === 'manual',
+	}));
+
+	const getVadStateQuery = createQuery(() => ({
+		...rpc.vadRecorder.getVadState.options(),
+		enabled: settings.value['recording.mode'] === 'vad',
+	}));
 
 	$effect(() => {
 		const setAlwaysOnTop = (value: boolean) =>
@@ -18,6 +24,7 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 			case 'When Recording and Transcribing':
 				if (
 					getRecorderStateQuery.data === 'RECORDING' ||
+					getVadStateQuery.data === 'SPEECH_DETECTED' ||
 					rpc.transcription.isCurrentlyTranscribing()
 				) {
 					setAlwaysOnTop(true);
@@ -26,7 +33,10 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 				}
 				break;
 			case 'When Recording':
-				if (getRecorderStateQuery.data === 'RECORDING') {
+				if (
+					getRecorderStateQuery.data === 'RECORDING' ||
+					getVadStateQuery.data === 'SPEECH_DETECTED'
+				) {
 					setAlwaysOnTop(true);
 				} else {
 					setAlwaysOnTop(false);

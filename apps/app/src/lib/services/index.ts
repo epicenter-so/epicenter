@@ -123,13 +123,13 @@ export const services = (() => {
 			}
 		},
 
-		get recorder() {
+		get manualRecorder() {
 			return (
 				{
 					tauri: TauriRecorderService,
 					navigator: NavigatorRecorderService,
 				} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>
-			)[settings.value['recording.method']];
+			)[settings.value['recording.manual.method']];
 		},
 		sound: {
 			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
