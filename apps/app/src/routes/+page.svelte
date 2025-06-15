@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
@@ -12,15 +14,17 @@
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
+	import {
+		AudioLinesIcon,
+		Loader2Icon,
+		MicIcon,
+		VideoIcon,
+	} from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
-	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
-	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.recorder.getRecorderState.options,
+		rpc.manualRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
@@ -51,8 +55,6 @@
 	onDestroy(() => {
 		blobUrlManager.revokeCurrentUrl();
 	});
-
-	let mode = $state<'manual' | 'voice-activated'>('manual');
 </script>
 
 <svelte:head>
@@ -71,35 +73,33 @@
 
 	<ToggleGroup.Root
 		type="single"
-		value={mode}
+		value={settings.value['recording.mode']}
 		class="max-w-xs w-full grid grid-cols-2 gap-2"
-		onValueChange={(value) => {
-			switch (value) {
-				case 'voice-activated':
-					mode = 'voice-activated';
-					break;
-				case 'manual':
-					mode = 'manual';
-					break;
-			}
+		onValueChange={(mode) => {
+			settings.value = {
+				...settings.value,
+				'recording.mode': mode as 'manual' | 'vad' | 'live',
+			};
 		}}
 	>
 		<ToggleGroup.Item value="manual" aria-label="Switch to manual mode">
 			<MicIcon class="size-4" />
 			Record
 		</ToggleGroup.Item>
-		<ToggleGroup.Item
-			value="voice-activated"
-			aria-label="Switch to voice activated mode"
-		>
+		<ToggleGroup.Item value="vad" aria-label="Switch to voice activated mode">
 			<AudioLinesIcon class="size-4" />
 			Voice Activated
+		</ToggleGroup.Item>
+		<ToggleGroup.Item value="live" aria-label="Switch to live mode">
+			<VideoIcon class="size-4" />
+			Live
 		</ToggleGroup.Item>
 	</ToggleGroup.Root>
 
 	<div class="max-w-md flex items-end justify-between w-full gap-2 pt-1">
 		<div class="flex-1"></div>
-		{#if mode === 'manual'}
+		{#if settings.value['recording.mode'] === 'manual'}
+			{@const currentMethod = settings.value[`recording.manual.method`]}
 			<WhisperingButton
 				tooltipContent={getRecorderStateQuery.data === 'IDLE'
 					? 'Start recording'
@@ -115,7 +115,35 @@
 					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
-		{:else}
+			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+				{#if getRecorderStateQuery.data === 'RECORDING'}
+					<WhisperingButton
+						tooltipContent="Cancel recording"
+						onclick={commandCallbacks.cancelManualRecording}
+						variant="ghost"
+						size="icon"
+						style="view-transition-name: cancel-icon;"
+					>
+						🚫
+					</WhisperingButton>
+				{:else}
+					<DeviceSelector
+						selectedDeviceId={settings.value[
+							`recording.manual.${currentMethod}.selectedDeviceId`
+						]}
+						updateSelectedDevice={(deviceId) => {
+							settings.value = {
+								...settings.value,
+								[`recording.manual.${currentMethod}.selectedDeviceId`]:
+									deviceId,
+							};
+						}}
+					/>
+					<TransformationSelector />
+				{/if}
+			</div>
+		{:else if settings.value['recording.mode'] === 'vad'}
+			{@const currentMethod = settings.value[`recording.vad.method`]}
 			<WhisperingButton
 				tooltipContent={getVadStateQuery.data === 'IDLE'
 					? 'Start voice activated session'
@@ -131,27 +159,23 @@
 					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
-		{/if}
-		<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
-			{#if getRecorderStateQuery.data === 'RECORDING'}
-				<WhisperingButton
-					tooltipContent="Cancel recording"
-					onclick={commandCallbacks.cancelManualRecording}
-					variant="ghost"
-					size="icon"
-					style="view-transition-name: cancel-icon;"
-				>
-					🚫
-				</WhisperingButton>
-			{:else}
-				{#if settings.value['recording.method'] === 'navigator'}
-					<NavigatorDeviceSelector />
-				{:else}
-					<TauriDeviceSelector />
+			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+				{#if getVadStateQuery.data === 'IDLE'}
+					<DeviceSelector
+						selectedDeviceId={settings.value[
+							`recording.vad.${currentMethod}.selectedDeviceId`
+						]}
+						updateSelectedDevice={(deviceId) => {
+							settings.value = {
+								...settings.value,
+								[`recording.vad.${currentMethod}.selectedDeviceId`]: deviceId,
+							};
+						}}
+					/>
+					<TransformationSelector />
 				{/if}
-				<TransformationSelector />
-			{/if}
-		</div>
+			</div>
+		{/if}
 	</div>
 
 	<div class="xxs:flex hidden w-full max-w-xs flex-col items-center gap-2">

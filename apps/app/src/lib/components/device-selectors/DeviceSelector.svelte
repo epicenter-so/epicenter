@@ -1,24 +1,28 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
-	import { rpc } from '$lib/query';
 	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from 'lucide-svelte';
 	import WhisperingButton from '../WhisperingButton.svelte';
 	import { useCombobox } from '../useCombobox.svelte';
+	import { rpc } from '$lib/query';
 
 	const combobox = useCombobox();
 
-	let { class: className }: { class?: string } = $props();
+	let {
+		selectedDeviceId,
+		updateSelectedDevice,
+	}: {
+		selectedDeviceId: string | null;
+		updateSelectedDevice: (deviceId: string | null) => void;
+	} = $props();
 
-	const selectedDeviceId = $derived(settings.value['recording.navigator.selectedDeviceId']);
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getMediaDevicesQuery = createQuery(() => ({
-		...rpc.recorder.getMediaDevices.options(),
+		...rpc.device.getMediaDevices.options(),
 		enabled: combobox.open,
 	}));
 
@@ -30,13 +34,6 @@
 			});
 		}
 	});
-
-	function updateSelectedDevice(deviceId: string | null) {
-		settings.value = {
-			...settings.value,
-			'recording.navigator.selectedDeviceId': deviceId,
-		};
-	}
 </script>
 
 <Popover.Root bind:open={combobox.open}>
@@ -44,7 +41,6 @@
 		{#snippet child({ props })}
 			<WhisperingButton
 				{...props}
-				class={className}
 				tooltipContent={isDeviceSelected
 					? 'Change recording device'
 					: 'Select a recording device'}
@@ -90,8 +86,7 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									selectedDeviceId !== device.deviceId &&
-										'text-transparent',
+									selectedDeviceId !== device.deviceId && 'text-transparent',
 								)}
 							/>
 							<div class="flex flex-col min-w-0">
