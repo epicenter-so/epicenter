@@ -11,6 +11,7 @@ export const queryClient = new QueryClient({
 
 // Import all query modules
 import { clipboard } from './_queries/clipboard';
+import { device } from './_queries/device';
 import { download } from './_queries/download';
 import { manualRecorder } from './_queries/manualRecorder';
 import { recordings } from './_queries/recordings';
@@ -27,6 +28,7 @@ import { vadRecorder } from './_queries/vadRecorder';
  */
 export const rpc = {
 	clipboard,
+	device,
 	download,
 	manualRecorder,
 	vadRecorder,

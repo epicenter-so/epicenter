@@ -6,7 +6,6 @@ import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
 const recorderKeys = {
-	mediaDevices: ['recorder', 'mediaDevices'] as const,
 	state: ['recorder', 'state'] as const,
 	startRecording: ['recorder', 'startRecording'] as const,
 	stopRecording: ['recorder', 'stopRecording'] as const,
@@ -17,11 +16,6 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.state });
 
 export const manualRecorder = {
-	getMediaDevices: defineQuery({
-		queryKey: recorderKeys.mediaDevices,
-		resultQueryFn: () => services.manualRecorder.enumerateRecordingDevices(),
-	}),
-
 	getRecorderState: defineQuery({
 		queryKey: recorderKeys.state,
 		resultQueryFn: () => services.manualRecorder.getRecorderState(),
