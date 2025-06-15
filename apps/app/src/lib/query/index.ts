@@ -12,7 +12,7 @@ export const queryClient = new QueryClient({
 // Import all query modules
 import { clipboard } from './_queries/clipboard';
 import { download } from './_queries/download';
-import { manualRecorder } from './_queries/recorder';
+import { manualRecorder } from './_queries/manualRecorder';
 import { recordings } from './_queries/recordings';
 import { shortcuts } from './_queries/shortcuts';
 import { transcription } from './_queries/transcription';
