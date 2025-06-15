@@ -5,7 +5,8 @@ import {
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	GROQ_MODELS,
-	RECORDING_METHODS,
+	RECORDING_MODES,
+	RECORDING_MODE_METHODS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
@@ -39,18 +40,42 @@ export const settingsV6Schema = z.object({
 	] as const),
 	'database.maxRecordingCount': z.string().regex(/^\d+$/, 'Must be a number'),
 
-	// Recording settings
-	'recording.method': z.enum(RECORDING_METHODS).default('navigator'),
+	// Recording mode settings
+	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
 
-	// Navigator-specific recording settings
-	'recording.navigator.selectedDeviceId': z.string().nullable(),
-	'recording.navigator.bitrateKbps': z
+	// Mode-specific method settings
+	'recording.manual.method': z
+		.enum(RECORDING_MODE_METHODS.manual)
+		.default('navigator'),
+	// Manual mode method-specific settings
+	'recording.manual.navigator.selectedDeviceId': z.string().nullable(),
+	'recording.manual.navigator.bitrateKbps': z
+		.enum(BITRATE_VALUES_KBPS)
+		.optional()
+		.default(DEFAULT_BITRATE_KBPS),
+	'recording.manual.tauri.selectedDeviceId': z.string().nullable(),
+
+	// VAD mode method-specific settings (navigator only)
+	'recording.vad.method': z
+		.enum(RECORDING_MODE_METHODS.vad)
+		.default('navigator'),
+	// VAD mode method-specific settings (navigator only)
+	'recording.vad.navigator.selectedDeviceId': z.string().nullable(),
+	'recording.vad.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	// Tauri-specific recording settings
-	'recording.tauri.selectedDeviceId': z.string().nullable(),
+	// Live mode method-specific settings
+	'recording.live.method': z
+		.enum(RECORDING_MODE_METHODS.live)
+		.default('navigator'),
+	// Live mode method-specific settings
+	'recording.live.navigator.selectedDeviceId': z.string().nullable(),
+	'recording.live.navigator.bitrateKbps': z
+		.enum(BITRATE_VALUES_KBPS)
+		.optional()
+		.default(DEFAULT_BITRATE_KBPS),
 
 	// Shared transcription settings
 	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
@@ -102,12 +127,30 @@ export const migrateV5ToV6 = (settings: SettingsV5): SettingsV6 => {
 		'recording.isFasterRerecordEnabled': _removed1,
 		'recording.tauri.selectedAudioInputName': tauriSelectedDeviceId,
 		'recording.navigator.selectedAudioInputDeviceId': navigatorSelectedDeviceId,
+		'recording.navigator.bitrateKbps': navigatorBitrateKbps,
+		'recording.method': oldMethod,
 		...restSettings
 	} = settings;
 
 	return {
 		...restSettings,
-		'recording.tauri.selectedDeviceId': tauriSelectedDeviceId,
-		'recording.navigator.selectedDeviceId': navigatorSelectedDeviceId,
+		// Default to manual mode
+		'recording.mode': 'manual',
+
+		// Set method for each mode based on old method preference
+		'recording.manual.method': oldMethod ?? 'navigator',
+		'recording.vad.method': 'navigator', // VAD only supports navigator
+		'recording.live.method': 'navigator', // Live only supports navigator
+
+		// Migrate navigator settings to all modes that support it
+		'recording.manual.navigator.selectedDeviceId': navigatorSelectedDeviceId,
+		'recording.manual.navigator.bitrateKbps': navigatorBitrateKbps,
+		'recording.manual.tauri.selectedDeviceId': tauriSelectedDeviceId,
+
+		'recording.vad.navigator.selectedDeviceId': navigatorSelectedDeviceId,
+		'recording.vad.navigator.bitrateKbps': navigatorBitrateKbps,
+
+		'recording.live.navigator.selectedDeviceId': navigatorSelectedDeviceId,
+		'recording.live.navigator.bitrateKbps': navigatorBitrateKbps,
 	};
 };
