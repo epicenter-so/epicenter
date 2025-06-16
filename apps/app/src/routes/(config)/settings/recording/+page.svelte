@@ -21,12 +21,6 @@
 			Configure your Whispering recording preferences.
 		</p>
 	</div>
-	<div>
-		<h3 class="text-lg font-medium">Recording</h3>
-		<p class="text-muted-foreground text-sm">
-			Configure your Whispering recording preferences.
-		</p>
-	</div>
 	<Separator />
 
 	<LabeledSelect
@@ -45,22 +39,24 @@
 	/>
 
 	{#if settings.value['recording.mode'] === 'manual'}
-		<LabeledSelect
-			id="recording-method"
-			label="Recording Method"
-			items={MANUAL_RECORDING_METHOD_OPTIONS}
-			selected={settings.value['recording.manual.method']}
-			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'recording.manual.method': selected,
-				};
-			}}
-			placeholder="Select a recording method"
-			description="Choose between browser-based recording (Navigator) or native recording (Tauri)"
-		/>
+		{#if window.__TAURI_INTERNALS__}
+			<LabeledSelect
+				id="recording-method"
+				label="Recording Method"
+				items={MANUAL_RECORDING_METHOD_OPTIONS}
+				selected={settings.value['recording.manual.method']}
+				onSelectedChange={(selected) => {
+					settings.value = {
+						...settings.value,
+						'recording.manual.method': selected,
+					};
+				}}
+				placeholder="Select a recording method"
+				description="Choose between browser-based recording (Navigator) or native recording (Tauri)"
+			/>
+		{/if}
 
-		{#if settings.value['recording.manual.method'] === 'tauri'}
+		{#if window.__TAURI_INTERNALS__ && settings.value['recording.manual.method'] === 'tauri'}
 			<div class="pl-4 border-l-2 border-muted space-y-6">
 				<div>
 					<h4 class="text-md font-medium">Native Recording Settings</h4>
