@@ -13,7 +13,7 @@
 	} = $props();
 
 	const getMediaDevicesQuery = createQuery(
-		rpc.manualRecorder.getMediaDevices.options,
+		rpc.device.getMediaDevices.options,
 	);
 
 	$effect(() => {

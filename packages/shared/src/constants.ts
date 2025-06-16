@@ -30,32 +30,25 @@ export const BITRATE_OPTIONS = BITRATE_VALUES_KBPS.map((bitrate) => ({
 }));
 
 export const RECORDING_MODES = ['manual', 'vad', 'live'] as const;
-
+export type RecordingMode = (typeof RECORDING_MODES)[number];
 export const RECORDING_MODE_OPTIONS = [
-	{ label: 'Manual', value: 'manual' },
-	{ label: 'VAD', value: 'vad' },
-	{ label: 'Live', value: 'live' },
+	{ label: 'Manual', value: 'manual', icon: '🎙️' },
+	{ label: 'Voice Activated', value: 'vad', icon: '👂' },
+	{ label: 'Live', value: 'live', icon: '🎬' },
 ] as const satisfies {
 	label: string;
-	value: (typeof RECORDING_MODES)[number];
+	value: RecordingMode;
+	icon: string;
 }[];
 
-export const RECORDING_METHODS = ['navigator', 'tauri'] as const;
+export const MANUAL_RECORDING_METHODS = ['navigator', 'tauri'] as const;
 
-export const RECORDING_METHOD_OPTIONS = RECORDING_METHODS.map((method) => ({
-	label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
-	value: method,
-}));
-
-// Mode-specific available methods
-export const RECORDING_MODE_METHODS = {
-	manual: ['navigator', 'tauri'] as const,
-	vad: ['navigator'] as const, // VAD only supports navigator
-	live: ['navigator'] as const, // Live only supports navigator
-} as const satisfies Record<
-	(typeof RECORDING_MODES)[number],
-	readonly string[]
->;
+export const MANUAL_RECORDING_METHOD_OPTIONS = MANUAL_RECORDING_METHODS.map(
+	(method) => ({
+		label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
+		value: method,
+	}),
+);
 
 export const DEFAULT_BITRATE_KBPS =
 	'128' as const satisfies (typeof BITRATE_VALUES_KBPS)[number];

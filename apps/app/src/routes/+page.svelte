@@ -22,6 +22,7 @@
 	} from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
+	import { RECORDING_MODE_OPTIONS } from '@repo/shared';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -82,18 +83,12 @@
 			};
 		}}
 	>
-		<ToggleGroup.Item value="manual" aria-label="Switch to manual mode">
-			<MicIcon class="size-4" />
-			Record
-		</ToggleGroup.Item>
-		<ToggleGroup.Item value="vad" aria-label="Switch to voice activated mode">
-			<AudioLinesIcon class="size-4" />
-			Voice Activated
-		</ToggleGroup.Item>
-		<ToggleGroup.Item value="live" aria-label="Switch to live mode">
-			<VideoIcon class="size-4" />
-			Live
-		</ToggleGroup.Item>
+		{#each RECORDING_MODE_OPTIONS as option}
+			<ToggleGroup.Item value={option.value} aria-label={`Switch to ${option.label.toLowerCase()} mode`}>
+				{option.icon}
+				{option.label}
+			</ToggleGroup.Item>
+		{/each}
 	</ToggleGroup.Root>
 
 	<div class="max-w-md flex items-end justify-between w-full gap-2 pt-1">

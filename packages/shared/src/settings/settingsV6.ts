@@ -5,8 +5,8 @@ import {
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	GROQ_MODELS,
+	MANUAL_RECORDING_METHODS,
 	RECORDING_MODES,
-	RECORDING_MODE_METHODS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICES,
 	type WhisperingSoundNames,
@@ -45,7 +45,7 @@ export const settingsV6Schema = z.object({
 
 	// Mode-specific method settings
 	'recording.manual.method': z
-		.enum(RECORDING_MODE_METHODS.manual)
+		.enum(MANUAL_RECORDING_METHODS)
 		.default('navigator'),
 	// Manual mode method-specific settings
 	'recording.manual.navigator.selectedDeviceId': z.string().nullable(),
@@ -56,9 +56,7 @@ export const settingsV6Schema = z.object({
 	'recording.manual.tauri.selectedDeviceId': z.string().nullable(),
 
 	// VAD mode method-specific settings (navigator only)
-	'recording.vad.method': z
-		.enum(RECORDING_MODE_METHODS.vad)
-		.default('navigator'),
+	'recording.vad.method': z.enum(['navigator']).default('navigator'),
 	// VAD mode method-specific settings (navigator only)
 	'recording.vad.navigator.selectedDeviceId': z.string().nullable(),
 	'recording.vad.navigator.bitrateKbps': z
@@ -67,9 +65,7 @@ export const settingsV6Schema = z.object({
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// Live mode method-specific settings
-	'recording.live.method': z
-		.enum(RECORDING_MODE_METHODS.live)
-		.default('navigator'),
+	'recording.live.method': z.enum(['navigator']).default('navigator'),
 	// Live mode method-specific settings
 	'recording.live.navigator.selectedDeviceId': z.string().nullable(),
 	'recording.live.navigator.bitrateKbps': z
