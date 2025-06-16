@@ -51,8 +51,9 @@
 		visibleToasts: 5,
 		toastOptions: {
 			classes: {
-				toast:
-					'flex flex-wrap [&>[data-icon]]:flex-shrink-0 [&>[data-content]]:flex-1 [&>[data-button]]:w-full [&>[data-button]]:mt-3 [&>[data-button]]:inline-flex [&>[data-button]]:justify-center',
+				toast: 'flex flex-wrap [&>[data-content]]:flex-1',
+				icon: 'flex-shrink-0',
+				actionButton: 'w-full mt-3 inline-flex justify-center',
 			},
 		},
 	} satisfies ToasterProps;
