@@ -52,7 +52,7 @@
 		toastOptions: {
 			classes: {
 				toast:
-					'group !flex !flex-wrap [&>[data-icon]]:!flex-shrink-0 [&>[data-content]]:!flex-1 [&>[data-button]]:!w-full [&>[data-button]]:!ml-0 [&>[data-button]]:!mt-3 [&>[data-button]]:!inline-flex [&>[data-button]]:!justify-center',
+					'group flex flex-wrap [&>[data-icon]]:flex-shrink-0 [&>[data-content]]:flex-1 [&>[data-button]]:w-full [&>[data-button]]:ml-0 [&>[data-button]]:mt-3 [&>[data-button]]:!inline-flex [&>[data-button]]:justify-center',
 			},
 		},
 	} satisfies ToasterProps;
