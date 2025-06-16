@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
 	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
@@ -12,18 +13,15 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
-	import { createQuery } from '@tanstack/svelte-query';
 	import {
-		AudioLinesIcon,
-		Loader2Icon,
-		MicIcon,
-		VideoIcon,
-	} from 'lucide-svelte';
+		recorderStateToIcons,
+		RECORDING_MODE_OPTIONS,
+		vadStateToIcons,
+	} from '@repo/shared';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { RECORDING_MODE_OPTIONS } from '@repo/shared';
-	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
