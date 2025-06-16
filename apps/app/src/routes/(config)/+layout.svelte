@@ -62,7 +62,9 @@
 			<TransformationSelector />
 		{/if}
 		<WhisperingButton
-			tooltipContent="Toggle recording"
+			tooltipContent={getRecorderStateQuery.data === 'RECORDING'
+				? 'Stop recording'
+				: 'Start recording'}
 			onclick={commandCallbacks.toggleManualRecording}
 			variant="ghost"
 			size="icon"
@@ -71,16 +73,15 @@
 			{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
-		{@const currentMethod = settings.value[`recording.vad.method`]}
 		{#if getVadStateQuery.data === 'IDLE'}
 			<DeviceSelector
 				selectedDeviceId={settings.value[
-					`recording.vad.${currentMethod}.selectedDeviceId`
+					'recording.vad.navigator.selectedDeviceId'
 				]}
 				updateSelectedDevice={(deviceId) => {
 					settings.value = {
 						...settings.value,
-						[`recording.vad.${currentMethod}.selectedDeviceId`]: deviceId,
+						'recording.vad.navigator.selectedDeviceId': deviceId,
 					};
 				}}
 			/>
