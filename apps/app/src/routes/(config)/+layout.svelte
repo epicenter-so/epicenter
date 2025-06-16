@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
+	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
 	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
@@ -59,6 +61,7 @@
 					};
 				}}
 			/>
+			<TranscriptionServiceSelector />
 			<TransformationSelector />
 		{/if}
 		<WhisperingButton
@@ -85,6 +88,7 @@
 					};
 				}}
 			/>
+			<TranscriptionServiceSelector />
 			<TransformationSelector />
 		{/if}
 		<WhisperingButton

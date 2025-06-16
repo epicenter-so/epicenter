@@ -23,6 +23,7 @@
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 	import { RECORDING_MODE_OPTIONS } from '@repo/shared';
+	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -84,7 +85,10 @@
 		}}
 	>
 		{#each RECORDING_MODE_OPTIONS as option}
-			<ToggleGroup.Item value={option.value} aria-label={`Switch to ${option.label.toLowerCase()} mode`}>
+			<ToggleGroup.Item
+				value={option.value}
+				aria-label={`Switch to ${option.label.toLowerCase()} mode`}
+			>
 				{option.icon}
 				{option.label}
 			</ToggleGroup.Item>
@@ -134,6 +138,7 @@
 							};
 						}}
 					/>
+					<TranscriptionServiceSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
@@ -167,6 +172,7 @@
 							};
 						}}
 					/>
+					<TranscriptionServiceSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
