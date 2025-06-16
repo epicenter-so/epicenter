@@ -14,20 +14,21 @@
 		ServerIcon,
 		SettingsIcon,
 	} from 'lucide-svelte';
+	import type { Component } from 'svelte';
 	import WhisperingButton from './WhisperingButton.svelte';
 	import { Badge } from './ui/badge';
 	import { useCombobox } from './useCombobox.svelte';
 
 	type TranscriptionService = (typeof TRANSCRIPTION_SERVICES)[number];
 
-	interface ServiceConfig {
+	type ServiceConfig = {
 		id: TranscriptionService;
 		name: string;
-		icon: typeof MicIcon;
+		icon: typeof HexagonIcon;
 		requiresApiKey?: boolean;
 		requiresUrl?: boolean;
 		models?: readonly string[];
-	}
+	};
 
 	const services: ServiceConfig[] = [
 		{
@@ -135,10 +136,12 @@
 				{#if selectedService}
 					{@const SelectedIcon = selectedService.icon}
 					<SelectedIcon
-						class={cn('size-4', {
-							'text-green-500': isServiceConfigured(selectedService),
-							'text-amber-500': !isServiceConfigured(selectedService),
-						})}
+						class={cn(
+							'size-4',
+							isServiceConfigured(selectedService)
+								? 'text-green-500'
+								: 'text-amber-500',
+						)}
 					/>
 				{:else}
 					<MicIcon class="size-4 text-muted-foreground" />
