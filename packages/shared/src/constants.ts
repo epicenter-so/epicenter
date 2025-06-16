@@ -33,7 +33,7 @@ export const RECORDING_MODES = ['manual', 'vad', 'live'] as const;
 export type RecordingMode = (typeof RECORDING_MODES)[number];
 export const RECORDING_MODE_OPTIONS = [
 	{ label: 'Manual', value: 'manual', icon: '🎙️' },
-	{ label: 'Voice Activated', value: 'vad', icon: '👂' },
+	{ label: 'Voice Activated', value: 'vad', icon: '🎤' },
 	{ label: 'Live', value: 'live', icon: '🎬' },
 ] as const satisfies {
 	label: string;
@@ -79,9 +79,9 @@ export const vadStateSchema = z.enum(['IDLE', 'LISTENING', 'SPEECH_DETECTED']);
 export type VadState = z.infer<typeof vadStateSchema>;
 
 export const vadStateToIcons = {
-	IDLE: '🎬',
-	LISTENING: '👂',
-	SPEECH_DETECTED: '🗣️',
+	IDLE: '🎤',
+	LISTENING: '💬',
+	SPEECH_DETECTED: '👂',
 } as const satisfies Record<VadState, string>;
 
 /** Supported languages pulled from OpenAI Website: https://platform.openai.com/docs/guides/speech-to-text/supported-languages */
