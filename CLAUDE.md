@@ -1,4 +1,5 @@
 - Always prefix files and folders that are only consumed/imported from files in the immediate containing parent folder with an underscore _ . This includes if they are consumed and then reexported by an `index.ts` file—in this case, they should be underscored since index.ts is now the ultimate export path.  You can satisfy this rule either by prefixing individual files with _ OR by placing them in a folder prefixed with _.
+- Always use `type` instead of `interface` in Typescript.
 
 # Standard Workflow
 1. First think through the problem, read the codebase for relevant files, and write a plan to specs/[feature-name].md where [feature-name] is the name of the feature.
