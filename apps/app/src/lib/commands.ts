@@ -54,14 +54,8 @@ const startManualRecording = async () => {
 		await rpc.manualRecorder.startRecording.execute({
 			toastId,
 			settings: {
-				selectedDeviceId:
-					settings.value[
-						`recording.${settings.value['recording.mode']}.navigator.selectedDeviceId`
-					],
-				bitrateKbps:
-					settings.value[
-						`recording.${settings.value['recording.mode']}.navigator.bitrateKbps`
-					],
+				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
+				bitrateKbps: settings.value['recording.manual.bitrateKbps'],
 			},
 		});
 
@@ -87,7 +81,7 @@ const startManualRecording = async () => {
 		case 'fallback': {
 			settings.value = {
 				...settings.value,
-				[`recording.${settings.value['recording.mode']}.navigator.selectedDeviceId`]:
+				'recording.manual.selectedDeviceId':
 					deviceAcquisitionOutcome.fallbackDeviceId,
 			};
 			switch (deviceAcquisitionOutcome.reason) {
@@ -124,6 +118,115 @@ const startManualRecording = async () => {
 	}
 	console.info('Recording started');
 	services.sound.playSoundIfEnabled('manual-start');
+};
+
+const stopCpalRecording = async () => {
+	const toastId = nanoid();
+	toast.loading({
+		id: toastId,
+		title: '⏸️ Stopping CPAL recording...',
+		description: 'Finalizing your audio capture...',
+	});
+	const { data: blob, error: stopRecordingError } =
+		await rpc.cpalRecorder.stopRecording.execute({ toastId });
+	if (stopRecordingError) {
+		toast.error({
+			id: toastId,
+			title: '❌ Failed to stop CPAL recording',
+			description: 'Your recording could not be stopped. Please try again.',
+			action: { type: 'more-details', error: stopRecordingError },
+		});
+		return;
+	}
+
+	toast.success({
+		id: toastId,
+		title: '🔊 CPAL Recording stopped',
+		description: 'Your recording has been saved',
+	});
+	console.info('CPAL Recording stopped');
+	services.sound.playSoundIfEnabled('cpal-stop');
+
+	await saveRecordingAndTranscribeTransform({
+		blob,
+		toastId,
+		completionTitle: '✨ CPAL Recording Complete!',
+		completionDescription: 'Recording saved and session closed successfully',
+	});
+};
+
+const startCpalRecording = async () => {
+	const toastId = nanoid();
+	toast.loading({
+		id: toastId,
+		title: '🔊 Preparing CPAL recording...',
+		description: 'Setting up native audio recording...',
+	});
+	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
+		await rpc.cpalRecorder.startRecording.execute({
+			toastId,
+			selectedDeviceId: settings.value['recording.cpal.selectedDeviceId'],
+		});
+
+	if (startRecordingError) {
+		toast.error({
+			id: toastId,
+			title: '❌ Failed to start CPAL recording',
+			description: 'Your recording could not be started. Please try again.',
+			action: { type: 'more-details', error: startRecordingError },
+		});
+		return;
+	}
+
+	switch (deviceAcquisitionOutcome.outcome) {
+		case 'success': {
+			toast.success({
+				id: toastId,
+				title: '🔊 CPAL is recording...',
+				description: 'Speak now and stop recording when done',
+			});
+			break;
+		}
+		case 'fallback': {
+			settings.value = {
+				...settings.value,
+				'recording.cpal.selectedDeviceId':
+					deviceAcquisitionOutcome.fallbackDeviceId,
+			};
+			switch (deviceAcquisitionOutcome.reason) {
+				case 'no-device-selected': {
+					toast.info({
+						id: toastId,
+						title: '🔊 Switched to available microphone',
+						description:
+							'No microphone was selected, so we automatically connected to an available one. You can update your selection in settings.',
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+				case 'preferred-device-unavailable': {
+					toast.info({
+						id: toastId,
+						title: '🔊 Switched to different microphone',
+						description:
+							"Your previously selected microphone wasn't found, so we automatically connected to an available one.",
+						action: {
+							type: 'link',
+							label: 'Open Settings',
+							goto: '/settings/recording',
+						},
+					});
+					break;
+				}
+			}
+		}
+	}
+	console.info('CPAL Recording started');
+	services.sound.playSoundIfEnabled('cpal-start');
 };
 
 export const commands = [
@@ -183,6 +286,64 @@ export const commands = [
 			});
 			services.sound.playSoundIfEnabled('manual-cancel');
 			console.info('Recording cancelled');
+		},
+	},
+	{
+		id: 'toggleCpalRecording',
+		title: 'Toggle CPAL recording',
+		defaultLocalShortcut: 'n',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+[',
+		callback: async () => {
+			const { data: recorderState, error: getRecorderStateError } =
+				await rpc.cpalRecorder.getRecorderState.fetchCached();
+			if (getRecorderStateError) {
+				toast.error({
+					id: nanoid(),
+					title: '❌ Failed to get CPAL recorder state',
+					description: 'Your recording could not be started. Please try again.',
+					action: { type: 'more-details', error: getRecorderStateError },
+				});
+				return;
+			}
+			if (recorderState === 'RECORDING') {
+				await stopCpalRecording();
+			} else {
+				await startCpalRecording();
+			}
+		},
+	},
+	{
+		id: 'cancelCpalRecording',
+		title: 'Cancel CPAL recording',
+		defaultLocalShortcut: 'x',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+]',
+		callback: async () => {
+			const toastId = nanoid();
+			toast.loading({
+				id: toastId,
+				title: '⏸️ Canceling CPAL recording...',
+				description: 'Cleaning up recording session...',
+			});
+			const { error: cancelRecordingError } =
+				await rpc.cpalRecorder.cancelRecording.execute({ toastId });
+			if (cancelRecordingError) {
+				toast.error({
+					id: toastId,
+					title: '❌ Failed to cancel CPAL recording',
+					description:
+						'Your recording could not be cancelled. Please try again.',
+					action: { type: 'more-details', error: cancelRecordingError },
+				});
+				return;
+			}
+			// Session cleanup is now handled internally by the recorder service
+			toast.success({
+				id: toastId,
+				title: '✅ All Done!',
+				description: 'CPAL recording cancelled successfully',
+			});
+			services.sound.playSoundIfEnabled('cpal-cancel');
+			console.info('CPAL Recording cancelled');
 		},
 	},
 	{
