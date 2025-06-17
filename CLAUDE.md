@@ -23,3 +23,54 @@ When refactoring complex control flow, mirror natural human reasoning patterns:
 
 Transform this: nested conditionals with duplicated logic
 Into this: linear flow that mirrors human decision-making
+
+# Shadcn-svelte Best Practices
+
+## Component Organization
+- Use the CLI for adding/managing shadcn-svelte components: `bunx shadcn-svelte@latest add [component]`
+- Each component should be in its own folder under `$lib/components/ui/` with an `index.ts` export file
+- Follow kebab-case for component folder names (e.g., `dialog/`, `toggle-group/`)
+- Group related sub-components in the same folder (e.g., all dialog parts in `dialog/`)
+
+## Import Patterns
+Use the appropriate import pattern based on component complexity:
+
+**Namespace imports** (preferred for multi-part components):
+```typescript
+import * as Dialog from '$lib/components/ui/dialog';
+import * as ToggleGroup from '$lib/components/ui/toggle-group';
+```
+
+**Named imports** (for single components):
+```typescript
+import { Button } from '$lib/components/ui/button';
+import { Input } from '$lib/components/ui/input';
+```
+
+## Styling and Customization
+- Always use the `cn()` utility from `$lib/utils` for combining Tailwind classes
+- Modify component code directly rather than overriding styles with complex CSS
+- Use `tailwind-variants` for component variant systems
+- Follow the `background`/`foreground` convention for colors
+- Leverage CSS variables for theme consistency
+
+## Component Usage Patterns
+- Use proper component composition following shadcn-svelte patterns:
+```svelte
+<Dialog.Root bind:open={isOpen}>
+  <Dialog.Trigger>
+    <Button>Open</Button>
+  </Dialog.Trigger>
+  <Dialog.Content>
+    <Dialog.Header>
+      <Dialog.Title>Title</Dialog.Title>
+    </Dialog.Header>
+  </Dialog.Content>
+</Dialog.Root>
+```
+
+## Custom Components
+- When extending shadcn components, create wrapper components that maintain the design system
+- Add JSDoc comments for complex component props
+- Ensure custom components follow the same organizational patterns
+- Consider semantic appropriateness (e.g., use section headers instead of cards for page sections)
