@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
-	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
-	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
-	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
+	import {
+		DeviceSelector,
+		TranscriptionServiceSelector,
+		TransformationSelector,
+	} from '$lib/components/settings';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';

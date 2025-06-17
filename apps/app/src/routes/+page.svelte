@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
-	import TranscriptionServiceSelector from '$lib/components/TranscriptionServiceSelector.svelte';
-	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
+	import {
+		DeviceSelector,
+		TranscriptionServiceSelector,
+		TransformationSelector,
+	} from '$lib/components/settings';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
