@@ -58,6 +58,14 @@
 		return blobUrlManager.createUrl(latestRecording.blob);
 	});
 
+	const availableModes = $derived(
+		RECORDING_MODE_OPTIONS.filter((mode) => {
+			if (!mode.desktopOnly) return true;
+			// Desktop only, only show if Tauri is available
+			return window.__TAURI_INTERNALS__;
+		}),
+	);
+
 	onDestroy(() => {
 		blobUrlManager.revokeCurrentUrl();
 	});
@@ -80,7 +88,7 @@
 	<ToggleGroup.Root
 		type="single"
 		value={settings.value['recording.mode']}
-		class="max-w-md w-full grid grid-cols-4 gap-2"
+		class="max-w-sm w-full"
 		onValueChange={(mode) => {
 			settings.value = {
 				...settings.value,
@@ -88,7 +96,7 @@
 			};
 		}}
 	>
-		{#each RECORDING_MODE_OPTIONS as option}
+		{#each availableModes as option}
 			<ToggleGroup.Item
 				value={option.value}
 				aria-label={`Switch to ${option.label.toLowerCase()} mode`}
@@ -134,7 +142,7 @@
 					<TransformationSelector />
 				{/if}
 			</div>
-		{:else if settings.value['recording.mode'] === 'cpal'}
+		{:else if settings.value['recording.mode'] === 'cpal' && window.__TAURI_INTERNALS__}
 			<WhisperingButton
 				tooltipContent={getCpalStateQuery.data === 'IDLE'
 					? 'Start CPAL recording'
@@ -189,6 +197,13 @@
 					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
+			</div>
+		{:else if settings.value['recording.mode'] === 'live'}
+			<div class="flex flex-col items-center justify-center gap-4">
+				<span class="text-[100px] leading-none">🎬</span>
+				<p class="text-muted-foreground text-center">
+					Live mode is not yet implemented
+				</p>
 			</div>
 		{/if}
 	</div>
