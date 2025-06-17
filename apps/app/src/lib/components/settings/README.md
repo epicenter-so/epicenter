@@ -23,15 +23,16 @@ A component belongs here if it meets ALL of the following criteria:
 
 ```
 settings/
-├── _api-keys/              # API key input components
+├── api-key-inputs/         # API key input components
 │   ├── OpenAiApiKeyInput.svelte
 │   ├── GroqApiKeyInput.svelte
 │   ├── AnthropicApiKeyInput.svelte
 │   ├── ElevenLabsApiKeyInput.svelte
 │   └── GoogleApiKeyInput.svelte
-├── DeviceSelector.svelte   # Recording device selector
-├── TransformationSelector.svelte  # Transformation selector
-├── TranscriptionServiceSelector.svelte  # Transcription service selector
+├── selectors/             # Various selector components
+│   ├── DeviceSelector.svelte
+│   ├── TransformationSelector.svelte
+│   └── TranscriptionSelector.svelte
 ├── index.ts               # Re-exports all components
 └── README.md             # This file
 ```

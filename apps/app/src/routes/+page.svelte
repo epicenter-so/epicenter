@@ -3,7 +3,7 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import {
 		DeviceSelector,
-		TranscriptionServiceSelector,
+		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
@@ -130,7 +130,7 @@
 					</WhisperingButton>
 				{:else}
 					<DeviceSelector settingsKey="recording.manual.selectedDeviceId" />
-					<TranscriptionServiceSelector />
+					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
@@ -163,7 +163,7 @@
 					</WhisperingButton>
 				{:else}
 					<DeviceSelector settingsKey="recording.cpal.selectedDeviceId" />
-					<TranscriptionServiceSelector />
+					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
@@ -186,7 +186,7 @@
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				{#if getVadStateQuery.data === 'IDLE'}
 					<DeviceSelector settingsKey="recording.vad.selectedDeviceId" />
-					<TranscriptionServiceSelector />
+					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
