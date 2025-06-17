@@ -17,6 +17,7 @@
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import {
 		recorderStateToIcons,
+		cpalStateToIcons,
 		RECORDING_MODE_OPTIONS,
 		vadStateToIcons,
 	} from '@repo/shared';
@@ -27,6 +28,9 @@
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
+	);
+	const getCpalStateQuery = createQuery(
+		rpc.cpalRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
@@ -76,11 +80,11 @@
 	<ToggleGroup.Root
 		type="single"
 		value={settings.value['recording.mode']}
-		class="max-w-xs w-full grid grid-cols-2 gap-2"
+		class="max-w-md w-full grid grid-cols-4 gap-2"
 		onValueChange={(mode) => {
 			settings.value = {
 				...settings.value,
-				'recording.mode': mode as 'manual' | 'vad' | 'live',
+				'recording.mode': mode as 'manual' | 'cpal' | 'vad' | 'live',
 			};
 		}}
 	>
@@ -98,7 +102,6 @@
 	<div class="max-w-md flex items-end justify-between w-full gap-2 pt-1">
 		<div class="flex-1"></div>
 		{#if settings.value['recording.mode'] === 'manual'}
-			{@const currentMethod = settings.value[`recording.manual.method`]}
 			<WhisperingButton
 				tooltipContent={getRecorderStateQuery.data === 'IDLE'
 					? 'Start recording'
@@ -126,15 +129,45 @@
 						🚫
 					</WhisperingButton>
 				{:else}
-					<DeviceSelector
-						settingsKey="recording.manual.{currentMethod}.selectedDeviceId"
-					/>
+					<DeviceSelector settingsKey="recording.manual.selectedDeviceId" />
+					<TranscriptionServiceSelector />
+					<TransformationSelector />
+				{/if}
+			</div>
+		{:else if settings.value['recording.mode'] === 'cpal'}
+			<WhisperingButton
+				tooltipContent={getCpalStateQuery.data === 'IDLE'
+					? 'Start CPAL recording'
+					: 'Stop CPAL recording'}
+				onclick={commandCallbacks.toggleCpalRecording}
+				variant="ghost"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+			>
+				<span
+					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
+					class="text-[100px] leading-none"
+				>
+					{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
+				</span>
+			</WhisperingButton>
+			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+				{#if getCpalStateQuery.data === 'RECORDING'}
+					<WhisperingButton
+						tooltipContent="Cancel CPAL recording"
+						onclick={commandCallbacks.cancelCpalRecording}
+						variant="ghost"
+						size="icon"
+						style="view-transition-name: cancel-icon;"
+					>
+						🚫
+					</WhisperingButton>
+				{:else}
+					<DeviceSelector settingsKey="recording.cpal.selectedDeviceId" />
 					<TranscriptionServiceSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'vad'}
-			{@const currentMethod = settings.value[`recording.vad.method`]}
 			<WhisperingButton
 				tooltipContent={getVadStateQuery.data === 'IDLE'
 					? 'Start voice activated session'
@@ -152,9 +185,7 @@
 			</WhisperingButton>
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				{#if getVadStateQuery.data === 'IDLE'}
-					<DeviceSelector
-						settingsKey="recording.vad.{currentMethod}.selectedDeviceId"
-					/>
+					<DeviceSelector settingsKey="recording.vad.selectedDeviceId" />
 					<TranscriptionServiceSelector />
 					<TransformationSelector />
 				{/if}

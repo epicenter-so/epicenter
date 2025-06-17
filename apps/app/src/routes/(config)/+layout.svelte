@@ -10,11 +10,18 @@
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';
-	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
+	import {
+		recorderStateToIcons,
+		cpalStateToIcons,
+		vadStateToIcons,
+	} from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
+	);
+	const getCpalStateQuery = createQuery(
+		rpc.cpalRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
@@ -39,7 +46,6 @@
 		</WhisperingButton>
 	</div>
 	{#if settings.value['recording.mode'] === 'manual'}
-		{@const currentMethod = settings.value[`recording.manual.method`]}
 		{#if getRecorderStateQuery.data === 'RECORDING'}
 			<WhisperingButton
 				tooltipContent="Cancel recording"
@@ -51,9 +57,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector
-				settingsKey="recording.manual.{currentMethod}.selectedDeviceId"
-			/>
+			<DeviceSelector settingsKey="recording.manual.selectedDeviceId" />
 			<TranscriptionServiceSelector />
 			<TransformationSelector />
 		{/if}
@@ -68,9 +72,36 @@
 		>
 			{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
+	{:else if settings.value['recording.mode'] === 'cpal'}
+		{#if getCpalStateQuery.data === 'RECORDING'}
+			<WhisperingButton
+				tooltipContent="Cancel CPAL recording"
+				onclick={commandCallbacks.cancelCpalRecording}
+				variant="ghost"
+				size="icon"
+				style="view-transition-name: cancel-icon;"
+			>
+				🚫
+			</WhisperingButton>
+		{:else}
+			<DeviceSelector settingsKey="recording.cpal.selectedDeviceId" />
+			<TranscriptionServiceSelector />
+			<TransformationSelector />
+		{/if}
+		<WhisperingButton
+			tooltipContent={getCpalStateQuery.data === 'RECORDING'
+				? 'Stop CPAL recording'
+				: 'Start CPAL recording'}
+			onclick={commandCallbacks.toggleCpalRecording}
+			variant="ghost"
+			size="icon"
+			style="view-transition-name: microphone-icon"
+		>
+			{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
+		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector settingsKey="recording.vad.navigator.selectedDeviceId" />
+			<DeviceSelector settingsKey="recording.vad.selectedDeviceId" />
 			<TranscriptionServiceSelector />
 			<TransformationSelector />
 		{/if}
@@ -82,6 +113,24 @@
 			style="view-transition-name: microphone-icon"
 		>
 			{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
+		</WhisperingButton>
+	{:else if settings.value['recording.mode'] === 'live'}
+		{#if true}
+			<DeviceSelector settingsKey="recording.live.selectedDeviceId" />
+			<TranscriptionServiceSelector />
+			<TransformationSelector />
+		{/if}
+		<WhisperingButton
+			tooltipContent="Toggle live recording"
+			onclick={() => {
+				// TODO: Implement live recording toggle
+				alert('Live recording not yet implemented');
+			}}
+			variant="ghost"
+			size="icon"
+			style="view-transition-name: microphone-icon"
+		>
+			🎬
 		</WhisperingButton>
 	{/if}
 

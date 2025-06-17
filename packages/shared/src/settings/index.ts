@@ -4,6 +4,7 @@ export * from './settingsV3.js';
 export * from './settingsV4.js';
 export * from './settingsV5.js';
 export * from './settingsV6.js';
+export * from './settingsV7.js';
 
-export type { SettingsV6 as Settings } from './settingsV6.js';
-export { settingsV6Schema as settingsSchema } from './settingsV6.js';
+export type { SettingsV7 as Settings } from './settingsV7.js';
+export { settingsV7Schema as settingsSchema } from './settingsV7.js';

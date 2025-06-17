@@ -31,10 +31,11 @@ export const BITRATE_OPTIONS = BITRATE_VALUES_KBPS.map((bitrate) => ({
 	value: bitrate,
 }));
 
-export const RECORDING_MODES = ['manual', 'vad', 'live'] as const;
+export const RECORDING_MODES = ['manual', 'cpal', 'vad', 'live'] as const;
 export type RecordingMode = (typeof RECORDING_MODES)[number];
 export const RECORDING_MODE_OPTIONS = [
 	{ label: 'Manual', value: 'manual', icon: '🎙️' },
+	{ label: 'CPAL', value: 'cpal', icon: '🔊' },
 	{ label: 'Voice Activated', value: 'vad', icon: '🎤' },
 	{ label: 'Live', value: 'live', icon: '🎬' },
 ] as const satisfies {
@@ -42,15 +43,6 @@ export const RECORDING_MODE_OPTIONS = [
 	value: RecordingMode;
 	icon: string;
 }[];
-
-export const MANUAL_RECORDING_METHODS = ['navigator', 'tauri'] as const;
-
-export const MANUAL_RECORDING_METHOD_OPTIONS = MANUAL_RECORDING_METHODS.map(
-	(method) => ({
-		label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
-		value: method,
-	}),
-);
 
 export const DEFAULT_BITRATE_KBPS =
 	'128' as const satisfies (typeof BITRATE_VALUES_KBPS)[number];
@@ -72,6 +64,11 @@ export const recordingStateSchema = z.enum(['IDLE', 'RECORDING']);
 export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
 
 export const recorderStateToIcons = {
+	IDLE: '🎙️',
+	RECORDING: '⏹️',
+} as const satisfies Record<WhisperingRecordingState, string>;
+
+export const cpalStateToIcons = {
 	IDLE: '🎙️',
 	RECORDING: '⏹️',
 } as const satisfies Record<WhisperingRecordingState, string>;
@@ -386,6 +383,9 @@ export type WhisperingSoundNames =
 	| 'manual-start'
 	| 'manual-stop'
 	| 'manual-cancel'
+	| 'cpal-start'
+	| 'cpal-stop'
+	| 'cpal-cancel'
 	| 'vad-start'
 	| 'vad-capture'
 	| 'vad-stop'

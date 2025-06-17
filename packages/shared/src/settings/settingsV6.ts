@@ -6,7 +6,6 @@ import {
 	DEFAULT_BITRATE_KBPS,
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	GROQ_MODELS,
-	MANUAL_RECORDING_METHODS,
 	OPENAI_TRANSCRIPTION_MODELS,
 	RECORDING_MODES,
 	SUPPORTED_LANGUAGES,
@@ -47,7 +46,7 @@ export const settingsV6Schema = z.object({
 
 	// Mode-specific method settings
 	'recording.manual.method': z
-		.enum(MANUAL_RECORDING_METHODS)
+		.enum(['navigator', 'tauri'])
 		.default('navigator'),
 	// Manual mode method-specific settings
 	'recording.manual.navigator.selectedDeviceId': z.string().nullable(),

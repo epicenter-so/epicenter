@@ -3,7 +3,7 @@ import type { WhisperingRecordingState } from '@repo/shared';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import type { RecorderService, RecordingServiceError } from './_types';
 
-export function createRecorderServiceTauri(): RecorderService {
+export function createRecorderServiceCpal(): RecorderService {
 	return {
 		getRecorderState: async () => {
 			const { data: recorderState, error: getRecorderStateError } =

@@ -5,7 +5,6 @@ import {
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	GROQ_MODELS,
-	MANUAL_RECORDING_METHODS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
@@ -40,7 +39,7 @@ export const settingsV5Schema = z.object({
 	'database.maxRecordingCount': z.string().regex(/^\d+$/, 'Must be a number'),
 
 	// Recording settings
-	'recording.method': z.enum(MANUAL_RECORDING_METHODS).default('navigator'),
+	'recording.method': z.enum(['navigator', 'tauri']).default('navigator'),
 
 	// Navigator-specific recording settings
 	'recording.navigator.selectedAudioInputDeviceId': z.string().nullable(),

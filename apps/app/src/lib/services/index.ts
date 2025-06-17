@@ -1,7 +1,4 @@
-import type {
-	MANUAL_RECORDING_METHODS,
-	WhisperingSoundNames,
-} from '@repo/shared';
+import type { WhisperingSoundNames } from '@repo/shared';
 import { settings } from '../stores/settings.svelte';
 import {
 	createSetTrayIconDesktopService,
@@ -16,8 +13,7 @@ import { createHttpServiceDesktop } from './http/desktop';
 import { createHttpServiceWeb } from './http/web';
 import { createNotificationServiceDesktop } from './notifications/desktop';
 import { createNotificationServiceWeb } from './notifications/web';
-import type { RecorderService } from './recorder/_types';
-import { createRecorderServiceTauri } from './recorder/tauri';
+import { createRecorderServiceCpal } from './recorder/cpal';
 import { createRecorderServiceWeb } from './recorder/web';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
@@ -66,7 +62,7 @@ const TransformerService = createTransformerService({
 });
 
 const NavigatorRecorderService = createRecorderServiceWeb();
-const TauriRecorderService = createRecorderServiceTauri();
+const CpalRecorderService = createRecorderServiceCpal();
 
 /**
  * Unified services object providing consistent access to all services.
@@ -126,17 +122,8 @@ export const services = (() => {
 			}
 		},
 
-		get manualRecorder() {
-			return (
-				{
-					tauri: TauriRecorderService,
-					navigator: NavigatorRecorderService,
-				} satisfies Record<
-					(typeof MANUAL_RECORDING_METHODS)[number],
-					RecorderService
-				>
-			)[settings.value['recording.manual.method']];
-		},
+		manualRecorder: NavigatorRecorderService,
+		cpalRecorder: CpalRecorderService,
 		sound: {
 			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
 				if (settings.value[`sound.playOn.${soundName}`]) {
