@@ -1,10 +1,15 @@
-import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-import { SetTrayIconService } from '$lib/services';
+import { rpc } from '$lib/query';
+import { services } from '$lib/services';
+import { createQuery } from '@tanstack/svelte-query';
 
 export function syncIconWithRecorderState() {
-	const manualRecorder = getManualRecorderFromContext();
+	const getRecorderStateQuery = createQuery(
+		rpc.recorder.getRecorderState.options,
+	);
 
 	$effect(() => {
-		SetTrayIconService.setTrayIcon(manualRecorder.recorderState);
+		if (getRecorderStateQuery.data) {
+			services.setTrayIcon.setTrayIcon(getRecorderStateQuery.data);
+		}
 	});
 }

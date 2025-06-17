@@ -1,28 +1,31 @@
 <script lang="ts">
-	import { fasterRerecordExplainedDialog } from '$lib/components/FasterRerecordExplainedDialog.svelte';
+	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
-	import { RecordingControls } from '$lib/components/recording-controls';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
-	import { useLatestRecording } from '$lib/query/recordings/queries';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
+	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { AudioLinesIcon, Loader2Icon, MicIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
+	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
+	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 
-	const manualRecorder = getManualRecorderFromContext();
-	const vadRecorder = getVadRecorderFromContext();
-	const commands = getCommandsFromContext();
-	const { latestRecordingQuery } = useLatestRecording();
+	const getRecorderStateQuery = createQuery(
+		rpc.recorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
+	const latestRecordingQuery = createQuery(
+		rpc.recordings.getLatestRecording.options,
+	);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {
@@ -98,10 +101,10 @@
 		<div class="flex-1"></div>
 		{#if mode === 'manual'}
 			<WhisperingButton
-				tooltipContent={manualRecorder.recorderState === 'SESSION+RECORDING'
-					? 'Stop recording'
-					: 'Start recording'}
-				onclick={commands.toggleManualRecording}
+				tooltipContent={getRecorderStateQuery.data === 'IDLE'
+					? 'Start recording'
+					: 'Stop recording'}
+				onclick={commandCallbacks.toggleManualRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -109,19 +112,15 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
-						⏹️
-					{:else}
-						🎙️
-					{/if}
+					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{:else}
 			<WhisperingButton
-				tooltipContent={vadRecorder.vadState === 'SESSION+RECORDING'
-					? 'Stop voice activated session'
-					: 'Start voice activated session'}
-				onclick={commands.toggleVadRecording}
+				tooltipContent={getVadStateQuery.data === 'IDLE'
+					? 'Start voice activated session'
+					: 'Stop voice activated session'}
+				onclick={commandCallbacks.toggleVadRecording}
 				variant="ghost"
 				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
@@ -129,84 +128,61 @@
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
 					class="text-[100px] leading-none"
 				>
-					{#if vadRecorder.vadState === 'SESSION+RECORDING'}
-						🛑
-					{:else}
-						🎬
-					{/if}
+					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
 		{/if}
-		<div class="flex-1 flex-justify-center mb-2">
-			{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+		<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+			{#if getRecorderStateQuery.data === 'RECORDING'}
 				<WhisperingButton
 					tooltipContent="Cancel recording"
-					onclick={commands.cancelManualRecording}
+					onclick={commandCallbacks.cancelManualRecording}
 					variant="ghost"
 					size="icon"
 					style="view-transition-name: cancel-icon;"
 				>
 					🚫
 				</WhisperingButton>
-			{:else if manualRecorder.recorderState === 'SESSION'}
-				<WhisperingButton
-					onclick={commands.closeManualRecordingSession}
-					variant="ghost"
-					size="icon"
-					style="view-transition-name: end-session-icon;"
-				>
-					🔴
-					{#snippet tooltipContent()}
-						End recording session
-						<Button
-							variant="link"
-							size="inline"
-							onclick={() => fasterRerecordExplainedDialog.open()}
-						>
-							(What's that?)
-						</Button>
-					{/snippet}
-				</WhisperingButton>
-			{:else if vadRecorder.vadState === 'SESSION+RECORDING' || vadRecorder.vadState === 'SESSION'}
-				<!-- Render nothing -->
 			{:else}
-				<RecordingControls />
+				{#if settings.value['recording.method'] === 'navigator'}
+					<NavigatorDeviceSelector />
+				{:else}
+					<TauriDeviceSelector />
+				{/if}
+				<TransformationSelector />
 			{/if}
 		</div>
 	</div>
 
 	<div class="xxs:flex hidden w-full max-w-xs flex-col items-center gap-2">
-		{#if latestRecording.transcribedText !== ''}
-			<div class="flex w-full items-center gap-2">
-				<TranscribedTextDialog
-					recordingId={latestRecording.id}
-					transcribedText={latestRecording.transcriptionStatus ===
-					'TRANSCRIBING'
-						? '...'
-						: latestRecording.transcribedText}
-					rows={1}
-				/>
-				<CopyToClipboardButton
-					label="transcribed text"
-					copyableText={latestRecording.transcribedText}
-					viewTransitionName={getRecordingTransitionId({
-						recordingId: latestRecording.id,
-						propertyName: 'transcribedText',
-					})}
-					size="default"
-					variant="secondary"
-					disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-				>
-					{#snippet copyIcon()}
-						{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-							<Loader2Icon class="size-6 animate-spin" />
-						{:else}
-							<ClipboardIcon class="size-6" />
-						{/if}
-					{/snippet}
-				</CopyToClipboardButton>
-			</div>
-		{/if}
+		<div class="flex w-full items-center gap-2">
+			<TranscribedTextDialog
+				recordingId={latestRecording.id}
+				transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
+					? '...'
+					: latestRecording.transcribedText}
+				rows={1}
+			/>
+			<CopyToClipboardButton
+				contentName="transcribed text"
+				copyableText={latestRecording.transcribedText}
+				viewTransitionName={getRecordingTransitionId({
+					recordingId: latestRecording.id,
+					propertyName: 'transcribedText',
+				})}
+				size="default"
+				variant="secondary"
+				disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+			>
+				{#snippet copyIcon()}
+					{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+						<Loader2Icon class="size-6 animate-spin" />
+					{:else}
+						<ClipboardIcon class="size-6" />
+					{/if}
+				{/snippet}
+			</CopyToClipboardButton>
+		</div>
 
 		{#if blobUrl}
 			<audio

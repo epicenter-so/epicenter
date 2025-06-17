@@ -1,10 +1,10 @@
-import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
+import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import type { Settings } from '@repo/shared/settings';
 import type {
 	RecorderService,
 	RecordingServiceError,
-	UpdateStatusMessageFn,
+	RecordingSessionSettings,
+	DeviceAcquisitionOutcome,
 } from './_types';
 
 const TIMESLICE_MS = 1000;
@@ -14,273 +14,268 @@ const WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS = {
 	sampleRate: { ideal: 16_000 },
 } satisfies MediaTrackConstraints;
 
-type RecordingSession = {
-	settings: Settings;
+type ActiveRecording = {
+	settings: RecordingSessionSettings;
 	stream: MediaStream;
-	recorder: {
-		mediaRecorder: MediaRecorder;
-		recordedChunks: Blob[];
-		recordingId: string;
-	} | null;
+	mediaRecorder: MediaRecorder;
+	recordedChunks: Blob[];
 };
 
-export function createRecorderServiceWeb(): RecorderService {
-	let maybeCurrentSession: RecordingSession | null = null;
+export function createRecorderServiceWeb() {
+	let activeRecording: ActiveRecording | null = null;
 
-	const acquireStream = async (
-		settings: Settings,
-		{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
-	): Promise<Result<MediaStream, RecordingServiceError>> => {
-		if (!settings['recording.navigator.selectedAudioInputDeviceId']) {
-			sendStatus({
-				title: '🔍 No Device Selected',
-				description:
-					"No worries! We'll find the best microphone for you automatically...",
-			});
-			const { data: firstStream, error: getFirstStreamError } =
-				await getFirstAvailableStream();
-			if (getFirstStreamError) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						"Hmm... We couldn't find any microphones to use. Check your connections and try again!",
-					context: { settings },
-					cause: getFirstStreamError,
-				});
-			}
-			return Ok(firstStream);
+	const cleanupRecordingStream = (stream: MediaStream) => {
+		for (const track of stream.getTracks()) {
+			track.stop();
 		}
-		sendStatus({
-			title: '🎯 Connecting Device',
-			description:
-				'Almost there! Just need your permission to use the microphone...',
-		});
-		const { data: preferredStream, error: getPreferredStreamError } =
-			await getStreamForDeviceId(
-				settings['recording.navigator.selectedAudioInputDeviceId'],
-			);
-		if (getPreferredStreamError) {
-			sendStatus({
-				title: '⚠️ Finding a New Microphone',
-				description:
-					"That microphone isn't working. Let's try finding another one...",
-			});
-			const { data: firstStream, error: getFirstStreamError } =
-				await getFirstAvailableStream();
-			if (getFirstStreamError) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						"We couldn't connect to any microphones. Make sure they're plugged in and try again!",
-					context: { settings },
-					cause: getFirstStreamError,
-				});
-			}
-			return Ok(firstStream);
-		}
-		return Ok(preferredStream);
 	};
 
 	return {
 		getRecorderState: () => {
-			if (!maybeCurrentSession) return Ok('IDLE');
-			if (maybeCurrentSession.recorder) return Ok('SESSION+RECORDING');
-			return Ok('SESSION');
+			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
 		enumerateRecordingDevices,
 
-		ensureRecordingSession: async (settings, { sendStatus }) => {
-			if (maybeCurrentSession) return Ok(undefined);
-			const { data: stream, error: acquireStreamError } = await acquireStream(
-				settings,
-				{
-					sendStatus,
-				},
-			);
-			if (acquireStreamError) return Err(acquireStreamError);
-			maybeCurrentSession = { settings, stream, recorder: null };
-			return Ok(undefined);
-		},
-
-		closeRecordingSession: async ({ sendStatus }) => {
-			if (!maybeCurrentSession) return Ok(undefined);
-			const currentSession = maybeCurrentSession;
-			sendStatus({
-				title: '🎙️ Cleaning Up',
-				description:
-					'Safely stopping your audio stream to free up system resources...',
-			});
-			for (const track of currentSession.stream.getTracks()) {
-				track.stop();
-			}
-			sendStatus({
-				title: '🧹 Almost Done',
-				description:
-					'Cleaning up recording resources and preparing for next session...',
-			});
-			maybeCurrentSession.recorder = null;
-			sendStatus({
-				title: '✨ All Set',
-				description:
-					'Recording session successfully closed and resources freed',
-			});
-			maybeCurrentSession = null;
-			return Ok(undefined);
-		},
-
-		startRecording: async (recordingId, { sendStatus }) => {
-			if (!maybeCurrentSession) {
+		startRecording: async ({ settings }, { sendStatus }) => {
+			// Ensure we're not already recording
+			if (activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
-						'Cannot start recording without an active session. Please ensure you have set up a recording session first before attempting to record.',
-					context: { recordingId },
+						'A recording is already in progress. Please stop the current recording before starting a new one.',
+					context: { activeRecording },
 					cause: undefined,
 				});
 			}
-			const currentSession = maybeCurrentSession;
-			if (!currentSession.stream.active) {
-				sendStatus({
-					title: '🔄 Session Expired',
-					description:
-						'Your recording session timed out. Reconnecting to your microphone...',
-				});
-				const { data: stream, error: acquireStreamError } = await acquireStream(
-					currentSession.settings,
-					{ sendStatus },
-				);
-				if (acquireStreamError) return Err(acquireStreamError);
-				maybeCurrentSession = {
-					settings: currentSession.settings,
-					stream,
-					recorder: null,
-				};
-			}
+
 			sendStatus({
-				title: '🎯 Getting Ready',
-				description: 'Initializing your microphone and preparing to record...',
+				title: '🎙️ Starting Recording',
+				description: 'Setting up your microphone...',
 			});
-			const { data: newRecorder, error: newRecorderError } = await tryAsync({
+
+			// Get the recording stream
+			const { data: streamResult, error: acquireStreamError } =
+				await getRecordingStream(settings, sendStatus);
+			if (acquireStreamError) return Err(acquireStreamError);
+
+			const { stream, deviceOutcome } = streamResult;
+
+			// Create the MediaRecorder
+			const { data: mediaRecorder, error: recorderError } = await tryAsync({
 				try: async () => {
-					return new MediaRecorder(currentSession.stream, {
-						bitsPerSecond:
-							Number(
-								currentSession.settings['recording.navigator.bitrateKbps'],
-							) * 1000,
+					return new MediaRecorder(stream, {
+						bitsPerSecond: Number(settings.bitrateKbps) * 1000,
 					});
 				},
 				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: {
-						recordingId,
-						bitrateKbps:
-							currentSession.settings['recording.navigator.bitrateKbps'],
-						streamActive: currentSession.stream.active,
-						streamTracks: currentSession.stream.getTracks().length,
-					},
+					context: { settings },
 					cause: error,
 				}),
 			});
-			if (newRecorderError) return Err(newRecorderError);
-			sendStatus({
-				title: '🎤 Recording Active',
-				description:
-					'Your microphone is now recording. Speak clearly and naturally!',
-			});
-			maybeCurrentSession.recorder = {
-				mediaRecorder: newRecorder,
-				recordedChunks: [],
-				recordingId,
+			if (recorderError) {
+				// Clean up stream if recorder creation fails
+				cleanupRecordingStream(stream);
+				return Err(recorderError);
+			}
+
+			// Set up the active recording
+			const recordedChunks: Blob[] = [];
+			activeRecording = {
+				settings,
+				stream,
+				mediaRecorder,
+				recordedChunks,
 			};
-			newRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
+
+			// Set up event handlers
+			mediaRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
 				if (!event.data.size) return;
-				maybeCurrentSession?.recorder?.recordedChunks.push(event.data);
+				recordedChunks.push(event.data);
 			});
-			newRecorder.start(TIMESLICE_MS);
-			return Ok(undefined);
+
+			// Start recording
+			mediaRecorder.start(TIMESLICE_MS);
+
+			// Return the device acquisition outcome
+			return Ok(deviceOutcome);
 		},
 
 		stopRecording: async ({ sendStatus }) => {
-			if (!maybeCurrentSession?.recorder) {
+			if (!activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
 						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
-					context: {
-						hasSession: !!maybeCurrentSession,
-						hasRecorder: !!maybeCurrentSession?.recorder,
-					},
+					context: {},
 					cause: undefined,
 				});
 			}
-			const recorder = maybeCurrentSession.recorder;
+
+			const recording = activeRecording;
+			activeRecording = null; // Clear immediately to prevent race conditions
+
 			sendStatus({
-				title: '⏸️ Finishing Up',
-				description:
-					'Saving your recording and preparing the final audio file...',
+				title: '⏸️ Finishing Recording',
+				description: 'Saving your audio...',
 			});
+
+			// Stop the recorder and wait for the final data
 			const { data: blob, error: stopError } = await tryAsync({
 				try: () =>
 					new Promise<Blob>((resolve) => {
-						recorder.mediaRecorder.addEventListener('stop', () => {
-							const audioBlob = new Blob(recorder.recordedChunks, {
-								type: recorder.mediaRecorder.mimeType,
+						recording.mediaRecorder.addEventListener('stop', () => {
+							const audioBlob = new Blob(recording.recordedChunks, {
+								type: recording.mediaRecorder.mimeType,
 							});
 							resolve(audioBlob);
 						});
-						recorder.mediaRecorder.stop();
+						recording.mediaRecorder.stop();
 					}),
 				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
 						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
 					context: {
-						recordingId: recorder.recordingId,
-						chunksCount: recorder.recordedChunks.length,
-						mimeType: recorder.mediaRecorder.mimeType,
-						state: recorder.mediaRecorder.state,
+						chunksCount: recording.recordedChunks.length,
+						mimeType: recording.mediaRecorder.mimeType,
+						state: recording.mediaRecorder.state,
 					},
 					cause: error,
 				}),
 			});
+
+			// Always clean up the stream
+			cleanupRecordingStream(recording.stream);
+
 			if (stopError) return Err(stopError);
+
 			sendStatus({
-				title: '✅ Recording Complete',
-				description: 'Successfully saved your audio recording!',
+				title: '✅ Recording Saved',
+				description: 'Your recording is ready for transcription!',
 			});
-			maybeCurrentSession.recorder = null;
 			return Ok(blob);
 		},
 
 		cancelRecording: async ({ sendStatus }) => {
-			if (!maybeCurrentSession?.recorder) {
+			if (!activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
 					message:
 						'Cannot cancel recording because no active recording session was found. There is currently nothing to cancel.',
-					context: {
-						hasSession: !!maybeCurrentSession,
-						hasRecorder: !!maybeCurrentSession?.recorder,
-					},
+					context: {},
 					cause: undefined,
 				});
 			}
-			const recorder = maybeCurrentSession.recorder;
+
+			const recording = activeRecording;
+			activeRecording = null; // Clear immediately
+
 			sendStatus({
 				title: '🛑 Cancelling',
-				description: 'Safely cancelling your recording...',
+				description: 'Discarding your recording...',
 			});
-			recorder.mediaRecorder.stop();
+
+			// Stop the recorder
+			recording.mediaRecorder.stop();
+
+			// Clean up the stream
+			cleanupRecordingStream(recording.stream);
+
 			sendStatus({
 				title: '✨ Cancelled',
-				description: 'Recording successfully cancelled!',
+				description: 'Recording discarded successfully!',
 			});
-			maybeCurrentSession.recorder = null;
+
 			return Ok(undefined);
 		},
-	};
+	} satisfies RecorderService;
+}
+
+async function getRecordingStream(
+	settings: RecordingSessionSettings,
+	sendStatus: (args: { title: string; description: string }) => void,
+): Promise<
+	Result<
+		{ stream: MediaStream; deviceOutcome: DeviceAcquisitionOutcome },
+		RecordingServiceError
+	>
+> {
+	const hasPreferredDevice = !!settings.selectedDeviceId;
+
+	// Try to use the preferred device if specified
+	if (hasPreferredDevice && settings.selectedDeviceId) {
+		sendStatus({
+			title: '🎯 Connecting Device',
+			description:
+				'Almost there! Just need your permission to use the microphone...',
+		});
+		const { data: preferredStream, error: getPreferredStreamError } =
+			await getStreamForDeviceId(settings.selectedDeviceId);
+		if (!getPreferredStreamError) {
+			return Ok({
+				stream: preferredStream,
+				deviceOutcome: { outcome: 'success' },
+			});
+		}
+	}
+
+	const noDeviceSelected = !hasPreferredDevice;
+	const preferredDeviceFailed = hasPreferredDevice;
+
+	if (noDeviceSelected) {
+		sendStatus({
+			title: '🔍 No Device Selected',
+			description:
+				"No worries! We'll find the best microphone for you automatically...",
+		});
+	} else if (preferredDeviceFailed) {
+		sendStatus({
+			title: '⚠️ Finding a New Microphone',
+			description:
+				"That microphone isn't working. Let's try finding another one...",
+		});
+	}
+
+	// Get fallback stream
+	const { data: fallbackStreamData, error: getFallbackStreamError } =
+		await getFirstAvailableStream();
+	if (getFallbackStreamError) {
+		const errorMessage = noDeviceSelected
+			? "Hmm... We couldn't find any microphones to use. Check your connections and try again!"
+			: "We couldn't connect to any microphones. Make sure they're plugged in and try again!";
+		return Err({
+			name: 'RecordingServiceError',
+			message: errorMessage,
+			context: { settings },
+			cause: getFallbackStreamError,
+		});
+	}
+
+	const { stream: fallbackStream, deviceId: fallbackDeviceId } =
+		fallbackStreamData;
+
+	// Return the stream with appropriate device outcome
+	if (noDeviceSelected) {
+		return Ok({
+			stream: fallbackStream,
+			deviceOutcome: {
+				outcome: 'fallback',
+				reason: 'no-device-selected',
+				fallbackDeviceId,
+			},
+		});
+	}
+	return Ok({
+		stream: fallbackStream,
+		deviceOutcome: {
+			outcome: 'fallback',
+			reason: 'preferred-device-unavailable',
+			fallbackDeviceId,
+		},
+	});
 }
 
 async function hasExistingAudioPermission(): Promise<boolean> {
@@ -319,7 +314,7 @@ async function getFirstAvailableStream() {
 		const { data: stream, error: getStreamForDeviceIdError } =
 			await getStreamForDeviceId(device.deviceId);
 		if (!getStreamForDeviceIdError) {
-			return Ok(stream);
+			return Ok({ stream, deviceId: device.deviceId });
 		}
 	}
 	return Err({
@@ -335,7 +330,7 @@ async function enumerateRecordingDevices(): Promise<
 > {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		void extension.openWhisperingTab({});
+		extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {
@@ -364,7 +359,7 @@ async function enumerateRecordingDevices(): Promise<
 async function getStreamForDeviceId(recordingDeviceId: string) {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		void extension.openWhisperingTab({});
+		extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {

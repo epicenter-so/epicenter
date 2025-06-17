@@ -1,25 +1,25 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
-	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
-	import { DbRecordingsService } from '$lib/services';
+	import { rpc } from '$lib/query';
+	import { services } from '$lib/services';
 	import { extension } from '@repo/extension';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
+	import { registerCommandsOnLoad } from './registerCommands.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { commandCallbacks } from '$lib/commands';
 
-	const manualRecorder = getManualRecorderFromContext();
-	const vadRecorder = getVadRecorderFromContext();
-	const commands = getCommandsFromContext();
+	const getRecorderStateQuery = createQuery(
+		rpc.recorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
@@ -27,16 +27,16 @@
 		closeToTrayIfEnabled();
 	}
 
-	bindKeyboardShortcutsOnLoad();
+	registerCommandsOnLoad();
 
 	$effect(() => {
-		manualRecorder.recorderState;
-		vadRecorder.vadState;
-		void DbRecordingsService.cleanupExpiredRecordings();
+		getRecorderStateQuery.data;
+		getVadStateQuery.data;
+		services.db.cleanupExpiredRecordings();
 	});
 
 	onMount(async () => {
-		window.commands = commands;
+		window.commands = commandCallbacks;
 		window.goto = goto;
 		if (!window.__TAURI_INTERNALS__) {
 			const _notifyWhisperingTabReadyResult =
@@ -56,13 +56,13 @@
 
 <button
 	class="xxs:hidden hover:bg-accent hover:text-accent-foreground h-screen w-screen transform duration-300 ease-in-out"
-	onclick={commands.toggleManualRecording}
+	onclick={commandCallbacks.toggleManualRecording}
 >
 	<span
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"
 		class="text-[48px] leading-none"
 	>
-		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
 			⏹️
 		{:else}
 			🎙️
@@ -81,7 +81,6 @@
 	{...TOASTER_SETTINGS}
 />
 <ModeWatcher />
-<FasterRerecordExplainedDialog />
 <ConfirmationDialog />
 <MoreDetailsDialog />
 <NotificationLog />

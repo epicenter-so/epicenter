@@ -3,12 +3,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import { useCreateTransformationWithToast } from '$lib/query/transformations/mutations';
+	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
+	import { toast } from '$lib/toast';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
 
-	const { createTransformationWithToast } = useCreateTransformationWithToast();
+	const createTransformation = createMutation(
+		rpc.transformations.mutations.createTransformation.options,
+	);
 
 	let isDialogOpen = $state(false);
 	let transformation = $state(generateDefaultTransformation());
@@ -72,15 +76,24 @@
 			<Button
 				type="submit"
 				onclick={() =>
-					createTransformationWithToast.mutate(
-						$state.snapshot(transformation),
-						{
-							onSuccess: () => {
-								isDialogOpen = false;
-								transformation = generateDefaultTransformation();
-							},
+					createTransformation.mutate($state.snapshot(transformation), {
+						onSuccess: () => {
+							isDialogOpen = false;
+							transformation = generateDefaultTransformation();
+							toast.success({
+								title: 'Created transformation!',
+								description:
+									'Your transformation has been created successfully.',
+							});
 						},
-					)}
+						onError: (error) => {
+							toast.error({
+								title: 'Failed to create transformation!',
+								description: 'Your transformation could not be created.',
+								action: { type: 'more-details', error },
+							});
+						},
+					})}
 			>
 				Create
 			</Button>

@@ -1,23 +1,22 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import SelectTransformationCombobox from '$lib/components/SelectTransformationCombobox.svelte';
+	import TransformationPicker from './TransformationPicker.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import WhisperingTooltip from '$lib/components/WhisperingTooltip.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { useDownloadRecordingWithToast } from '$lib/query/download/mutations';
 	import {
-		useDeleteRecordingWithToast,
-		useUpdateRecordingWithToast,
-	} from '$lib/query/recordings/mutations';
-	import { useRecordingQuery } from '$lib/query/recordings/queries';
-	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
-	import { getTransformerFromContext } from '$lib/query/singletons/transformer';
-	import { useLatestTransformationRunByRecordingIdQuery } from '$lib/query/transformationRuns/queries';
+		deliverTranscribedText,
+		deliverTransformedText,
+	} from '$lib/deliverTextToUser';
+	import { rpc } from '$lib/query';
+	import { services } from '$lib/services';
 	import type { Recording } from '$lib/services/db';
+	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		AlertCircleIcon,
 		DownloadIcon,
@@ -31,18 +30,37 @@
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
-	const transcriber = getTranscriberFromContext();
-	const transformer = getTransformerFromContext();
-	const { deleteRecordingWithToast } = useDeleteRecordingWithToast();
-	const { updateRecordingWithToast } = useUpdateRecordingWithToast();
-	const { downloadRecordingWithToast } = useDownloadRecordingWithToast();
+	const transcribeRecording = createMutation(
+		rpc.transcription.transcribeRecording.options,
+	);
+
+	const transformRecording = createMutation(
+		rpc.transformer.transformRecording.options,
+	);
+
+	const deleteRecording = createMutation(
+		rpc.recordings.deleteRecording.options,
+	);
+
+	const updateRecording = createMutation(
+		rpc.recordings.updateRecording.options,
+	);
+
+	const downloadRecording = createMutation(
+		rpc.download.downloadRecording.options,
+	);
 
 	let { recordingId }: { recordingId: string } = $props();
 
-	const { latestTransformationRunByRecordingIdQuery } =
-		useLatestTransformationRunByRecordingIdQuery(() => recordingId);
+	const latestTransformationRunByRecordingIdQuery = createQuery(
+		rpc.transformationRuns.getLatestTransformationRunByRecordingId(
+			() => recordingId,
+		).options,
+	);
 
-	const { recordingQuery } = useRecordingQuery(() => recordingId);
+	const recordingQuery = createQuery(
+		rpc.recordings.getRecordingById(() => recordingId).options,
+	);
 
 	const recording = $derived(recordingQuery.data);
 
@@ -50,7 +68,21 @@
 	function debouncedSetRecording(newRecording: Recording) {
 		clearTimeout(saveTimeout);
 		saveTimeout = setTimeout(() => {
-			updateRecordingWithToast.mutate($state.snapshot(newRecording));
+			updateRecording.mutate($state.snapshot(newRecording), {
+				onSuccess: () => {
+					toast.success({
+						title: 'Recording updated!',
+						description: 'Your recording has been updated.',
+					});
+				},
+				onError: (error) => {
+					toast.error({
+						title: 'Failed to update recording!',
+						description: 'Your recording could not be updated.',
+						action: { type: 'more-details', error },
+					});
+				},
+			});
 		}, DEBOUNCE_TIME_MS);
 	}
 	$effect(() => {
@@ -74,11 +106,33 @@
 					: recording.transcriptionStatus === 'DONE'
 						? 'Retry transcription'
 						: 'Transcription failed - click to try again'}
-			onclick={() =>
-				transcriber.transcribeRecording.mutate({
-					recording,
-					toastId: nanoid(),
-				})}
+			onclick={() => {
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '📋 Transcribing...',
+					description: 'Your recording is being transcribed...',
+				});
+				transcribeRecording.mutate(recording, {
+					onError: (error) => {
+						if (error.name === 'WhisperingError') {
+							toast.error({ id: toastId, ...error });
+							return;
+						}
+						toast.error({
+							id: toastId,
+							title: '❌ Failed to transcribe recording',
+							description: 'Your recording could not be transcribed.',
+							action: { type: 'more-details', error: error },
+						});
+					},
+					onSuccess: (transcribedText) => {
+						services.sound.playSoundIfEnabled('transcriptionComplete');
+
+						deliverTranscribedText({ text: transcribedText, toastId });
+					},
+				});
+			}}
 			variant="ghost"
 			size="icon"
 		>
@@ -93,13 +147,45 @@
 			{/if}
 		</WhisperingButton>
 
-		<SelectTransformationCombobox
-			onSelect={(transformation) =>
-				transformer.transformRecording.mutate({
-					recordingId: recording.id,
-					transformationId: transformation.id,
-					toastId: nanoid(),
-				})}
+		<TransformationPicker
+			onSelect={(transformation) => {
+				const toastId = nanoid();
+				toast.loading({
+					id: toastId,
+					title: '🔄 Running transformation...',
+					description:
+						'Applying your selected transformation to the transcribed text...',
+				});
+				transformRecording.mutate(
+					{
+						recordingId: recording.id,
+						transformationId: transformation.id,
+					},
+					{
+						onError: (error) => toast.error(error),
+						onSuccess: (transformationRun) => {
+							if (transformationRun.status === 'failed') {
+								toast.error({
+									title: '⚠️ Transformation error',
+									description: transformationRun.error,
+									action: {
+										type: 'more-details',
+										error: transformationRun.error,
+									},
+								});
+								return;
+							}
+
+							services.sound.playSoundIfEnabled('transformationComplete');
+
+							deliverTransformedText({
+								text: transformationRun.output,
+								toastId,
+							});
+						},
+					},
+				);
+			}}
 		/>
 
 		<EditRecordingDialog
@@ -110,7 +196,7 @@
 		/>
 
 		<CopyToClipboardButton
-			label="transcribed text"
+			contentName="transcribed text"
 			copyableText={recording.transcribedText}
 			viewTransitionName={getRecordingTransitionId({
 				recordingId,
@@ -137,9 +223,11 @@
 			</WhisperingTooltip>
 		{:else}
 			<CopyToClipboardButton
-				label="latest transformation run output"
-				copyableText={latestTransformationRunByRecordingIdQuery.data?.output ??
-					''}
+				contentName="latest transformation run output"
+				copyableText={latestTransformationRunByRecordingIdQuery.data?.status ===
+				'completed'
+					? latestTransformationRunByRecordingIdQuery.data.output
+					: ''}
 				viewTransitionName={getRecordingTransitionId({
 					recordingId,
 					propertyName: 'latestTransformationRunOutput',
@@ -155,11 +243,30 @@
 
 		<WhisperingButton
 			tooltipContent="Download recording"
-			onclick={() => downloadRecordingWithToast.mutate(recording)}
+			onclick={() =>
+				downloadRecording.mutate(recording, {
+					onError: (error) => {
+						if (error.name === 'WhisperingError') {
+							toast.error(error);
+							return;
+						}
+						toast.error({
+							title: 'Failed to download recording!',
+							description: 'Your recording could not be downloaded.',
+							action: { type: 'more-details', error },
+						});
+					},
+					onSuccess: () => {
+						toast.success({
+							title: 'Recording downloaded!',
+							description: 'Your recording has been downloaded.',
+						});
+					},
+				})}
 			variant="ghost"
 			size="icon"
 		>
-			{#if downloadRecordingWithToast.isPending}
+			{#if downloadRecording.isPending}
 				<Loader2Icon class="size-4 animate-spin" />
 			{:else}
 				<DownloadIcon class="size-4" />
@@ -173,7 +280,22 @@
 					title: 'Delete recording',
 					subtitle: 'Are you sure you want to delete this recording?',
 					confirmText: 'Delete',
-					onConfirm: () => deleteRecordingWithToast.mutate(recording),
+					onConfirm: () =>
+						deleteRecording.mutate(recording, {
+							onSuccess: () => {
+								toast.success({
+									title: 'Deleted recording!',
+									description: 'Your recording has been deleted.',
+								});
+							},
+							onError: (error) => {
+								toast.error({
+									title: 'Failed to delete recording!',
+									description: 'Your recording could not be deleted.',
+									action: { type: 'more-details', error },
+								});
+							},
+						}),
 				});
 			}}
 			variant="ghost"

@@ -8,8 +8,7 @@ import { whisperingStorage } from '~lib/storage';
 
 const iconPaths = {
 	IDLE: studioMicrophone,
-	SESSION: studioMicrophone,
-	'SESSION+RECORDING': redLargeSquare,
+	RECORDING: redLargeSquare,
 } as const satisfies Record<WhisperingRecordingState, string>;
 
 export type SetRecorderStateMessage = {

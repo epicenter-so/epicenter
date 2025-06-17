@@ -35,20 +35,15 @@ export function createRecorderServiceTauri(): RecorderService {
 			}
 			return Ok(deviceInfos);
 		},
-		ensureRecordingSession: async (
-			settings,
-			{ sendStatus: sendUpdateStatus },
-		) => {
-			sendUpdateStatus({
+		startRecording: async ({ settings }, { sendStatus }) => {
+			sendStatus({
 				title: '🎤 Setting Up',
 				description:
 					'Initializing your recording session and checking microphone access...',
 			});
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{
-					deviceName: settings['recording.tauri.selectedAudioInputName'],
-				},
+				{ deviceName: settings.selectedDeviceId },
 			);
 			if (initRecordingSessionError)
 				return Err({
@@ -57,49 +52,36 @@ export function createRecorderServiceTauri(): RecorderService {
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
 						settings,
-						deviceName: settings['recording.tauri.selectedAudioInputName'],
+						deviceName: settings.selectedDeviceId,
 					},
 					cause: initRecordingSessionError,
 				} satisfies RecordingServiceError);
-			return Ok(undefined);
-		},
-		closeRecordingSession: async ({ sendStatus: sendUpdateStatus }) => {
-			sendUpdateStatus({
-				title: '🔄 Closing Session',
+
+			sendStatus({
+				title: '🎙️ Starting Recording',
 				description:
-					'Safely closing your recording session and freeing up resources...',
+					'Recording session initialized, now starting to capture audio...',
 			});
-			const { error: closeRecordingSessionError } = await invoke<void>(
-				'close_recording_session',
-			);
-			if (closeRecordingSessionError)
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						'Unable to properly close the recording session. Please try again.',
-					context: {},
-					cause: closeRecordingSessionError,
-				} satisfies RecordingServiceError);
-			return Ok(undefined);
-		},
-		startRecording: async (recordingId) => {
-			const { error: startRecordingError } = await invoke<void>(
-				'start_recording',
-				{ recordingId },
-			);
+			const { error: startRecordingError } =
+				await invoke<void>('start_recording');
 			if (startRecordingError)
 				return Err({
 					name: 'RecordingServiceError',
 					message:
 						'Unable to start recording. Please check your microphone and try again.',
-					context: { recordingId },
+					context: {},
 					cause: startRecordingError,
 				} satisfies RecordingServiceError);
-			return Ok(undefined);
+			// Tauri always uses the device specified by the user
+			return Ok({ outcome: 'success' });
 		},
-		stopRecording: async () => {
-			const { data: float32ArrayRaw, error: stopRecordingError } =
-				await invoke<number[]>('stop_recording');
+		stopRecording: async ({ sendStatus }) => {
+			const { data: audioRecording, error: stopRecordingError } = await invoke<{
+				audioData: number[];
+				sampleRate: number;
+				channels: number;
+				durationSeconds: number;
+			}>('stop_recording');
 			if (stopRecordingError) {
 				return Err({
 					name: 'RecordingServiceError',
@@ -109,8 +91,26 @@ export function createRecorderServiceTauri(): RecorderService {
 				} satisfies RecordingServiceError);
 			}
 
-			const float32Array = new Float32Array(float32ArrayRaw);
-			const blob = createWavFromFloat32(float32Array);
+			const float32Array = new Float32Array(audioRecording.audioData);
+			const blob = createWavFromFloat32(
+				float32Array,
+				audioRecording.sampleRate,
+				audioRecording.channels,
+			);
+
+			// Close the recording session after stopping
+			sendStatus({
+				title: '🔄 Closing Session',
+				description: 'Cleaning up recording resources...',
+			});
+			const { error: closeError } = await invoke<void>(
+				'close_recording_session',
+			);
+			if (closeError) {
+				// Log but don't fail the stop operation
+				console.error('Failed to close recording session:', closeError);
+			}
+
 			return Ok(blob);
 		},
 		cancelRecording: async ({ sendStatus: sendUpdateStatus }) => {
@@ -128,6 +128,20 @@ export function createRecorderServiceTauri(): RecorderService {
 					context: {},
 					cause: cancelRecordingError,
 				} satisfies RecordingServiceError);
+
+			// Close the recording session after cancelling
+			sendUpdateStatus({
+				title: '🔄 Closing Session',
+				description: 'Cleaning up recording resources...',
+			});
+			const { error: closeError } = await invoke<void>(
+				'close_recording_session',
+			);
+			if (closeError) {
+				// Log but don't fail the cancel operation
+				console.error('Failed to close recording session:', closeError);
+			}
+
 			return Ok(undefined);
 		},
 	};
@@ -141,9 +155,12 @@ async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	});
 }
 
-function createWavFromFloat32(float32Array: Float32Array, sampleRate = 96000) {
+function createWavFromFloat32(
+	float32Array: Float32Array,
+	sampleRate: number,
+	numChannels: number,
+) {
 	// WAV header parameters
-	const numChannels = 1; // Mono
 	const bitsPerSample = 32;
 	const bytesPerSample = bitsPerSample / 8;
 

@@ -9,5 +9,5 @@ pub use commands::{
 };
 
 pub use error::RecorderError;
-pub use manager::AudioManager;
-pub use thread::{AudioCommand, AudioResponse};
+pub use manager::{AudioManager, DeviceInfo};
+pub use thread::{AudioCommand, AudioRecording, AudioResponse};

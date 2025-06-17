@@ -2,6 +2,9 @@
 	"name": "@repo/app",
 	"version": "6.5.0",
 	"private": true,
+	"exports": {
+		"./commands": "./src/lib/commands.ts"
+	},
 	"scripts": {
 		"dev:web": "vite dev",
 		"dev": "pnpm tauri dev",
@@ -50,14 +53,14 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@epicenterhq/result": "^0.13.0",
+		"@epicenterhq/result": "^0.15.0",
 		"@google/generative-ai": "^0.24.1",
 		"@plasmohq/messaging": "^0.7.1",
 		"@repo/extension": "workspace:*",
 		"@repo/shared": "workspace:*",
 		"@ricky0123/vad-web": "^0.0.24",
-		"@tanstack/query-core": "https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@82403f6",
-		"@tanstack/svelte-query": "https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@82403f6",
+		"@tanstack/query-core": "https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b",
+		"@tanstack/svelte-query": "https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b",
 		"@tanstack/svelte-query-devtools": "https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter",
 		"@tanstack/table-core": "8.21.3",
 		"@tauri-apps/api": "^2.5.0",

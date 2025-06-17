@@ -10,8 +10,8 @@
 	import SelectAllPopover from '$lib/components/ui/table/SelectAllPopover.svelte';
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { useDeleteTransformationsWithToast } from '$lib/query/transformations/mutations';
-	import { useTransformationsQuery } from '$lib/query/transformations/queries';
+	import { rpc } from '$lib/query';
+	import { createQuery, createMutation } from '@tanstack/svelte-query';
 	import { type Transformation } from '$lib/services/db';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
@@ -36,10 +36,14 @@
 	import CreateTransformationButton from './CreateTransformationButton.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import TransformationRowActions from './TransformationRowActions.svelte';
+	import { toast } from '$lib/toast';
 
-	const { transformationsQuery } = useTransformationsQuery();
-	const { deleteTransformationsWithToast } =
-		useDeleteTransformationsWithToast();
+	const transformationsQuery = createQuery(
+		rpc.transformations.queries.getAllTransformations.options,
+	);
+	const deleteTransformations = createMutation(
+		rpc.transformations.mutations.deleteTransformations.options,
+	);
 
 	const columns: ColumnDef<Transformation>[] = [
 		{
@@ -217,8 +221,24 @@
 						subtitle: 'Are you sure you want to delete these transformations?',
 						confirmText: 'Delete',
 						onConfirm: () => {
-							deleteTransformationsWithToast.mutate(
+							deleteTransformations.mutate(
 								selectedTransformationRows.map(({ original }) => original),
+								{
+									onSuccess: () => {
+										toast.success({
+											title: 'Deleted transformations!',
+											description:
+												'Your transformations have been deleted successfully.',
+										});
+									},
+									onError: (error) => {
+										toast.error({
+											title: 'Failed to delete transformations!',
+											description: 'Your transformations could not be deleted.',
+											action: { type: 'more-details', error },
+										});
+									},
+								},
 							);
 						},
 					});

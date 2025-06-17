@@ -1,2 +1,2 @@
-export * from './DbService';
-export * from './DbService.dexie';
+export * from './models';
+export * from './dexie';

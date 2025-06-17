@@ -4,9 +4,11 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
+	import { rpc } from '$lib/query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { toast } from '$lib/toast';
 
 	let {
 		id,
@@ -21,6 +23,8 @@
 	} = $props();
 
 	let isDialogOpen = $state(false);
+
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
 </script>
 
 <Dialog.Root bind:open={isDialogOpen}>
@@ -53,12 +57,24 @@
 			<Button
 				variant="outline"
 				onclick={() => {
-					copyTextToClipboardWithToast(
+					copyToClipboard.mutate(
+						{ text },
 						{
-							label: 'transcribed text',
-							text: text,
+							onSuccess: () => {
+								isDialogOpen = false;
+								toast.success({
+									title: `Copied transcribed text to clipboard!`,
+									description: text,
+								});
+							},
+							onError: (error) => {
+								toast.error({
+									title: `Error copying transcribed text to clipboard`,
+									description: error.message,
+									action: { type: 'more-details', error },
+								});
+							},
 						},
-						{ onSuccess: () => (isDialogOpen = false) },
 					);
 				}}
 			>

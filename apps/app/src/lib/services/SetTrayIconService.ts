@@ -1,7 +1,7 @@
 import { goto } from '$app/navigation';
-import { getCommandsFromContext } from '$lib/query/singletons/commands';
+import { commandCallbacks } from '$lib/commands';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, tryAsync, type TaggedError } from '@epicenterhq/result';
+import { Err, Ok, type TaggedError, tryAsync } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
 import {
 	ALWAYS_ON_TOP_VALUES,
@@ -138,8 +138,7 @@ async function initTray() {
 				e.button === 'Left' &&
 				e.buttonState === 'Down'
 			) {
-				const commands = getCommandsFromContext();
-				commands.toggleManualRecording();
+				commandCallbacks.toggleManualRecording();
 				return true;
 			}
 			return false;
@@ -152,8 +151,7 @@ async function initTray() {
 async function getIconPath(recorderState: WhisperingRecordingState) {
 	const iconPaths = {
 		IDLE: 'recorder-state-icons/studio_microphone.png',
-		SESSION: 'recorder-state-icons/studio_microphone.png',
-		'SESSION+RECORDING': 'recorder-state-icons/red_large_square.png',
+		RECORDING: 'recorder-state-icons/red_large_square.png',
 	} as const satisfies Record<WhisperingRecordingState, string>;
 	return await resolveResource(iconPaths[recorderState]);
 }

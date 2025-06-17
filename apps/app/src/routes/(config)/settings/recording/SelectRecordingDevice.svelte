@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { useGetMediaDevices } from '$lib/query/audio/queries';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { toast } from '$lib/services/toast';
+	import { rpc } from '$lib/query';
+	import { toast } from '$lib/toast';
+	import { createQuery, noop } from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -12,12 +12,16 @@
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const manualRecorder = getManualRecorderFromContext();
-	const { getMediaDevicesQuery } = useGetMediaDevices();
+	const getMediaDevicesQuery = createQuery(
+		rpc.recorder.getMediaDevices.options,
+	);
 
 	$effect(() => {
 		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
+			toast.warning({
+				title: 'Error loading devices',
+				description: getMediaDevicesQuery.error.message,
+			});
 		}
 	});
 </script>
@@ -34,7 +38,7 @@
 	/>
 {:else if getMediaDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getMediaDevicesQuery.error.title}: {getMediaDevicesQuery.error.description}
+		{getMediaDevicesQuery.error.message}
 	</p>
 {:else}
 	{@const items = getMediaDevicesQuery.data.map((device) => ({
@@ -46,10 +50,7 @@
 		label="Recording Device"
 		{items}
 		{selected}
-		onSelectedChange={(selected) => {
-			manualRecorder.closeRecordingSessionSilent();
-			onSelectedChange(selected);
-		}}
+		{onSelectedChange}
 		placeholder="Select a device"
 	/>
 {/if}

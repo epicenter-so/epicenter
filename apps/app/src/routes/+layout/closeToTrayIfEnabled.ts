@@ -12,12 +12,12 @@ export function closeToTrayIfEnabled() {
 			if (settings.value['system.closeToTray']) {
 				getCurrentWindow().hide();
 			} else {
-				void exit(0);
+				exit(0);
 			}
 		});
 	});
 
 	onDestroy(() => {
-		void unlisten();
+		unlisten();
 	});
 }

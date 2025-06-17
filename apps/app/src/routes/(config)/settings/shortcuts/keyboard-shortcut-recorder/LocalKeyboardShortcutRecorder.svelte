@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
-	import { toast } from '$lib/services/toast';
+	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { trySync } from '@epicenterhq/result';
-	import type { Command } from '@repo/shared';
+	import type { Command } from '$lib/commands';
 	import { WhisperingError } from '@repo/shared';
 	import hotkeys from 'hotkeys-js';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 	import { createLocalKeyMapper } from './key-mappers';
+	import { rpc } from '$lib/query';
 
 	const {
 		command,
@@ -20,7 +20,6 @@
 		autoFocus?: boolean;
 	} = $props();
 
-	const shortcutsRegister = getShortcutsRegisterFromContext();
 	let isPopoverOpen = $state(false);
 
 	// Get the current key combination from settings
@@ -53,9 +52,9 @@
 					toast.error(unregisterError);
 				}
 			},
-			onRegister: (keyCombination) => {
+			onRegister: async (keyCombination) => {
 				const { error: registerError } =
-					shortcutsRegister.registerCommandLocally({
+					await rpc.shortcuts.registerCommandLocally.execute({
 						command,
 						keyCombination,
 					});

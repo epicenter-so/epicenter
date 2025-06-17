@@ -1,13 +1,19 @@
 <script lang="ts">
+	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { RecordingControls } from '$lib/components/recording-controls';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
+	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
+	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { rpc } from '$lib/query';
 	import { cn } from '$lib/utils.js';
+	import { recorderStateToIcons } from '@repo/shared';
+	import { createQuery } from '@tanstack/svelte-query';
 
-	const manualRecorder = getManualRecorderFromContext();
-	const commands = getCommandsFromContext();
+	const getRecorderStateQuery = createQuery(
+		rpc.recorder.getRecorderState.options,
+	);
 
 	let { children } = $props();
 </script>
@@ -29,19 +35,32 @@
 			<span class="text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
-	<RecordingControls class="hidden sm:flex" />
+	{#if getRecorderStateQuery.data === 'RECORDING'}
+		<WhisperingButton
+			tooltipContent="Cancel recording"
+			onclick={commandCallbacks.cancelManualRecording}
+			variant="ghost"
+			size="icon"
+			style="view-transition-name: cancel-icon;"
+		>
+			🚫
+		</WhisperingButton>
+	{:else}
+		{#if settings.value['recording.method'] === 'navigator'}
+			<NavigatorDeviceSelector />
+		{:else}
+			<TauriDeviceSelector />
+		{/if}
+		<TransformationSelector />
+	{/if}
 	<WhisperingButton
 		tooltipContent="Toggle recording"
-		onclick={commands.toggleManualRecording}
+		onclick={commandCallbacks.toggleManualRecording}
 		variant="ghost"
 		size="icon"
 		style="view-transition-name: microphone-icon"
 	>
-		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
-			⏹️
-		{:else}
-			🎙️
-		{/if}
+		{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 	</WhisperingButton>
 	<NavItems class="-mr-4" />
 </header>

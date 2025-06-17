@@ -17,7 +17,7 @@
 	import {
 		TRANSFORMATION_STEP_TYPES,
 		TRANSFORMATION_STEP_TYPES_TO_LABELS,
-	} from '$lib/services/db/DbService';
+	} from '$lib/services/db/models';
 	import {
 		ANTHROPIC_INFERENCE_MODEL_OPTIONS,
 		GOOGLE_INFERENCE_MODEL_OPTIONS,

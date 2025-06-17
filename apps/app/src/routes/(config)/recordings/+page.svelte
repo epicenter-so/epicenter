@@ -6,6 +6,11 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Card } from '$lib/components/ui/card';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import {
+		FlexRender,
+		createSvelteTable,
+		renderComponent,
+	} from '$lib/components/ui/data-table/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -15,18 +20,12 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { copyTextToClipboardWithToast } from '$lib/query/clipboard/mutations';
-	import { useDeleteRecordingsWithToast } from '$lib/query/recordings/mutations';
-	import { useRecordingsQuery } from '$lib/query/recordings/queries';
-	import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
+	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
+	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
-	import {
-		FlexRender,
-		createSvelteTable,
-		renderComponent,
-	} from '$lib/components/ui/data-table/index.js';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -40,20 +39,29 @@
 	} from '@tanstack/table-core';
 	import {
 		ChevronDownIcon,
+		EllipsisIcon,
 		EllipsisIcon as LoadingTranscriptionIcon,
 		RepeatIcon as RetryTranscriptionIcon,
 		PlayIcon as StartTranscriptionIcon,
 	} from 'lucide-svelte';
-	import { nanoid } from 'nanoid/non-secure';
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
 	import RecordingRowActions from './RecordingRowActions.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
+	import { nanoid } from 'nanoid/non-secure';
 
-	const transcriber = getTranscriberFromContext();
-	const { deleteRecordingsWithToast } = useDeleteRecordingsWithToast();
+	const getAllRecordingsQuery = createQuery(
+		rpc.recordings.getAllRecordings.options,
+	);
+	const transcribeRecordings = createMutation(
+		rpc.transcription.transcribeRecordings.options,
+	);
+	const deleteRecordings = createMutation(
+		rpc.recordings.deleteRecordings.options,
+	);
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -226,12 +234,10 @@
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let globalFilter = $state('');
 
-	const { recordingsQuery } = useRecordingsQuery();
-
 	const table = createSvelteTable({
 		getRowId: (originalRow) => originalRow.id,
 		get data() {
-			return recordingsQuery.data ?? [];
+			return getAllRecordingsQuery.data ?? [];
 		},
 		columns,
 		getCoreRowModel: getCoreRowModel(),
@@ -354,23 +360,63 @@
 						tooltipContent="Transcribe selected recordings"
 						variant="outline"
 						size="icon"
-						onclick={() =>
-							Promise.allSettled(
-								selectedRecordingRows.map((recording) =>
-									transcriber.transcribeRecording.mutate({
-										recording: recording.original,
-										toastId: nanoid(),
-									}),
-								),
-							)}
+						disabled={transcribeRecordings.isPending}
+						onclick={() => {
+							const toastId = nanoid();
+							toast.loading({
+								id: toastId,
+								title: 'Transcribing queries.recordings...',
+								description: 'This may take a while.',
+							});
+							transcribeRecordings.mutate(
+								selectedRecordingRows.map(({ original }) => original),
+								{
+									onSuccess: ({ oks, errs }) => {
+										const isAllSuccessful = errs.length === 0;
+										if (isAllSuccessful) {
+											const n = oks.length;
+											toast.success({
+												id: toastId,
+												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
+												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
+											});
+											return;
+										}
+										const isAllFailed = oks.length === 0;
+										if (isAllFailed) {
+											const n = errs.length;
+											toast.error({
+												id: toastId,
+												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
+												description:
+													n === 1
+														? 'Your recording could not be transcribed.'
+														: 'None of your recordings could be transcribed.',
+												action: { type: 'more-details', error: errs },
+											});
+											return;
+										}
+										// Mixed results
+										toast.warning({
+											id: toastId,
+											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
+											description: `${oks.length} succeeded, ${errs.length} failed.`,
+											action: { type: 'more-details', error: errs },
+										});
+									},
+								},
+							);
+						}}
 					>
-						{#if selectedRecordingRows.some(({ id }) => {
-							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
+						{#if transcribeRecordings.isPending}
+							<EllipsisIcon class="size-4" />
+						{:else if selectedRecordingRows.some(({ id }) => {
+							const currentRow = getAllRecordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'TRANSCRIBING';
 						})}
 							<LoadingTranscriptionIcon class="size-4" />
 						{:else if selectedRecordingRows.some(({ id }) => {
-							const currentRow = recordingsQuery.data?.find((r) => r.id === id);
+							const currentRow = getAllRecordingsQuery.data?.find((r) => r.id === id);
 							return currentRow?.transcriptionStatus === 'DONE';
 						})}
 							<RetryTranscriptionIcon class="size-4" />
@@ -428,13 +474,24 @@
 								<WhisperingButton
 									tooltipContent="Copy transcriptions"
 									onclick={() => {
-										copyTextToClipboardWithToast(
+										copyToClipboard.mutate(
+											{ text: joinedTranscriptionsText },
 											{
-												label: 'transcribed text (joined)',
-												text: joinedTranscriptionsText,
-											},
-											{
-												onSuccess: () => (isDialogOpen = false),
+												onSuccess: () => {
+													isDialogOpen = false;
+													toast.success({
+														title: 'Copied transcribed texts to clipboard!',
+														description: joinedTranscriptionsText,
+													});
+												},
+												onError: (error) => {
+													toast.error({
+														title:
+															'Error copying transcribed texts to clipboard',
+														description: error.message,
+														action: { type: 'more-details', error },
+													});
+												},
 											},
 										);
 									}}
@@ -456,8 +513,24 @@
 								subtitle: 'Are you sure you want to delete these recordings?',
 								confirmText: 'Delete',
 								onConfirm: () => {
-									deleteRecordingsWithToast.mutate(
+									deleteRecordings.mutate(
 										selectedRecordingRows.map(({ original }) => original),
+										{
+											onSuccess: () => {
+												toast.success({
+													title: 'Deleted recordings!',
+													description:
+														'Your recordings have been deleted successfully.',
+												});
+											},
+											onError: (error) => {
+												toast.error({
+													title: 'Failed to delete recordings!',
+													description: 'Your recordings could not be deleted.',
+													action: { type: 'more-details', error },
+												});
+											},
+										},
 									);
 								},
 							});
@@ -513,7 +586,7 @@
 					{/each}
 				</Table.Header>
 				<Table.Body>
-					{#if recordingsQuery.isPending}
+					{#if getAllRecordingsQuery.isPending}
 						{#each { length: 5 }}
 							<Table.Row>
 								<Table.Cell>

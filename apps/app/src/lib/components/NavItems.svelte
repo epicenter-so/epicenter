@@ -53,6 +53,7 @@
 		rel="noopener noreferrer"
 		variant="ghost"
 		size="icon"
+		class="hidden sm:inline-flex"
 	>
 		<GithubIcon class="size-4" aria-hidden="true" />
 	</WhisperingButton>
@@ -61,6 +62,7 @@
 		onclick={toggleMode}
 		variant="ghost"
 		size="icon"
+		class="hidden sm:inline-flex"
 	>
 		<SunIcon
 			class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"

@@ -5,13 +5,17 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { useDeleteRecordingWithToast } from '$lib/query/recordings/mutations';
+	import { rpc } from '$lib/query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import type { Recording } from '$lib/services/db';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
+	import { toast } from '$lib/toast';
 
-	const { deleteRecordingWithToast } = useDeleteRecordingWithToast();
+	const deleteRecording = createMutation(
+		rpc.recordings.deleteRecording.options,
+	);
 
 	let {
 		recording,
@@ -106,15 +110,26 @@
 		<Dialog.Footer>
 			<Button
 				onclick={() =>
-					deleteRecordingWithToast.mutate(recording, {
-						onSettled: () => {
+					deleteRecording.mutate(recording, {
+						onSuccess: () => {
 							isDialogOpen = false;
+							toast.success({
+								title: 'Deleted recording!',
+								description: 'Your recording has been deleted successfully.',
+							});
+						},
+						onError: (error) => {
+							toast.error({
+								title: 'Failed to delete recording!',
+								description: 'Your recording could not be deleted.',
+								action: { type: 'more-details', error },
+							});
 						},
 					})}
 				variant="destructive"
-				disabled={deleteRecordingWithToast.isPending}
+				disabled={deleteRecording.isPending}
 			>
-				{#if deleteRecordingWithToast.isPending}
+				{#if deleteRecording.isPending}
 					<Loader2Icon class="mr-2 size-4 animate-spin" />
 				{/if}
 				Delete

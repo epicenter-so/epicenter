@@ -1,6 +1,5 @@
 import type { Result, TaggedError } from '@epicenterhq/result';
 import type { MaybePromise, WhisperingRecordingState } from '@repo/shared';
-import type { Settings } from '@repo/shared/settings';
 
 export type UpdateStatusMessageFn = (args: {
 	title: string;
@@ -8,30 +7,61 @@ export type UpdateStatusMessageFn = (args: {
 }) => void;
 
 export type RecordingSessionSettings = {
-	deviceId: string | null;
-	bitsPerSecond: number;
+	selectedDeviceId: string | null;
+	bitrateKbps: string;
 };
 
 export type RecordingServiceError = TaggedError<'RecordingServiceError'>;
+
+/**
+ * Describes the outcome of device acquisition when starting a recording.
+ *
+ * @remarks
+ * When starting a recording, we attempt to use the user's preferred device.
+ * This type communicates whether we successfully acquired that device or
+ * had to fall back to an alternative.
+ *
+ * @example
+ * ```typescript
+ * // Success case - got the device we wanted
+ * { outcome: 'success' }
+ *
+ * // Fallback case - had to use a different device
+ * {
+ *   outcome: 'fallback',
+ *   reason: 'preferred-device-unavailable',
+ *   fallbackDeviceId: 'device-123'
+ * }
+ * ```
+ */
+export type DeviceAcquisitionOutcome =
+	| {
+			/** Successfully acquired the requested device (or default if none specified) */
+			outcome: 'success';
+	  }
+	| {
+			/** Had to use a fallback device instead of the requested one */
+			outcome: 'fallback';
+			/** Why we couldn't use the preferred device */
+			reason: 'no-device-selected' | 'preferred-device-unavailable';
+			/** The device ID we actually used */
+			fallbackDeviceId: string;
+	  };
 
 export type RecorderService = {
 	getRecorderState: () => MaybePromise<
 		Result<WhisperingRecordingState, RecordingServiceError>
 	>;
 	enumerateRecordingDevices: () => Promise<
-		Result<Pick<MediaDeviceInfo, 'deviceId' | 'label'>[], RecordingServiceError>
+		Result<
+			{ readonly deviceId: string; readonly label: string }[],
+			RecordingServiceError
+		>
 	>;
-	ensureRecordingSession: (
-		settings: Settings,
-		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<Result<void, RecordingServiceError>>;
-	closeRecordingSession: (callbacks: {
-		sendStatus: UpdateStatusMessageFn;
-	}) => Promise<Result<void, RecordingServiceError>>;
 	startRecording: (
-		recordingId: string,
+		{ settings }: { settings: RecordingSessionSettings },
 		callbacks: { sendStatus: UpdateStatusMessageFn },
-	) => Promise<Result<void, RecordingServiceError>>;
+	) => Promise<Result<DeviceAcquisitionOutcome, RecordingServiceError>>;
 	stopRecording: (callbacks: {
 		sendStatus: UpdateStatusMessageFn;
 	}) => Promise<Result<Blob, RecordingServiceError>>;

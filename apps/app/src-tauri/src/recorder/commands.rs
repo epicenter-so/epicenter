@@ -1,5 +1,5 @@
 use crate::recorder::manager::{AudioManager, DeviceInfo, Result};
-use crate::recorder::RecorderError;
+use crate::recorder::{AudioRecording, RecorderError};
 use std::sync::Mutex;
 use tauri::State;
 use tracing::{debug, info};
@@ -62,7 +62,7 @@ pub async fn start_recording(state: State<'_, AppData>) -> Result<()> {
 }
 
 #[tauri::command]
-pub async fn stop_recording(state: State<'_, AppData>) -> Result<Vec<f32>> {
+pub async fn stop_recording(state: State<'_, AppData>) -> Result<AudioRecording> {
     debug!("Stopping recording");
     let mut audio_manager = get_audio_manager(&state)?;
     audio_manager.stop_recording()

@@ -5,19 +5,23 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import {
-		useDeleteTransformationWithToast,
-		useUpdateTransformationWithToast,
-	} from '$lib/query/transformations/mutations';
+	import { rpc } from '$lib/query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
 	import { DEBOUNCE_TIME_MS } from '@repo/shared';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
+	import { toast } from '$lib/toast';
 
-	const { updateTransformationWithToast } = useUpdateTransformationWithToast();
-	const { deleteTransformationWithToast } = useDeleteTransformationWithToast();
+	const updateTransformation = createMutation(
+		rpc.transformations.mutations.updateTransformation.options,
+	);
+
+	const deleteTransformation = createMutation(
+		rpc.transformations.mutations.deleteTransformation.options,
+	);
 
 	let {
 		transformation,
@@ -30,7 +34,21 @@
 	function debouncedSetTransformation(newTransformation: Transformation) {
 		clearTimeout(saveTimeout);
 		saveTimeout = setTimeout(() => {
-			updateTransformationWithToast.mutate($state.snapshot(newTransformation));
+			updateTransformation.mutate($state.snapshot(newTransformation), {
+				onSuccess: () => {
+					toast.success({
+						title: 'Updated transformation!',
+						description: 'Your transformation has been updated successfully.',
+					});
+				},
+				onError: (error) => {
+					toast.error({
+						title: 'Failed to update transformation!',
+						description: 'Your transformation could not be updated.',
+						action: { type: 'more-details', error },
+					});
+				},
+			});
 		}, DEBOUNCE_TIME_MS);
 	}
 
@@ -63,9 +81,21 @@
 		<RenderTransformation
 			{transformation}
 			setTransformation={(newTransformation) => {
-				updateTransformationWithToast.mutate(
-					$state.snapshot(newTransformation),
-				);
+				updateTransformation.mutate($state.snapshot(newTransformation), {
+					onSuccess: () => {
+						toast.success({
+							title: 'Updated transformation!',
+							description: 'Your transformation has been updated successfully.',
+						});
+					},
+					onError: (error) => {
+						toast.error({
+							title: 'Failed to update transformation!',
+							description: 'Your transformation could not be updated.',
+							action: { type: 'more-details', error },
+						});
+					},
+				});
 			}}
 			setTransformationDebounced={(newTransformation) => {
 				debouncedSetTransformation(newTransformation);
@@ -80,21 +110,30 @@
 						subtitle: 'Are you sure? This action cannot be undone.',
 						confirmText: 'Delete',
 						onConfirm: () => {
-							deleteTransformationWithToast.mutate(
-								$state.snapshot(transformation),
-								{
-									onSettled: () => {
-										isDialogOpen = false;
-									},
+							deleteTransformation.mutate($state.snapshot(transformation), {
+								onSuccess: () => {
+									isDialogOpen = false;
+									toast.success({
+										title: 'Deleted transformation!',
+										description:
+											'Your transformation has been deleted successfully.',
+									});
 								},
-							);
+								onError: (error) => {
+									toast.error({
+										title: 'Failed to delete transformation!',
+										description: 'Your transformation could not be deleted.',
+										action: { type: 'more-details', error },
+									});
+								},
+							});
 						},
 					});
 				}}
 				variant="destructive"
-				disabled={deleteTransformationWithToast.isPending}
+				disabled={deleteTransformation.isPending}
 			>
-				{#if deleteTransformationWithToast.isPending}
+				{#if deleteTransformation.isPending}
 					<Loader2Icon class="mr-2 size-4 animate-spin" />
 				{:else}
 					<TrashIcon class="size-4 mr-1" />

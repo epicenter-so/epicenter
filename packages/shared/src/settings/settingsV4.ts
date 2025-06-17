@@ -1,5 +1,5 @@
 import { type ZodBoolean, type ZodString, z } from 'zod';
-import type { Command } from '../commands.js';
+import type { Command } from '@repo/app/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -65,7 +65,6 @@ export const settingsV4Schema = z.object({
 	...({
 		'shortcuts.local.toggleManualRecording': z.string(),
 		'shortcuts.local.cancelManualRecording': z.string(),
-		'shortcuts.local.closeManualRecordingSession': z.string(),
 		'shortcuts.local.toggleVadRecording': z.string(),
 		'shortcuts.local.pushToTalk': z.string(),
 	} satisfies Record<`shortcuts.local.${Command['id']}`, ZodString>),
@@ -73,7 +72,6 @@ export const settingsV4Schema = z.object({
 	...({
 		'shortcuts.global.toggleManualRecording': z.string(),
 		'shortcuts.global.cancelManualRecording': z.string(),
-		'shortcuts.global.closeManualRecordingSession': z.string(),
 		'shortcuts.global.toggleVadRecording': z.string(),
 		'shortcuts.global.pushToTalk': z.string(),
 	} satisfies Record<`shortcuts.global.${Command['id']}`, ZodString>),
@@ -82,18 +80,16 @@ export const settingsV4Schema = z.object({
 export type SettingsV4 = z.infer<typeof settingsV4Schema>;
 
 export const migrateV3ToV4 = (settings: SettingsV3) =>
-	settingsV4Schema.parse({
+	({
 		...settings,
 		'shortcuts.local.toggleManualRecording':
 			settings['shortcuts.currentLocalShortcut'],
 		'shortcuts.local.cancelManualRecording': 'c',
-		'shortcuts.local.closeManualRecordingSession': 'shift+c',
 		'shortcuts.local.toggleVadRecording': 'v',
 		'shortcuts.local.pushToTalk': 'p',
 		'shortcuts.global.toggleManualRecording':
 			settings['shortcuts.currentGlobalShortcut'],
 		'shortcuts.global.cancelManualRecording': "CommandOrControl+Shift+'",
-		'shortcuts.global.closeManualRecordingSession': '',
 		'shortcuts.global.toggleVadRecording': '',
 		'shortcuts.global.pushToTalk': '',
-	} satisfies SettingsV4);
+	}) satisfies SettingsV4;

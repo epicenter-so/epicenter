@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
 	import { Layers2Icon } from 'lucide-svelte';
 	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
 	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';

@@ -1,13 +1,9 @@
 <script lang="ts">
-	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
-
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { BITRATE_OPTIONS, RECORDING_METHOD_OPTIONS } from '@repo/shared';
-
-	const manualRecorder = getManualRecorderFromContext();
+	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 </script>
 
 <svelte:head>
@@ -29,7 +25,6 @@
 		items={RECORDING_METHOD_OPTIONS}
 		selected={settings.value['recording.method']}
 		onSelectedChange={(selected) => {
-			manualRecorder.closeRecordingSessionSilent();
 			settings.value = {
 				...settings.value,
 				'recording.method': selected,
@@ -49,13 +44,11 @@
 			</div>
 
 			<SelectRecordingDevice
-				selected={settings.value[
-					'recording.navigator.selectedAudioInputDeviceId'
-				] ?? ''}
+				selected={settings.value['recording.navigator.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.navigator.selectedAudioInputDeviceId': selected,
+						'recording.navigator.selectedDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>
@@ -88,12 +81,11 @@
 			</div>
 
 			<SelectRecordingDevice
-				selected={settings.value['recording.tauri.selectedAudioInputName'] ??
-					''}
+				selected={settings.value['recording.tauri.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.tauri.selectedAudioInputName': selected,
+						'recording.tauri.selectedDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>

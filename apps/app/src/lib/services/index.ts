@@ -6,10 +6,7 @@ import {
 } from './SetTrayIconService';
 import { createClipboardServiceDesktop } from './clipboard/desktop';
 import { createClipboardServiceWeb } from './clipboard/web';
-import {
-	createDbRecordingsServiceDexie,
-	createDbTransformationsServiceDexie,
-} from './db/DbService.dexie';
+import { createDbServiceDexie } from './db/dexie';
 import { createDownloadServiceDesktop } from './download/desktop';
 import { createDownloadServiceWeb } from './download/web';
 import { createHttpServiceDesktop } from './http/desktop';
@@ -19,32 +16,31 @@ import { createNotificationServiceWeb } from './notifications/web';
 import type { RecorderService } from './recorder/_types';
 import { createRecorderServiceTauri } from './recorder/tauri';
 import { createRecorderServiceWeb } from './recorder/web';
-import { createRunTransformationService } from './runTransformation';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
 import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
 import { createFasterWhisperServerTranscriptionService } from './transcription/whisper/fasterWhisperServer';
 import { createGroqTranscriptionService } from './transcription/whisper/groq';
 import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
+import { createTransformerService } from './transformer';
+import { createVadServiceWeb } from './vad';
 
-export const DownloadService = window.__TAURI_INTERNALS__
+// Static services (platform-dependent but not settings-dependent)
+const DownloadService = window.__TAURI_INTERNALS__
 	? createDownloadServiceDesktop()
 	: createDownloadServiceWeb();
 
-export const NotificationService = window.__TAURI_INTERNALS__
+const NotificationService = window.__TAURI_INTERNALS__
 	? createNotificationServiceDesktop()
 	: createNotificationServiceWeb();
 
-export const ClipboardService = window.__TAURI_INTERNALS__
+const ClipboardService = window.__TAURI_INTERNALS__
 	? createClipboardServiceDesktop()
 	: createClipboardServiceWeb();
 
-export const SetTrayIconService = window.__TAURI_INTERNALS__
+const SetTrayIconService = window.__TAURI_INTERNALS__
 	? createSetTrayIconDesktopService()
 	: createSetTrayIconWebService();
-
-export const DbRecordingsService = createDbRecordingsServiceDexie();
-export const DbTransformationsService = createDbTransformationsServiceDexie();
 
 const HttpService = window.__TAURI_INTERNALS__
 	? createHttpServiceDesktop()
@@ -54,19 +50,41 @@ const PlaySoundService = window.__TAURI_INTERNALS__
 	? createPlaySoundServiceDesktop()
 	: createPlaySoundServiceWeb();
 
-export const RunTransformationService = createRunTransformationService({
-	HttpService,
-	DbTransformationsService,
+// Static services (platform-agnostic)
+const VadService = createVadServiceWeb();
+
+const DbService = createDbServiceDexie({
+	DownloadService,
 });
 
+const TransformerService = createTransformerService({
+	HttpService,
+	DbService,
+});
+
+const NavigatorRecorderService = createRecorderServiceWeb();
+const TauriRecorderService = createRecorderServiceTauri();
+
 /**
- * Services that are determined by the user's settings.
+ * Unified services object providing consistent access to all services.
  */
 export const services = (() => {
-	const RecorderServiceTauri = createRecorderServiceTauri();
-	const RecorderServiceWeb = createRecorderServiceWeb();
-
 	return {
+		clipboard: ClipboardService,
+
+		download: DownloadService,
+
+		notification: NotificationService,
+
+		setTrayIcon: SetTrayIconService,
+
+		vad: VadService,
+
+		db: DbService,
+
+		transformer: TransformerService,
+
+		// Dynamic services (settings-dependent)
 		get transcription() {
 			switch (settings.value['transcription.selectedTranscriptionService']) {
 				case 'OpenAI': {
@@ -104,19 +122,21 @@ export const services = (() => {
 				}
 			}
 		},
+
 		get recorder() {
-			const recorderServices = {
-				tauri: RecorderServiceTauri,
-				navigator: RecorderServiceWeb,
-			} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>;
-			const recordingMethod = settings.value['recording.method'];
-			return recorderServices[recordingMethod];
+			return (
+				{
+					tauri: TauriRecorderService,
+					navigator: NavigatorRecorderService,
+				} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>
+			)[settings.value['recording.method']];
+		},
+		sound: {
+			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
+				if (settings.value[`sound.playOn.${soundName}`]) {
+					PlaySoundService.playSound(soundName);
+				}
+			},
 		},
 	};
 })();
-
-export const playSoundIfEnabled = (soundName: WhisperingSoundNames) => {
-	if (settings.value[`sound.playOn.${soundName}`]) {
-		void PlaySoundService.playSound(soundName);
-	}
-};

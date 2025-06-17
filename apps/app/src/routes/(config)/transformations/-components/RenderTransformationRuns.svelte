@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Copyable from '$lib/components/copyable/Copyable.svelte';
+	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import CopyableTextDialog from '$lib/components/copyable/CopyableTextDialog.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -82,19 +82,19 @@
 					{#if expandedRunId === run.id}
 						<Table.Row>
 							<Table.Cell class="space-y-4" colspan={4}>
-								<Copyable
+								<CopyablePre
 									variant="text"
 									copyableText={run.input}
 									label="Input"
 								/>
 								{#if run.output}
-									<Copyable
+									<CopyablePre
 										variant="text"
 										copyableText={run.output}
 										label="Output"
 									/>
 								{:else if run.error}
-									<Copyable
+									<CopyablePre
 										variant="error"
 										copyableText={run.error}
 										label="Error"

@@ -1,38 +1,39 @@
-import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-import { getTranscriberFromContext } from '$lib/query/singletons/transcriber';
+import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
+import { createQuery } from '@tanstack/svelte-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
-	const manualRecorder = getManualRecorderFromContext();
-	const transcriber = getTranscriberFromContext();
+	const getRecorderStateQuery = createQuery(
+		rpc.recorder.getRecorderState.options,
+	);
 
 	$effect(() => {
 		const setAlwaysOnTop = (value: boolean) =>
 			getCurrentWindow().setAlwaysOnTop(value);
 		switch (settings.value['system.alwaysOnTop']) {
 			case 'Always':
-				void setAlwaysOnTop(true);
+				setAlwaysOnTop(true);
 				break;
 			case 'When Recording and Transcribing':
 				if (
-					manualRecorder.recorderState === 'SESSION+RECORDING' ||
-					transcriber.isCurrentlyTranscribing
+					getRecorderStateQuery.data === 'RECORDING' ||
+					rpc.transcription.isCurrentlyTranscribing()
 				) {
-					void setAlwaysOnTop(true);
+					setAlwaysOnTop(true);
 				} else {
-					void setAlwaysOnTop(false);
+					setAlwaysOnTop(false);
 				}
 				break;
 			case 'When Recording':
-				if (manualRecorder.recorderState === 'SESSION+RECORDING') {
-					void setAlwaysOnTop(true);
+				if (getRecorderStateQuery.data === 'RECORDING') {
+					setAlwaysOnTop(true);
 				} else {
-					void setAlwaysOnTop(false);
+					setAlwaysOnTop(false);
 				}
 				break;
 			case 'Never':
-				void setAlwaysOnTop(false);
+				setAlwaysOnTop(false);
 				break;
 		}
 	});
