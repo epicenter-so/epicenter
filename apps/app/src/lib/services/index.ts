@@ -1,4 +1,7 @@
-import type { RECORDING_METHODS, WhisperingSoundNames } from '@repo/shared';
+import type {
+	MANUAL_RECORDING_METHODS,
+	WhisperingSoundNames,
+} from '@repo/shared';
 import { settings } from '../stores/settings.svelte';
 import {
 	createSetTrayIconDesktopService,
@@ -123,13 +126,16 @@ export const services = (() => {
 			}
 		},
 
-		get recorder() {
+		get manualRecorder() {
 			return (
 				{
 					tauri: TauriRecorderService,
 					navigator: NavigatorRecorderService,
-				} satisfies Record<(typeof RECORDING_METHODS)[number], RecorderService>
-			)[settings.value['recording.method']];
+				} satisfies Record<
+					(typeof MANUAL_RECORDING_METHODS)[number],
+					RecorderService
+				>
+			)[settings.value['recording.manual.method']];
 		},
 		sound: {
 			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {

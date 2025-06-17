@@ -3,17 +3,17 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import NavigatorDeviceSelector from '$lib/components/device-selectors/NavigatorDeviceSelector.svelte';
-	import TauriDeviceSelector from '$lib/components/device-selectors/TauriDeviceSelector.svelte';
-	import { settings } from '$lib/stores/settings.svelte';
+	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
 	import { rpc } from '$lib/query';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';
-	import { recorderStateToIcons } from '@repo/shared';
+	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.recorder.getRecorderState.options,
+		rpc.manualRecorder.getRecorderState.options,
 	);
+	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
 	let { children } = $props();
 </script>
@@ -35,33 +35,68 @@
 			<span class="text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
-	{#if getRecorderStateQuery.data === 'RECORDING'}
+	{#if settings.value['recording.mode'] === 'manual'}
+		{@const currentMethod = settings.value[`recording.manual.method`]}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
+			<WhisperingButton
+				tooltipContent="Cancel recording"
+				onclick={commandCallbacks.cancelManualRecording}
+				variant="ghost"
+				size="icon"
+				style="view-transition-name: cancel-icon;"
+			>
+				🚫
+			</WhisperingButton>
+		{:else}
+			<DeviceSelector
+				selectedDeviceId={settings.value[
+					`recording.manual.${currentMethod}.selectedDeviceId`
+				]}
+				updateSelectedDevice={(deviceId) => {
+					settings.value = {
+						...settings.value,
+						[`recording.manual.${currentMethod}.selectedDeviceId`]: deviceId,
+					};
+				}}
+			/>
+			<TransformationSelector />
+		{/if}
 		<WhisperingButton
-			tooltipContent="Cancel recording"
-			onclick={commandCallbacks.cancelManualRecording}
+			tooltipContent="Toggle recording"
+			onclick={commandCallbacks.toggleManualRecording}
 			variant="ghost"
 			size="icon"
-			style="view-transition-name: cancel-icon;"
+			style="view-transition-name: microphone-icon"
 		>
-			🚫
+			{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
-	{:else}
-		{#if settings.value['recording.method'] === 'navigator'}
-			<NavigatorDeviceSelector />
-		{:else}
-			<TauriDeviceSelector />
+	{:else if settings.value['recording.mode'] === 'vad'}
+		{@const currentMethod = settings.value[`recording.vad.method`]}
+		{#if getVadStateQuery.data === 'IDLE'}
+			<DeviceSelector
+				selectedDeviceId={settings.value[
+					`recording.vad.${currentMethod}.selectedDeviceId`
+				]}
+				updateSelectedDevice={(deviceId) => {
+					settings.value = {
+						...settings.value,
+						[`recording.vad.${currentMethod}.selectedDeviceId`]: deviceId,
+					};
+				}}
+			/>
+			<TransformationSelector />
 		{/if}
-		<TransformationSelector />
+		<WhisperingButton
+			tooltipContent="Toggle voice activated recording"
+			onclick={commandCallbacks.toggleVadRecording}
+			variant="ghost"
+			size="icon"
+			style="view-transition-name: microphone-icon"
+		>
+			{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
+		</WhisperingButton>
 	{/if}
-	<WhisperingButton
-		tooltipContent="Toggle recording"
-		onclick={commandCallbacks.toggleManualRecording}
-		variant="ghost"
-		size="icon"
-		style="view-transition-name: microphone-icon"
-	>
-		{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
-	</WhisperingButton>
+
 	<NavItems class="-mr-4" />
 </header>
 

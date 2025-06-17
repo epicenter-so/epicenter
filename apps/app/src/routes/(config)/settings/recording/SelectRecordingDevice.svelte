@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
 	import { toast } from '$lib/toast';
-	import { createQuery, noop } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
 		selected,
@@ -13,7 +13,7 @@
 	} = $props();
 
 	const getMediaDevicesQuery = createQuery(
-		rpc.recorder.getMediaDevices.options,
+		rpc.device.getMediaDevices.options,
 	);
 
 	$effect(() => {

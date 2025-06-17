@@ -17,7 +17,7 @@
 	import { commandCallbacks } from '$lib/commands';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.recorder.getRecorderState.options,
+		rpc.manualRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
@@ -49,6 +49,13 @@
 		richColors: true,
 		duration: 5000,
 		visibleToasts: 5,
+		toastOptions: {
+			classes: {
+				toast: 'flex flex-wrap [&>[data-content]]:flex-1',
+				icon: 'flex-shrink-0',
+				actionButton: 'w-full mt-3 inline-flex justify-center',
+			},
+		},
 	} satisfies ToasterProps;
 
 	let { children } = $props();

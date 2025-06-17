@@ -74,7 +74,6 @@ function createToastService() {
 			const { title, action, ...options } = toastOptions;
 			const id = sonnerToast[toastVariant](title, {
 				...options,
-				descriptionClass: 'line-clamp-2',
 				duration: durationInMs,
 				action: convertActionToToastAction(action),
 			});

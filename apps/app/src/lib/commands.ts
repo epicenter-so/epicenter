@@ -16,7 +16,7 @@ const stopManualRecording = async () => {
 		description: 'Finalizing your audio capture...',
 	});
 	const { data: blob, error: stopRecordingError } =
-		await rpc.recorder.stopRecording.execute({ toastId });
+		await rpc.manualRecorder.stopRecording.execute({ toastId });
 	if (stopRecordingError) {
 		toast.error({
 			id: toastId,
@@ -51,12 +51,17 @@ const startManualRecording = async () => {
 		description: 'Setting up your recording environment...',
 	});
 	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
-		await rpc.recorder.startRecording.execute({
+		await rpc.manualRecorder.startRecording.execute({
 			toastId,
 			settings: {
 				selectedDeviceId:
-					settings.value['recording.navigator.selectedDeviceId'],
-				bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+					settings.value[
+						`recording.${settings.value['recording.mode']}.navigator.selectedDeviceId`
+					],
+				bitrateKbps:
+					settings.value[
+						`recording.${settings.value['recording.mode']}.navigator.bitrateKbps`
+					],
 			},
 		});
 
@@ -82,7 +87,7 @@ const startManualRecording = async () => {
 		case 'fallback': {
 			settings.value = {
 				...settings.value,
-				'recording.navigator.selectedDeviceId':
+				[`recording.${settings.value['recording.mode']}.navigator.selectedDeviceId`]:
 					deviceAcquisitionOutcome.fallbackDeviceId,
 			};
 			switch (deviceAcquisitionOutcome.reason) {
@@ -129,7 +134,7 @@ export const commands = [
 		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await rpc.recorder.getRecorderState.fetchCached();
+				await rpc.manualRecorder.getRecorderState.fetchCached();
 			if (getRecorderStateError) {
 				toast.error({
 					id: nanoid(),
@@ -159,7 +164,7 @@ export const commands = [
 				description: 'Cleaning up recording session...',
 			});
 			const { error: cancelRecordingError } =
-				await rpc.recorder.cancelRecording.execute({ toastId });
+				await rpc.manualRecorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				toast.error({
 					id: toastId,

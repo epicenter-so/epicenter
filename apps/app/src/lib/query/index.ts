@@ -1,5 +1,5 @@
-import { QueryClient } from '@tanstack/svelte-query';
 import { browser } from '$app/environment';
+import { QueryClient } from '@tanstack/svelte-query';
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
@@ -11,13 +11,14 @@ export const queryClient = new QueryClient({
 
 // Import all query modules
 import { clipboard } from './_queries/clipboard';
+import { device } from './_queries/device';
 import { download } from './_queries/download';
-import { recorder } from './_queries/recorder';
+import { manualRecorder } from './_queries/manualRecorder';
 import { recordings } from './_queries/recordings';
 import { shortcuts } from './_queries/shortcuts';
 import { transcription } from './_queries/transcription';
-import { transformations } from './_queries/transformations';
 import { transformationRuns } from './_queries/transformationRuns';
+import { transformations } from './_queries/transformations';
 import { transformer } from './_queries/transformer';
 import { vadRecorder } from './_queries/vadRecorder';
 
@@ -27,13 +28,14 @@ import { vadRecorder } from './_queries/vadRecorder';
  */
 export const rpc = {
 	clipboard,
+	device,
 	download,
-	recorder,
+	manualRecorder,
+	vadRecorder,
 	recordings,
 	shortcuts,
 	transcription,
 	transformations,
 	transformationRuns,
 	transformer,
-	vadRecorder,
 };

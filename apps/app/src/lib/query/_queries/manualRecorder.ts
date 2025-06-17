@@ -6,7 +6,6 @@ import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
 const recorderKeys = {
-	mediaDevices: ['recorder', 'mediaDevices'] as const,
 	state: ['recorder', 'state'] as const,
 	startRecording: ['recorder', 'startRecording'] as const,
 	stopRecording: ['recorder', 'stopRecording'] as const,
@@ -16,15 +15,10 @@ const recorderKeys = {
 const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.state });
 
-export const recorder = {
-	getMediaDevices: defineQuery({
-		queryKey: recorderKeys.mediaDevices,
-		resultQueryFn: () => services.recorder.enumerateRecordingDevices(),
-	}),
-
+export const manualRecorder = {
 	getRecorderState: defineQuery({
 		queryKey: recorderKeys.state,
-		resultQueryFn: () => services.recorder.getRecorderState(),
+		resultQueryFn: () => services.manualRecorder.getRecorderState(),
 		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
@@ -37,7 +31,7 @@ export const recorder = {
 			toastId: string;
 			settings: RecordingSessionSettings;
 		}) =>
-			services.recorder.startRecording(
+			services.manualRecorder.startRecording(
 				{ settings },
 				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
 			),
@@ -47,7 +41,7 @@ export const recorder = {
 	stopRecording: defineMutation({
 		mutationKey: recorderKeys.stopRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
-			services.recorder.stopRecording({
+			services.manualRecorder.stopRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,
@@ -56,7 +50,7 @@ export const recorder = {
 	cancelRecording: defineMutation({
 		mutationKey: recorderKeys.cancelRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
-			services.recorder.cancelRecording({
+			services.manualRecorder.cancelRecording({
 				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,

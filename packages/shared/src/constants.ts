@@ -29,12 +29,26 @@ export const BITRATE_OPTIONS = BITRATE_VALUES_KBPS.map((bitrate) => ({
 	value: bitrate,
 }));
 
-export const RECORDING_METHODS = ['navigator', 'tauri'] as const;
+export const RECORDING_MODES = ['manual', 'vad', 'live'] as const;
+export type RecordingMode = (typeof RECORDING_MODES)[number];
+export const RECORDING_MODE_OPTIONS = [
+	{ label: 'Manual', value: 'manual', icon: '🎙️' },
+	{ label: 'Voice Activated', value: 'vad', icon: '🎤' },
+	{ label: 'Live', value: 'live', icon: '🎬' },
+] as const satisfies {
+	label: string;
+	value: RecordingMode;
+	icon: string;
+}[];
 
-export const RECORDING_METHOD_OPTIONS = RECORDING_METHODS.map((method) => ({
-	label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
-	value: method,
-}));
+export const MANUAL_RECORDING_METHODS = ['navigator', 'tauri'] as const;
+
+export const MANUAL_RECORDING_METHOD_OPTIONS = MANUAL_RECORDING_METHODS.map(
+	(method) => ({
+		label: method === 'navigator' ? 'Browser API' : 'Native (Tauri)',
+		value: method,
+	}),
+);
 
 export const DEFAULT_BITRATE_KBPS =
 	'128' as const satisfies (typeof BITRATE_VALUES_KBPS)[number];
@@ -65,9 +79,9 @@ export const vadStateSchema = z.enum(['IDLE', 'LISTENING', 'SPEECH_DETECTED']);
 export type VadState = z.infer<typeof vadStateSchema>;
 
 export const vadStateToIcons = {
-	IDLE: '🎬',
-	LISTENING: '👂',
-	SPEECH_DETECTED: '🗣️',
+	IDLE: '🎤',
+	LISTENING: '💬',
+	SPEECH_DETECTED: '👂',
 } as const satisfies Record<VadState, string>;
 
 /** Supported languages pulled from OpenAI Website: https://platform.openai.com/docs/guides/speech-to-text/supported-languages */
