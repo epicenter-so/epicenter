@@ -125,16 +125,7 @@
 					</WhisperingButton>
 				{:else}
 					<DeviceSelector
-						selectedDeviceId={settings.value[
-							`recording.manual.${currentMethod}.selectedDeviceId`
-						]}
-						updateSelectedDevice={(deviceId) => {
-							settings.value = {
-								...settings.value,
-								[`recording.manual.${currentMethod}.selectedDeviceId`]:
-									deviceId,
-							};
-						}}
+						settingsKey="recording.manual.{currentMethod}.selectedDeviceId"
 					/>
 					<TranscriptionServiceSelector />
 					<TransformationSelector />
@@ -160,15 +151,7 @@
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				{#if getVadStateQuery.data === 'IDLE'}
 					<DeviceSelector
-						selectedDeviceId={settings.value[
-							`recording.vad.${currentMethod}.selectedDeviceId`
-						]}
-						updateSelectedDevice={(deviceId) => {
-							settings.value = {
-								...settings.value,
-								[`recording.vad.${currentMethod}.selectedDeviceId`]: deviceId,
-							};
-						}}
+						settingsKey="recording.vad.{currentMethod}.selectedDeviceId"
 					/>
 					<TranscriptionServiceSelector />
 					<TransformationSelector />

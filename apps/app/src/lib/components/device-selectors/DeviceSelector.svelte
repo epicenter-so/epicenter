@@ -8,16 +8,24 @@
 	import WhisperingButton from '../WhisperingButton.svelte';
 	import { useCombobox } from '../useCombobox.svelte';
 	import { rpc } from '$lib/query';
+	import type { Settings } from '@repo/shared/settings';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	const combobox = useCombobox();
 
 	let {
-		selectedDeviceId,
-		updateSelectedDevice,
+		settingsKey,
 	}: {
-		selectedDeviceId: string | null;
-		updateSelectedDevice: (deviceId: string | null) => void;
+		settingsKey: keyof Settings;
 	} = $props();
+
+	const selectedDeviceId = $derived(settings.value[settingsKey]);
+	function setSelectedDeviceId(deviceId: string | null) {
+		settings.value = {
+			...settings.value,
+			[settingsKey]: deviceId,
+		};
+	}
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
@@ -76,7 +84,7 @@
 							value={device.label}
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
-								updateSelectedDevice(
+								setSelectedDeviceId(
 									currentDeviceId === device.deviceId ? null : device.deviceId,
 								);
 								combobox.closeAndFocusTrigger();
