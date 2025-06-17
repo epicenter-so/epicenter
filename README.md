@@ -77,7 +77,7 @@ Visit [whispering.bradenwong.com](https://whispering.bradenwong.com/), which has
 
 ### Chrome Extension
 
-Install the Chrome Extension from the Chrome Web Store [here](https://chrome.google.com/webstore/detail/whispering/oilbfihknpdbpfkcncojikmooipnlglo).
+**Temporarily Unavailable**: The Chrome Extension is currently temporarily disabled while we stabilize recent changes to the desktop app. We expect to restore it later this summer. You can still find the listing [here](https://chrome.google.com/webstore/detail/whispering/oilbfihknpdbpfkcncojikmooipnlglo), but installation is currently unavailable.
 
 ### Desktop App
 
