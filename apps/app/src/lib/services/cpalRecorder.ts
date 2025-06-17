@@ -1,11 +1,22 @@
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import type { Result, TaggedError } from '@epicenterhq/result';
 import type { WhisperingRecordingState } from '@repo/shared';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
-import type { RecorderService, RecordingServiceError } from './_types';
 
-export function createRecorderServiceCpal(): RecorderService {
+type RecordingServiceError = TaggedError<'RecordingServiceError'>;
+
+type UpdateStatusMessageFn = (args: {
+	title: string;
+	description: string;
+}) => void;
+
+type DeviceAcquisitionOutcome = {
+	outcome: 'success';
+};
+
+export function createCpalRecorderService() {
 	return {
-		getRecorderState: async () => {
+		getRecorderState: async (): Promise<Result<WhisperingRecordingState, RecordingServiceError>> => {
 			const { data: recorderState, error: getRecorderStateError } =
 				await invoke<WhisperingRecordingState>('get_recorder_state');
 			if (getRecorderStateError)
@@ -19,7 +30,8 @@ export function createRecorderServiceCpal(): RecorderService {
 				});
 			return Ok(recorderState);
 		},
-		enumerateRecordingDevices: async () => {
+
+		enumerateRecordingDevices: async (): Promise<Result<{ deviceId: string; label: string }[], RecordingServiceError>> => {
 			const { data: deviceInfos, error: enumerateRecordingDevicesError } =
 				await invoke<{ deviceId: string; label: string }[]>(
 					'enumerate_recording_devices',
@@ -31,11 +43,15 @@ export function createRecorderServiceCpal(): RecorderService {
 						'We need permission to see your microphones. Check your browser settings and try again!',
 					context: {},
 					cause: enumerateRecordingDevicesError,
-				} satisfies RecordingServiceError);
+				});
 			}
 			return Ok(deviceInfos);
 		},
-		startRecording: async ({ settings }, { sendStatus }) => {
+
+		startRecording: async (
+			{ selectedDeviceId }: { selectedDeviceId: string | null },
+			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
+		): Promise<Result<DeviceAcquisitionOutcome, RecordingServiceError>> => {
 			sendStatus({
 				title: '🎤 Setting Up',
 				description:
@@ -43,7 +59,7 @@ export function createRecorderServiceCpal(): RecorderService {
 			});
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{ deviceName: settings.selectedDeviceId },
+				{ deviceName: selectedDeviceId },
 			);
 			if (initRecordingSessionError)
 				return Err({
@@ -51,11 +67,10 @@ export function createRecorderServiceCpal(): RecorderService {
 					message:
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
-						settings,
-						deviceName: settings.selectedDeviceId,
+						selectedDeviceId,
 					},
 					cause: initRecordingSessionError,
-				} satisfies RecordingServiceError);
+				});
 
 			sendStatus({
 				title: '🎙️ Starting Recording',
@@ -71,11 +86,12 @@ export function createRecorderServiceCpal(): RecorderService {
 						'Unable to start recording. Please check your microphone and try again.',
 					context: {},
 					cause: startRecordingError,
-				} satisfies RecordingServiceError);
+				});
 			// Tauri always uses the device specified by the user
 			return Ok({ outcome: 'success' });
 		},
-		stopRecording: async ({ sendStatus }) => {
+
+		stopRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<Blob, RecordingServiceError>> => {
 			const { data: audioRecording, error: stopRecordingError } = await invoke<{
 				audioData: number[];
 				sampleRate: number;
@@ -88,7 +104,7 @@ export function createRecorderServiceCpal(): RecorderService {
 					message: 'Unable to save your recording. Please try again.',
 					context: {},
 					cause: stopRecordingError,
-				} satisfies RecordingServiceError);
+				});
 			}
 
 			const float32Array = new Float32Array(audioRecording.audioData);
@@ -113,8 +129,9 @@ export function createRecorderServiceCpal(): RecorderService {
 
 			return Ok(blob);
 		},
-		cancelRecording: async ({ sendStatus: sendUpdateStatus }) => {
-			sendUpdateStatus({
+
+		cancelRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<void, RecordingServiceError>> => {
+			sendStatus({
 				title: '🛑 Cancelling',
 				description:
 					'Safely stopping your recording and cleaning up resources...',
@@ -127,10 +144,10 @@ export function createRecorderServiceCpal(): RecorderService {
 						'Unable to cancel the recording. Please try closing the app and starting again.',
 					context: {},
 					cause: cancelRecordingError,
-				} satisfies RecordingServiceError);
+				});
 
 			// Close the recording session after cancelling
-			sendUpdateStatus({
+			sendStatus({
 				title: '🔄 Closing Session',
 				description: 'Cleaning up recording resources...',
 			});

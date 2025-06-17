@@ -1,11 +1,7 @@
 import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
+import type { TaggedError } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import type {
-	RecorderService,
-	RecordingServiceError,
-	RecordingSessionSettings,
-	DeviceAcquisitionOutcome,
-} from './_types';
+import type { WhisperingRecordingState } from '@repo/shared';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
@@ -14,14 +10,32 @@ const WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS = {
 	sampleRate: { ideal: 16_000 },
 } satisfies MediaTrackConstraints;
 
+type RecordingServiceError = TaggedError<'RecordingServiceError'>;
+
+type UpdateStatusMessageFn = (args: {
+	title: string;
+	description: string;
+}) => void;
+
+type DeviceAcquisitionOutcome =
+	| {
+			outcome: 'success';
+	  }
+	| {
+			outcome: 'fallback';
+			reason: 'no-device-selected' | 'preferred-device-unavailable';
+			fallbackDeviceId: string;
+	  };
+
 type ActiveRecording = {
-	settings: RecordingSessionSettings;
+	selectedDeviceId: string | null;
+	bitrateKbps: string;
 	stream: MediaStream;
 	mediaRecorder: MediaRecorder;
 	recordedChunks: Blob[];
 };
 
-export function createRecorderServiceWeb() {
+export function createManualRecorderService() {
 	let activeRecording: ActiveRecording | null = null;
 
 	const cleanupRecordingStream = (stream: MediaStream) => {
@@ -31,12 +45,22 @@ export function createRecorderServiceWeb() {
 	};
 
 	return {
-		getRecorderState: () => {
+		getRecorderState: (): Result<WhisperingRecordingState, RecordingServiceError> => {
 			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
+		
 		enumerateRecordingDevices,
 
-		startRecording: async ({ settings }, { sendStatus }) => {
+		startRecording: async (
+			{
+				selectedDeviceId,
+				bitrateKbps,
+			}: {
+				selectedDeviceId: string | null;
+				bitrateKbps: string;
+			},
+			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
+		): Promise<Result<DeviceAcquisitionOutcome, RecordingServiceError>> => {
 			// Ensure we're not already recording
 			if (activeRecording) {
 				return Err({
@@ -55,7 +79,7 @@ export function createRecorderServiceWeb() {
 
 			// Get the recording stream
 			const { data: streamResult, error: acquireStreamError } =
-				await getRecordingStream(settings, sendStatus);
+				await getRecordingStream(selectedDeviceId, sendStatus);
 			if (acquireStreamError) return Err(acquireStreamError);
 
 			const { stream, deviceOutcome } = streamResult;
@@ -64,14 +88,14 @@ export function createRecorderServiceWeb() {
 			const { data: mediaRecorder, error: recorderError } = await tryAsync({
 				try: async () => {
 					return new MediaRecorder(stream, {
-						bitsPerSecond: Number(settings.bitrateKbps) * 1000,
+						bitsPerSecond: Number(bitrateKbps) * 1000,
 					});
 				},
 				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: { settings },
+					context: { selectedDeviceId, bitrateKbps },
 					cause: error,
 				}),
 			});
@@ -84,7 +108,8 @@ export function createRecorderServiceWeb() {
 			// Set up the active recording
 			const recordedChunks: Blob[] = [];
 			activeRecording = {
-				settings,
+				selectedDeviceId,
+				bitrateKbps,
 				stream,
 				mediaRecorder,
 				recordedChunks,
@@ -103,7 +128,7 @@ export function createRecorderServiceWeb() {
 			return Ok(deviceOutcome);
 		},
 
-		stopRecording: async ({ sendStatus }) => {
+		stopRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<Blob, RecordingServiceError>> => {
 			if (!activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
@@ -159,7 +184,7 @@ export function createRecorderServiceWeb() {
 			return Ok(blob);
 		},
 
-		cancelRecording: async ({ sendStatus }) => {
+		cancelRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<void, RecordingServiceError>> => {
 			if (!activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
@@ -191,11 +216,11 @@ export function createRecorderServiceWeb() {
 
 			return Ok(undefined);
 		},
-	} satisfies RecorderService;
+	};
 }
 
 async function getRecordingStream(
-	settings: RecordingSessionSettings,
+	selectedDeviceId: string | null,
 	sendStatus: (args: { title: string; description: string }) => void,
 ): Promise<
 	Result<
@@ -203,17 +228,17 @@ async function getRecordingStream(
 		RecordingServiceError
 	>
 > {
-	const hasPreferredDevice = !!settings.selectedDeviceId;
+	const hasPreferredDevice = !!selectedDeviceId;
 
 	// Try to use the preferred device if specified
-	if (hasPreferredDevice && settings.selectedDeviceId) {
+	if (hasPreferredDevice && selectedDeviceId) {
 		sendStatus({
 			title: '🎯 Connecting Device',
 			description:
 				'Almost there! Just need your permission to use the microphone...',
 		});
 		const { data: preferredStream, error: getPreferredStreamError } =
-			await getStreamForDeviceId(settings.selectedDeviceId);
+			await getStreamForDeviceId(selectedDeviceId);
 		if (!getPreferredStreamError) {
 			return Ok({
 				stream: preferredStream,
@@ -249,7 +274,7 @@ async function getRecordingStream(
 		return Err({
 			name: 'RecordingServiceError',
 			message: errorMessage,
-			context: { settings },
+			context: { selectedDeviceId },
 			cause: getFallbackStreamError,
 		});
 	}

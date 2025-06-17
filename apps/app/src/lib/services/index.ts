@@ -13,8 +13,8 @@ import { createHttpServiceDesktop } from './http/desktop';
 import { createHttpServiceWeb } from './http/web';
 import { createNotificationServiceDesktop } from './notifications/desktop';
 import { createNotificationServiceWeb } from './notifications/web';
-import { createRecorderServiceCpal } from './recorder/cpal';
-import { createRecorderServiceWeb } from './recorder/web';
+import { createCpalRecorderService } from './cpalRecorder';
+import { createManualRecorderService } from './manualRecorder';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
 import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
@@ -61,8 +61,8 @@ const TransformerService = createTransformerService({
 	DbService,
 });
 
-const NavigatorRecorderService = createRecorderServiceWeb();
-const CpalRecorderService = createRecorderServiceCpal();
+const NavigatorRecorderService = createManualRecorderService();
+const CpalRecorderService = createCpalRecorderService();
 
 /**
  * Unified services object providing consistent access to all services.
