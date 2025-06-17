@@ -9,13 +9,14 @@
 		"./settings": "./src/settings/index.ts"
 	},
 	"devDependencies": {
+		"@repo/app": "workspace:*",
 		"@types/node": "^22.15.29",
-		"typescript": "^5.8.3",
-		"@repo/app": "workspace:*"
+		"typescript": "^5.8.3"
 	},
 	"dependencies": {
 		"@epicenterhq/result": "^0.15.0",
 		"arktype": "^2.1.20",
+		"lucide-svelte": "^0.468.0",
 		"zod": "^3.25.42"
 	}
 }

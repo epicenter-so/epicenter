@@ -6,7 +6,7 @@ import {
 	DEFAULT_BITRATE_KBPS,
 	GROQ_MODELS,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICES,
+	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
 } from '../constants.js';
 import type { SettingsV3 } from './settingsV3.js';
@@ -45,7 +45,9 @@ export const settingsV4Schema = z.object({
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// Shared transcription settings
-	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
+	'transcription.selectedTranscriptionService': z.enum(
+		TRANSCRIPTION_SERVICE_IDS,
+	),
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES),
 	'transcription.prompt': z.string(),
 	'transcription.temperature': z.string(),

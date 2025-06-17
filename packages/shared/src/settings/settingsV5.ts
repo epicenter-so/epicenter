@@ -7,7 +7,7 @@ import {
 	GROQ_MODELS,
 	MANUAL_RECORDING_METHODS,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICES,
+	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
 } from '../constants.js';
 import type { SettingsV4 } from './settingsV4.js';
@@ -53,7 +53,9 @@ export const settingsV5Schema = z.object({
 	'recording.tauri.selectedAudioInputName': z.string().nullable(),
 
 	// Shared transcription settings
-	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
+	'transcription.selectedTranscriptionService': z.enum(
+		TRANSCRIPTION_SERVICE_IDS,
+	),
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES),
 	'transcription.prompt': z.string(),
 	'transcription.temperature': z.string(),

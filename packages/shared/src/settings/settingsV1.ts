@@ -5,7 +5,7 @@ import {
 	DEFAULT_BITRATE_KBPS,
 	GROQ_MODELS,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICES,
+	TRANSCRIPTION_SERVICE_IDS,
 } from '../constants.js';
 
 export const settingsV1Schema = z.object({
@@ -37,7 +37,9 @@ export const settingsV1Schema = z.object({
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// Shared transcription settings
-	'transcription.selectedTranscriptionService': z.enum(TRANSCRIPTION_SERVICES),
+	'transcription.selectedTranscriptionService': z.enum(
+		TRANSCRIPTION_SERVICE_IDS,
+	),
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES),
 	'transcription.prompt': z.string(),
 	'transcription.temperature': z.string(),
