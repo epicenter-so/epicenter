@@ -4,117 +4,71 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import { GROQ_MODELS, TRANSCRIPTION_SERVICES } from '@repo/shared';
 	import {
-		CheckIcon,
-		CloudIcon,
-		HexagonIcon,
-		MicIcon,
-		PauseIcon,
-		ServerIcon,
-		SettingsIcon,
-	} from 'lucide-svelte';
-	import type { Component } from 'svelte';
+		TRANSCRIPTION_SERVICES,
+		type TranscriptionService,
+	} from '@repo/shared';
+	import { CheckIcon, MicIcon, SettingsIcon } from 'lucide-svelte';
 	import WhisperingButton from './WhisperingButton.svelte';
 	import { Badge } from './ui/badge';
 	import { useCombobox } from './useCombobox.svelte';
 
-	type TranscriptionService = (typeof TRANSCRIPTION_SERVICES)[number];
-
-	type ServiceConfig = {
-		id: TranscriptionService;
-		name: string;
-		icon: typeof HexagonIcon;
-		requiresApiKey?: boolean;
-		requiresUrl?: boolean;
-		models?: readonly string[];
-	};
-
-	const services: ServiceConfig[] = [
-		{
-			id: 'OpenAI',
-			name: 'OpenAI Whisper',
-			icon: HexagonIcon,
-			requiresApiKey: true,
-		},
-		{
-			id: 'Groq',
-			name: 'Groq Whisper',
-			icon: CloudIcon,
-			requiresApiKey: true,
-			models: GROQ_MODELS,
-		},
-		{
-			id: 'ElevenLabs',
-			name: 'ElevenLabs',
-			icon: PauseIcon,
-			requiresApiKey: true,
-		},
-		{
-			id: 'faster-whisper-server',
-			name: 'Faster Whisper Server',
-			icon: ServerIcon,
-			requiresUrl: true,
-		},
-	];
-
-	let {
-		class: className,
-	}: {
-		class?: string;
-	} = $props();
+	let { class: className }: { class?: string } = $props();
 
 	const selectedService = $derived(
-		services.find(
+		TRANSCRIPTION_SERVICES.find(
 			(s) =>
 				s.id === settings.value['transcription.selectedTranscriptionService'],
 		),
 	);
 
-	const isServiceConfigured = (service: ServiceConfig) => {
-		if (service.requiresApiKey) {
-			switch (service.id) {
-				case 'OpenAI': {
-					const apiKey = settings.value['apiKeys.openai'];
-					return apiKey && apiKey !== '';
-				}
-				case 'Groq': {
-					const apiKey = settings.value['apiKeys.groq'];
-					return apiKey && apiKey !== '';
-				}
-				case 'ElevenLabs': {
-					const apiKey = settings.value['apiKeys.elevenlabs'];
-					return apiKey && apiKey !== '';
-				}
-				default:
-					return false;
+	const isServiceConfigured = (service: TranscriptionService) => {
+		switch (service.type) {
+			case 'api': {
+				const apiKey = settings.value[service.apiKeyField];
+				return apiKey && apiKey !== '';
+			}
+			case 'server': {
+				const url = settings.value[service.serverUrlField];
+				return url && url !== '';
+			}
+			default: {
+				return true;
 			}
 		}
-		if (service.requiresUrl) {
-			const url = settings.value['transcription.fasterWhisperServer.serverUrl'];
-			return url && url !== '';
-		}
-		return true;
 	};
 
-	const selectedGroqModel = $derived(
-		settings.value['transcription.groq.model'] || 'whisper-large-v3',
-	);
+	const getSelectedModel = (service: TranscriptionService) => {
+		if (service.type !== 'api') return null;
+		return settings.value[service.modelSettingKey] ?? service.defaultModel;
+	};
+
+	// Generic model name formatter
+	const formatModelName = (model: string) => {
+		return model;
+		// .replace('distil-', 'd-')
+		// .replace('-turbo', '-t')
+		// .replace('large-', 'lg-')
+		// .replace('-versatile', '-v');
+	};
 
 	const combobox = useCombobox();
 </script>
 
-{#snippet renderServiceDisplay(service: ServiceConfig)}
+{#snippet renderServiceDisplay(service: TranscriptionService)}
 	{@const Icon = service.icon}
 	<div class="flex items-center gap-2">
 		<Icon class="size-4 shrink-0" />
 		<span class="font-medium truncate">
 			{service.name}
 		</span>
-		{#if service.id === 'Groq' && selectedService?.id === 'Groq'}
-			<Badge variant="outline" class="shrink-0 text-xs">
-				{selectedGroqModel.replace('whisper-', '').replace('distil-', 'd-')}
-			</Badge>
+		{#if selectedService?.id === service.id}
+			{@const selectedModel = getSelectedModel(service)}
+			{#if selectedModel}
+				<Badge variant="outline" class="shrink-0 text-xs">
+					{formatModelName(selectedModel)}
+				</Badge>
+			{/if}
 		{/if}
 	</div>
 {/snippet}
@@ -159,7 +113,7 @@
 			<Command.Input placeholder="Select transcription service..." />
 			<Command.Empty>No service found.</Command.Empty>
 			<Command.Group class="overflow-y-auto max-h-[400px]">
-				{#each services as service (service.id)}
+				{#each TRANSCRIPTION_SERVICES as service (service.id)}
 					{@const isSelected =
 						settings.value['transcription.selectedTranscriptionService'] ===
 						service.id}
@@ -185,13 +139,13 @@
 							<div
 								class="flex items-center gap-2 text-sm text-muted-foreground"
 							>
-								{#if service.requiresApiKey}
+								{#if service.type === 'api'}
 									{#if isConfigured}
 										<span class="text-green-600">API key configured</span>
 									{:else}
 										<span class="text-amber-600">API key required</span>
 									{/if}
-								{:else if service.requiresUrl}
+								{:else if service.type === 'server'}
 									{#if isConfigured}
 										<span class="text-green-600">Server URL configured</span>
 									{:else}
@@ -201,18 +155,20 @@
 							</div>
 						</div>
 					</Command.Item>
-					{#if service.models && isSelected}
+					{#if service.type === 'api' && isSelected}
 						<Command.Group class="ml-8 border-l-2 border-muted">
 							{#each service.models as model}
-								{@const isModelSelected = selectedGroqModel === model}
+								{@const currentSelectedModel = getSelectedModel(service)}
+								{@const isModelSelected = currentSelectedModel === model}
 								<Command.Item
 									value="{service.id}-model-{model}"
 									onSelect={() => {
-										settings.value = {
-											...settings.value,
-											'transcription.groq.model':
-												model as (typeof settings.value)['transcription.groq.model'],
-										};
+										if (service.modelSettingKey) {
+											settings.value = {
+												...settings.value,
+												[service.modelSettingKey]: model,
+											};
+										}
 									}}
 									class="flex items-center gap-2 p-2 pl-4"
 								>
@@ -222,7 +178,7 @@
 										})}
 									/>
 									<span class="text-sm">
-										{model}
+										{formatModelName(model)}
 									</span>
 								</Command.Item>
 							{/each}
