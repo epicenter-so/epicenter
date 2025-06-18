@@ -1,6 +1,21 @@
 - Always prefix files and folders that are only consumed/imported from files in the immediate containing parent folder with an underscore _ . This includes if they are consumed and then reexported by an `index.ts` file—in this case, they should be underscored since index.ts is now the ultimate export path.  You can satisfy this rule either by prefixing individual files with _ OR by placing them in a folder prefixed with _.
 - Always use `type` instead of `interface` in Typescript.
 - When moving components to new locations, always update relative imports to absolute imports (e.g., change `import Component from '../Component.svelte'` to `import Component from '$lib/components/Component.svelte'`)
+- When functions are only used in the return statement of a factory/creator function, use object method shorthand syntax instead of defining them separately. For example, instead of:
+  ```typescript
+  function myFunction() {
+    const helper = () => { /* ... */ };
+    return { helper };
+  }
+  ```
+  Use:
+  ```typescript
+  function myFunction() {
+    return {
+      helper() { /* ... */ }
+    };
+  }
+  ```
 
 # Standard Workflow
 1. First think through the problem, read the codebase for relevant files, and write a plan to specs/[feature-name].md where [feature-name] is the name of the feature.
