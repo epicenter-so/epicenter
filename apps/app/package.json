@@ -20,7 +20,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.2.9",
 		"@eslint/js": "^9.27.0",
-		"@lucide/svelte": "^0.511.0",
+		"@lucide/svelte": "^0.516.0",
 		"@sveltejs/adapter-static": "3.0.8",
 		"@sveltejs/adapter-vercel": "^5.7.2",
 		"@sveltejs/kit": "^2.21.1",
