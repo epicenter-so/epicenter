@@ -1,13 +1,31 @@
 <script lang="ts">
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Layers2Icon } from 'lucide-svelte';
-	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
-	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
-	import {
-		GlobalShortcutTable,
-		LocalShortcutTable,
-	} from './keyboard-shortcut-recorder/index.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
+	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
+	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { commands } from '$lib/commands';
+	import { toast } from '$lib/toast';
+
+	const resetToDefaults = (type: 'local' | 'global') => {
+		const updates: Record<string, null> = {};
+		
+		for (const command of commands) {
+			updates[`shortcuts.${type}.${command.id}`] = null;
+		}
+		
+		settings.value = {
+			...settings.value,
+			...updates
+		};
+		
+		toast.success({
+			title: 'Shortcuts reset',
+			description: `All ${type} shortcuts have been reset to defaults.`
+		});
+	};
 </script>
 
 <svelte:head>
@@ -32,46 +50,66 @@
 			>
 		</Tabs.List>
 
-		<Tabs.Content value="local" class="space-y-8">
+		<Tabs.Content value="local" class="space-y-6">
 			<section>
-				<div class="space-y-2">
-					<h2 class="text-2xl font-semibold tracking-tight">Local Shortcuts</h2>
-					<p class="text-sm text-muted-foreground">
-						Set keyboard shortcuts that work when the app is in focus. These
-						shortcuts will only trigger when Whispering is the active
-						application.
-					</p>
+				<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+					<div class="space-y-1">
+						<div class="flex items-center gap-2">
+							<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Local Shortcuts</h2>
+							<ShortcutFormatHelp type="local" />
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Set keyboard shortcuts that work when the app is in focus. These
+							shortcuts will only trigger when Whispering is the active
+							application.
+						</p>
+					</div>
+					<Button 
+						variant="outline" 
+						size="sm"
+						onclick={() => resetToDefaults('local')}
+						class="w-full sm:w-auto"
+					>
+						<RotateCcw class="mr-2 size-4" />
+						Reset to defaults
+					</Button>
 				</div>
-				<Separator class="my-6" />
-
-				<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
-					<HotkeysJsFormatGuide />
-				</div>
-
-				<LocalShortcutTable />
+				
+				<Separator />
+				
+				<ShortcutTable type="local" />
 			</section>
 		</Tabs.Content>
 
-		<Tabs.Content value="global" class="space-y-8">
+		<Tabs.Content value="global" class="space-y-6">
 			<section>
-				<div class="space-y-2">
-					<h2 class="text-2xl font-semibold tracking-tight">
-						Global Shortcuts
-					</h2>
-					<p class="text-sm text-muted-foreground">
-						Set system-wide keyboard shortcuts that work even when Whispering is
-						not in focus. These shortcuts will trigger from anywhere on your
-						system.
-					</p>
-				</div>
-				<Separator class="my-6" />
-
 				{#if window.__TAURI_INTERNALS__}
-					<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
-						<TauriGlobalShortcutFormatGuide />
+					<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+						<div class="space-y-1">
+							<div class="flex items-center gap-2">
+								<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Global Shortcuts</h2>
+								<ShortcutFormatHelp type="global" />
+							</div>
+							<p class="text-sm text-muted-foreground">
+								Set system-wide keyboard shortcuts that work even when Whispering is
+								not in focus. These shortcuts will trigger from anywhere on your
+								system.
+							</p>
+						</div>
+						<Button 
+							variant="outline" 
+							size="sm"
+							onclick={() => resetToDefaults('global')}
+							class="w-full sm:w-auto"
+						>
+							<RotateCcw class="mr-2 size-4" />
+							Reset to defaults
+						</Button>
 					</div>
-
-					<GlobalShortcutTable />
+					
+					<Separator />
+					
+					<ShortcutTable type="global" />
 				{:else}
 					<div class="rounded-lg border bg-card text-card-foreground shadow-xs">
 						<div

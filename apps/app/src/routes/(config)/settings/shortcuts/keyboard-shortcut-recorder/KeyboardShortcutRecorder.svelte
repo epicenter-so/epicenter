@@ -1,9 +1,11 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import { cn } from '$lib/utils';
 	import type { Command } from '$lib/commands';
-	import { XIcon } from 'lucide-svelte';
+	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
 
 	const {
 		command,
@@ -14,6 +16,7 @@
 		onOpenChange,
 		onStartListening,
 		onClear,
+		onManualSet,
 	}: {
 		command: Command;
 		placeholder?: string;
@@ -23,9 +26,16 @@
 		onOpenChange: (isOpen: boolean) => void;
 		onStartListening: () => void;
 		onClear: () => void;
+		onManualSet?: (keyCombination: string) => void;
 	} = $props();
 
 	let isPopoverOpen = $state(false);
+	let isManualMode = $state(false);
+	let manualValue = $state(keyCombination || '');
+
+	$effect(() => {
+		manualValue = keyCombination || '';
+	});
 
 	/**
 	 * Renders a key symbol with platform-specific symbols
@@ -110,6 +120,13 @@
 
 		return symbolMap[key] ?? key;
 	}
+
+	function handleManualSubmit() {
+		if (manualValue.trim() && onManualSet) {
+			onManualSet(manualValue.trim());
+			isManualMode = false;
+		}
+	}
 </script>
 
 <Popover.Root
@@ -117,92 +134,153 @@
 	onOpenChange={(isOpen) => {
 		isPopoverOpen = isOpen;
 		onOpenChange(isOpen);
-		if (isOpen && autoFocus) {
+		if (!isOpen) {
+			isManualMode = false;
+		}
+		if (isOpen && autoFocus && !isManualMode) {
 			setTimeout(() => onStartListening(), 100);
 		}
 	}}
 >
-	<Popover.Trigger class="inline-flex items-center gap-1">
-		{#if keyCombination}
-			{#each keyCombination.split('+') as key}
-				<kbd
-					class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
-				>
-					{renderKeySymbol(key)}
-				</kbd>
-			{/each}
-			<WhisperingButton
-				size="icon"
-				variant="ghost"
-				onclick={(e) => {
-					e.stopPropagation();
-					onClear();
-				}}
-				tooltipContent="Clear shortcut"
-			>
-				<XIcon class="size-4" />
-			</WhisperingButton>
-		{:else}
-			<button
-				class="text-sm text-muted-foreground hover:text-foreground hover:underline"
-			>
-				Add shortcut
-			</button>
-		{/if}
+	<Popover.Trigger>
+		<Button variant="ghost" size="sm" class="h-8 font-normal">
+			{#if keyCombination}
+				<span class="text-xs">Set shortcut</span>
+			{:else}
+				<span class="text-xs text-muted-foreground">+ Add</span>
+			{/if}
+		</Button>
 	</Popover.Trigger>
 
-	<Popover.Content class="w-80 p-4" align="end">
+	<Popover.Content class="w-80" align="end">
 		<div class="space-y-4">
 			<div>
-				<h4 class="mb-2 font-medium leading-none">{command.title}</h4>
-				<p class="text-sm text-muted-foreground">Set a keyboard shortcut</p>
+				<h4 class="mb-1 text-sm font-medium leading-none">{command.title}</h4>
+				<p class="text-xs text-muted-foreground">
+					{#if isManualMode}
+						Enter shortcut manually (e.g., ctrl+shift+a)
+					{:else}
+						Click to record or edit manually
+					{/if}
+				</p>
 			</div>
 
-			<button
-				type="button"
-				class={cn(
-					'relative flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-					isListening && 'ring-2 ring-ring ring-offset-2',
-				)}
-				onclick={(e) => {
-					e.stopPropagation();
-					onStartListening();
-				}}
-				tabindex="0"
-				aria-label={isListening
-					? 'Recording keyboard shortcut'
-					: 'Click to record keyboard shortcut'}
-			>
-				<div class="flex w-full items-center justify-between">
-					<div
-						class="flex flex-grew items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
-					>
-						{#if keyCombination}
-							{#each keyCombination.split('+') as key}
-								<kbd
-									class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
-								>
-									{renderKeySymbol(key)}
-								</kbd>
-							{/each}
-						{:else}
-							<span class="truncate text-muted-foreground">{placeholder}</span>
+			{#if !isManualMode}
+				<!-- Recording mode -->
+				<button
+					type="button"
+					class={cn(
+						'relative flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+						isListening && 'ring-2 ring-ring ring-offset-2',
+					)}
+					onclick={(e) => {
+						e.stopPropagation();
+						onStartListening();
+					}}
+					tabindex="0"
+					aria-label={isListening
+						? 'Recording keyboard shortcut'
+						: 'Click to record keyboard shortcut'}
+				>
+					<div class="flex w-full items-center justify-between">
+						<div
+							class="flex flex-grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
+						>
+							{#if keyCombination && !isListening}
+								{#each keyCombination.split('+') as key}
+									<kbd
+										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
+									>
+										{renderKeySymbol(key)}
+									</kbd>
+								{/each}
+							{:else if !isListening}
+								<span class="truncate text-muted-foreground">{placeholder}</span>
+							{/if}
+						</div>
+						{#if !isListening}
+							<Keyboard class="size-4 text-muted-foreground" />
 						{/if}
 					</div>
-				</div>
 
-				{#if isListening}
-					<div
-						class="absolute inset-0 z-10 flex animate-in fade-in-0 zoom-in-95 items-center justify-center rounded-md border border-input bg-background/80 backdrop-blur-xs"
-						aria-live="polite"
-					>
-						<div class="flex flex-col items-center gap-1 px-4 py-2">
-							<p class="text-sm font-medium">Press key combination</p>
-							<p class="text-xs text-muted-foreground">Esc to cancel</p>
+					{#if isListening}
+						<div
+							class="absolute inset-0 z-10 flex animate-in fade-in-0 zoom-in-95 items-center justify-center rounded-md border border-input bg-background/95 backdrop-blur-sm"
+							aria-live="polite"
+						>
+							<div class="flex flex-col items-center gap-1 px-4 py-2">
+								<p class="text-sm font-medium">Press key combination</p>
+								<p class="text-xs text-muted-foreground">Esc to cancel</p>
+							</div>
 						</div>
+					{/if}
+				</button>
+
+				<div class="flex items-center gap-2">
+					{#if keyCombination}
+						<Button
+							variant="outline"
+							size="sm"
+							class="flex-1"
+							onclick={() => onClear()}
+						>
+							<XIcon class="mr-2 size-3" />
+							Clear
+						</Button>
+					{/if}
+					<Button
+						variant="outline"
+						size="sm"
+						class={keyCombination ? 'flex-1' : 'w-full'}
+						onclick={() => {
+							isManualMode = true;
+							manualValue = keyCombination || '';
+						}}
+					>
+						<Pencil class="mr-2 size-3" />
+						Edit manually
+					</Button>
+				</div>
+			{:else}
+				<!-- Manual mode -->
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleManualSubmit();
+					}}
+					class="space-y-3"
+				>
+					<Input
+						type="text"
+						placeholder="e.g., ctrl+shift+a"
+						bind:value={manualValue}
+						class="font-mono text-sm"
+						autofocus
+					/>
+					<div class="flex items-center gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							class="flex-1"
+							onclick={() => {
+								isManualMode = false;
+								manualValue = keyCombination || '';
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							size="sm"
+							class="flex-1"
+							disabled={!manualValue.trim()}
+						>
+							Save
+						</Button>
 					</div>
-				{/if}
-			</button>
+				</form>
+			{/if}
 		</div>
 	</Popover.Content>
 </Popover.Root>

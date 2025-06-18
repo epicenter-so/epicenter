@@ -1,5 +1,5 @@
-export { default as GlobalShortcutTable } from './GlobalShortcutTable.svelte';
-export { default as LocalShortcutTable } from './LocalShortcutTable.svelte';
+export { default as ShortcutTable } from './ShortcutTable.svelte';
+export { default as ShortcutFormatHelp } from './ShortcutFormatHelp.svelte';
 
 export type KeyCombination = string;
 
@@ -61,5 +61,6 @@ export function createKeyRecorder(
 			await callbacks.onUnregister();
 			await callbacks.onClear();
 		},
+		callbacks,
 	};
 }

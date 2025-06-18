@@ -112,4 +112,10 @@
 	onOpenChange={handleOpenChange}
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
+	onManualSet={async (keyCombination) => {
+		// First unregister the old shortcut
+		await keyRecorder.callbacks.onUnregister();
+		// Then register the new one
+		await keyRecorder.callbacks.onRegister(keyCombination);
+	}}
 />
