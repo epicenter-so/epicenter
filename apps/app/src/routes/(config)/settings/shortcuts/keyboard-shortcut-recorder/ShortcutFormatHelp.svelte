@@ -6,17 +6,10 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 
-	interface Props {
-		type: 'local' | 'global';
-	}
-
-	let { type }: Props = $props();
+	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
 
 	const isLocal = $derived(type === 'local');
-	const documentationUrl = isLocal
-		? 'https://github.com/jaywcjlove/hotkeys-js'
-		: 'https://www.electronjs.org/docs/latest/api/accelerator';
 </script>
 
 <WhisperingButton
@@ -87,9 +80,9 @@
 								<span class="text-muted-foreground">/ Ctrl</span>
 							</div>
 							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono"
-									>CommandOrControl</Badge
-								>
+								<Badge variant="outline" class="font-mono">
+									CommandOrControl
+								</Badge>
 								<span class="text-muted-foreground">/ Cmd on macOS</span>
 							</div>
 						{/if}
@@ -145,9 +138,9 @@
 								'F1-F12',
 							]}
 							{#each keys as key}
-								<Badge variant="secondary" class="font-mono text-xs"
-									>{key}</Badge
-								>
+								<Badge variant="secondary" class="font-mono text-xs">
+									{key}
+								</Badge>
 							{/each}
 						{/if}
 					</div>
@@ -173,32 +166,20 @@
 					{/if}
 				</div>
 			</div>
-
-			<!-- Multiple shortcuts -->
-			{#if isLocal}
-				<div>
-					<h4 class="mb-2 font-medium">Multiple Shortcuts</h4>
-					<p class="mb-2 text-sm text-muted-foreground">
-						Bind multiple shortcuts to the same action by separating with
-						commas:
-					</p>
-					<code class="block rounded-lg border p-3 text-sm"
-						>ctrl+r,command+r</code
-					>
-				</div>
-			{/if}
 		</div>
 
 		<Dialog.Footer>
-			<Button
-				variant="outline"
-				href={documentationUrl}
-				target="_blank"
-				rel="noreferrer"
-			>
-				<ExternalLink class="mr-2 size-4" />
-				View full documentation
-			</Button>
+			{#if !isLocal}
+				<Button
+					variant="outline"
+					href="https://www.electronjs.org/docs/latest/api/accelerator"
+					target="_blank"
+					rel="noreferrer"
+				>
+					<ExternalLink class="mr-2 size-4" />
+					View documentation
+				</Button>
+			{/if}
 			<Button onclick={() => (dialogOpen = false)}>Close</Button>
 		</Dialog.Footer>
 	</Dialog.Content>

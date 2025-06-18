@@ -1,21 +1,15 @@
 <script lang="ts">
-	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import { commands } from '$lib/commands';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { commands } from '$lib/commands';
 	import { Search, X } from 'lucide-svelte';
-	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
-	import { cn } from '$lib/utils';
+	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
 
-	interface Props {
-		type: 'local' | 'global';
-		class?: string;
-	}
-
-	let { type, class: className }: Props = $props();
+	let { type }: { type: 'local' | 'global' } = $props();
 
 	let searchQuery = $state('');
 
@@ -24,24 +18,9 @@
 			command.title.toLowerCase().includes(searchQuery.toLowerCase()),
 		),
 	);
-
-	const getShortcutValue = (commandId: string) => {
-		return settings.value[`shortcuts.${type}.${commandId}`] ?? '';
-	};
-
-	const clearShortcut = (commandId: string) => {
-		settings.value = {
-			...settings.value,
-			[`shortcuts.${type}.${commandId}`]: null,
-		};
-	};
-
-	const getDefaultShortcut = (command: typeof commands[number]) => {
-		return type === 'local' ? command.defaultLocalShortcut : command.defaultGlobalShortcut;
-	};
 </script>
 
-<div class={cn("space-y-4", className)}>
+<div class="space-y-4">
 	<!-- Search input -->
 	<div class="relative">
 		<Search
@@ -66,8 +45,12 @@
 			</Table.Header>
 			<Table.Body>
 				{#each filteredCommands as command}
-					{@const shortcutValue = getShortcutValue(command.id)}
-					{@const defaultShortcut = getDefaultShortcut(command)}
+					{@const shortcutValue =
+						settings.value[`shortcuts.${type}.${command.id}`]}
+					{@const defaultShortcut =
+						type === 'local'
+							? command.defaultLocalShortcut
+							: command.defaultGlobalShortcut}
 					<Table.Row>
 						<Table.Cell class="font-medium">
 							<span class="block truncate pr-2">{command.title}</span>
@@ -75,14 +58,22 @@
 						<Table.Cell class="text-right">
 							<div class="flex items-center justify-end gap-2">
 								{#if shortcutValue}
-									<Badge variant="secondary" class="font-mono text-xs max-w-[120px] truncate">
+									<Badge
+										variant="secondary"
+										class="font-mono text-xs max-w-[120px] truncate"
+									>
 										{shortcutValue}
 									</Badge>
 									<Button
 										variant="ghost"
 										size="icon"
 										class="size-8 shrink-0"
-										onclick={() => clearShortcut(command.id)}
+										onclick={() => {
+											settings.value = {
+												...settings.value,
+												[`shortcuts.${type}.${command.id}`]: null,
+											};
+										}}
 									>
 										<X class="size-4" />
 										<span class="sr-only">Clear shortcut</span>
@@ -90,16 +81,20 @@
 								{:else}
 									<span class="text-sm text-muted-foreground">Not set</span>
 								{/if}
-								
+
 								{#if type === 'local'}
 									<LocalKeyboardShortcutRecorder
 										{command}
-										placeholder={defaultShortcut ? `Default: ${defaultShortcut}` : 'Set shortcut'}
+										placeholder={defaultShortcut
+											? `Default: ${defaultShortcut}`
+											: 'Set shortcut'}
 									/>
 								{:else}
 									<GlobalKeyboardShortcutRecorder
 										{command}
-										placeholder={defaultShortcut ? `Default: ${defaultShortcut}` : 'Set shortcut'}
+										placeholder={defaultShortcut
+											? `Default: ${defaultShortcut}`
+											: 'Set shortcut'}
 									/>
 								{/if}
 							</div>
