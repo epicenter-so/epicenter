@@ -1,5 +1,5 @@
 import { arraysMatch } from '$lib/services/shortcuts/createLocalShortcutManager.svelte';
-import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
+import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 import { on } from 'svelte/events';
 
 export { default as ShortcutFormatHelp } from './ShortcutFormatHelp.svelte';
@@ -8,12 +8,15 @@ export { default as ShortcutTable } from './ShortcutTable.svelte';
 /**
  * Creates a keyboard shortcut recorder with state management and event handling
  */
-export function createKeyRecorder(callbacks: {
+export function createKeyRecorder({
+	pressedKeys,
+	onRegister,
+	onClear,
+}: {
+	pressedKeys: PressedKeys;
 	onRegister: (keyCombination: string[]) => void | Promise<void>;
 	onClear: () => void | Promise<void>;
 }) {
-	const pressedKeys = createPressedKeys();
-
 	let isListening = $state(false);
 	let lastRecordedKeys: string[] = [];
 
@@ -59,7 +62,7 @@ export function createKeyRecorder(callbacks: {
 
 			isListening = false;
 
-			await callbacks.onRegister(pressedKeys.current);
+			await onRegister(pressedKeys.current);
 		}, 50);
 	});
 
@@ -78,8 +81,8 @@ export function createKeyRecorder(callbacks: {
 		async clear() {
 			isListening = false;
 			lastRecordedKeys = [];
-			await callbacks.onClear();
+			await onClear();
 		},
-		callbacks,
+		register: onRegister,
 	};
 }

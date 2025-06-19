@@ -4,6 +4,7 @@
 	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
+	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 
@@ -17,8 +18,10 @@
 		autoFocus?: boolean;
 	} = $props();
 
-	// Create the key recorder with callbacks
+	const pressedKeys = createPressedKeys();
+
 	const keyRecorder = createKeyRecorder({
+		pressedKeys,
 		onRegister: async (keyCombination) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandGlobally.execute({
@@ -111,6 +114,6 @@
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
 	onSetManualCombination={async (keyCombination) => {
-		await keyRecorder.callbacks.onRegister(keyCombination);
+		await keyRecorder.register(keyCombination);
 	}}
 />

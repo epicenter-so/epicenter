@@ -4,6 +4,7 @@
 	import { services } from '$lib/services';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
+	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
 
@@ -17,7 +18,10 @@
 		autoFocus?: boolean;
 	} = $props();
 
+	const pressedKeys = createPressedKeys();
+
 	const keyRecorder = createKeyRecorder({
+		pressedKeys,
 		onRegister: async (keyCombination) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandLocally.execute({
@@ -92,6 +96,6 @@
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
 	onSetManualCombination={async (keyCombination) => {
-		await keyRecorder.callbacks.onRegister(keyCombination);
+		await keyRecorder.register(keyCombination);
 	}}
 />
