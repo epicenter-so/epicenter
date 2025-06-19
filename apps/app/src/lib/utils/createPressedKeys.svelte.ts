@@ -89,3 +89,5 @@ export function createPressedKeys() {
 		},
 	};
 }
+
+export type PressedKeys = ReturnType<typeof createPressedKeys>;

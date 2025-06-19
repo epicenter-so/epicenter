@@ -5,6 +5,8 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import '../app.css';
 	import AppShell from './+layout/AppShell.svelte';
+	import { context } from '$lib/context';
+	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 	let { children } = $props();
 
@@ -18,6 +20,8 @@
 			});
 		});
 	});
+
+	context.pressedKeys.set(createPressedKeys());
 </script>
 
 <svelte:head>
