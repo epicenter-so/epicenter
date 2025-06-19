@@ -26,14 +26,27 @@ type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
 type Accelerator = string;
 
 export function createGlobalShortcutManager() {
-	const shortcuts = new Map<string, Accelerator>();
+	const shortcuts = new Map<
+		string,
+		{
+			on: 'Pressed' | 'Released' | 'Both';
+			accelerator: Accelerator;
+			callback: () => void;
+		}
+	>();
 
 	return {
-		async register(
-			id: string,
-			accelerator: Accelerator,
-			callback: () => void,
-		): Promise<Result<void, GlobalShortcutServiceError>> {
+		async register({
+			id,
+			accelerator,
+			callback,
+			on,
+		}: {
+			id: string;
+			accelerator: Accelerator;
+			callback: () => void;
+			on: 'Pressed' | 'Released' | 'Both';
+		}): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);
 
@@ -43,7 +56,15 @@ export function createGlobalShortcutManager() {
 			>({
 				try: () =>
 					tauriRegister(accelerator, (event) => {
-						if (event.state === 'Pressed') {
+						if (
+							event.state === 'Pressed' &&
+							(on === 'Pressed' || on === 'Both')
+						) {
+							callback();
+						} else if (
+							event.state === 'Released' &&
+							(on === 'Released' || on === 'Both')
+						) {
 							callback();
 						}
 					}),
@@ -56,25 +77,25 @@ export function createGlobalShortcutManager() {
 			});
 			if (registerError) return Err(registerError);
 
-			shortcuts.set(id, accelerator);
+			shortcuts.set(id, { accelerator, callback, on });
 			return Ok(undefined);
 		},
 
 		async unregister(
 			id: string,
 		): Promise<Result<void, GlobalShortcutServiceError>> {
-			const accelerator = shortcuts.get(id);
-			if (!accelerator) return Ok(undefined);
+			const shortcut = shortcuts.get(id);
+			if (!shortcut) return Ok(undefined);
 
 			const { error: unregisterError } = await tryAsync<
 				void,
 				GlobalShortcutServiceError
 			>({
-				try: () => tauriUnregister(accelerator),
+				try: () => tauriUnregister(shortcut.accelerator),
 				mapError: (error) => ({
 					name: 'GlobalShortcutServiceError',
 					message: 'Error unregistering global shortcut',
-					context: { id, accelerator },
+					context: { id, shortcut },
 					cause: error,
 				}),
 			});

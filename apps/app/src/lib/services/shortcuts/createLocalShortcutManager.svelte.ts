@@ -94,7 +94,7 @@ export function createLocalShortcutManager() {
 			id: string;
 			keyCombination: string[];
 			callback: () => void;
-			on: 'Pressed' | 'Released' | 'Both';
+			on: 'Pressed' | 'Released' | 'PressedAndReleased';
 		}): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.set(id, { keyCombination, callback, on });
 			return Ok(undefined);
