@@ -1,8 +1,8 @@
 import { type Command, commandCallbacks } from '$lib/commands';
-import { tryAsync, trySync } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
-import hotkeys from 'hotkeys-js';
+import { Err } from '@epicenterhq/result';
+import { WhisperingError } from '@repo/shared';
 import { defineMutation } from '../_utils';
+import { context } from '$lib/context';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
@@ -12,56 +12,19 @@ export const shortcuts = {
 			keyCombination,
 		}: {
 			command: Command;
-			keyCombination: string;
-		}) => {
-			if (command.id === 'pushToTalk') {
-				const registerPushToTalkLocallyResult = trySync({
-					try: () => {
-						let isKeyPressed = false;
-						hotkeys(keyCombination, { keydown: true, keyup: true }, (event) => {
-							// Prevent the default refresh event under WINDOWS system
-							event.preventDefault();
-							if (event.type === 'keydown' && !isKeyPressed) {
-								isKeyPressed = true;
-								commandCallbacks.pushToTalk();
-							} else if (event.type === 'keyup') {
-								isKeyPressed = false;
-								commandCallbacks.pushToTalk();
-							}
+			keyCombination: string[];
+		}) =>
+			context().localShortcutManager.register(
+				command.id,
+				keyCombination,
+				commandCallbacks[command.id],
+			),
+	}),
 
-							return false;
-						});
-					},
-					mapError: (error): WhisperingError => ({
-						name: 'WhisperingError',
-						title: 'Error registering push to talk local shortcut',
-						description: 'Please make sure it is a valid keyboard shortcut.',
-						action: { type: 'more-details', error },
-						context: {},
-						cause: error,
-					}),
-				});
-				return registerPushToTalkLocallyResult;
-			}
-			const registerNewCommandLocallyResult = trySync({
-				try: () =>
-					hotkeys(keyCombination, (event) => {
-						// Prevent the default refresh event under WINDOWS system
-						event.preventDefault();
-						commandCallbacks[command.id]();
-						return false;
-					}),
-				mapError: (error): WhisperingError => ({
-					name: 'WhisperingError',
-					title: 'Error registering local shortcut',
-					description: 'Please make sure it is a valid keyboard shortcut.',
-					action: { type: 'more-details', error },
-					context: {},
-					cause: error,
-				}),
-			});
-			return registerNewCommandLocallyResult;
-		},
+	unregisterCommandLocally: defineMutation({
+		mutationKey: ['shortcuts', 'unregisterCommandLocally'] as const,
+		resultMutationFn: async ({ commandId }: { commandId: string }) =>
+			context().localShortcutManager.unregister(commandId),
 	}),
 
 	registerCommandGlobally: defineMutation({
@@ -73,55 +36,52 @@ export const shortcuts = {
 			command: Command;
 			keyCombination: string;
 		}) => {
-			if (command.id === 'pushToTalk') {
-				const registerPushToTalkGloballyResult = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { register } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await register(keyCombination, (event) => {
-							if (event.state === 'Pressed' || event.state === 'Released') {
-								commandCallbacks.pushToTalk();
-							}
-						});
-					},
-					mapError: (error): WhisperingError => ({
-						name: 'WhisperingError',
-						title: 'Error registering global shortcut.',
+			if (!window.__TAURI_INTERNALS__) {
+				return Err(
+					WhisperingError({
+						title: 'Global shortcuts not available',
 						description:
-							'Please make sure it is a valid Electron keyboard shortcut.',
-						action: { type: 'more-details', error },
+							'Global shortcuts are only available in the desktop app.',
+						action: {
+							type: 'link',
+							label: 'Learn more',
+							goto: '/desktop-app',
+						},
 						context: {},
-						cause: error,
+						cause: new Error('Not in Tauri environment'),
 					}),
-				});
-				return registerPushToTalkGloballyResult;
+				);
 			}
 
-			const registerNewShortcutKeyResult = await tryAsync({
-				try: async () => {
-					if (!window.__TAURI_INTERNALS__) return;
-					const { register } = await import(
-						'@tauri-apps/plugin-global-shortcut'
-					);
-					return await register(keyCombination, (event) => {
-						if (event.state === 'Pressed') {
-							commandCallbacks[command.id]();
-						}
-					});
-				},
-				mapError: (error): WhisperingError => ({
-					name: 'WhisperingError',
-					title: 'Error registering global shortcut.',
-					description:
-						'Please make sure it is a valid Electron keyboard shortcut.',
-					action: { type: 'more-details', error },
-					context: {},
-					cause: error,
-				}),
-			});
-			return registerNewShortcutKeyResult;
+			const { globalShortcutManager } = await import('../index');
+
+			return await globalShortcutManager.register(
+				command.id,
+				keyCombination,
+				commandCallbacks[command.id],
+			);
+		},
+	}),
+
+	unregisterCommandGlobally: defineMutation({
+		mutationKey: ['shortcuts', 'unregisterCommandGlobally'] as const,
+		resultMutationFn: async ({ commandId }: { commandId: string }) => {
+			if (!window.__TAURI_INTERNALS__) {
+				return Err(
+					WhisperingError({
+						title: 'Global shortcuts not available',
+						description:
+							'Global shortcuts are only available in the desktop app.',
+						action: { type: 'link', label: 'Learn more', goto: '/desktop-app' },
+						context: {},
+						cause: new Error('Not in Tauri environment'),
+					}),
+				);
+			}
+
+			const { globalShortcutManager } = await import('../index');
+
+			return await globalShortcutManager.unregister(commandId);
 		},
 	}),
 };

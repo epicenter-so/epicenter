@@ -1,10 +1,10 @@
 <script lang="ts">
+	import type { Command } from '$lib/commands';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
-	import type { Command } from '$lib/commands';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
 
 	const {
@@ -26,15 +26,15 @@
 		onOpenChange: (isOpen: boolean) => void;
 		onStartListening: () => void;
 		onClear: () => void;
-		onManualSet?: (keyCombination: string) => void;
+		onManualSet?: (keyCombination: string[]) => void;
 	} = $props();
 
 	let isPopoverOpen = $state(false);
 	let isManualMode = $state(false);
-	let manualValue = $state(keyCombination || '');
+	let manualValue = $state(keyCombination ?? '');
 
 	$effect(() => {
-		manualValue = keyCombination || '';
+		manualValue = keyCombination ?? '';
 	});
 
 	/**
@@ -123,7 +123,7 @@
 
 	function handleManualSubmit() {
 		if (manualValue.trim() && onManualSet) {
-			onManualSet(manualValue.trim());
+			onManualSet(manualValue.trim().split('+'));
 			isManualMode = false;
 		}
 	}
@@ -195,7 +195,8 @@
 									</kbd>
 								{/each}
 							{:else if !isListening}
-								<span class="truncate text-muted-foreground">{placeholder}</span>
+								<span class="truncate text-muted-foreground">{placeholder}</span
+								>
 							{/if}
 						</div>
 						{#if !isListening}
@@ -234,7 +235,7 @@
 						class={keyCombination ? 'flex-1' : 'w-full'}
 						onclick={() => {
 							isManualMode = true;
-							manualValue = keyCombination || '';
+							manualValue = keyCombination ?? '';
 						}}
 					>
 						<Pencil class="mr-2 size-3" />
@@ -265,7 +266,7 @@
 							class="flex-1"
 							onclick={() => {
 								isManualMode = false;
-								manualValue = keyCombination || '';
+								manualValue = keyCombination ?? '';
 							}}
 						>
 							Cancel

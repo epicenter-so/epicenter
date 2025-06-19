@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { toast } from '$lib/toast';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { tryAsync } from '@epicenterhq/result';
-	import { WhisperingError } from '@repo/shared';
 	import type { Command } from '$lib/commands';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
-	import { createGlobalKeyMapper } from './key-mappers';
 	import { rpc } from '$lib/query';
+	import {
+		arrayToShortcutString,
+		shortcutStringToTauriAccelerator,
+	} from '$lib/services/shortcuts';
 
 	const {
 		command,
@@ -26,79 +27,67 @@
 		settings.value[`shortcuts.global.${command.id}`],
 	);
 
-	// Create a key mapper for global shortcuts
-	const keyMapper = createGlobalKeyMapper();
-
 	// Create the key recorder with callbacks
-	const keyRecorder = createKeyRecorder(
-		{
-			onUnregister: async () => {
-				const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-				if (!oldShortcutKey) return;
+	const keyRecorder = createKeyRecorder({
+		onUnregister: async () => {
+			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
+			if (!oldShortcutKey) return;
 
-				const { error: unregisterError } = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { unregister } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await unregister(oldShortcutKey);
-					},
-					mapError: (error) =>
-						WhisperingError({
-							title: `Error unregistering command with id ${command.id} globally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandGlobally.execute({
+					commandId: command.id,
 				});
 
-				if (unregisterError) {
-					toast.error(unregisterError);
-				}
-			},
-			onRegister: async (keyCombination) => {
-				const { error: registerError } =
-					await rpc.shortcuts.registerCommandGlobally.execute({
-						command,
-						keyCombination,
-					});
-
-				if (registerError) {
-					toast.error(registerError);
-					return;
-				}
-
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: keyCombination,
-				};
-
-				toast.success({
-					title: `Global shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			},
-			onClear: async () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: null,
-				};
-
-				toast.success({
-					title: 'Global shortcut cleared',
-					description: `Please set a new shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			},
-			onEscape: () => {
-				isPopoverOpen = false;
-			},
+			if (unregisterError) {
+				toast.error(unregisterError);
+			}
 		},
-		{ mapKeyboardEvent: keyMapper.mapKeyboardEvent },
-	);
+		onRegister: async (keyCombination) => {
+			// Convert the local format to Tauri accelerator format
+			const accelerator = shortcutStringToTauriAccelerator(
+				arrayToShortcutString(keyCombination),
+			);
+
+			const { error: registerError } =
+				await rpc.shortcuts.registerCommandGlobally.execute({
+					command,
+					keyCombination: accelerator,
+				});
+
+			if (registerError) {
+				toast.error(registerError);
+				return;
+			}
+
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: accelerator,
+			};
+
+			toast.success({
+				title: `Global shortcut set to ${accelerator}`,
+				description: `Press the shortcut to trigger "${command.title}"`,
+			});
+
+			isPopoverOpen = false;
+		},
+		onClear: async () => {
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: null,
+			};
+
+			toast.success({
+				title: 'Global shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
+
+			isPopoverOpen = false;
+		},
+		onEscape: () => {
+			isPopoverOpen = false;
+		},
+	});
 
 	// Handle popover open/close
 	function handleOpenChange(isOpen: boolean) {

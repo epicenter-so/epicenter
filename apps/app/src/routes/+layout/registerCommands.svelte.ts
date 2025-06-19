@@ -1,5 +1,6 @@
 import { commands } from '$lib/commands';
 import { rpc } from '$lib/query';
+import { shortcutStringToArray } from '$lib/services/shortcuts';
 import { settings } from '$lib/stores/settings.svelte';
 
 export function registerCommandsOnLoad() {
@@ -10,7 +11,7 @@ export function registerCommandsOnLoad() {
 				if (!keyCombination) return;
 				return rpc.shortcuts.registerCommandLocally.execute({
 					command,
-					keyCombination,
+					keyCombination: shortcutStringToArray(keyCombination),
 				});
 			}),
 		);

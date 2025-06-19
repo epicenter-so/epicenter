@@ -1,6 +1,21 @@
-import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
-import { Context } from 'runed';
+import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
+import { getContext, setContext } from 'svelte';
+import { createLocalShortcutManager } from './services/shortcuts';
 
-export const context = {
-	pressedKeys: new Context<PressedKeys>('pressedKeys'),
-};
+export function buildCtx() {
+	setContext('context', createContext());
+}
+
+export function context(): Context {
+	return getContext('context');
+}
+
+function createContext() {
+	const pressedKeys = createPressedKeys();
+	return {
+		pressedKeys,
+		localShortcutManager: createLocalShortcutManager({ pressedKeys }),
+	};
+}
+
+type Context = ReturnType<typeof createContext>;

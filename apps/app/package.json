@@ -81,9 +81,9 @@
 		"dexie": "^4.0.11",
 		"elevenlabs": "^1.59.0",
 		"formsnap": "^2.0.1",
-		"hotkeys-js": "^3.13.10",
 		"idb": "^8.0.3",
 		"nanoid": "^5.1.5",
+		"runed": "^0.28.0",
 		"vaul-svelte": "1.0.0-next.7",
 		"zod": "^3.25.31"
 	}

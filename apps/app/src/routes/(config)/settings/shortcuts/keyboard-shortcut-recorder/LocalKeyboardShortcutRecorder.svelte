@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { toast } from '$lib/toast';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { trySync } from '@epicenterhq/result';
 	import type { Command } from '$lib/commands';
-	import { WhisperingError } from '@repo/shared';
-	import hotkeys from 'hotkeys-js';
+	import { rpc } from '$lib/query';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { toast } from '$lib/toast';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
-	import { createLocalKeyMapper } from './key-mappers';
-	import { rpc } from '$lib/query';
 
 	const {
 		command,
@@ -27,74 +23,62 @@
 		settings.value[`shortcuts.local.${command.id}`],
 	);
 
-	// Create a key mapper for local shortcuts
-	const keyMapper = createLocalKeyMapper();
-
 	// Create the key recorder with callbacks
-	const keyRecorder = createKeyRecorder(
-		{
-			onUnregister: () => {
-				const currentCommandKey =
-					settings.value[`shortcuts.local.${command.id}`];
-				if (!currentCommandKey) return;
+	const keyRecorder = createKeyRecorder({
+		onUnregister: async () => {
+			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
+			if (!currentCommandKey) return;
 
-				const { error: unregisterError } = trySync({
-					try: () => hotkeys.unbind(currentCommandKey),
-					mapError: (error) =>
-						WhisperingError({
-							title: `Error unregistering old command with id ${command.id} locally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandLocally.execute({
+					commandId: command.id,
 				});
 
-				if (unregisterError) {
-					toast.error(unregisterError);
-				}
-			},
-			onRegister: async (keyCombination) => {
-				const { error: registerError } =
-					await rpc.shortcuts.registerCommandLocally.execute({
-						command,
-						keyCombination,
-					});
-
-				if (registerError) {
-					toast.error(registerError);
-					return;
-				}
-
-				settings.value = {
-					...settings.value,
-					[`shortcuts.local.${command.id}`]: keyCombination,
-				};
-
-				toast.success({
-					title: `Local shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			},
-			onClear: () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.local.${command.id}`]: null,
-				};
-
-				toast.success({
-					title: 'Local shortcut cleared',
-					description: `Please set a new shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			},
-			onEscape: () => {
-				isPopoverOpen = false;
-			},
+			if (unregisterError) {
+				toast.error(unregisterError);
+			}
 		},
-		{ mapKeyboardEvent: keyMapper.mapKeyboardEvent },
-	);
+		onRegister: async (keyCombination) => {
+			const { error: registerError } =
+				await rpc.shortcuts.registerCommandLocally.execute({
+					command,
+					keyCombination,
+				});
+
+			if (registerError) {
+				toast.error(registerError);
+				return;
+			}
+
+			settings.value = {
+				...settings.value,
+				[`shortcuts.local.${command.id}`]: keyCombination,
+			};
+
+			toast.success({
+				title: `Local shortcut set to ${keyCombination}`,
+				description: `Press the shortcut to trigger "${command.title}"`,
+			});
+
+			isPopoverOpen = false;
+		},
+		onClear: () => {
+			settings.value = {
+				...settings.value,
+				[`shortcuts.local.${command.id}`]: null,
+			};
+
+			toast.success({
+				title: 'Local shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
+
+			isPopoverOpen = false;
+		},
+		onEscape: () => {
+			isPopoverOpen = false;
+		},
+	});
 
 	// Handle popover open/close
 	function handleOpenChange(isOpen: boolean) {
