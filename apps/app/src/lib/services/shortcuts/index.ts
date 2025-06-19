@@ -1,4 +1,4 @@
-export { createLocalShortcutManager } from './createLocalShortcutManager';
+export { createLocalShortcutManager } from './createLocalShortcutManager.svelte';
 export { createGlobalShortcutManager } from './createGlobalShortcutManager';
 export {
 	shortcutStringToArray,
