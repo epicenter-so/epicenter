@@ -65,18 +65,6 @@ export function createGlobalShortcutManager() {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);
 
-			// Safe callback wrapper to handle any runtime errors
-			const safeCallback = () => {
-				try {
-					callback();
-				} catch (error) {
-					console.error(
-						`Error executing shortcut callback for '${id}':`,
-						error,
-					);
-				}
-			};
-
 			const { error: registerError } = await tryAsync<
 				void,
 				GlobalShortcutServiceError
@@ -87,12 +75,12 @@ export function createGlobalShortcutManager() {
 							event.state === 'Pressed' &&
 							(on === 'Pressed' || on === 'Both')
 						) {
-							safeCallback();
+							callback();
 						} else if (
 							event.state === 'Released' &&
 							(on === 'Released' || on === 'Both')
 						) {
-							safeCallback();
+							callback();
 						}
 					}),
 				mapError: (error) => ({
@@ -407,10 +395,6 @@ export function shortcutStringToTauriAccelerator(shortcut: string): string {
  * Convert pressed keys directly to Tauri accelerator format
  */
 export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
-	if (!pressedKeys || pressedKeys.length === 0) {
-		throw new Error('No keys provided');
-	}
-
 	// Normalize all keys
 	const normalizedKeys = pressedKeys.map((key) => normalizeKey(key));
 
