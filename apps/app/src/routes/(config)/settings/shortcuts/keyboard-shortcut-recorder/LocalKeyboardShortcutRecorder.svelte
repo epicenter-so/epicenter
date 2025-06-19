@@ -10,7 +10,7 @@
 	const {
 		command,
 		placeholder,
-		autoFocus = false,
+		autoFocus = true,
 	}: {
 		command: Command;
 		placeholder?: string;
@@ -69,7 +69,6 @@
 				description: `Please set a new shortcut to trigger "${command.title}"`,
 			});
 		},
-		onEscape: () => {},
 	});
 </script>
 

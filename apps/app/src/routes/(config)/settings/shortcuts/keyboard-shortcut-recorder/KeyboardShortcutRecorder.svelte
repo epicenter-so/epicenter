@@ -9,7 +9,7 @@
 	const {
 		command,
 		placeholder = 'Press a key combination',
-		autoFocus = false,
+		autoFocus = true,
 		keyCombination,
 		isListening,
 		onOpenChange,

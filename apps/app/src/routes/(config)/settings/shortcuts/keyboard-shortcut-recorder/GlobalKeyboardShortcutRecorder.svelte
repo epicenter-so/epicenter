@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
 	import { rpc } from '$lib/query';
-	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts';
+	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
@@ -10,14 +10,12 @@
 	const {
 		command,
 		placeholder,
-		autoFocus = false,
+		autoFocus = true,
 	}: {
 		command: Command;
 		placeholder?: string;
 		autoFocus?: boolean;
 	} = $props();
-
-	let isPopoverOpen = $state(false);
 
 	// Create the key recorder with callbacks
 	const keyRecorder = createKeyRecorder({
@@ -31,67 +29,53 @@
 				});
 
 			if (unregisterError) {
-				toast.error(unregisterError);
+				toast.error({
+					title: 'Failed to unregister shortcut',
+					description:
+						'Could not unregister the global shortcut. It may already be in use by another application.',
+					action: { type: 'more-details', error: unregisterError },
+				});
 			}
 		},
 		onRegister: async (keyCombination) => {
-			try {
-				// Convert pressed keys directly to Tauri accelerator format
-				const accelerator = pressedKeysToTauriAccelerator(keyCombination);
+			const accelerator = pressedKeysToTauriAccelerator(keyCombination);
 
-				const { error: registerError } =
-					await rpc.shortcuts.registerCommandGlobally.execute({
-						command,
-						keyCombination: accelerator,
-					});
+			const { error: registerError } =
+				await rpc.shortcuts.registerCommandGlobally.execute({
+					command,
+					keyCombination: accelerator,
+				});
 
-				if (registerError) {
-					// Provide specific error messages based on error type
-					if (registerError.message?.includes('Invalid accelerator format')) {
+			if (registerError) {
+				switch (registerError.name) {
+					case 'InvalidAcceleratorError':
 						toast.error({
 							title: 'Invalid shortcut combination',
 							description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
 							action: { type: 'more-details', error: registerError },
 						});
-					} else {
+						break;
+					default:
 						toast.error({
 							title: 'Failed to register shortcut',
 							description:
 								'Could not register the global shortcut. It may already be in use by another application.',
 							action: { type: 'more-details', error: registerError },
 						});
-					}
-					return;
+						break;
 				}
-
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: accelerator,
-				};
-
-				toast.success({
-					title: `Global shortcut set to ${accelerator}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			} catch (conversionError) {
-				// Handle conversion errors
-				toast.error({
-					title: 'Invalid key combination',
-					description: `Unable to convert "${keyCombination.join('+')}" to a valid shortcut format.`,
-					action: {
-						type: 'more-details',
-						error: {
-							message:
-								conversionError instanceof Error
-									? conversionError.message
-									: String(conversionError),
-							name: 'ConversionError',
-						},
-					},
-				});
+				return;
 			}
+
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: accelerator,
+			};
+
+			toast.success({
+				title: `Global shortcut set to ${accelerator}`,
+				description: `Press the shortcut to trigger "${command.title}"`,
+			});
 		},
 		onClear: async () => {
 			settings.value = {
@@ -103,11 +87,6 @@
 				title: 'Global shortcut cleared',
 				description: `Please set a new shortcut to trigger "${command.title}"`,
 			});
-
-			isPopoverOpen = false;
-		},
-		onEscape: () => {
-			isPopoverOpen = false;
 		},
 	});
 </script>
@@ -119,7 +98,6 @@
 	keyCombination={settings.value[`shortcuts.global.${command.id}`]}
 	isListening={keyRecorder.isListening}
 	onOpenChange={(isOpen) => {
-		isPopoverOpen = isOpen;
 		if (!isOpen) keyRecorder.stop();
 	}}
 	onStartListening={() => keyRecorder.start()}
