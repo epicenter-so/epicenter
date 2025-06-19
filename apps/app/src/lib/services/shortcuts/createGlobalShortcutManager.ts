@@ -10,10 +10,9 @@ import {
 	tryAsync,
 	type TaggedError,
 } from '@epicenterhq/result';
+import type { ShortcutTriggerState } from './shortcut-trigger-state';
 
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
-
-export type GlobalShortcutOn = 'Pressed' | 'Released' | 'Both';
 
 /**
  * A type that represents a global shortcut accelerator.
@@ -31,7 +30,7 @@ export function createGlobalShortcutManager() {
 	const shortcuts = new Map<
 		string,
 		{
-			on: GlobalShortcutOn;
+			on: ShortcutTriggerState;
 			accelerator: Accelerator;
 			callback: () => void;
 		}
@@ -47,7 +46,7 @@ export function createGlobalShortcutManager() {
 			id: string;
 			accelerator: Accelerator;
 			callback: () => void;
-			on: GlobalShortcutOn;
+			on: ShortcutTriggerState;
 		}): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);

@@ -1,15 +1,14 @@
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
+import type { ShortcutTriggerState } from './shortcut-trigger-state';
 
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
-
-export type LocalShortcutOn = 'Pressed' | 'Released' | 'Both';
 
 export function createLocalShortcutManager() {
 	const shortcuts = new Map<
 		string,
 		{
-			on: LocalShortcutOn;
+			on: ShortcutTriggerState;
 			keyCombination: string[];
 			callback: () => void;
 		}
@@ -115,7 +114,7 @@ export function createLocalShortcutManager() {
 			id: string;
 			keyCombination: string[];
 			callback: () => void;
-			on: LocalShortcutOn;
+			on: ShortcutTriggerState;
 		}): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.set(id, { keyCombination, callback, on });
 			return Ok(undefined);
