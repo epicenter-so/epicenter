@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
 	import { rpc } from '$lib/query';
+	import { services } from '$lib/services';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
@@ -27,7 +28,11 @@
 				});
 
 			if (unregisterError) {
-				toast.error(unregisterError);
+				toast.error({
+					title: 'Error unregistering local shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
 			}
 		},
 		onRegister: async (keyCombination) => {
@@ -38,7 +43,11 @@
 				});
 
 			if (registerError) {
-				toast.error(registerError);
+				toast.error({
+					title: 'Error registering local shortcut',
+					description: registerError.message,
+					action: { type: 'more-details', error: registerError },
+				});
 				return;
 			}
 

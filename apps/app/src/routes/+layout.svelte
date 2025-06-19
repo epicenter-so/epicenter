@@ -5,7 +5,6 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import '../app.css';
 	import AppShell from './+layout/AppShell.svelte';
-	import { buildCtx } from '$lib/context';
 
 	let { children } = $props();
 
@@ -19,8 +18,6 @@
 			});
 		});
 	});
-
-	buildCtx();
 </script>
 
 <svelte:head>

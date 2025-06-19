@@ -55,3 +55,5 @@ export function createLocalShortcutManager({
 		},
 	};
 }
+
+export type LocalShortcutManager = ReturnType<typeof createLocalShortcutManager>;

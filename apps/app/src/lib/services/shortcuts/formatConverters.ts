@@ -3,7 +3,7 @@
  * @example "ctrl+shift+a" → ["ctrl", "shift", "a"]
  */
 export function shortcutStringToArray(shortcut: string): string[] {
-	return shortcut.split('+').map((key) => key.toLowerCase().trim());
+	return shortcut.split('+').map((key) => key.toLowerCase());
 }
 
 /**
@@ -22,7 +22,7 @@ export function shortcutStringToTauriAccelerator(shortcut: string): string {
 	const keys = shortcut.split('+');
 	return keys
 		.map((key) => {
-			const normalized = key.toLowerCase().trim();
+			const normalized = key.toLowerCase();
 			switch (normalized) {
 				case 'ctrl':
 				case 'control':
@@ -76,7 +76,7 @@ export function shortcutStringToTauriAccelerator(shortcut: string): string {
  */
 export function normalizeKey(key: string): string {
 	const normalized = key.toLowerCase().trim();
-	
+
 	// Map common variations to a standard format
 	switch (normalized) {
 		case 'control':
