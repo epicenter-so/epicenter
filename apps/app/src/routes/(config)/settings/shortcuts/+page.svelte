@@ -8,22 +8,25 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { commands } from '$lib/commands';
 	import { toast } from '$lib/toast';
+	import type { Settings } from '@repo/shared/settings';
 
 	const resetToDefaults = (type: 'local' | 'global') => {
-		const updates: Record<string, null> = {};
-		
-		for (const command of commands) {
-			updates[`shortcuts.${type}.${command.id}`] = null;
-		}
-		
+		const updates = commands.reduce((acc, command) => {
+			acc[`shortcuts.${type}.${command.id}`] =
+				type === 'local'
+					? command.defaultLocalShortcut
+					: command.defaultGlobalShortcut;
+			return acc;
+		}, {} as Partial<Settings>);
+
 		settings.value = {
 			...settings.value,
-			...updates
+			...updates,
 		};
-		
+
 		toast.success({
 			title: 'Shortcuts reset',
-			description: `All ${type} shortcuts have been reset to defaults.`
+			description: `All ${type} shortcuts have been reset to defaults.`,
 		});
 	};
 </script>
@@ -52,10 +55,14 @@
 
 		<Tabs.Content value="local" class="space-y-6">
 			<section>
-				<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+				<div
+					class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+				>
 					<div class="space-y-1">
 						<div class="flex items-center gap-2">
-							<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Local Shortcuts</h2>
+							<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">
+								Local Shortcuts
+							</h2>
 							<ShortcutFormatHelp type="local" />
 						</div>
 						<p class="text-sm text-muted-foreground">
@@ -64,8 +71,8 @@
 							application.
 						</p>
 					</div>
-					<Button 
-						variant="outline" 
+					<Button
+						variant="outline"
 						size="sm"
 						onclick={() => resetToDefaults('local')}
 						class="w-full sm:w-auto"
@@ -74,9 +81,9 @@
 						Reset to defaults
 					</Button>
 				</div>
-				
+
 				<Separator />
-				
+
 				<ShortcutTable type="local" />
 			</section>
 		</Tabs.Content>
@@ -84,20 +91,24 @@
 		<Tabs.Content value="global" class="space-y-6">
 			<section>
 				{#if window.__TAURI_INTERNALS__}
-					<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+					<div
+						class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+					>
 						<div class="space-y-1">
 							<div class="flex items-center gap-2">
-								<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Global Shortcuts</h2>
+								<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">
+									Global Shortcuts
+								</h2>
 								<ShortcutFormatHelp type="global" />
 							</div>
 							<p class="text-sm text-muted-foreground">
-								Set system-wide keyboard shortcuts that work even when Whispering is
-								not in focus. These shortcuts will trigger from anywhere on your
-								system.
+								Set system-wide keyboard shortcuts that work even when
+								Whispering is not in focus. These shortcuts will trigger from
+								anywhere on your system.
 							</p>
 						</div>
-						<Button 
-							variant="outline" 
+						<Button
+							variant="outline"
 							size="sm"
 							onclick={() => resetToDefaults('global')}
 							class="w-full sm:w-auto"
@@ -106,9 +117,9 @@
 							Reset to defaults
 						</Button>
 					</div>
-					
+
 					<Separator />
-					
+
 					<ShortcutTable type="global" />
 				{:else}
 					<div class="rounded-lg border bg-card text-card-foreground shadow-xs">
