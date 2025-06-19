@@ -1,6 +1,5 @@
 import { type Command, commandCallbacks } from '$lib/commands';
 import { services } from '$lib/services';
-import type { ShortcutTriggerState } from '$lib/services/shortcuts/shortcut-trigger-state';
 import { defineMutation } from '../_utils';
 
 export const shortcuts = {

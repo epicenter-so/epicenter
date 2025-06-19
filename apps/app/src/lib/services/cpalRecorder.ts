@@ -1,6 +1,9 @@
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import type { Result, TaggedError } from '@epicenterhq/result';
-import type { WhisperingRecordingState } from '@repo/shared';
+import type {
+	WhisperingRecordingState,
+	CancelRecordingResult,
+} from '@repo/shared';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 
 type RecordingServiceError = TaggedError<'RecordingServiceError'>;
@@ -136,8 +139,25 @@ export function createCpalRecorderService() {
 		cancelRecording: async ({
 			sendStatus,
 		}: { sendStatus: UpdateStatusMessageFn }): Promise<
-			Result<void, RecordingServiceError>
+			Result<CancelRecordingResult, RecordingServiceError>
 		> => {
+			// Check current state first
+			const { data: recorderState, error: getStateError } =
+				await invoke<WhisperingRecordingState>('get_recorder_state');
+			if (getStateError) {
+				return Err({
+					name: 'RecordingServiceError',
+					message:
+						'Unable to check recording state. Please try closing the app and starting again.',
+					context: {},
+					cause: getStateError,
+				});
+			}
+
+			if (recorderState === 'IDLE') {
+				return Ok({ status: 'no-recording' });
+			}
+
 			sendStatus({
 				title: '🛑 Cancelling',
 				description:
@@ -166,7 +186,7 @@ export function createCpalRecorderService() {
 				console.error('Failed to close recording session:', closeError);
 			}
 
-			return Ok(undefined);
+			return Ok({ status: 'cancelled' });
 		},
 	};
 }

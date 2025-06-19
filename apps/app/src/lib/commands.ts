@@ -1,11 +1,11 @@
-import {
-	deliverTranscribedText,
-	deliverTransformedText,
-} from './deliverTextToUser';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
 import { nanoid } from 'nanoid/non-secure';
+import {
+	deliverTranscribedText,
+	deliverTransformedText,
+} from './deliverTextToUser';
 import { services } from './services';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
 
@@ -236,7 +236,7 @@ export const commands = [
 				title: '⏸️ Canceling recording...',
 				description: 'Cleaning up recording session...',
 			});
-			const { error: cancelRecordingError } =
+			const { data: cancelRecordingResult, error: cancelRecordingError } =
 				await rpc.manualRecorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				toast.error({
@@ -248,14 +248,27 @@ export const commands = [
 				});
 				return;
 			}
-			// Session cleanup is now handled internally by the recorder service
-			toast.success({
-				id: toastId,
-				title: '✅ All Done!',
-				description: 'Recording cancelled successfully',
-			});
-			services.sound.playSoundIfEnabled('manual-cancel');
-			console.info('Recording cancelled');
+			switch (cancelRecordingResult.status) {
+				case 'no-recording': {
+					toast.info({
+						id: toastId,
+						title: 'No active recording',
+						description: 'There is no recording in progress to cancel.',
+					});
+					break;
+				}
+				case 'cancelled': {
+					// Session cleanup is now handled internally by the recorder service
+					toast.success({
+						id: toastId,
+						title: '✅ All Done!',
+						description: 'Recording cancelled successfully',
+					});
+					services.sound.playSoundIfEnabled('manual-cancel');
+					console.info('Recording cancelled');
+					break;
+				}
+			}
 		},
 	},
 	{
@@ -296,7 +309,7 @@ export const commands = [
 				title: '⏸️ Canceling CPAL recording...',
 				description: 'Cleaning up recording session...',
 			});
-			const { error: cancelRecordingError } =
+			const { data: cancelRecordingResult, error: cancelRecordingError } =
 				await rpc.cpalRecorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				toast.error({
@@ -308,14 +321,26 @@ export const commands = [
 				});
 				return;
 			}
-			// Session cleanup is now handled internally by the recorder service
-			toast.success({
-				id: toastId,
-				title: '✅ All Done!',
-				description: 'CPAL recording cancelled successfully',
-			});
-			services.sound.playSoundIfEnabled('cpal-cancel');
-			console.info('CPAL Recording cancelled');
+			switch (cancelRecordingResult.status) {
+				case 'no-recording': {
+					toast.info({
+						id: toastId,
+						title: 'No active recording',
+						description: 'There is no CPAL recording in progress to cancel.',
+					});
+					break;
+				}
+				case 'cancelled': {
+					toast.success({
+						id: toastId,
+						title: '✅ All Done!',
+						description: 'CPAL recording cancelled successfully',
+					});
+					services.sound.playSoundIfEnabled('cpal-cancel');
+					console.info('CPAL Recording cancelled');
+					break;
+				}
+			}
 		},
 	},
 	{

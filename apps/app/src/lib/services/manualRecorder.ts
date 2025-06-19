@@ -1,7 +1,10 @@
 import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
 import type { TaggedError } from '@epicenterhq/result';
 import { extension } from '@repo/extension';
-import type { WhisperingRecordingState } from '@repo/shared';
+import type {
+	WhisperingRecordingState,
+	CancelRecordingResult,
+} from '@repo/shared';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz
@@ -45,10 +48,13 @@ export function createManualRecorderService() {
 	};
 
 	return {
-		getRecorderState: (): Result<WhisperingRecordingState, RecordingServiceError> => {
+		getRecorderState: (): Result<
+			WhisperingRecordingState,
+			RecordingServiceError
+		> => {
 			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
-		
+
 		enumerateRecordingDevices,
 
 		startRecording: async (
@@ -128,7 +134,11 @@ export function createManualRecorderService() {
 			return Ok(deviceOutcome);
 		},
 
-		stopRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<Blob, RecordingServiceError>> => {
+		stopRecording: async ({
+			sendStatus,
+		}: { sendStatus: UpdateStatusMessageFn }): Promise<
+			Result<Blob, RecordingServiceError>
+		> => {
 			if (!activeRecording) {
 				return Err({
 					name: 'RecordingServiceError',
@@ -184,15 +194,13 @@ export function createManualRecorderService() {
 			return Ok(blob);
 		},
 
-		cancelRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<void, RecordingServiceError>> => {
+		cancelRecording: async ({
+			sendStatus,
+		}: { sendStatus: UpdateStatusMessageFn }): Promise<
+			Result<CancelRecordingResult, RecordingServiceError>
+		> => {
 			if (!activeRecording) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						'Cannot cancel recording because no active recording session was found. There is currently nothing to cancel.',
-					context: {},
-					cause: undefined,
-				});
+				return Ok({ status: 'no-recording' });
 			}
 
 			const recording = activeRecording;
@@ -214,7 +222,7 @@ export function createManualRecorderService() {
 				description: 'Recording discarded successfully!',
 			});
 
-			return Ok(undefined);
+			return Ok({ status: 'cancelled' });
 		},
 	};
 }
