@@ -29,8 +29,8 @@ export function createLocalShortcutManager() {
 		listen() {
 			/** Array tracking currently pressed keys in lowercase format */
 			let pressedKeys: string[] = [];
-			/** Set tracking which shortcuts have already been triggered during current key press session */
-			const triggeredShortcuts = new Set<string>();
+			/** Set tracking which shortcuts are currently still pressed down */
+			const keyDownedShortcuts = new Set<string>();
 
 			/** Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts */
 			const keydown = on(window, 'keydown', (e) => {
@@ -43,13 +43,12 @@ export function createLocalShortcutManager() {
 					id,
 					{ callback, keyCombination, on },
 				] of shortcuts.entries()) {
-					if (
-						arraysMatch(pressedKeys, keyCombination) &&
-						(on === 'Both' || on === 'Pressed') &&
-						!triggeredShortcuts.has(id)
-					) {
+					if (!arraysMatch(pressedKeys, keyCombination)) continue;
+					// Prevent duplicate key presses from holding down a key from triggering the shortcut multiple times
+					if (keyDownedShortcuts.has(id)) continue;
+					if (on === 'Both' || on === 'Pressed') {
 						e.preventDefault();
-						triggeredShortcuts.add(id);
+						keyDownedShortcuts.add(id);
 						callback();
 					}
 				}
@@ -69,29 +68,28 @@ export function createLocalShortcutManager() {
 					// but keep other modifier keys that might still be pressed
 					// This prevents keys from getting "stuck" in the pressedKeys state
 					pressedKeys = pressedKeys.filter((k) => modifierKeys.includes(k));
-					triggeredShortcuts.clear();
+					keyDownedShortcuts.clear();
+				}
+
+				// Check all registered shortcuts for matches on release BEFORE removing the key
+				for (const [
+					id,
+					{ callback, keyCombination, on },
+				] of shortcuts.entries()) {
+					if (!arraysMatch(pressedKeys, keyCombination)) continue;
+					if (on === 'Both' || on === 'Released') {
+						e.preventDefault();
+						callback();
+						keyDownedShortcuts.delete(id);
+					}
 				}
 
 				// Regular key removal from pressed state
 				pressedKeys = pressedKeys.filter((k) => k !== key);
 
-				// Check all registered shortcuts for matches on release
-				for (const [
-					,
-					{ callback, keyCombination, on },
-				] of shortcuts.entries()) {
-					if (
-						arraysMatch(pressedKeys, keyCombination) &&
-						(on === 'Both' || on === 'Released')
-					) {
-						e.preventDefault();
-						callback();
-					}
-				}
-
 				// Clear triggered shortcuts when no keys are pressed
 				if (pressedKeys.length === 0) {
-					triggeredShortcuts.clear();
+					keyDownedShortcuts.clear();
 				}
 			});
 
@@ -101,7 +99,7 @@ export function createLocalShortcutManager() {
 			 */
 			const blur = on(window, 'blur', () => {
 				pressedKeys = [];
-				triggeredShortcuts.clear();
+				keyDownedShortcuts.clear();
 			});
 
 			/**
@@ -111,7 +109,7 @@ export function createLocalShortcutManager() {
 			const visibilityChange = on(document, 'visibilitychange', () => {
 				if (document.visibilityState === 'hidden') {
 					pressedKeys = [];
-					triggeredShortcuts.clear();
+					keyDownedShortcuts.clear();
 				}
 			});
 
