@@ -14,19 +14,31 @@ export function createLocalShortcutManager() {
 	>();
 
 	return {
+		/**
+		 * Sets up keyboard event listeners to detect and handle shortcut key combinations.
+		 *
+		 * - Tracks currently pressed keys in real-time
+		 * - Matches key combinations against registered shortcuts
+		 * - Handles both keydown and keyup events for flexible trigger options
+		 * - Provides special handling for modifier keys to prevent stuck keys
+		 * - Automatically cleans up state when window loses focus or visibility
+		 *
+		 * @returns Cleanup function that removes all event listeners when called
+		 */
 		listen() {
+			/** Array tracking currently pressed keys in lowercase format */
 			let pressedKeys: string[] = [];
-			const isPressedKeyMatchesKeyCombination = (keyCombination: string[]) =>
-				pressedKeys.length === keyCombination.length &&
-				pressedKeys.every((key) => keyCombination.includes(key));
 
+			/** Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts */
 			const keydown = on(window, 'keydown', (e) => {
 				const key = e.key.toLowerCase();
+				// Add key to pressed state if not already present
 				if (!pressedKeys.includes(key)) pressedKeys.push(key);
 
+				// Check all registered shortcuts for matches
 				for (const { callback, keyCombination, on } of shortcuts.values()) {
 					if (
-						isPressedKeyMatchesKeyCombination(keyCombination) &&
+						arraysMatch(pressedKeys, keyCombination) &&
 						(on === 'Both' || on === 'Pressed')
 					) {
 						e.preventDefault();
@@ -35,27 +47,29 @@ export function createLocalShortcutManager() {
 				}
 			});
 
+			/** Handle keyup events - removes keys from pressed state and triggers 'Released' shortcuts */
 			const keyup = on(window, 'keyup', (e) => {
 				const key = e.key.toLowerCase();
+				/** Modifier keys that require special handling */
+				const modifierKeys = ['meta', 'control', 'alt', 'shift'];
 
-				if (['meta', 'control', 'alt', 'shift'].includes(key)) {
+				if (modifierKeys.includes(key)) {
 					// Special handling for modifier keys (meta, control, alt, shift)
 					// This addresses issues with OS/browser intercepting certain key combinations
 					// where non-modifier keyup events might not fire properly
 					// When a modifier key is released, clear all non-modifier keys
-					// but keep other modifier keys that might still be pressedKeys
+					// but keep other modifier keys that might still be pressed
 					// This prevents keys from getting "stuck" in the pressedKeys state
-					pressedKeys = pressedKeys.filter((k) =>
-						['meta', 'control', 'alt', 'shift'].includes(k),
-					);
+					pressedKeys = pressedKeys.filter((k) => modifierKeys.includes(k));
 				}
 
-				// Regular key removal
+				// Regular key removal from pressed state
 				pressedKeys = pressedKeys.filter((k) => k !== key);
 
+				// Check all registered shortcuts for matches on release
 				for (const { callback, keyCombination, on } of shortcuts.values()) {
 					if (
-						isPressedKeyMatchesKeyCombination(keyCombination) &&
+						arraysMatch(pressedKeys, keyCombination) &&
 						(on === 'Both' || on === 'Released')
 					) {
 						e.preventDefault();
@@ -64,20 +78,25 @@ export function createLocalShortcutManager() {
 				}
 			});
 
-			// Handle window blur events (switching applications, clicking outside browser)
-			// Reset all keys when user shifts focus away from the window
+			/**
+			 * Handle window blur events (switching applications, clicking outside browser)
+			 * Reset all keys when user shifts focus away from the window
+			 */
 			const blur = on(window, 'blur', () => {
 				pressedKeys = [];
 			});
 
-			// Handle tab visibility changes (switching browser tabs)
-			// This catches cases where the window doesn't lose focus but the tab is hidden
+			/**
+			 * Handle tab visibility changes (switching browser tabs)
+			 * This catches cases where the window doesn't lose focus but the tab is hidden
+			 */
 			const visibilityChange = on(document, 'visibilitychange', () => {
 				if (document.visibilityState === 'hidden') {
 					pressedKeys = [];
 				}
 			});
 
+			/** Cleanup function that removes all event listeners */
 			return () => {
 				keydown();
 				keyup();
@@ -117,3 +136,13 @@ export function createLocalShortcutManager() {
 export type LocalShortcutManager = ReturnType<
 	typeof createLocalShortcutManager
 >;
+
+/**
+ * Check if two arrays match, order does not matter
+ * @param a - The first array
+ * @param b - The second array
+ * @returns true if the arrays match, false otherwise
+ */
+function arraysMatch(a: string[], b: string[]) {
+	return a.length === b.length && a.every((key) => b.includes(key));
+}
