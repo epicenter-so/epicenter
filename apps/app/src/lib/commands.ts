@@ -7,6 +7,7 @@ import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
 import { nanoid } from 'nanoid/non-secure';
 import { services } from './services';
+import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -187,12 +188,22 @@ const startCpalRecording = async () => {
 	services.sound.playSoundIfEnabled('cpal-start');
 };
 
+type SatisfiedCommand = {
+	id: string;
+	title: string;
+	defaultLocalShortcut: string;
+	defaultGlobalShortcut: string;
+	on: ShortcutTriggerState;
+	callback: () => void;
+};
+
 export const commands = [
 	{
 		id: 'toggleManualRecording',
 		title: 'Toggle manual recording',
 		defaultLocalShortcut: ' ',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
+		on: 'Pressed',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
 				await rpc.manualRecorder.getRecorderState.fetchCached();
@@ -217,6 +228,7 @@ export const commands = [
 		title: 'Cancel manual recording',
 		defaultLocalShortcut: 'c',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+}',
+		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
 			toast.loading({
@@ -251,6 +263,7 @@ export const commands = [
 		title: 'Toggle CPAL recording',
 		defaultLocalShortcut: 'n',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+[',
+		on: 'Pressed',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
 				await rpc.cpalRecorder.getRecorderState.fetchCached();
@@ -275,6 +288,7 @@ export const commands = [
 		title: 'Cancel CPAL recording',
 		defaultLocalShortcut: 'x',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+]',
+		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
 			toast.loading({
@@ -309,8 +323,24 @@ export const commands = [
 		title: 'Push to talk',
 		defaultLocalShortcut: 'p',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+;',
-		callback: () => {
-			alert('TODO: Implement push to talk');
+		on: 'Both',
+		callback: async () => {
+			const { data: recorderState, error: getRecorderStateError } =
+				await rpc.manualRecorder.getRecorderState.fetchCached();
+			if (getRecorderStateError) {
+				toast.error({
+					id: nanoid(),
+					title: '❌ Failed to get recorder state',
+					description: 'Your recording could not be started. Please try again.',
+					action: { type: 'more-details', error: getRecorderStateError },
+				});
+				return;
+			}
+			if (recorderState === 'RECORDING') {
+				await stopManualRecording();
+			} else {
+				await startManualRecording();
+			}
 		},
 	},
 	{
@@ -318,6 +348,7 @@ export const commands = [
 		title: 'Toggle vad recording',
 		defaultLocalShortcut: 'v',
 		defaultGlobalShortcut: "CommandOrControl+Shift+'",
+		on: 'Pressed',
 		callback: async () => {
 			const { data: vadState } =
 				await rpc.vadRecorder.getVadState.fetchCached();
@@ -389,7 +420,7 @@ export const commands = [
 			services.sound.playSoundIfEnabled('vad-start');
 		},
 	},
-] as const;
+] as const satisfies SatisfiedCommand[];
 
 export type Command = (typeof commands)[number];
 

@@ -1,5 +1,6 @@
 import { type Command, commandCallbacks } from '$lib/commands';
 import { services } from '$lib/services';
+import type { ShortcutTriggerState } from '$lib/services/shortcuts/shortcut-trigger-state';
 import { defineMutation } from '../_utils';
 
 export const shortcuts = {
@@ -16,6 +17,7 @@ export const shortcuts = {
 				id: command.id,
 				keyCombination,
 				callback: commandCallbacks[command.id],
+				on: command.on,
 			}),
 	}),
 
@@ -34,11 +36,12 @@ export const shortcuts = {
 			command: Command;
 			keyCombination: string;
 		}) =>
-			services.globalShortcutManager.register(
-				command.id,
-				keyCombination,
-				commandCallbacks[command.id],
-			),
+			services.globalShortcutManager.register({
+				id: command.id,
+				accelerator: keyCombination,
+				callback: commandCallbacks[command.id],
+				on: command.on,
+			}),
 	}),
 
 	unregisterCommandGlobally: defineMutation({
