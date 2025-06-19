@@ -191,7 +191,7 @@ export const commands = [
 	{
 		id: 'toggleManualRecording',
 		title: 'Toggle manual recording',
-		defaultLocalShortcut: 'space',
+		defaultLocalShortcut: ' ',
 		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =

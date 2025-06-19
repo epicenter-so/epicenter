@@ -75,7 +75,7 @@ export function shortcutStringToTauriAccelerator(shortcut: string): string {
  * This helps handle variations like "Control" vs "ctrl"
  */
 export function normalizeKey(key: string): string {
-	const normalized = key.toLowerCase().trim();
+	const normalized = key.toLowerCase();
 
 	// Map common variations to a standard format
 	switch (normalized) {
