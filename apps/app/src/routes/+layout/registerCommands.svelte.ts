@@ -23,7 +23,11 @@ export function registerLocalCommands() {
 			);
 			const { errs } = partitionResults(results);
 			if (errs.length > 0) {
-				toast.error(errs[0].error);
+				toast.error({
+					title: 'Error registering local commands',
+					description: errs.map((err) => err.error.message).join('\n'),
+					action: { type: 'more-details', error: errs },
+				});
 			}
 		})();
 	});
@@ -47,7 +51,11 @@ export function registerGlobalCommands() {
 			);
 			const { errs } = partitionResults(results);
 			if (errs.length > 0) {
-				toast.error(errs[0].error);
+				toast.error({
+					title: 'Error registering global commands',
+					description: errs.map((err) => err.error.message).join('\n'),
+					action: { type: 'more-details', error: errs },
+				});
 			}
 		})();
 	});
