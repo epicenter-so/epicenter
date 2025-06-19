@@ -1,8 +1,8 @@
 import { type Command, commandCallbacks } from '$lib/commands';
+import { services } from '$lib/services';
 import { Err } from '@epicenterhq/result';
 import { WhisperingError } from '@repo/shared';
 import { defineMutation } from '../_utils';
-import { context } from '$lib/context';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
@@ -14,7 +14,7 @@ export const shortcuts = {
 			command: Command;
 			keyCombination: string[];
 		}) =>
-			context().localShortcutManager.register(
+			services.localShortcutManager.register(
 				command.id,
 				keyCombination,
 				commandCallbacks[command.id],
@@ -24,7 +24,7 @@ export const shortcuts = {
 	unregisterCommandLocally: defineMutation({
 		mutationKey: ['shortcuts', 'unregisterCommandLocally'] as const,
 		resultMutationFn: async ({ commandId }: { commandId: string }) =>
-			context().localShortcutManager.unregister(commandId),
+			services.localShortcutManager.unregister(commandId),
 	}),
 
 	registerCommandGlobally: defineMutation({
@@ -53,9 +53,7 @@ export const shortcuts = {
 				);
 			}
 
-			const { globalShortcutManager } = await import('../index');
-
-			return await globalShortcutManager.register(
+			return await services.globalShortcutManager.register(
 				command.id,
 				keyCombination,
 				commandCallbacks[command.id],
@@ -79,9 +77,7 @@ export const shortcuts = {
 				);
 			}
 
-			const { globalShortcutManager } = await import('../index');
-
-			return await globalShortcutManager.unregister(commandId);
+			return await services.globalShortcutManager.unregister(commandId);
 		},
 	}),
 };

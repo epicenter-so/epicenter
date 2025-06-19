@@ -1,5 +1,4 @@
 import { browser } from '$app/environment';
-import { createGlobalShortcutManager } from '$lib/services/shortcuts';
 import { QueryClient } from '@tanstack/svelte-query';
 
 export const queryClient = new QueryClient({
@@ -9,9 +8,6 @@ export const queryClient = new QueryClient({
 		},
 	},
 });
-
-// Create shortcut managers
-export const globalShortcutManager = createGlobalShortcutManager();
 
 // Import all query modules
 import { clipboard } from './_queries/clipboard';

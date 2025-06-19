@@ -23,6 +23,8 @@ import { createGroqTranscriptionService } from './transcription/whisper/groq';
 import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
 import { createTransformerService } from './transformer';
 import { createVadServiceWeb } from './vad';
+import { context } from '$lib/context';
+import { createGlobalShortcutManager } from './shortcuts';
 
 // Static services (platform-dependent but not settings-dependent)
 const DownloadService = window.__TAURI_INTERNALS__
@@ -64,72 +66,78 @@ const TransformerService = createTransformerService({
 const NavigatorRecorderService = createManualRecorderService();
 const CpalRecorderService = createCpalRecorderService();
 
+const GlobalShortcutManager = createGlobalShortcutManager();
+
 /**
  * Unified services object providing consistent access to all services.
  */
-export const services = (() => {
-	return {
-		clipboard: ClipboardService,
+export const services = {
+	clipboard: ClipboardService,
 
-		download: DownloadService,
+	download: DownloadService,
 
-		notification: NotificationService,
+	notification: NotificationService,
 
-		setTrayIcon: SetTrayIconService,
+	setTrayIcon: SetTrayIconService,
 
-		vad: VadService,
+	vad: VadService,
 
-		db: DbService,
+	db: DbService,
 
-		transformer: TransformerService,
+	transformer: TransformerService,
 
-		// Dynamic services (settings-dependent)
-		get transcription() {
-			switch (settings.value['transcription.selectedTranscriptionService']) {
-				case 'OpenAI': {
-					return createOpenaiTranscriptionService({
-						HttpService,
-						apiKey: settings.value['apiKeys.openai'],
-					});
-				}
-				case 'Groq': {
-					return createGroqTranscriptionService({
-						HttpService,
-						apiKey: settings.value['apiKeys.groq'],
-						modelName: settings.value['transcription.groq.model'],
-					});
-				}
-				case 'faster-whisper-server': {
-					return createFasterWhisperServerTranscriptionService({
-						HttpService,
-						serverModel:
-							settings.value['transcription.fasterWhisperServer.serverModel'],
-						serverUrl:
-							settings.value['transcription.fasterWhisperServer.serverUrl'],
-					});
-				}
-				case 'ElevenLabs': {
-					return createElevenLabsTranscriptionService({
-						apiKey: settings.value['apiKeys.elevenlabs'],
-					});
-				}
-				default: {
-					return createOpenaiTranscriptionService({
-						HttpService,
-						apiKey: settings.value['apiKeys.openai'],
-					});
-				}
+	// Dynamic services (settings-dependent)
+	get transcription() {
+		switch (settings.value['transcription.selectedTranscriptionService']) {
+			case 'OpenAI': {
+				return createOpenaiTranscriptionService({
+					HttpService,
+					apiKey: settings.value['apiKeys.openai'],
+				});
+			}
+			case 'Groq': {
+				return createGroqTranscriptionService({
+					HttpService,
+					apiKey: settings.value['apiKeys.groq'],
+					modelName: settings.value['transcription.groq.model'],
+				});
+			}
+			case 'faster-whisper-server': {
+				return createFasterWhisperServerTranscriptionService({
+					HttpService,
+					serverModel:
+						settings.value['transcription.fasterWhisperServer.serverModel'],
+					serverUrl:
+						settings.value['transcription.fasterWhisperServer.serverUrl'],
+				});
+			}
+			case 'ElevenLabs': {
+				return createElevenLabsTranscriptionService({
+					apiKey: settings.value['apiKeys.elevenlabs'],
+				});
+			}
+			default: {
+				return createOpenaiTranscriptionService({
+					HttpService,
+					apiKey: settings.value['apiKeys.openai'],
+				});
+			}
+		}
+	},
+
+	manualRecorder: NavigatorRecorderService,
+	cpalRecorder: CpalRecorderService,
+	sound: {
+		playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
+			if (settings.value[`sound.playOn.${soundName}`]) {
+				PlaySoundService.playSound(soundName);
 			}
 		},
+	},
 
-		manualRecorder: NavigatorRecorderService,
-		cpalRecorder: CpalRecorderService,
-		sound: {
-			playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
-				if (settings.value[`sound.playOn.${soundName}`]) {
-					PlaySoundService.playSound(soundName);
-				}
-			},
-		},
-	};
-})();
+	get localShortcutManager() {
+		return context().localShortcutManager;
+	},
+
+	globalShortcutManager: GlobalShortcutManager,
+};
