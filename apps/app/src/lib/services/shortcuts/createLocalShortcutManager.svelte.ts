@@ -1,6 +1,7 @@
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
-import { Ok, type Result } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
+import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
+
+type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
 export function createLocalShortcutManager({
 	pressedKeys,
@@ -25,16 +26,22 @@ export function createLocalShortcutManager({
 	});
 
 	return {
-		async register(
-			id: string,
-			keyCombination: string[],
-			callback: () => void,
-		): Promise<Result<void, WhisperingError>> {
+		async register({
+			id,
+			keyCombination,
+			callback,
+		}: {
+			id: string;
+			keyCombination: string[];
+			callback: () => void;
+		}): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.push({ id, keyCombination, callback });
 			return Ok(undefined);
 		},
 
-		async unregister(id: string): Promise<Result<void, WhisperingError>> {
+		async unregister(
+			id: string,
+		): Promise<Result<void, LocalShortcutServiceError>> {
 			const shortcut = shortcuts.find((shortcut) => shortcut.id === id);
 			if (!shortcut) return Ok(undefined);
 
@@ -42,7 +49,7 @@ export function createLocalShortcutManager({
 			return Ok(undefined);
 		},
 
-		async unregisterAll(): Promise<Result<void, WhisperingError>> {
+		async unregisterAll(): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.length = 0;
 			return Ok(undefined);
 		},

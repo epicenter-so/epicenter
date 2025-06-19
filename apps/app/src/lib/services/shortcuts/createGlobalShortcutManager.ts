@@ -3,8 +3,15 @@ import {
 	unregister as tauriUnregister,
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
-import { Ok, Err, type Result, tryAsync } from '@epicenterhq/result';
-import { WhisperingError } from '@repo/shared';
+import {
+	Ok,
+	Err,
+	type Result,
+	tryAsync,
+	type TaggedError,
+} from '@epicenterhq/result';
+
+type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
 
 /**
  * A type that represents a global shortcut accelerator.
@@ -26,20 +33,21 @@ export function createGlobalShortcutManager() {
 			id: string,
 			accelerator: Accelerator,
 			callback: () => void,
-		): Promise<Result<void, WhisperingError>> {
+		): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);
 
-			const { error: registerError } = await tryAsync({
+			const { error: registerError } = await tryAsync<
+				void,
+				GlobalShortcutServiceError
+			>({
 				try: () => tauriRegister(accelerator, callback),
-				mapError: (error) =>
-					WhisperingError({
-						title: 'Error registering global shortcut',
-						description: 'Please make sure it is a valid keyboard shortcut.',
-						action: { type: 'more-details', error },
-						context: { id, accelerator },
-						cause: error,
-					}),
+				mapError: (error) => ({
+					name: 'GlobalShortcutServiceError',
+					message: 'Error registering global shortcut',
+					context: { id, accelerator },
+					cause: error,
+				}),
 			});
 			if (registerError) return Err(registerError);
 
@@ -47,40 +55,42 @@ export function createGlobalShortcutManager() {
 			return Ok(undefined);
 		},
 
-		async unregister(id: string): Promise<Result<void, WhisperingError>> {
+		async unregister(
+			id: string,
+		): Promise<Result<void, GlobalShortcutServiceError>> {
 			const accelerator = shortcuts.get(id);
 			if (!accelerator) return Ok(undefined);
 
-			const { error: unregisterError } = await tryAsync({
+			const { error: unregisterError } = await tryAsync<
+				void,
+				GlobalShortcutServiceError
+			>({
 				try: () => tauriUnregister(accelerator),
-				mapError: (error) =>
-					WhisperingError({
-						title: 'Error unregistering global shortcut',
-						description: 'The shortcut may have already been unregistered.',
-						action: { type: 'more-details', error },
-						context: { id, accelerator },
-						cause: error,
-					}),
+				mapError: (error) => ({
+					name: 'GlobalShortcutServiceError',
+					message: 'Error unregistering global shortcut',
+					context: { id, accelerator },
+					cause: error,
+				}),
 			});
 			if (unregisterError) return Err(unregisterError);
 			shortcuts.delete(id);
 			return Ok(undefined);
 		},
 
-		async unregisterAll(): Promise<Result<void, WhisperingError>> {
-			const { error: unregisterAllError } = await tryAsync({
+		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
+			const { error: unregisterAllError } = await tryAsync<
+				void,
+				GlobalShortcutServiceError
+			>({
 				try: () => tauriUnregisterAll(),
 				mapError: (error) => {
-					// Still clear our tracking
-					shortcuts.clear();
-					return WhisperingError({
-						title: 'Error unregistering all global shortcuts',
-						description:
-							'Some shortcuts may not have been properly unregistered.',
-						action: { type: 'more-details', error },
+					return {
+						name: 'GlobalShortcutServiceError',
+						message: 'Error unregistering all global shortcuts',
 						context: {},
 						cause: error,
-					});
+					};
 				},
 			});
 			if (unregisterAllError) return Err(unregisterAllError);
