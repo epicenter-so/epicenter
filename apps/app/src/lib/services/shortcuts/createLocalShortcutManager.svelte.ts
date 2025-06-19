@@ -3,11 +3,13 @@ import { on } from 'svelte/events';
 
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
+export type LocalShortcutOn = 'Pressed' | 'Released' | 'Both';
+
 export function createLocalShortcutManager() {
 	const shortcuts = new Map<
 		string,
 		{
-			on: 'Pressed' | 'Released' | 'Both';
+			on: LocalShortcutOn;
 			keyCombination: string[];
 			callback: () => void;
 		}
@@ -113,7 +115,7 @@ export function createLocalShortcutManager() {
 			id: string;
 			keyCombination: string[];
 			callback: () => void;
-			on: 'Pressed' | 'Released' | 'PressedAndReleased';
+			on: LocalShortcutOn;
 		}): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.set(id, { keyCombination, callback, on });
 			return Ok(undefined);

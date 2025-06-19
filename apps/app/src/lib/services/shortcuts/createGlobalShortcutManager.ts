@@ -13,6 +13,8 @@ import {
 
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
 
+export type GlobalShortcutOn = 'Pressed' | 'Released' | 'Both';
+
 /**
  * A type that represents a global shortcut accelerator.
  *
@@ -29,7 +31,7 @@ export function createGlobalShortcutManager() {
 	const shortcuts = new Map<
 		string,
 		{
-			on: 'Pressed' | 'Released' | 'Both';
+			on: GlobalShortcutOn;
 			accelerator: Accelerator;
 			callback: () => void;
 		}
@@ -45,7 +47,7 @@ export function createGlobalShortcutManager() {
 			id: string;
 			accelerator: Accelerator;
 			callback: () => void;
-			on: 'Pressed' | 'Released' | 'Both';
+			on: GlobalShortcutOn;
 		}): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);
