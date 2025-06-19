@@ -1,6 +1,6 @@
 import { commands } from '$lib/commands';
 import { rpc } from '$lib/query';
-import { shortcutStringToArray } from '$lib/services/shortcuts';
+import { shortcutStringToArray } from '$lib/services/shortcuts/formatConverters';
 import { settings } from '$lib/stores/settings.svelte';
 import { partitionResults } from '@epicenterhq/result';
 import { toast } from '$lib/toast';
@@ -13,7 +13,11 @@ export function registerLocalCommands() {
 					.map((command) => {
 						const keyCombination =
 							settings.value[`shortcuts.local.${command.id}`];
-						if (!keyCombination) return;
+						if (!keyCombination) {
+							return rpc.shortcuts.unregisterCommandLocally.execute({
+								commandId: command.id,
+							});
+						}
 						return rpc.shortcuts.registerCommandLocally.execute({
 							command,
 							keyCombination: shortcutStringToArray(keyCombination),
@@ -41,7 +45,11 @@ export function registerGlobalCommands() {
 					.map((command) => {
 						const keyCombination =
 							settings.value[`shortcuts.global.${command.id}`];
-						if (!keyCombination) return;
+						if (!keyCombination) {
+							return rpc.shortcuts.unregisterCommandGlobally.execute({
+								commandId: command.id,
+							});
+						}
 						return rpc.shortcuts.registerCommandGlobally.execute({
 							command,
 							keyCombination,

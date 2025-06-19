@@ -1,17 +1,9 @@
-import {
-	arrayToShortcutString,
-	normalizeKey,
-} from '$lib/services/shortcuts/formatConverters';
-import { PressedKeys } from 'runed';
+import { arraysMatch } from '$lib/services/shortcuts/createLocalShortcutManager.svelte';
+import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
+import { on } from 'svelte/events';
 
 export { default as ShortcutFormatHelp } from './ShortcutFormatHelp.svelte';
 export { default as ShortcutTable } from './ShortcutTable.svelte';
-
-/**
- * Singleton instance of PressedKeys for tracking keyboard state
- * Prefixed with underscore as it's internal to the shortcuts service
- */
-const pressedKeys = new PressedKeys();
 
 /**
  * Creates a keyboard shortcut recorder with state management and event handling
@@ -20,63 +12,62 @@ export function createKeyRecorder(callbacks: {
 	onRegister: (keyCombination: string[]) => void | Promise<void>;
 	onUnregister: () => void | Promise<void>;
 	onClear: () => void | Promise<void>;
-	onEscape?: () => void;
-	onPopoverClose?: () => void;
 }) {
+	const pressedKeys = createPressedKeys();
+
 	let isListening = $state(false);
 	let lastRecordedKeys: string[] = [];
 
-	const handleKeyDown = async (event: KeyboardEvent) => {
+	// Prevent default browser behavior when recording shortcuts
+	$effect(() => {
+		const keydown = on(window, 'keydown', (event) => {
+			if (isListening) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+
+		return () => keydown();
+	});
+
+	$effect(() => {
 		if (!isListening) return;
 
-		event.preventDefault();
-		event.stopPropagation();
-
-		if (event.key === 'Escape') {
+		// Handle escape key
+		if (arraysMatch(pressedKeys.current, ['escape'])) {
 			isListening = false;
-			callbacks.onEscape?.();
 			return;
 		}
 
-		// Get all currently pressed keys and normalize them
-		const normalizedKeys = pressedKeys.all.map(normalizeKey);
+		// Ensure we have at least one non-modifier key
+		if (pressedKeys.current.length === 0) {
+			lastRecordedKeys = [];
+			return;
+		}
 
-		// Ensure we have at least one key
-		if (normalizedKeys.length === 0) return;
+		// Normalize all keys
 
 		// Check if keys have changed (to avoid multiple triggers)
-		const keysChanged =
-			JSON.stringify(normalizedKeys.sort()) !==
-			JSON.stringify(lastRecordedKeys.sort());
+		const keysChanged = !arraysMatch(pressedKeys.current, lastRecordedKeys);
 		if (!keysChanged) return;
 
-		lastRecordedKeys = [...normalizedKeys];
+		lastRecordedKeys = [...pressedKeys.current];
 
-		// Convert to shortcut string
-		const keyCombination = arrayToShortcutString(normalizedKeys);
+		// Only register if we have a valid key combination
+		// Wait a tiny bit to ensure all keys in combination are captured
+		setTimeout(async () => {
+			// Double-check that keys haven't changed and we're still listening
+			const finalKeys = pressedKeys.current;
+			const finalKeysMatch = arraysMatch(finalKeys, lastRecordedKeys);
 
-		// For global shortcuts, we'll convert the format in the component
-		// This keeps the recorder format-agnostic
-		isListening = false;
+			if (!isListening || !finalKeysMatch || finalKeys.length === 0) return;
 
-		await callbacks.onUnregister();
-		await callbacks.onRegister(keyCombination);
-	};
+			// Stop listening before processing
+			isListening = false;
 
-	const handleKeyUp = () => {
-		// Reset when all keys are released
-		if (isListening && pressedKeys.all.length === 0) {
-			lastRecordedKeys = [];
-		}
-	};
-
-	$effect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		window.addEventListener('keyup', handleKeyUp);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-			window.removeEventListener('keyup', handleKeyUp);
-		};
+			await callbacks.onUnregister();
+			await callbacks.onRegister(finalKeys);
+		}, 50);
 	});
 
 	return {
