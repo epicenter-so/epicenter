@@ -10,13 +10,11 @@ type UpdateStatusMessageFn = (args: {
 	description: string;
 }) => void;
 
-type DeviceAcquisitionOutcome = {
-	outcome: 'success';
-};
-
 export function createCpalRecorderService() {
 	return {
-		getRecorderState: async (): Promise<Result<WhisperingRecordingState, RecordingServiceError>> => {
+		getRecorderState: async (): Promise<
+			Result<WhisperingRecordingState, RecordingServiceError>
+		> => {
 			const { data: recorderState, error: getRecorderStateError } =
 				await invoke<WhisperingRecordingState>('get_recorder_state');
 			if (getRecorderStateError)
@@ -31,7 +29,9 @@ export function createCpalRecorderService() {
 			return Ok(recorderState);
 		},
 
-		enumerateRecordingDevices: async (): Promise<Result<{ deviceId: string; label: string }[], RecordingServiceError>> => {
+		enumerateRecordingDevices: async (): Promise<
+			Result<{ deviceId: string; label: string }[], RecordingServiceError>
+		> => {
 			const { data: deviceInfos, error: enumerateRecordingDevicesError } =
 				await invoke<{ deviceId: string; label: string }[]>(
 					'enumerate_recording_devices',
@@ -51,7 +51,7 @@ export function createCpalRecorderService() {
 		startRecording: async (
 			{ selectedDeviceId }: { selectedDeviceId: string | null },
 			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
-		): Promise<Result<DeviceAcquisitionOutcome, RecordingServiceError>> => {
+		): Promise<Result<void, RecordingServiceError>> => {
 			sendStatus({
 				title: '🎤 Setting Up',
 				description:
@@ -87,11 +87,14 @@ export function createCpalRecorderService() {
 					context: {},
 					cause: startRecordingError,
 				});
-			// Tauri always uses the device specified by the user
-			return Ok({ outcome: 'success' });
+			return Ok(undefined);
 		},
 
-		stopRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<Blob, RecordingServiceError>> => {
+		stopRecording: async ({
+			sendStatus,
+		}: { sendStatus: UpdateStatusMessageFn }): Promise<
+			Result<Blob, RecordingServiceError>
+		> => {
 			const { data: audioRecording, error: stopRecordingError } = await invoke<{
 				audioData: number[];
 				sampleRate: number;
@@ -130,7 +133,11 @@ export function createCpalRecorderService() {
 			return Ok(blob);
 		},
 
-		cancelRecording: async ({ sendStatus }: { sendStatus: UpdateStatusMessageFn }): Promise<Result<void, RecordingServiceError>> => {
+		cancelRecording: async ({
+			sendStatus,
+		}: { sendStatus: UpdateStatusMessageFn }): Promise<
+			Result<void, RecordingServiceError>
+		> => {
 			sendStatus({
 				title: '🛑 Cancelling',
 				description:

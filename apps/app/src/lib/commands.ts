@@ -162,7 +162,7 @@ const startCpalRecording = async () => {
 		title: '🔊 Preparing CPAL recording...',
 		description: 'Setting up native audio recording...',
 	});
-	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
+	const { error: startRecordingError } =
 		await rpc.cpalRecorder.startRecording.execute({
 			toastId,
 			selectedDeviceId: settings.value['recording.cpal.selectedDeviceId'],
@@ -178,53 +178,11 @@ const startCpalRecording = async () => {
 		return;
 	}
 
-	switch (deviceAcquisitionOutcome.outcome) {
-		case 'success': {
-			toast.success({
-				id: toastId,
-				title: '🔊 CPAL is recording...',
-				description: 'Speak now and stop recording when done',
-			});
-			break;
-		}
-		case 'fallback': {
-			settings.value = {
-				...settings.value,
-				'recording.cpal.selectedDeviceId':
-					deviceAcquisitionOutcome.fallbackDeviceId,
-			};
-			switch (deviceAcquisitionOutcome.reason) {
-				case 'no-device-selected': {
-					toast.info({
-						id: toastId,
-						title: '🔊 Switched to available microphone',
-						description:
-							'No microphone was selected, so we automatically connected to an available one. You can update your selection in settings.',
-						action: {
-							type: 'link',
-							label: 'Open Settings',
-							goto: '/settings/recording',
-						},
-					});
-					break;
-				}
-				case 'preferred-device-unavailable': {
-					toast.info({
-						id: toastId,
-						title: '🔊 Switched to different microphone',
-						description:
-							"Your previously selected microphone wasn't found, so we automatically connected to an available one.",
-						action: {
-							type: 'link',
-							label: 'Open Settings',
-							goto: '/settings/recording',
-						},
-					});
-					break;
-				}
-			}
-		}
-	}
+	toast.success({
+		id: toastId,
+		title: '🔊 CPAL is recording...',
+		description: 'Speak now and stop recording when done',
+	});
 	console.info('CPAL Recording started');
 	services.sound.playSoundIfEnabled('cpal-start');
 };
