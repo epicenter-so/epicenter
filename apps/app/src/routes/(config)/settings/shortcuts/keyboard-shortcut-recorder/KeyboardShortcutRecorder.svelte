@@ -25,7 +25,7 @@
 		onOpenChange: (isOpen: boolean) => void;
 		onStartListening: () => void;
 		onClear: () => void;
-		onSetManualCombination?: (keyCombination: string[]) => void;
+		onSetManualCombination: (keyCombination: string[]) => void;
 	} = $props();
 
 	let isPopoverOpen = $state(false);
@@ -144,7 +144,15 @@
 		</Button>
 	</Popover.Trigger>
 
-	<Popover.Content class="w-80" align="end">
+	<Popover.Content
+		class="w-80"
+		align="end"
+		onEscapeKeydown={(e) => {
+			if (isListening) {
+				e.preventDefault();
+			}
+		}}
+	>
 		<div class="space-y-4">
 			<div>
 				<h4 class="mb-1 text-sm font-medium leading-none">{command.title}</h4>

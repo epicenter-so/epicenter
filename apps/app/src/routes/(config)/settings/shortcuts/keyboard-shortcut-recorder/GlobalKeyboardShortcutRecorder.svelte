@@ -19,10 +19,7 @@
 
 	// Create the key recorder with callbacks
 	const keyRecorder = createKeyRecorder({
-		onUnregister: async () => {
-			const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-			if (!oldShortcutKey) return;
-
+		onRegister: async (keyCombination) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandGlobally.execute({
 					commandId: command.id,
@@ -36,8 +33,6 @@
 					action: { type: 'more-details', error: unregisterError },
 				});
 			}
-		},
-		onRegister: async (keyCombination) => {
 			const accelerator = pressedKeysToTauriAccelerator(keyCombination);
 
 			const { error: registerError } =
@@ -78,6 +73,19 @@
 			});
 		},
 		onClear: async () => {
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandGlobally.execute({
+					commandId: command.id,
+				});
+
+			if (unregisterError) {
+				toast.error({
+					title: 'Error clearing global shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
+			}
+
 			settings.value = {
 				...settings.value,
 				[`shortcuts.global.${command.id}`]: null,
@@ -103,9 +111,6 @@
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
 	onSetManualCombination={async (keyCombination) => {
-		// First unregister the old shortcut
-		await keyRecorder.callbacks.onUnregister();
-		// Then register the new one
 		await keyRecorder.callbacks.onRegister(keyCombination);
 	}}
 />

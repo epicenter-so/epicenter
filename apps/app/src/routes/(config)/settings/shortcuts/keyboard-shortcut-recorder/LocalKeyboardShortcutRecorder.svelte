@@ -18,12 +18,11 @@
 	} = $props();
 
 	const keyRecorder = createKeyRecorder({
-		onUnregister: async () => {
+		onRegister: async (keyCombination) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandLocally.execute({
 					commandId: command.id,
 				});
-
 			if (unregisterError) {
 				toast.error({
 					title: 'Error unregistering local shortcut',
@@ -31,8 +30,6 @@
 					action: { type: 'more-details', error: unregisterError },
 				});
 			}
-		},
-		onRegister: async (keyCombination) => {
 			const { error: registerError } =
 				await rpc.shortcuts.registerCommandLocally.execute({
 					command,
@@ -58,7 +55,18 @@
 				description: `Press the shortcut to trigger "${command.title}"`,
 			});
 		},
-		onClear: () => {
+		onClear: async () => {
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandLocally.execute({
+					commandId: command.id,
+				});
+			if (unregisterError) {
+				toast.error({
+					title: 'Error clearing local shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
+			}
 			settings.value = {
 				...settings.value,
 				[`shortcuts.local.${command.id}`]: null,
@@ -84,7 +92,6 @@
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
 	onSetManualCombination={async (keyCombination) => {
-		await keyRecorder.callbacks.onUnregister();
 		await keyRecorder.callbacks.onRegister(keyCombination);
 	}}
 />

@@ -10,7 +10,6 @@ export { default as ShortcutTable } from './ShortcutTable.svelte';
  */
 export function createKeyRecorder(callbacks: {
 	onRegister: (keyCombination: string[]) => void | Promise<void>;
-	onUnregister: () => void | Promise<void>;
 	onClear: () => void | Promise<void>;
 }) {
 	const pressedKeys = createPressedKeys();
@@ -45,28 +44,22 @@ export function createKeyRecorder(callbacks: {
 			return;
 		}
 
-		// Normalize all keys
-
-		// Check if keys have changed (to avoid multiple triggers)
-		const keysChanged = !arraysMatch(pressedKeys.current, lastRecordedKeys);
-		if (!keysChanged) return;
+		const isKeysChanged = !arraysMatch(pressedKeys.current, lastRecordedKeys);
+		if (!isKeysChanged) return;
 
 		lastRecordedKeys = [...pressedKeys.current];
 
-		// Only register if we have a valid key combination
 		// Wait a tiny bit to ensure all keys in combination are captured
 		setTimeout(async () => {
 			// Double-check that keys haven't changed and we're still listening
-			const finalKeys = pressedKeys.current;
-			const finalKeysMatch = arraysMatch(finalKeys, lastRecordedKeys);
+			const keysStillMatch = arraysMatch(pressedKeys.current, lastRecordedKeys);
 
-			if (!isListening || !finalKeysMatch || finalKeys.length === 0) return;
+			if (!isListening || !keysStillMatch || pressedKeys.current.length === 0)
+				return;
 
-			// Stop listening before processing
 			isListening = false;
 
-			await callbacks.onUnregister();
-			await callbacks.onRegister(finalKeys);
+			await callbacks.onRegister(pressedKeys.current);
 		}, 50);
 	});
 
@@ -85,7 +78,6 @@ export function createKeyRecorder(callbacks: {
 		async clear() {
 			isListening = false;
 			lastRecordedKeys = [];
-			await callbacks.onUnregister();
 			await callbacks.onClear();
 		},
 		callbacks,
