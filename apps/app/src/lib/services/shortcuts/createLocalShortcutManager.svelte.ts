@@ -1,59 +1,116 @@
-import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
+import { on } from 'svelte/events';
 
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
-export function createLocalShortcutManager({
-	pressedKeys,
-}: {
-	pressedKeys: PressedKeys;
-}) {
-	const shortcuts: {
-		id: string;
-		keyCombination: string[];
-		callback: () => void;
-	}[] = [];
-
-	$effect(() => {
-		for (const shortcut of shortcuts) {
-			const isMatch =
-				pressedKeys.current.length === shortcut.keyCombination.length &&
-				pressedKeys.current.every((key) =>
-					shortcut.keyCombination.includes(key),
-				);
-			if (isMatch) shortcut.callback();
+export function createLocalShortcutManager() {
+	const shortcuts = new Map<
+		string,
+		{
+			on: 'Pressed' | 'Released' | 'PressedAndReleased';
+			keyCombination: string[];
+			callback: () => void;
 		}
-	});
+	>();
 
 	return {
+		listen() {
+			let pressedKeys: string[] = [];
+
+			const keydown = on(window, 'keydown', (e) => {
+				const key = e.key.toLowerCase();
+				if (!pressedKeys.includes(key)) pressedKeys.push(key);
+
+				for (const { callback, keyCombination, on } of shortcuts.values()) {
+					const isMatch =
+						pressedKeys.length === keyCombination.length &&
+						pressedKeys.every((key) => keyCombination.includes(key));
+					if (isMatch && (on === 'PressedAndReleased' || on === 'Pressed')) {
+						e.preventDefault();
+						callback();
+					}
+				}
+			});
+
+			const keyup = on(window, 'keyup', (e) => {
+				const key = e.key.toLowerCase();
+
+				if (['meta', 'control', 'alt', 'shift'].includes(key)) {
+					// Special handling for modifier keys (meta, control, alt, shift)
+					// This addresses issues with OS/browser intercepting certain key combinations
+					// where non-modifier keyup events might not fire properly
+					// When a modifier key is released, clear all non-modifier keys
+					// but keep other modifier keys that might still be pressedKeys
+					// This prevents keys from getting "stuck" in the pressedKeys state
+					pressedKeys = pressedKeys.filter((k) =>
+						['meta', 'control', 'alt', 'shift'].includes(k),
+					);
+				}
+
+				// Regular key removal
+				pressedKeys = pressedKeys.filter((k) => k !== key);
+
+				for (const { callback, keyCombination, on } of shortcuts.values()) {
+					const isMatch =
+						pressedKeys.length === keyCombination.length &&
+						pressedKeys.every((key) => keyCombination.includes(key));
+					if (isMatch && (on === 'PressedAndReleased' || on === 'Released')) {
+						e.preventDefault();
+						callback();
+					}
+				}
+			});
+
+			// Handle window blur events (switching applications, clicking outside browser)
+			// Reset all keys when user shifts focus away from the window
+			const blur = on(window, 'blur', () => {
+				pressedKeys = [];
+			});
+
+			// Handle tab visibility changes (switching browser tabs)
+			// This catches cases where the window doesn't lose focus but the tab is hidden
+			const visibilityChange = on(document, 'visibilitychange', () => {
+				if (document.visibilityState === 'hidden') {
+					pressedKeys = [];
+				}
+			});
+
+			return () => {
+				keydown();
+				keyup();
+				blur();
+				visibilityChange();
+			};
+		},
 		async register({
 			id,
 			keyCombination,
 			callback,
+			on,
 		}: {
 			id: string;
 			keyCombination: string[];
 			callback: () => void;
+			on: 'Pressed' | 'Released' | 'PressedAndReleased';
 		}): Promise<Result<void, LocalShortcutServiceError>> {
-			shortcuts.push({ id, keyCombination, callback });
+			shortcuts.set(id, { keyCombination, callback, on });
 			return Ok(undefined);
 		},
 
 		async unregister(
 			id: string,
 		): Promise<Result<void, LocalShortcutServiceError>> {
-			const shortcut = shortcuts.find((shortcut) => shortcut.id === id);
-			if (!shortcut) return Ok(undefined);
-
-			shortcuts.splice(shortcuts.indexOf(shortcut), 1);
+			shortcuts.delete(id);
 			return Ok(undefined);
 		},
 
 		async unregisterAll(): Promise<Result<void, LocalShortcutServiceError>> {
-			shortcuts.length = 0;
+			shortcuts.clear();
 			return Ok(undefined);
 		},
 	};
 }
 
-export type LocalShortcutManager = ReturnType<typeof createLocalShortcutManager>;
+export type LocalShortcutManager = ReturnType<
+	typeof createLocalShortcutManager
+>;

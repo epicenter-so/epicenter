@@ -4,6 +4,7 @@
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import '../app.css';
+	import { services } from '$lib/services';
 	import AppShell from './+layout/AppShell.svelte';
 
 	let { children } = $props();
@@ -18,6 +19,8 @@
 			});
 		});
 	});
+
+	services.localShortcutManager.listen();
 </script>
 
 <svelte:head>
