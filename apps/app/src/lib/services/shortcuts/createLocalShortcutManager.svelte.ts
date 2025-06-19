@@ -138,6 +138,11 @@ export function createLocalShortcutManager() {
 			return Ok(undefined);
 		},
 
+		/**
+		 * Unregisters a local shortcut by ID.
+		 * This function is idempotent - it can be safely called even if the shortcut
+		 * with the given ID doesn't exist or has already been unregistered.
+		 */
 		async unregister(
 			id: string,
 		): Promise<Result<void, LocalShortcutServiceError>> {
@@ -145,6 +150,11 @@ export function createLocalShortcutManager() {
 			return Ok(undefined);
 		},
 
+		/**
+		 * Unregisters all local shortcuts.
+		 * This function is idempotent - it can be safely called even if no shortcuts
+		 * are currently registered.
+		 */
 		async unregisterAll(): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.clear();
 			return Ok(undefined);
@@ -162,6 +172,6 @@ export type LocalShortcutManager = ReturnType<
  * @param b - The second array
  * @returns true if the arrays match, false otherwise
  */
-function arraysMatch(a: string[], b: string[]) {
+export function arraysMatch(a: string[], b: string[]) {
 	return a.length === b.length && a.every((key) => b.includes(key));
 }

@@ -96,6 +96,11 @@ export function createGlobalShortcutManager() {
 			return Ok(undefined);
 		},
 
+		/**
+		 * Unregisters a global shortcut by ID.
+		 * This function is idempotent - it can be safely called even if the shortcut
+		 * with the given ID doesn't exist or has already been unregistered.
+		 */
 		async unregister(
 			id: string,
 		): Promise<Result<void, GlobalShortcutServiceError>> {
@@ -123,6 +128,11 @@ export function createGlobalShortcutManager() {
 			return Ok(undefined);
 		},
 
+		/**
+		 * Unregisters all global shortcuts.
+		 * This function is idempotent - it can be safely called even if no shortcuts
+		 * are currently registered.
+		 */
 		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterAllError } = await tryAsync<
 				void,
