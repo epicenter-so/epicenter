@@ -16,14 +16,6 @@
 		autoFocus?: boolean;
 	} = $props();
 
-	let isPopoverOpen = $state(false);
-
-	// Get the current key combination from settings
-	const keyCombination = $derived(
-		settings.value[`shortcuts.local.${command.id}`],
-	);
-
-	// Create the key recorder with callbacks
 	const keyRecorder = createKeyRecorder({
 		onUnregister: async () => {
 			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
@@ -59,8 +51,6 @@
 				title: `Local shortcut set to ${keyCombination}`,
 				description: `Press the shortcut to trigger "${command.title}"`,
 			});
-
-			isPopoverOpen = false;
 		},
 		onClear: () => {
 			settings.value = {
@@ -72,34 +62,24 @@
 				title: 'Local shortcut cleared',
 				description: `Please set a new shortcut to trigger "${command.title}"`,
 			});
-
-			isPopoverOpen = false;
 		},
-		onEscape: () => {
-			isPopoverOpen = false;
-		},
+		onEscape: () => {},
 	});
-
-	// Handle popover open/close
-	function handleOpenChange(isOpen: boolean) {
-		isPopoverOpen = isOpen;
-		if (!isOpen) keyRecorder.stop();
-	}
 </script>
 
 <KeyboardShortcutRecorder
 	{command}
 	{placeholder}
 	{autoFocus}
-	{keyCombination}
+	keyCombination={settings.value[`shortcuts.local.${command.id}`]}
 	isListening={keyRecorder.isListening}
-	onOpenChange={handleOpenChange}
+	onOpenChange={(isOpen) => {
+		if (!isOpen) keyRecorder.stop();
+	}}
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
-	onManualSet={async (keyCombination) => {
-		// First unregister the old shortcut
+	onSetManualCombination={async (keyCombination) => {
 		await keyRecorder.callbacks.onUnregister();
-		// Then register the new one
 		await keyRecorder.callbacks.onRegister(keyCombination);
 	}}
 />

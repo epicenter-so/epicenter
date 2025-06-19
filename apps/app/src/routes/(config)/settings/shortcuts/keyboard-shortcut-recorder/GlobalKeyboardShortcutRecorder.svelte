@@ -22,11 +22,6 @@
 
 	let isPopoverOpen = $state(false);
 
-	// Get the current key combination from settings
-	const keyCombination = $derived(
-		settings.value[`shortcuts.global.${command.id}`],
-	);
-
 	// Create the key recorder with callbacks
 	const keyRecorder = createKeyRecorder({
 		onUnregister: async () => {
@@ -88,24 +83,21 @@
 			isPopoverOpen = false;
 		},
 	});
-
-	// Handle popover open/close
-	function handleOpenChange(isOpen: boolean) {
-		isPopoverOpen = isOpen;
-		if (!isOpen) keyRecorder.stop();
-	}
 </script>
 
 <KeyboardShortcutRecorder
 	{command}
 	{placeholder}
 	{autoFocus}
-	{keyCombination}
+	keyCombination={settings.value[`shortcuts.global.${command.id}`]}
 	isListening={keyRecorder.isListening}
-	onOpenChange={handleOpenChange}
+	onOpenChange={(isOpen) => {
+		isPopoverOpen = isOpen;
+		if (!isOpen) keyRecorder.stop();
+	}}
 	onStartListening={() => keyRecorder.start()}
 	onClear={() => keyRecorder.clear()}
-	onManualSet={async (keyCombination) => {
+	onSetManualCombination={async (keyCombination) => {
 		// First unregister the old shortcut
 		await keyRecorder.callbacks.onUnregister();
 		// Then register the new one

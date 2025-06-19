@@ -120,13 +120,6 @@
 
 		return symbolMap[key] ?? key;
 	}
-
-	function handleManualSubmit() {
-		if (manualValue.trim() && onManualSet) {
-			onManualSet(manualValue.trim().split('+'));
-			isManualMode = false;
-		}
-	}
 </script>
 
 <Popover.Root
@@ -247,7 +240,10 @@
 				<form
 					onsubmit={(e) => {
 						e.preventDefault();
-						handleManualSubmit();
+						if (manualValue.trim() && onSetManualCombination) {
+							onSetManualCombination(manualValue.trim().split('+'));
+							isManualMode = false;
+						}
 					}}
 					class="space-y-3"
 				>
