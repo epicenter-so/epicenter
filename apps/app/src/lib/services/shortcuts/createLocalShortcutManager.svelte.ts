@@ -29,6 +29,8 @@ export function createLocalShortcutManager() {
 		listen() {
 			/** Array tracking currently pressed keys in lowercase format */
 			let pressedKeys: string[] = [];
+			/** Set tracking which shortcuts have already been triggered during current key press session */
+			const triggeredShortcuts = new Set<string>();
 
 			/** Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts */
 			const keydown = on(window, 'keydown', (e) => {
@@ -37,12 +39,17 @@ export function createLocalShortcutManager() {
 				if (!pressedKeys.includes(key)) pressedKeys.push(key);
 
 				// Check all registered shortcuts for matches
-				for (const { callback, keyCombination, on } of shortcuts.values()) {
+				for (const [
+					id,
+					{ callback, keyCombination, on },
+				] of shortcuts.entries()) {
 					if (
 						arraysMatch(pressedKeys, keyCombination) &&
-						(on === 'Both' || on === 'Pressed')
+						(on === 'Both' || on === 'Pressed') &&
+						!triggeredShortcuts.has(id)
 					) {
 						e.preventDefault();
+						triggeredShortcuts.add(id);
 						callback();
 					}
 				}
@@ -62,13 +69,17 @@ export function createLocalShortcutManager() {
 					// but keep other modifier keys that might still be pressed
 					// This prevents keys from getting "stuck" in the pressedKeys state
 					pressedKeys = pressedKeys.filter((k) => modifierKeys.includes(k));
+					triggeredShortcuts.clear();
 				}
 
 				// Regular key removal from pressed state
 				pressedKeys = pressedKeys.filter((k) => k !== key);
 
 				// Check all registered shortcuts for matches on release
-				for (const { callback, keyCombination, on } of shortcuts.values()) {
+				for (const [
+					,
+					{ callback, keyCombination, on },
+				] of shortcuts.entries()) {
 					if (
 						arraysMatch(pressedKeys, keyCombination) &&
 						(on === 'Both' || on === 'Released')
@@ -76,6 +87,11 @@ export function createLocalShortcutManager() {
 						e.preventDefault();
 						callback();
 					}
+				}
+
+				// Clear triggered shortcuts when no keys are pressed
+				if (pressedKeys.length === 0) {
+					triggeredShortcuts.clear();
 				}
 			});
 
@@ -85,6 +101,7 @@ export function createLocalShortcutManager() {
 			 */
 			const blur = on(window, 'blur', () => {
 				pressedKeys = [];
+				triggeredShortcuts.clear();
 			});
 
 			/**
@@ -94,6 +111,7 @@ export function createLocalShortcutManager() {
 			const visibilityChange = on(document, 'visibilitychange', () => {
 				if (document.visibilityState === 'hidden') {
 					pressedKeys = [];
+					triggeredShortcuts.clear();
 				}
 			});
 
