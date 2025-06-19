@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -16,7 +15,7 @@
 		onOpenChange,
 		onStartListening,
 		onClear,
-		onManualSet,
+		onSetManualCombination,
 	}: {
 		command: Command;
 		placeholder?: string;
@@ -26,7 +25,7 @@
 		onOpenChange: (isOpen: boolean) => void;
 		onStartListening: () => void;
 		onClear: () => void;
-		onManualSet?: (keyCombination: string[]) => void;
+		onSetManualCombination?: (keyCombination: string[]) => void;
 	} = $props();
 
 	let isPopoverOpen = $state(false);
