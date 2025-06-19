@@ -7,7 +7,7 @@ export function createLocalShortcutManager() {
 	const shortcuts = new Map<
 		string,
 		{
-			on: 'Pressed' | 'Released' | 'PressedAndReleased';
+			on: 'Pressed' | 'Released' | 'Both';
 			keyCombination: string[];
 			callback: () => void;
 		}
@@ -16,16 +16,19 @@ export function createLocalShortcutManager() {
 	return {
 		listen() {
 			let pressedKeys: string[] = [];
+			const isPressedKeyMatchesKeyCombination = (keyCombination: string[]) =>
+				pressedKeys.length === keyCombination.length &&
+				pressedKeys.every((key) => keyCombination.includes(key));
 
 			const keydown = on(window, 'keydown', (e) => {
 				const key = e.key.toLowerCase();
 				if (!pressedKeys.includes(key)) pressedKeys.push(key);
 
 				for (const { callback, keyCombination, on } of shortcuts.values()) {
-					const isMatch =
-						pressedKeys.length === keyCombination.length &&
-						pressedKeys.every((key) => keyCombination.includes(key));
-					if (isMatch && (on === 'PressedAndReleased' || on === 'Pressed')) {
+					if (
+						isPressedKeyMatchesKeyCombination(keyCombination) &&
+						(on === 'Both' || on === 'Pressed')
+					) {
 						e.preventDefault();
 						callback();
 					}
@@ -51,10 +54,10 @@ export function createLocalShortcutManager() {
 				pressedKeys = pressedKeys.filter((k) => k !== key);
 
 				for (const { callback, keyCombination, on } of shortcuts.values()) {
-					const isMatch =
-						pressedKeys.length === keyCombination.length &&
-						pressedKeys.every((key) => keyCombination.includes(key));
-					if (isMatch && (on === 'PressedAndReleased' || on === 'Released')) {
+					if (
+						isPressedKeyMatchesKeyCombination(keyCombination) &&
+						(on === 'Both' || on === 'Released')
+					) {
 						e.preventDefault();
 						callback();
 					}
@@ -91,7 +94,7 @@ export function createLocalShortcutManager() {
 			id: string;
 			keyCombination: string[];
 			callback: () => void;
-			on: 'Pressed' | 'Released' | 'PressedAndReleased';
+			on: 'Pressed' | 'Released' | 'Both';
 		}): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.set(id, { keyCombination, callback, on });
 			return Ok(undefined);
