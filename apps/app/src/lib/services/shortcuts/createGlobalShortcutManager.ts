@@ -41,7 +41,12 @@ export function createGlobalShortcutManager() {
 				void,
 				GlobalShortcutServiceError
 			>({
-				try: () => tauriRegister(accelerator, callback),
+				try: () =>
+					tauriRegister(accelerator, (event) => {
+						if (event.state === 'Pressed') {
+							callback();
+						}
+					}),
 				mapError: (error) => ({
 					name: 'GlobalShortcutServiceError',
 					message: 'Error registering global shortcut',
