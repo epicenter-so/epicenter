@@ -19,9 +19,6 @@
 
 	const keyRecorder = createKeyRecorder({
 		onUnregister: async () => {
-			const currentCommandKey = settings.value[`shortcuts.local.${command.id}`];
-			if (!currentCommandKey) return;
-
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandLocally.execute({
 					commandId: command.id,

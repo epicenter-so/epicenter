@@ -1,14 +1,11 @@
 <script lang="ts">
-	import { toast } from '$lib/toast';
-	import { settings } from '$lib/stores/settings.svelte';
 	import type { Command } from '$lib/commands';
+	import { rpc } from '$lib/query';
+	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { toast } from '$lib/toast';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './index.svelte';
-	import { rpc } from '$lib/query';
-	import {
-		arrayToShortcutString,
-		shortcutStringToTauriAccelerator,
-	} from '$lib/services/shortcuts';
 
 	const {
 		command,
@@ -38,33 +35,63 @@
 			}
 		},
 		onRegister: async (keyCombination) => {
-			// Convert the local format to Tauri accelerator format
-			const accelerator = shortcutStringToTauriAccelerator(
-				arrayToShortcutString(keyCombination),
-			);
+			try {
+				// Convert pressed keys directly to Tauri accelerator format
+				const accelerator = pressedKeysToTauriAccelerator(keyCombination);
 
-			const { error: registerError } =
-				await rpc.shortcuts.registerCommandGlobally.execute({
-					command,
-					keyCombination: accelerator,
+				const { error: registerError } =
+					await rpc.shortcuts.registerCommandGlobally.execute({
+						command,
+						keyCombination: accelerator,
+					});
+
+				if (registerError) {
+					// Provide specific error messages based on error type
+					if (registerError.message?.includes('Invalid accelerator format')) {
+						toast.error({
+							title: 'Invalid shortcut combination',
+							description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
+							action: { type: 'more-details', error: registerError },
+						});
+					} else {
+						toast.error({
+							title: 'Failed to register shortcut',
+							description:
+								'Could not register the global shortcut. It may already be in use by another application.',
+							action: { type: 'more-details', error: registerError },
+						});
+					}
+					return;
+				}
+
+				settings.value = {
+					...settings.value,
+					[`shortcuts.global.${command.id}`]: accelerator,
+				};
+
+				toast.success({
+					title: `Global shortcut set to ${accelerator}`,
+					description: `Press the shortcut to trigger "${command.title}"`,
 				});
 
-			if (registerError) {
-				toast.error(registerError);
-				return;
+				isPopoverOpen = false;
+			} catch (conversionError) {
+				// Handle conversion errors
+				toast.error({
+					title: 'Invalid key combination',
+					description: `Unable to convert "${keyCombination.join('+')}" to a valid shortcut format.`,
+					action: {
+						type: 'more-details',
+						error: {
+							message:
+								conversionError instanceof Error
+									? conversionError.message
+									: String(conversionError),
+							name: 'ConversionError',
+						},
+					},
+				});
 			}
-
-			settings.value = {
-				...settings.value,
-				[`shortcuts.global.${command.id}`]: accelerator,
-			};
-
-			toast.success({
-				title: `Global shortcut set to ${accelerator}`,
-				description: `Press the shortcut to trigger "${command.title}"`,
-			});
-
-			isPopoverOpen = false;
 		},
 		onClear: async () => {
 			settings.value = {

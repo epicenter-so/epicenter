@@ -239,8 +239,8 @@
 				<form
 					onsubmit={(e) => {
 						e.preventDefault();
-						if (manualValue.trim() && onSetManualCombination) {
-							onSetManualCombination(manualValue.trim().split('+'));
+						if (manualValue && onSetManualCombination) {
+							onSetManualCombination(manualValue.split('+'));
 							isManualMode = false;
 						}
 					}}
