@@ -17,18 +17,6 @@ export function createKeyRecorder({
 	let isListening = $state(false);
 	let lastRecordedKeys: string[] = [];
 
-	// Prevent default browser behavior when recording shortcuts
-	$effect(() => {
-		const keydown = on(window, 'keydown', (event) => {
-			if (isListening) {
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-
-		return () => keydown();
-	});
-
 	$effect(() => {
 		if (!isListening) return;
 
