@@ -397,13 +397,12 @@ export function shortcutStringToTauriAccelerator(shortcut: string): string {
  */
 export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
 	// Normalize all keys
-	const normalizedKeys = pressedKeys.map((key) => normalizeKey(key));
 
 	// Separate modifiers and key codes
 	const modifiers: string[] = [];
 	const keyCodes: string[] = [];
 
-	for (const key of normalizedKeys) {
+	for (const key of pressedKeys) {
 		const modifier = convertToModifier(key);
 		if (modifier) {
 			modifiers.push(modifier);
@@ -595,42 +594,4 @@ function convertToKeyCode(key: string): string | null {
 	}
 
 	return null;
-}
-
-/**
- * Normalize a key name to a consistent format
- * This helps handle variations like "Control" vs "ctrl"
- */
-export function normalizeKey(key: string): string {
-	const normalized = key.toLowerCase();
-
-	// Map common variations to a standard format
-	switch (normalized) {
-		case 'control':
-		case 'ctrl':
-			return 'ctrl';
-		case 'command':
-		case 'cmd':
-		case 'meta':
-			return 'cmd';
-		case 'option':
-		case 'alt':
-			return 'alt';
-		case 'return':
-		case 'enter':
-			return 'enter';
-		case 'escape':
-		case 'esc':
-			return 'esc';
-		case 'arrowup':
-			return 'up';
-		case 'arrowdown':
-			return 'down';
-		case 'arrowleft':
-			return 'left';
-		case 'arrowright':
-			return 'right';
-		default:
-			return normalized;
-	}
 }
