@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Command } from '$lib/commands';
+	import type { Command, CommandId } from '$lib/commands';
 	import { rpc } from '$lib/query';
 	import { arrayToShortcutString } from '$lib/services/shortcuts/formatConverters';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -25,7 +25,7 @@
 	onRegister={async (keyCombination) => {
 		const { error: unregisterError } =
 			await rpc.shortcuts.unregisterCommandLocally.execute({
-				commandId: command.id,
+				commandId: command.id as CommandId,
 			});
 		if (unregisterError) {
 			toast.error({
@@ -62,7 +62,7 @@
 	onClear={async () => {
 		const { error: unregisterError } =
 			await rpc.shortcuts.unregisterCommandLocally.execute({
-				commandId: command.id,
+				commandId: command.id as CommandId,
 			});
 		if (unregisterError) {
 			toast.error({
