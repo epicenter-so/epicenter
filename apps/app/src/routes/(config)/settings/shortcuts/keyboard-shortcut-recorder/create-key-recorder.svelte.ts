@@ -1,6 +1,5 @@
 import { arraysMatch } from '$lib/services/shortcuts/createLocalShortcutManager.svelte';
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
-import { on } from 'svelte/events';
 
 /**
  * Creates a keyboard shortcut recorder with state management and event handling
