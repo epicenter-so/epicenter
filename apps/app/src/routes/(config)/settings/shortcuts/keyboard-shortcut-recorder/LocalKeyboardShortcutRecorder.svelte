@@ -21,7 +21,7 @@
 	title={command.title}
 	{placeholder}
 	{autoFocus}
-	keyCombination={settings.value[`shortcuts.local.${command.id}`]}
+	rawKeyCombination={settings.value[`shortcuts.local.${command.id}`]}
 	onRegister={async (keyCombination) => {
 		const { error: unregisterError } =
 			await rpc.shortcuts.unregisterCommandLocally.execute({

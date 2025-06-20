@@ -7,20 +7,21 @@
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
 	import { createKeyRecorder } from './create-key-recorder.svelte';
+	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
 
 	const {
 		title,
 		placeholder = 'Press a key combination',
 		autoFocus = true,
-		keyCombination,
+		rawKeyCombination,
 		onRegister,
 		onClear,
 	}: {
 		title: string;
 		placeholder?: string;
 		autoFocus?: boolean;
-		keyCombination: string | null;
-		onRegister: (keyCombination: string[]) => void | Promise<void>;
+		rawKeyCombination: string | null;
+		onRegister: (rawKeyCombination: SupportedKey[]) => void | Promise<void>;
 		onClear: () => void | Promise<void>;
 	} = $props();
 
@@ -30,10 +31,10 @@
 
 	let isPopoverOpen = $state(false);
 	let isManualMode = $state(false);
-	let manualValue = $state(keyCombination ?? '');
+	let manualValue = $state(rawKeyCombination ?? '');
 
 	$effect(() => {
-		manualValue = keyCombination ?? '';
+		manualValue = rawKeyCombination ?? '';
 	});
 </script>
 
@@ -52,7 +53,7 @@
 >
 	<Popover.Trigger>
 		<Button variant="ghost" size="sm" class="h-8 font-normal">
-			{#if keyCombination}
+			{#if rawKeyCombination}
 				<span class="text-xs">Set shortcut</span>
 			{:else}
 				<span class="text-xs text-muted-foreground">+ Add</span>
@@ -102,9 +103,9 @@
 						<div
 							class="flex flex-grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
 						>
-							{#if keyCombination && !keyRecorder.isListening}
+							{#if rawKeyCombination && !keyRecorder.isListening}
 								<Badge variant="secondary" class="font-mono text-xs">
-									{keyCombination ?? ''}
+									{rawKeyCombination ?? ''}
 								</Badge>
 							{:else if !keyRecorder.isListening}
 								<span class="truncate text-muted-foreground">{placeholder}</span
@@ -130,7 +131,7 @@
 				</button>
 
 				<div class="flex items-center gap-2">
-					{#if keyCombination}
+					{#if rawKeyCombination}
 						<Button
 							variant="outline"
 							size="sm"
@@ -144,10 +145,10 @@
 					<Button
 						variant="outline"
 						size="sm"
-						class={keyCombination ? 'flex-1' : 'w-full'}
+						class={rawKeyCombination ? 'flex-1' : 'w-full'}
 						onclick={() => {
 							isManualMode = true;
-							manualValue = keyCombination ?? '';
+							manualValue = rawKeyCombination ?? '';
 							keyRecorder.stop();
 						}}
 					>
@@ -182,7 +183,7 @@
 							class="flex-1"
 							onclick={() => {
 								isManualMode = false;
-								manualValue = keyCombination ?? '';
+								manualValue = rawKeyCombination ?? '';
 							}}
 						>
 							Cancel

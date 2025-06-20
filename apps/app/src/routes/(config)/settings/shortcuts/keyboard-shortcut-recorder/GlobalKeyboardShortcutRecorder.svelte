@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Command } from '$lib/commands';
+	import type { Command, CommandId } from '$lib/commands';
 	import { rpc } from '$lib/query';
 	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -21,11 +21,11 @@
 	title={command.title}
 	{placeholder}
 	{autoFocus}
-	keyCombination={settings.value[`shortcuts.global.${command.id}`]}
+	rawKeyCombination={settings.value[`shortcuts.global.${command.id}`]}
 	onRegister={async (keyCombination) => {
 		const { error: unregisterError } =
 			await rpc.shortcuts.unregisterCommandGlobally.execute({
-				commandId: command.id,
+				commandId: command.id as CommandId,
 			});
 
 		if (unregisterError) {
