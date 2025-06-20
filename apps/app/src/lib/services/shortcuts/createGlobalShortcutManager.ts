@@ -65,10 +65,7 @@ export function createGlobalShortcutManager() {
 			const { error: unregisterError } = await this.unregister(id);
 			if (unregisterError) return Err(unregisterError);
 
-			const { error: registerError } = await tryAsync<
-				void,
-				GlobalShortcutServiceError
-			>({
+			const { error: registerError } = await tryAsync({
 				try: () =>
 					tauriRegister(accelerator, (event) => {
 						if (
@@ -83,7 +80,7 @@ export function createGlobalShortcutManager() {
 							callback();
 						}
 					}),
-				mapError: (error) => ({
+				mapError: (error): GlobalShortcutServiceError => ({
 					name: 'GlobalShortcutServiceError',
 					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					context: { id, accelerator, originalError: error },
@@ -107,12 +104,9 @@ export function createGlobalShortcutManager() {
 			const shortcut = shortcuts.get(id);
 			if (!shortcut) return Ok(undefined);
 
-			const { error: unregisterError } = await tryAsync<
-				void,
-				GlobalShortcutServiceError
-			>({
+			const { error: unregisterError } = await tryAsync({
 				try: () => tauriUnregister(shortcut.accelerator),
-				mapError: (error) => ({
+				mapError: (error): GlobalShortcutServiceError => ({
 					name: 'GlobalShortcutServiceError',
 					message: `Failed to unregister global shortcut '${shortcut.accelerator}': ${extractErrorMessage(error)}`,
 					context: {
@@ -134,12 +128,9 @@ export function createGlobalShortcutManager() {
 		 * are currently registered.
 		 */
 		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
-			const { error: unregisterAllError } = await tryAsync<
-				void,
-				GlobalShortcutServiceError
-			>({
+			const { error: unregisterAllError } = await tryAsync({
 				try: () => tauriUnregisterAll(),
-				mapError: (error) => {
+				mapError: (error): GlobalShortcutServiceError => {
 					return {
 						name: 'GlobalShortcutServiceError',
 						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
