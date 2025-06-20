@@ -2,6 +2,7 @@
 	import type { Command } from '$lib/commands';
 	import { rpc } from '$lib/query';
 	import { services } from '$lib/services';
+	import { arrayToShortcutString } from '$lib/services/shortcuts/formatConverters';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
@@ -51,7 +52,8 @@
 
 			settings.value = {
 				...settings.value,
-				[`shortcuts.local.${command.id}`]: keyCombination,
+				[`shortcuts.local.${command.id}`]:
+					arrayToShortcutString(keyCombination),
 			};
 
 			toast.success({
