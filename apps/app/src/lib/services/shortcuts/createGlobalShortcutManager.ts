@@ -343,67 +343,9 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 }
 
 /**
- * Convert a shortcut string to Tauri's Accelerator format following Electron spec exactly
- * @example "ctrl+shift+a" → "Control+Shift+A"
- */
-export function shortcutStringToTauriAccelerator(shortcut: string): string {
-	const keys = shortcut
-		.toLowerCase()
-		.split('+')
-		.filter((key) => key.length > 0);
-	if (keys.length === 0) {
-		throw new Error('Invalid shortcut: no keys provided');
-	}
-
-	const modifiers: string[] = [];
-	let keyCode = '';
-
-	// Process each part
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
-		const isLastKey = i === keys.length - 1;
-
-		// Try to convert as modifier first
-		const modifier = convertToModifier(key);
-		if (modifier) {
-			modifiers.push(modifier);
-			continue;
-		}
-
-		// If it's the last key, treat as key code
-		if (isLastKey) {
-			keyCode = convertToKeyCode(key);
-			if (!keyCode) {
-				throw new Error(`Invalid key code: ${key}`);
-			}
-		} else {
-			// Not a modifier and not the last key - invalid
-			throw new Error(`Invalid modifier: ${key}`);
-		}
-	}
-
-	if (!keyCode) {
-		throw new Error('No valid key code found in shortcut');
-	}
-
-	// Build accelerator string
-	const accelerator = [...modifiers, keyCode].join('+');
-
-	// Final validation
-	if (!isValidElectronAccelerator(accelerator)) {
-		throw new Error(`Generated invalid accelerator: ${accelerator}`);
-	}
-
-	return accelerator;
-}
-
-/**
  * Convert pressed keys directly to Tauri accelerator format
  */
 export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
-	// Normalize all keys
-
-	// Separate modifiers and key codes
 	const modifiers: string[] = [];
 	const keyCodes: string[] = [];
 
@@ -444,10 +386,8 @@ export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
 function convertToModifier(key: string): string | null {
 	const normalized = key.toLowerCase();
 	switch (normalized) {
-		case 'ctrl':
 		case 'control':
 			return 'Control';
-		case 'cmd':
 		case 'command':
 		case 'meta':
 			return 'CommandOrControl';
