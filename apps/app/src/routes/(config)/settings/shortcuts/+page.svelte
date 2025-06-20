@@ -43,14 +43,10 @@
 		</p>
 	</header>
 
-	<Tabs.Root value="local" class="w-full">
-		<Tabs.List class="grid grid-cols-2 mb-6 w-full">
-			<Tabs.Trigger value="local" class="text-sm font-medium">
-				Local Shortcuts</Tabs.Trigger
-			>
-			<Tabs.Trigger value="global" class="text-sm font-medium">
-				Global Shortcuts</Tabs.Trigger
-			>
+	<Tabs.Root value="local">
+		<Tabs.List class="w-full">
+			<Tabs.Trigger value="local">Local Shortcuts</Tabs.Trigger>
+			<Tabs.Trigger value="global">Global Shortcuts</Tabs.Trigger>
 		</Tabs.List>
 
 		<Tabs.Content value="local" class="space-y-6">
