@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -186,13 +187,9 @@
 							class="flex flex-grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
 						>
 							{#if keyCombination && !keyRecorder.isListening}
-								{#each keyCombination.split('+') as key}
-									<kbd
-										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
-									>
-										{renderKeySymbol(key)}
-									</kbd>
-								{/each}
+								<Badge variant="secondary" class="font-mono text-xs">
+									{keyCombination ?? ''}
+								</Badge>
 							{:else if !keyRecorder.isListening}
 								<span class="truncate text-muted-foreground">{placeholder}</span
 								>
