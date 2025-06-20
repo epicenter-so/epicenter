@@ -4,30 +4,99 @@
  */
 
 /**
- * Modifier keys supported by local shortcuts (browser-based)
- * These are the actual key values from KeyboardEvent.key in lowercase
+ * Local shortcuts structure for browser-based shortcuts
+ * Accepts any lowercase key from KeyboardEvent.key
  */
-export const LOCAL_MODIFIER_KEYS = ['meta', 'control', 'alt', 'shift'] as const;
+export const LOCAL_SHORTCUTS = {
+	Modifiers: {
+		keys: ['shift', 'ctrl', 'alt', 'meta'],
+		description: 'Hold with other keys',
+	},
+	'Common Keys': {
+		keys: ['enter', 'escape', 'tab', 'space', 'delete', 'backspace'],
+		description: 'Frequently used keys',
+	},
+	'Letters & Numbers': {
+		keys: ['a-z', '0-9'],
+		description: 'Any letter or number',
+	},
+	Navigation: {
+		keys: [
+			'arrowup',
+			'arrowdown',
+			'arrowleft',
+			'arrowright',
+			'home',
+			'end',
+			'pageup',
+			'pagedown',
+		],
+		description: 'Arrow and positioning keys',
+	},
+	'Function Keys': {
+		keys: ['f1-f12'],
+		description: 'Function keys',
+	},
+	Punctuation: {
+		keys: [
+			'!',
+			'@',
+			'#',
+			'$',
+			'%',
+			'^',
+			'&',
+			'*',
+			'(',
+			')',
+			'-',
+			'=',
+			'[',
+			']',
+			';',
+			"'",
+			',',
+			'.',
+			'/',
+			'`',
+		],
+		description: 'Common symbols',
+	},
+} as const;
 
 /**
- * Common special keys displayed to users for local shortcuts
- * Showing the most commonly used keys that work across browsers
+ * Global shortcuts structure for system-wide shortcuts
+ * Following Electron Accelerator specification
  */
+export const GLOBAL_SHORTCUTS = {
+	Modifiers: {
+		keys: ['Shift', 'Control', 'Alt', 'CommandOrControl'],
+		description: 'Cross-platform modifiers',
+	},
+	'Common Keys': {
+		keys: ['Enter', 'Escape', 'Tab', 'Space', 'Delete', 'Backspace'],
+		description: 'Frequently used keys',
+	},
+	'Letters & Numbers': {
+		keys: ['A-Z', '0-9'],
+		description: 'Any letter or number',
+	},
+	Navigation: {
+		keys: ['Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown'],
+		description: 'Arrow and positioning keys',
+	},
+	'Function Keys': {
+		keys: ['F1-F24'],
+		description: 'Function keys',
+	},
+} as const;
+
+// Keep these for backward compatibility if needed
+export const LOCAL_MODIFIER_KEYS = ['meta', 'control', 'alt', 'shift'] as const;
 export const LOCAL_SPECIAL_KEYS = [
-	'backspace',
-	'tab',
-	'enter',
-	'escape',
-	' ',
-	'arrowup',
-	'arrowdown',
-	'arrowleft',
-	'arrowright',
-	'home',
-	'end',
-	'pageup',
-	'pagedown',
-	'delete',
+	...LOCAL_SHORTCUTS.Modifiers.keys,
+	...LOCAL_SHORTCUTS['Common Keys'].keys,
+	...LOCAL_SHORTCUTS.Navigation.keys,
 	'f1',
 	'f2',
 	'f3',
@@ -42,10 +111,6 @@ export const LOCAL_SPECIAL_KEYS = [
 	'f12',
 ] as const;
 
-/**
- * Valid Electron accelerator modifiers for global shortcuts
- * These follow the Electron Accelerator specification
- */
 export const GLOBAL_MODIFIER_KEYS = [
 	'Command',
 	'Cmd',
@@ -61,145 +126,10 @@ export const GLOBAL_MODIFIER_KEYS = [
 	'Meta',
 ] as const;
 
-/**
- * Valid Electron accelerator key codes for global shortcuts
- * These follow the Electron Accelerator specification
- */
 export const GLOBAL_KEY_CODES = {
-	letters: [
-		'A',
-		'B',
-		'C',
-		'D',
-		'E',
-		'F',
-		'G',
-		'H',
-		'I',
-		'J',
-		'K',
-		'L',
-		'M',
-		'N',
-		'O',
-		'P',
-		'Q',
-		'R',
-		'S',
-		'T',
-		'U',
-		'V',
-		'W',
-		'X',
-		'Y',
-		'Z',
-	],
-	numbers: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-	functionKeys: [
-		'F1',
-		'F2',
-		'F3',
-		'F4',
-		'F5',
-		'F6',
-		'F7',
-		'F8',
-		'F9',
-		'F10',
-		'F11',
-		'F12',
-		'F13',
-		'F14',
-		'F15',
-		'F16',
-		'F17',
-		'F18',
-		'F19',
-		'F20',
-		'F21',
-		'F22',
-		'F23',
-		'F24',
-	],
-	specialKeys: [
-		'Plus',
-		'Space',
-		'Tab',
-		'Capslock',
-		'Numlock',
-		'Scrolllock',
-		'Backspace',
-		'Delete',
-		'Insert',
-		'Return',
-		'Enter',
-		'Up',
-		'Down',
-		'Left',
-		'Right',
-		'Home',
-		'End',
-		'PageUp',
-		'PageDown',
-		'Escape',
-		'VolumeUp',
-		'VolumeDown',
-		'VolumeMute',
-		'MediaNextTrack',
-		'MediaPreviousTrack',
-		'MediaStop',
-		'MediaPlayPause',
-	],
-	numpadKeys: [
-		'num0',
-		'num1',
-		'num2',
-		'num3',
-		'num4',
-		'num5',
-		'num6',
-		'num7',
-		'num8',
-		'num9',
-		'numdec',
-		'numadd',
-		'numsub',
-		'nummult',
-		'numdiv',
-	],
-	punctuation: [
-		'!',
-		'@',
-		'#',
-		'$',
-		'%',
-		'^',
-		'&',
-		'*',
-		'(',
-		')',
-		'-',
-		'_',
-		'=',
-		'+',
-		'[',
-		']',
-		'{',
-		'}',
-		'\\',
-		'|',
-		';',
-		':',
-		"'",
-		'"',
-		',',
-		'.',
-		'<',
-		'>',
-		'/',
-		'?',
-		'`',
-		'~',
+	'Special Keys': [
+		...GLOBAL_SHORTCUTS['Common Keys'].keys,
+		...GLOBAL_SHORTCUTS.Navigation.keys,
 	],
 } as const;
 
@@ -207,7 +137,14 @@ export const GLOBAL_KEY_CODES = {
  * Examples for each shortcut type
  */
 export const SHORTCUT_EXAMPLES = {
-	local: [' ', 'ctrl+a', 'cmd+shift+p', 'alt+s', 'f5', 'ctrl+alt+delete'],
+	local: [
+		' ',
+		'control+a',
+		'command+shift+p',
+		'alt+s',
+		'f5',
+		'control+alt+delete',
+	],
 	global: [
 		'Space',
 		'Control+A',
