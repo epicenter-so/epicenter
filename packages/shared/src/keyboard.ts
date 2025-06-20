@@ -91,48 +91,6 @@ export const GLOBAL_SHORTCUTS = {
 	},
 } as const;
 
-// Keep these for backward compatibility if needed
-export const LOCAL_MODIFIER_KEYS = ['meta', 'control', 'alt', 'shift'] as const;
-export const LOCAL_SPECIAL_KEYS = [
-	...LOCAL_SHORTCUTS.Modifiers.keys,
-	...LOCAL_SHORTCUTS['Common Keys'].keys,
-	...LOCAL_SHORTCUTS.Navigation.keys,
-	'f1',
-	'f2',
-	'f3',
-	'f4',
-	'f5',
-	'f6',
-	'f7',
-	'f8',
-	'f9',
-	'f10',
-	'f11',
-	'f12',
-] as const;
-
-export const GLOBAL_MODIFIER_KEYS = [
-	'Command',
-	'Cmd',
-	'Control',
-	'Ctrl',
-	'CommandOrControl',
-	'CmdOrCtrl',
-	'Alt',
-	'Option',
-	'AltGr',
-	'Shift',
-	'Super',
-	'Meta',
-] as const;
-
-export const GLOBAL_KEY_CODES = {
-	'Special Keys': [
-		...GLOBAL_SHORTCUTS['Common Keys'].keys,
-		...GLOBAL_SHORTCUTS.Navigation.keys,
-	],
-} as const;
-
 /**
  * Examples for each shortcut type
  */
