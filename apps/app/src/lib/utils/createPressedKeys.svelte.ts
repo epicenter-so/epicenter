@@ -15,7 +15,11 @@ import { createSubscriber } from 'svelte/reactivity';
  *
  * @example
  * ```ts
+ * // Default usage (prevents browser shortcuts)
  * const pressedKeys = createPressedKeys();
+ *
+ * // Allow browser shortcuts to work
+ * const pressedKeys = createPressedKeys({ preventDefault: false });
  *
  * // In a reactive context
  * $effect(() => {
@@ -26,6 +30,11 @@ import { createSubscriber } from 'svelte/reactivity';
 export function createPressedKeys({
 	preventDefault = true,
 }: {
+	/**
+	 * Whether to call preventDefault() on keydown events.
+	 * - true (default): Blocks browser shortcuts (e.g., Ctrl+S won't save the page)
+	 * - false: Allows browser shortcuts to execute alongside key tracking
+	 */
 	preventDefault?: boolean;
 } = {}) {
 	/**
@@ -33,6 +42,11 @@ export function createPressedKeys({
 	 */
 	let pressedKeys = $state<string[]>([]);
 
+	/**
+	 * Creates a reactive subscription that tracks key events.
+	 * The createSubscriber pattern ensures event listeners are only attached
+	 * when the pressedKeys.current getter is accessed in a reactive context.
+	 */
 	const subscribe = createSubscriber((update) => {
 		const keydown = on(window, 'keydown', (e) => {
 			if (preventDefault) {
@@ -42,7 +56,7 @@ export function createPressedKeys({
 			if (!pressedKeys.includes(key)) {
 				pressedKeys.push(key);
 			}
-			update();
+			update(); // Notify reactive contexts of state change
 		});
 
 		const keyup = on(window, 'keyup', (e) => {
@@ -90,6 +104,14 @@ export function createPressedKeys({
 	});
 
 	return {
+		/**
+		 * Gets the current array of pressed keys.
+		 *
+		 * This getter is reactive - accessing it in a reactive context (like $effect)
+		 * will cause that context to re-run whenever the pressed keys change.
+		 *
+		 * @returns Array of currently pressed key names in lowercase
+		 */
 		get current() {
 			subscribe();
 			return pressedKeys;
