@@ -54,14 +54,9 @@ const PlaySoundService = window.__TAURI_INTERNALS__
 // Static services (platform-agnostic)
 const VadService = createVadServiceWeb();
 
-const DbService = createDbServiceDexie({
-	DownloadService,
-});
+const DbService = createDbServiceDexie({ DownloadService });
 
-const TransformerService = createTransformerService({
-	HttpService,
-	DbService,
-});
+const TransformerService = createTransformerService({ HttpService, DbService });
 
 const NavigatorRecorderService = createManualRecorderService();
 const CpalRecorderService = createCpalRecorderService();
@@ -128,13 +123,7 @@ export const services = {
 
 	manualRecorder: NavigatorRecorderService,
 	cpalRecorder: CpalRecorderService,
-	sound: {
-		playSoundIfEnabled: (soundName: WhisperingSoundNames) => {
-			if (settings.value[`sound.playOn.${soundName}`]) {
-				PlaySoundService.playSound(soundName);
-			}
-		},
-	},
+	sound: PlaySoundService,
 
 	localShortcutManager: LocalShortcutManager,
 

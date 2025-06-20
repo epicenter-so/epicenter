@@ -22,6 +22,7 @@ import { transformationRuns } from './_queries/transformationRuns';
 import { transformations } from './_queries/transformations';
 import { transformer } from './_queries/transformer';
 import { vadRecorder } from './_queries/vadRecorder';
+import { sound } from './_queries/sound';
 
 /**
  * Unified namespace for all query operations.
@@ -36,6 +37,7 @@ export const rpc = {
 	vadRecorder,
 	recordings,
 	shortcuts,
+	sound,
 	transcription,
 	transformations,
 	transformationRuns,

@@ -35,7 +35,7 @@ const stopManualRecording = async () => {
 		description: 'Your recording has been saved',
 	});
 	console.info('Recording stopped');
-	services.sound.playSoundIfEnabled('manual-stop');
+	rpc.sound.playSoundIfEnabled.execute('manual-stop');
 
 	await saveRecordingAndTranscribeTransform({
 		blob,
@@ -119,7 +119,7 @@ const startManualRecording = async () => {
 		}
 	}
 	console.info('Recording started');
-	services.sound.playSoundIfEnabled('manual-start');
+	rpc.sound.playSoundIfEnabled.execute('manual-start');
 };
 
 const stopCpalRecording = async () => {
@@ -147,7 +147,7 @@ const stopCpalRecording = async () => {
 		description: 'Your recording has been saved',
 	});
 	console.info('CPAL Recording stopped');
-	services.sound.playSoundIfEnabled('cpal-stop');
+	rpc.sound.playSoundIfEnabled.execute('cpal-stop');
 
 	await saveRecordingAndTranscribeTransform({
 		blob,
@@ -186,7 +186,7 @@ const startCpalRecording = async () => {
 		description: 'Speak now and stop recording when done',
 	});
 	console.info('CPAL Recording started');
-	services.sound.playSoundIfEnabled('cpal-start');
+	rpc.sound.playSoundIfEnabled.execute('cpal-start');
 };
 
 type SatisfiedCommand = {
@@ -265,7 +265,7 @@ export const commands = [
 						title: '✅ All Done!',
 						description: 'Recording cancelled successfully',
 					});
-					services.sound.playSoundIfEnabled('manual-cancel');
+					rpc.sound.playSoundIfEnabled.execute('manual-cancel');
 					console.info('Recording cancelled');
 					break;
 				}
@@ -341,7 +341,7 @@ export const commands = [
 									title: '✅ All Done!',
 									description: 'CPAL recording cancelled successfully',
 								});
-								services.sound.playSoundIfEnabled('cpal-cancel');
+								rpc.sound.playSoundIfEnabled.execute('cpal-cancel');
 								console.info('CPAL Recording cancelled');
 								break;
 							}
@@ -403,7 +403,7 @@ export const commands = [
 					title: '🎙️ Voice activated capture stopped',
 					description: 'Your voice activated capture has been stopped.',
 				});
-				services.sound.playSoundIfEnabled('vad-stop');
+				rpc.sound.playSoundIfEnabled.execute('vad-stop');
 				return;
 			}
 			const toastId = nanoid();
@@ -429,7 +429,7 @@ export const commands = [
 							description: 'Your voice activated speech has been captured.',
 						});
 						console.info('Voice activated speech captured');
-						services.sound.playSoundIfEnabled('vad-capture');
+						rpc.sound.playSoundIfEnabled.execute('vad-capture');
 
 						await saveRecordingAndTranscribeTransform({
 							blob,
@@ -449,7 +449,7 @@ export const commands = [
 				title: '🎙️ Voice activated capture started',
 				description: 'Your voice activated capture has been started.',
 			});
-			services.sound.playSoundIfEnabled('vad-start');
+			rpc.sound.playSoundIfEnabled.execute('vad-start');
 		},
 	},
 ] as const satisfies SatisfiedCommand[];
@@ -551,7 +551,7 @@ async function saveRecordingAndTranscribeTransform({
 		return;
 	}
 
-	services.sound.playSoundIfEnabled('transcriptionComplete');
+	rpc.sound.playSoundIfEnabled.execute('transcriptionComplete');
 
 	await deliverTranscribedText({ text: transcribedText, toastId });
 
@@ -624,7 +624,7 @@ async function saveRecordingAndTranscribeTransform({
 			return;
 		}
 
-		services.sound.playSoundIfEnabled('transformationComplete');
+		rpc.sound.playSoundIfEnabled.execute('transformationComplete');
 
 		await deliverTransformedText({ text: transformationRun.output, toastId });
 	}
