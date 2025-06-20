@@ -71,22 +71,23 @@ export function createGlobalShortcutManager() {
 			const { error: registerError } = await tryAsync({
 				try: () =>
 					tauriRegister(accelerator, (event) => {
-						if (
-							event.state === 'Pressed' &&
-							(on === 'Pressed' || on === 'Both')
-						) {
+						if (on === 'Both') {
 							callback();
-						} else if (
-							event.state === 'Released' &&
-							(on === 'Released' || on === 'Both')
-						) {
+							return;
+						}
+						if (on === 'Pressed' && event.state === 'Pressed') {
 							callback();
+							return;
+						}
+						if (on === 'Released' && event.state === 'Released') {
+							callback();
+							return;
 						}
 					}),
 				mapError: (error): GlobalShortcutServiceError => ({
 					name: 'GlobalShortcutServiceError',
 					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
-					context: { id, accelerator, originalError: error },
+					context: { id, accelerator, error },
 					cause: error,
 				}),
 			});
