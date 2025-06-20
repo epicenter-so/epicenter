@@ -42,7 +42,7 @@
 			variant="ghost"
 			class="-ml-4"
 		>
-			<span class="text-lg font-bold">whispering</span>
+			<span class="sm:text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
 	{#if settings.value['recording.mode'] === 'manual'}

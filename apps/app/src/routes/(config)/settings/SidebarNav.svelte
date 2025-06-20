@@ -20,7 +20,7 @@
 </script>
 
 <nav
-	class={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1', className)}
+	class={cn('flex gap-2 lg:flex-col lg:gap-1 overflow-auto', className)}
 	aria-label="Settings navigation"
 >
 	{#each items as item (item.href)}
