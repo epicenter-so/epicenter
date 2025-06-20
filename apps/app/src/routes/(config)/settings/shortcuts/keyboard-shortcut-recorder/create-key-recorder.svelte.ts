@@ -1,16 +1,23 @@
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
-const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys
-const MIN_KEY_HOLD_MS = 20; // Minimum time a key needs to be held to register
+const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination
 
 /**
- * Creates a keyboard shortcut recorder with state management and event handling
+ * Creates a keyboard shortcut recorder that captures key combinations
  *
- * Uses a "capture window" approach:
- * - Keys are captured immediately when pressed (no waiting)
- * - The capture window extends each time a new key is added
- * - Combination completes when window expires OR all keys are released
- * - This allows both quick taps and held combinations to work smoothly
+ * How it works:
+ * 1. When recording starts, any pressed keys are captured
+ * 2. Each new key extends a 300ms capture window
+ * 3. The combination completes when:
+ *    - All keys are released (immediate), OR
+ *    - The capture window expires (300ms after last key)
+ * 4. Escape key cancels recording at any time
+ *
+ * This approach handles all common patterns:
+ * - Quick taps (Ctrl+C)
+ * - Held modifiers (Cmd+Shift+P)
+ * - Single keys (F5)
+ * - Complex combinations built over time
  */
 export function createKeyRecorder({
 	pressedKeys,
@@ -21,93 +28,67 @@ export function createKeyRecorder({
 	onRegister: (keyCombination: string[]) => void;
 	onClear: () => void | Promise<void>;
 }) {
+	// State
 	let isListening = $state(false);
-	const capturedKeys: Set<string> = new Set();
-	const keyPressTimestamps: Map<string, number> = new Map();
+	const capturedKeys = new Set<string>();
+	let captureWindowTimer: NodeJS.Timeout | null = null;
 
-	let captureWindowTimeout: NodeJS.Timeout | null = null;
-	let allKeysReleasedTimeout: NodeJS.Timeout | null = null;
-
-	function clearTimeouts() {
-		if (captureWindowTimeout) {
-			clearTimeout(captureWindowTimeout);
-			captureWindowTimeout = null;
-		}
-		if (allKeysReleasedTimeout) {
-			clearTimeout(allKeysReleasedTimeout);
-			allKeysReleasedTimeout = null;
+	// Helper: Clear the capture window timer
+	function clearCaptureTimer() {
+		if (captureWindowTimer) {
+			clearTimeout(captureWindowTimer);
+			captureWindowTimer = null;
 		}
 	}
 
-	function completeCombination() {
+	// Helper: Complete the key combination
+	function completeRecording() {
 		if (!isListening || capturedKeys.size === 0) return;
 
-		clearTimeouts();
+		clearCaptureTimer();
+		isListening = false;
 
-		// Filter out keys that were just tapped too briefly
-		const now = Date.now();
-		const validKeys = Array.from(capturedKeys).filter((key) => {
-			const pressTime = keyPressTimestamps.get(key);
-			return (
-				pressTime &&
-				(now - pressTime >= MIN_KEY_HOLD_MS ||
-					pressedKeys.current.includes(key))
-			);
-		});
-
-		if (validKeys.length > 0) {
-			isListening = false;
-			onRegister(validKeys);
-		}
-
+		// Convert Set to Array for registration
+		const combination = Array.from(capturedKeys);
 		capturedKeys.clear();
-		keyPressTimestamps.clear();
+
+		onRegister(combination);
 	}
 
+	// Main effect: Watch for key changes
 	$effect(() => {
 		if (!isListening) return;
 
-		// Handle escape key
+		// Escape key cancels recording
 		if (pressedKeys.current.includes('escape')) {
 			isListening = false;
-			clearTimeouts();
+			clearCaptureTimer();
 			capturedKeys.clear();
-			keyPressTimestamps.clear();
 			return;
 		}
 
-		// Add any new keys to our captured set
-		const now = Date.now();
+		// Track new keys
 		let hasNewKeys = false;
-
 		for (const key of pressedKeys.current) {
 			if (!capturedKeys.has(key)) {
 				capturedKeys.add(key);
-				keyPressTimestamps.set(key, now);
 				hasNewKeys = true;
 			}
 		}
 
-		// If we have new keys, reset the capture window
+		// New keys extend the capture window
 		if (hasNewKeys && capturedKeys.size > 0) {
-			clearTimeouts();
-
-			// Set a new capture window timeout
-			captureWindowTimeout = setTimeout(() => {
-				completeCombination();
-			}, CAPTURE_WINDOW_MS);
+			clearCaptureTimer();
+			captureWindowTimer = setTimeout(completeRecording, CAPTURE_WINDOW_MS);
 		}
 
-		// If all keys are released, complete after a short delay
+		// All keys released = immediate completion
 		if (pressedKeys.current.length === 0 && capturedKeys.size > 0) {
-			if (!allKeysReleasedTimeout) {
-				allKeysReleasedTimeout = setTimeout(() => {
-					completeCombination();
-				}, 50); // Small delay to catch very quick key sequences
-			}
+			completeRecording();
 		}
 	});
 
+	// Public API
 	return {
 		get isListening() {
 			return isListening;
@@ -115,20 +96,17 @@ export function createKeyRecorder({
 		start() {
 			isListening = true;
 			capturedKeys.clear();
-			keyPressTimestamps.clear();
-			clearTimeouts();
+			clearCaptureTimer();
 		},
 		stop() {
 			isListening = false;
 			capturedKeys.clear();
-			keyPressTimestamps.clear();
-			clearTimeouts();
+			clearCaptureTimer();
 		},
 		async clear() {
 			isListening = false;
 			capturedKeys.clear();
-			keyPressTimestamps.clear();
-			clearTimeouts();
+			clearCaptureTimer();
 			await onClear();
 		},
 		register: onRegister,
