@@ -1,3 +1,8 @@
+import {
+	isSupportedKey,
+	type PossibleKey,
+	type SupportedKey,
+} from '$lib/services/shortcuts/createLocalShortcutManager';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 
@@ -40,7 +45,7 @@ export function createPressedKeys({
 	/**
 	 * Pressed and normalized keys, internally stored and synced via createSubscriber.
 	 */
-	let pressedKeys = $state<string[]>([]);
+	let pressedKeys = $state<SupportedKey[]>([]);
 
 	/**
 	 * Creates a reactive subscription that tracks key events.
@@ -52,7 +57,10 @@ export function createPressedKeys({
 			if (preventDefault) {
 				e.preventDefault();
 			}
-			const key = e.key.toLowerCase();
+			const key = e.key.toLowerCase() as PossibleKey;
+
+			if (!isSupportedKey(key)) return;
+
 			if (!pressedKeys.includes(key)) {
 				pressedKeys.push(key);
 			}
@@ -60,7 +68,9 @@ export function createPressedKeys({
 		});
 
 		const keyup = on(window, 'keyup', (e) => {
-			const key = e.key.toLowerCase();
+			const key = e.key.toLowerCase() as PossibleKey;
+
+			if (!isSupportedKey(key)) return;
 
 			// Special handling for modifier keys (meta, control, alt, shift)
 			// This addresses issues with OS/browser intercepting certain key combinations
