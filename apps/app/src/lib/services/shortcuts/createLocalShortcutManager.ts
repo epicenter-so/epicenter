@@ -264,8 +264,10 @@ export const POSSIBLE_KEY_VALUES = [
 export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
 
 /**
- * Comprehensive list of all supported key values that can be returned by `e.key.toLowerCase()`.
- * We will use this to validate the key values that are passed to the shortcut manager.
+ * Our curated list of keyboard keys that we've chosen to support for shortcuts.
+ * This is an intentional subset of POSSIBLE_KEY_VALUES, excluding keys that are
+ * impractical, problematic, or unnecessary for typical shortcut use cases.
+ * We use this to validate and constrain which keys can be used in shortcuts.
  */
 export const SUPPORTED_KEY_VALUES = [
 	// Letters (lowercase)
@@ -455,31 +457,36 @@ export const SUPPORTED_KEY_VALUES = [
 ] as const;
 
 /**
- * Branded type representing keyboard keys that are officially supported
- * by the local shortcut manager. This is a subset of PossibleKey that
- * excludes keys that are rarely used or problematic for shortcuts.
+ * Branded type representing keyboard keys that we've explicitly chosen to support
+ * in our application. This is our deliberate subset of PossibleKey - we've made
+ * conscious decisions about which keys make sense for shortcuts and which don't.
  *
  * The brand ensures type safety by preventing arbitrary strings from being
- * used where SupportedKey is expected, even if they match the literal values.
+ * used where SupportedKey is expected. When you call isSupportedKey(), you get
+ * both runtime validation AND compile-time type narrowing.
  *
- * @see {@link isSupportedKey} Type guard to check if a PossibleKey is supported
+ * @see {@link isSupportedKey} Type guard to validate and narrow PossibleKey to SupportedKey
+ * @see {@link SUPPORTED_KEY_VALUES} The actual list of keys we've chosen to support
  */
 export type SupportedKey = (typeof SUPPORTED_KEY_VALUES)[number] &
 	Brand<'SupportedKey'>;
 
 /**
- * Type guard that checks if a given PossibleKey is a SupportedKey.
- * This function validates that a key value is in the list of supported keys
- * that can be used for local keyboard shortcuts.
+ * Type guard that validates whether a PossibleKey (any key from the browser)
+ * is one of our chosen SupportedKeys. This function acts as a gatekeeper,
+ * filtering out keys we've decided not to support while providing type safety.
  *
- * @param key - The key value to check (from KeyboardEvent.key.toLowerCase())
- * @returns True if the key is supported for use in shortcuts, false otherwise
+ * When this returns true, TypeScript narrows the type from PossibleKey to
+ * SupportedKey, giving you compile-time guarantees about the key's validity.
+ *
+ * @param key - Any key value from KeyboardEvent.key.toLowerCase()
+ * @returns True if we've chosen to support this key for shortcuts, false otherwise
  *
  * @example
  * ```typescript
  * const key = e.key.toLowerCase() as PossibleKey;
  * if (isSupportedKey(key)) {
- *   // key is now typed as SupportedKey
+ *   // TypeScript now knows this is a SupportedKey - our validated choice!
  *   pressedKeys.push(key);
  * }
  * ```
@@ -684,6 +691,6 @@ export type LocalShortcutManager = ReturnType<
  * arraysMatch(['ctrl', 'a'], ['ctrl', 'a', 'shift']) // returns false
  * ```
  */
-export function arraysMatch(a: string[], b: string[]) {
+function arraysMatch(a: string[], b: string[]) {
 	return a.length === b.length && a.every((key) => b.includes(key));
 }
