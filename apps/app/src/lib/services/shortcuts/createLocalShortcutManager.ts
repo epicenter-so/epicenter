@@ -518,12 +518,32 @@ export function createLocalShortcutManager() {
 		 * @returns Cleanup function that removes all event listeners when called
 		 */
 		listen() {
-			/** Array tracking currently pressed keys in lowercase format */
+			/**
+			 * Array tracking currently pressed keys in lowercase format.
+			 * Maintains real-time state of which keys are physically held down.
+			 * Updated on every keydown (adds key) and keyup (removes key) event.
+			 */
 			let pressedKeys: SupportedKey[] = [];
-			/** Set tracking which shortcuts are currently active (held down) */
+			/**
+			 * Set tracking which shortcuts have already been triggered and are currently active.
+			 * This prevents key repeat spam when holding down keys - without this, holding
+			 * spacebar would trigger the shortcut many times per second!
+			 *
+			 * When a shortcut is triggered:
+			 * 1. Its ID is added to this set, marking it as "already fired"
+			 * 2. Future keydown events with the same key combo are ignored
+			 * 3. The ID is only removed when all keys are released or focus is lost
+			 *
+			 * This ensures each key combination fires exactly once per physical press,
+			 * regardless of how long the user holds the keys down.
+			 */
 			const activeShortcuts = new Set<CommandId>();
 
-			/** Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts */
+			/**
+			 * Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts.
+			 * Fires repeatedly while a key is held down (due to OS key repeat), but activeShortcuts
+			 * ensures callbacks only fire once per physical key press.
+			 */
 			const keydown = on(window, 'keydown', (e) => {
 				const key = e.key.toLowerCase() as PossibleKey;
 
@@ -544,14 +564,20 @@ export function createLocalShortcutManager() {
 					e.preventDefault();
 
 					// Only trigger callback if shortcut not already active
+					// This is the key anti-spam mechanism: if the shortcut ID is already
+					// in activeShortcuts, we know it's been triggered and should not fire again
 					if (!activeShortcuts.has(id) && (on === 'Both' || on === 'Pressed')) {
-						activeShortcuts.add(id);
+						activeShortcuts.add(id); // Mark as active BEFORE calling callback
 						callback();
 					}
 				}
 			});
 
-			/** Handle keyup events - removes keys from pressed state and triggers 'Released' shortcuts */
+			/**
+			 * Handle keyup events - removes keys from pressed state and triggers 'Released' shortcuts.
+			 * Also responsible for clearing activeShortcuts to allow shortcuts to fire again
+			 * on the next key press.
+			 */
 			const keyup = on(window, 'keyup', (e) => {
 				const key = e.key.toLowerCase() as PossibleKey;
 
