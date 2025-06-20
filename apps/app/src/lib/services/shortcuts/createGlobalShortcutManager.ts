@@ -85,7 +85,7 @@ export function createGlobalShortcutManager() {
 					}),
 				mapError: (error) => ({
 					name: 'GlobalShortcutServiceError',
-					message: `Failed to register global shortcut '${accelerator}': ${error instanceof Error ? error.message : String(error)}`,
+					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					context: { id, accelerator, originalError: error },
 					cause: error,
 				}),
