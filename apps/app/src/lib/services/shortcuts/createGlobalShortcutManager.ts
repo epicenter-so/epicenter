@@ -149,7 +149,7 @@ export function createGlobalShortcutManager() {
 /**
  * Valid Electron accelerator modifiers
  */
-const VALID_MODIFIERS = new Set([
+const ACCELERATOR_MODIFIERS = [
 	'Command',
 	'Cmd',
 	'Control',
@@ -162,12 +162,12 @@ const VALID_MODIFIERS = new Set([
 	'Shift',
 	'Super',
 	'Meta',
-] as const);
+] as const;
 
 /**
  * Valid Electron accelerator key codes
  */
-const VALID_KEY_CODES = new Set([
+const ACCELERATOR_KEY_CODES = [
 	// Numbers 0 to 9
 	'0',
 	'1',
@@ -311,7 +311,7 @@ const VALID_KEY_CODES = new Set([
 	'numsub',
 	'nummult',
 	'numdiv',
-] as const);
+] as const;
 
 /**
  * Validates if a string is a valid Electron accelerator
@@ -324,12 +324,14 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 	const lastPart = parts.at(-1);
 
 	// Last part must be a key code
-	const isLastPartValidKeyCode = VALID_KEY_CODES.has(lastPart as any);
+	const isLastPartValidKeyCode = ACCELERATOR_KEY_CODES.includes(
+		lastPart as any,
+	);
 	if (!isLastPartValidKeyCode) return false;
 
 	// All other parts must be modifiers
 	for (const modifier of modifiers) {
-		if (!VALID_MODIFIERS.has(modifier as any)) return false;
+		if (!ACCELERATOR_MODIFIERS.includes(modifier as any)) return false;
 	}
 
 	// Check for duplicate modifiers
