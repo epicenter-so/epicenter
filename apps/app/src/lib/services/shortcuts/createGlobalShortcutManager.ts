@@ -355,9 +355,9 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
  */
 export function pressedKeysToTauriAccelerator(
 	pressedKeys: SupportedKey[],
-): string {
-	const modifiers: string[] = [];
-	const keyCodes: string[] = [];
+): Result<Accelerator, InvalidAcceleratorError> {
+	const modifiers: AcceleratorModifier[] = [];
+	const keyCodes: AcceleratorKeyCode[] = [];
 
 	for (const key of pressedKeys) {
 		const modifier = convertToModifier(key);
@@ -373,41 +373,69 @@ export function pressedKeysToTauriAccelerator(
 
 	// Must have exactly one key code
 	if (keyCodes.length === 0) {
-		throw new Error('No valid key code found in pressed keys');
+		return Err({
+			name: 'InvalidAcceleratorError',
+			message: 'No valid key code found in pressed keys',
+			context: { pressedKeys },
+			cause: undefined,
+		});
 	}
 	if (keyCodes.length > 1) {
-		throw new Error('Multiple key codes not allowed in accelerator');
+		return Err({
+			name: 'InvalidAcceleratorError',
+			message: 'Multiple key codes not allowed in accelerator',
+			context: { pressedKeys, keyCodes },
+			cause: undefined,
+		});
 	}
 
+	// Sort modifiers in standard order for consistency
+	const sortedModifiers = sortModifiers(modifiers);
+
 	// Build accelerator
-	const accelerator = [...modifiers, keyCodes[0]].join('+');
+	const accelerator = [...sortedModifiers, keyCodes[0]].join(
+		'+',
+	) as Accelerator;
 
 	// Final validation
 	if (!isValidElectronAccelerator(accelerator)) {
-		throw new Error(`Generated invalid accelerator: ${accelerator}`);
+		return Err({
+			name: 'InvalidAcceleratorError',
+			message: `Generated invalid accelerator: ${accelerator}`,
+			context: { pressedKeys, accelerator },
+			cause: undefined,
+		});
 	}
 
-	return accelerator;
+	return Ok(accelerator);
 }
 
 /**
  * Convert a key to an Electron modifier (returns null if not a modifier)
  */
-function convertToModifier(key: string): AcceleratorModifier | null {
-	const normalized = key.toLowerCase();
-	switch (normalized) {
+function convertToModifier(key: SupportedKey): AcceleratorModifier | null {
+	switch (key) {
+		// Use CommandOrControl for cross-platform compatibility
 		case 'control':
-			return 'Control';
-		case 'command':
 		case 'meta':
 			return 'CommandOrControl';
 		case 'alt':
-		case 'option':
 			return 'Alt';
 		case 'shift':
 			return 'Shift';
+		case 'altgraph':
+			return 'AltGr';
+		// These are valid keyboard keys but not standard accelerator modifiers
 		case 'super':
-			return 'Super';
+		case 'hyper':
+		case 'fn':
+		case 'fnlock':
+		case 'capslock':
+		case 'numlock':
+		case 'scrolllock':
+		case 'symbol':
+		case 'symbollock':
+			return null;
 		default:
 			return null;
 	}
@@ -416,137 +444,134 @@ function convertToModifier(key: string): AcceleratorModifier | null {
 /**
  * Convert a key to an Electron key code (returns null if invalid)
  */
-function convertToKeyCode(key: string): AcceleratorKeyCode | null {
-	const normalized = key.toLowerCase();
-
-	// Special keys
-	switch (normalized) {
-		case 'space':
-			return 'Space';
-		case 'enter':
-		case 'return':
-			return 'Return';
-		case 'esc':
-		case 'escape':
-			return 'Escape';
-		case 'tab':
-			return 'Tab';
-		case 'backspace':
-			return 'Backspace';
-		case 'delete':
-			return 'Delete';
-		case 'insert':
-			return 'Insert';
-		case 'home':
-			return 'Home';
-		case 'end':
-			return 'End';
-		case 'pageup':
-			return 'PageUp';
-		case 'pagedown':
-			return 'PageDown';
-		case 'up':
-		case 'arrowup':
-			return 'Up';
-		case 'down':
-		case 'arrowdown':
-			return 'Down';
-		case 'left':
-		case 'arrowleft':
-			return 'Left';
-		case 'right':
-		case 'arrowright':
-			return 'Right';
-		case 'capslock':
-			return 'Capslock';
-		case 'numlock':
-			return 'Numlock';
-		case 'scrolllock':
-			return 'Scrolllock';
+function convertToKeyCode(key: SupportedKey): AcceleratorKeyCode | null {
+	// Single letters - convert to uppercase
+	if (key.length === 1 && key >= 'a' && key <= 'z') {
+		return key.toUpperCase() as AcceleratorKeyCode;
 	}
 
-	// Function keys
-	if (/^f(\d+)$/i.test(normalized)) {
-		const num = Number.parseInt(normalized.slice(1));
-		if (num >= 1 && num <= 24) {
-			return `F${num}`;
-		}
+	// Numbers - return as-is
+	if (key.length === 1 && key >= '0' && key <= '9') {
+		return key as AcceleratorKeyCode;
 	}
 
-	// Numbers
-	if (/^[0-9]$/.test(normalized)) {
-		return normalized;
+	// Function keys - convert to uppercase
+	if (key.match(/^f\d{1,2}$/)) {
+		return key.toUpperCase() as AcceleratorKeyCode;
 	}
 
-	// Letters
-	if (/^[a-z]$/.test(normalized)) {
-		return normalized.toUpperCase();
+	// Special key mappings
+	const keyMappings: Record<string, AcceleratorKeyCode> = {
+		// Arrow keys
+		arrowup: 'Up',
+		arrowdown: 'Down',
+		arrowleft: 'Left',
+		arrowright: 'Right',
+
+		// Whitespace
+		' ': 'Space',
+		enter: 'Enter',
+		tab: 'Tab',
+
+		// Special keys
+		escape: 'Escape',
+		backspace: 'Backspace',
+		delete: 'Delete',
+		insert: 'Insert',
+		home: 'Home',
+		end: 'End',
+		pageup: 'PageUp',
+		pagedown: 'PageDown',
+		printscreen: 'PrintScreen',
+
+		// Media keys
+		volumeup: 'VolumeUp',
+		volumedown: 'VolumeDown',
+		volumemute: 'VolumeMute',
+		mediaplaypause: 'MediaPlayPause',
+		mediastop: 'MediaStop',
+		mediatracknext: 'MediaNextTrack',
+		mediatrackprevious: 'MediaPreviousTrack',
+
+		// Lock keys (when used as regular keys, not modifiers)
+		capslock: 'Capslock',
+		numlock: 'Numlock',
+		scrolllock: 'Scrolllock',
+	};
+
+	if (keyMappings[key]) {
+		return keyMappings[key];
 	}
 
-	// Numpad keys
-	if (normalized.startsWith('numpad')) {
-		const numKey = normalized.replace('numpad', '');
-		switch (numKey) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				return `num${numKey}`;
-			case 'decimal':
-				return 'numdec';
-			case 'add':
-				return 'numadd';
-			case 'subtract':
-				return 'numsub';
-			case 'multiply':
-				return 'nummult';
-			case 'divide':
-				return 'numdiv';
-		}
+	// Punctuation and symbols - most are valid as-is
+	const validPunctuation = [
+		')',
+		'!',
+		'@',
+		'#',
+		'$',
+		'%',
+		'^',
+		'&',
+		'*',
+		'(',
+		':',
+		';',
+		'+',
+		'=',
+		'<',
+		',',
+		'_',
+		'-',
+		'>',
+		'.',
+		'?',
+		'/',
+		'~',
+		'`',
+		'{',
+		']',
+		'[',
+		'|',
+		'\\',
+		'}',
+		'"',
+		"'",
+	];
+
+	if (validPunctuation.includes(key)) {
+		return key as AcceleratorKeyCode;
 	}
 
-	// Common punctuation
-	switch (normalized) {
-		case '!':
-		case '@':
-		case '#':
-		case '$':
-		case '%':
-		case '^':
-		case '&':
-		case '*':
-		case '(':
-		case ')':
-		case '-':
-		case '_':
-		case '=':
-		case '+':
-		case '[':
-		case ']':
-		case '{':
-		case '}':
-		case '\\':
-		case '|':
-		case ';':
-		case ':':
-		case "'":
-		case '"':
-		case ',':
-		case '.':
-		case '<':
-		case '>':
-		case '/':
-		case '?':
-		case '`':
-		case '~':
-			return normalized;
-	}
-
+	// Key not supported as an accelerator key code
 	return null;
+}
+
+/**
+ * Sort modifiers in a standard order for consistency
+ * Order: CommandOrControl/Ctrl, Alt, Shift, Meta (if separate)
+ */
+function sortModifiers(
+	modifiers: AcceleratorModifier[],
+): AcceleratorModifier[] {
+	const order: Record<AcceleratorModifier, number> = {
+		Command: 1,
+		Cmd: 1,
+		Control: 1,
+		Ctrl: 1,
+		CommandOrControl: 1,
+		CmdOrCtrl: 1,
+		Alt: 2,
+		Option: 2,
+		AltGr: 3,
+		Shift: 4,
+		Super: 5,
+		Meta: 5,
+	};
+
+	return modifiers.sort((a, b) => {
+		const orderA = order[a] || 99;
+		const orderB = order[b] || 99;
+		return orderA - orderB;
+	});
 }

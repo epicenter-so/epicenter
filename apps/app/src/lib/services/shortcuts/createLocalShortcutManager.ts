@@ -468,8 +468,7 @@ export const SUPPORTED_KEY_VALUES = [
  * @see {@link isSupportedKey} Type guard to validate and narrow PossibleKey to SupportedKey
  * @see {@link SUPPORTED_KEY_VALUES} The actual list of keys we've chosen to support
  */
-export type SupportedKey = (typeof SUPPORTED_KEY_VALUES)[number] &
-	Brand<'SupportedKey'>;
+export type SupportedKey = (typeof SUPPORTED_KEY_VALUES)[number];
 
 /**
  * Type guard that validates whether a PossibleKey (any key from the browser)

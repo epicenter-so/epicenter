@@ -36,7 +36,17 @@
 				action: { type: 'more-details', error: unregisterError },
 			});
 		}
-		const accelerator = pressedKeysToTauriAccelerator(keyCombination);
+		const { data: accelerator, error: acceleratorError } =
+			pressedKeysToTauriAccelerator(keyCombination);
+
+		if (acceleratorError) {
+			toast.error({
+				title: 'Invalid shortcut combination',
+				description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
+				action: { type: 'more-details', error: acceleratorError },
+			});
+			return;
+		}
 
 		const { error: registerError } =
 			await rpc.shortcuts.registerCommandGlobally.execute({
