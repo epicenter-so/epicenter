@@ -125,7 +125,7 @@
 			isManualMode = false;
 		}
 		if (isOpen && autoFocus && !isManualMode) {
-			setTimeout(() => keyRecorder.start(), 100);
+			keyRecorder.start();
 		}
 	}}
 >
