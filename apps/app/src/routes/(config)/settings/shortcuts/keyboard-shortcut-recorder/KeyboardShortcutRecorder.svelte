@@ -1,27 +1,31 @@
 <script lang="ts">
-	import type { Command } from '$lib/commands';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
-	import type { Settings } from '@repo/shared/settings';
+	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
-	import type { KeyRecorder } from './create-key-recorder.svelte';
+	import { createKeyRecorder } from './create-key-recorder.svelte';
 
 	const {
 		title,
 		placeholder = 'Press a key combination',
 		autoFocus = true,
 		keyCombination,
-		keyRecorder,
+		onRegister,
+		onClear,
 	}: {
 		title: string;
 		placeholder?: string;
 		autoFocus?: boolean;
 		keyCombination: string | null;
-		keyRecorder: KeyRecorder;
+		onRegister: (keyCombination: string[]) => void | Promise<void>;
+		onClear: () => void | Promise<void>;
 	} = $props();
+
+	const pressedKeys = createPressedKeys();
+
+	const keyRecorder = createKeyRecorder({ pressedKeys, onRegister, onClear });
 
 	let isPopoverOpen = $state(false);
 	let isManualMode = $state(false);
