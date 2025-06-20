@@ -23,7 +23,11 @@ import { createSubscriber } from 'svelte/reactivity';
  * });
  * ```
  */
-export function createPressedKeys() {
+export function createPressedKeys({
+	preventDefault = true,
+}: {
+	preventDefault?: boolean;
+} = {}) {
 	/**
 	 * Pressed and normalized keys, internally stored and synced via createSubscriber.
 	 */
@@ -31,6 +35,9 @@ export function createPressedKeys() {
 
 	const subscribe = createSubscriber((update) => {
 		const keydown = on(window, 'keydown', (e) => {
+			if (preventDefault) {
+				e.preventDefault();
+			}
 			const key = e.key.toLowerCase();
 			if (!pressedKeys.includes(key)) {
 				pressedKeys.push(key);
