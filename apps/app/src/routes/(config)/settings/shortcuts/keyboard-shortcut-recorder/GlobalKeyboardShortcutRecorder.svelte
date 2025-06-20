@@ -6,7 +6,7 @@
 	import { toast } from '$lib/toast';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
-	import { createKeyRecorder } from './index.svelte';
+	import { createKeyRecorder } from './utils';
 
 	const {
 		command,
