@@ -24,7 +24,7 @@ import { createOpenaiTranscriptionService } from './transcription/whisper/openai
 import { createTransformerService } from './transformer';
 import { createVadServiceWeb } from './vad';
 import { createGlobalShortcutManager } from './shortcuts/createGlobalShortcutManager';
-import { createLocalShortcutManager } from './shortcuts/createLocalShortcutManager.svelte';
+import { createLocalShortcutManager } from './shortcuts/createLocalShortcutManager';
 
 // Static services (platform-dependent but not settings-dependent)
 const DownloadService = window.__TAURI_INTERNALS__

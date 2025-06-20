@@ -1,8 +1,8 @@
+import type { Brand } from '$lib/brand';
+import type { CommandId } from '$lib/commands';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
-import type { Brand } from '$lib/brand';
-import type { Command, CommandId } from '$lib/commands';
 
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
