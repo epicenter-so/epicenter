@@ -5,6 +5,13 @@
 	import { HelpCircle, ExternalLink } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import {
+		LOCAL_MODIFIER_KEYS,
+		GLOBAL_MODIFIER_KEYS,
+		LOCAL_SPECIAL_KEYS,
+		GLOBAL_KEY_CODES,
+		SHORTCUT_EXAMPLES,
+	} from '@repo/shared';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
@@ -51,40 +58,17 @@
 					<h4 class="mb-2 font-medium">Supported Modifiers</h4>
 					<div class="space-y-1">
 						{#if isLocal}
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">⇧</Badge>
-								<span>shift</span>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">⌥</Badge>
-								<span>option/alt</span>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">⌃</Badge>
-								<span>ctrl/control</span>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">⌘</Badge>
-								<span>command</span>
-							</div>
+							{#each LOCAL_MODIFIER_KEYS as modifier}
+								<div class="flex items-center gap-2 text-sm">
+									<Badge variant="outline" class="font-mono">{modifier}</Badge>
+								</div>
+							{/each}
 						{:else}
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">Shift</Badge>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">Alt</Badge>
-								<span class="text-muted-foreground">/ Option on macOS</span>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">Control</Badge>
-								<span class="text-muted-foreground">/ Ctrl</span>
-							</div>
-							<div class="flex items-center gap-2 text-sm">
-								<Badge variant="outline" class="font-mono">
-									CommandOrControl
-								</Badge>
-								<span class="text-muted-foreground">/ Cmd on macOS</span>
-							</div>
+							{#each GLOBAL_MODIFIER_KEYS as modifier}
+								<div class="flex items-center gap-2 text-sm">
+									<Badge variant="outline" class="font-mono">{modifier}</Badge>
+								</div>
+							{/each}
 						{/if}
 					</div>
 				</div>
@@ -93,51 +77,13 @@
 					<h4 class="mb-2 font-medium">Special Keys</h4>
 					<div class="flex flex-wrap gap-1">
 						{#if isLocal}
-							{@const keys = [
-								'backspace',
-								'tab',
-								'clear',
-								'enter',
-								'return',
-								'esc',
-								'escape',
-								'space',
-								'up',
-								'down',
-								'left',
-								'right',
-								'home',
-								'end',
-								'pageup',
-								'pagedown',
-								'del',
-								'delete',
-								'f1-f19',
-							]}
-							{#each keys as key}
-								<Badge variant="secondary" class="font-mono text-xs"
-									>{key}</Badge
-								>
+							{#each LOCAL_SPECIAL_KEYS as key}
+								<Badge variant="secondary" class="font-mono text-xs">
+									{key}
+								</Badge>
 							{/each}
 						{:else}
-							{@const keys = [
-								'Backspace',
-								'Tab',
-								'Enter',
-								'Escape',
-								'Space',
-								'ArrowUp',
-								'ArrowDown',
-								'ArrowLeft',
-								'ArrowRight',
-								'Home',
-								'End',
-								'PageUp',
-								'PageDown',
-								'Delete',
-								'F1-F12',
-							]}
-							{#each keys as key}
+							{#each GLOBAL_KEY_CODES.specialKeys as key}
 								<Badge variant="secondary" class="font-mono text-xs">
 									{key}
 								</Badge>
@@ -151,19 +97,9 @@
 			<div>
 				<h4 class="mb-2 font-medium">Examples</h4>
 				<div class="space-y-2 rounded-lg border p-3">
-					{#if isLocal}
-						<code class="block text-sm">ctrl+a</code>
-						<code class="block text-sm">command+shift+p</code>
-						<code class="block text-sm">alt+s</code>
-						<code class="block text-sm">f5</code>
-						<code class="block text-sm">space</code>
-					{:else}
-						<code class="block text-sm">Control+A</code>
-						<code class="block text-sm">CommandOrControl+Shift+P</code>
-						<code class="block text-sm">Alt+S</code>
-						<code class="block text-sm">F5</code>
-						<code class="block text-sm">Space</code>
-					{/if}
+					{#each SHORTCUT_EXAMPLES[isLocal ? 'local' : 'global'] as example}
+						<code class="block text-sm">{example}</code>
+					{/each}
 				</div>
 			</div>
 		</div>
