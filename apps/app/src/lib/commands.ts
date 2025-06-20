@@ -191,8 +191,8 @@ const startCpalRecording = async () => {
 type SatisfiedCommand = {
 	id: string;
 	title: string;
-	defaultLocalShortcut: string;
-	defaultGlobalShortcut: string;
+	defaultLocalShortcut: string | null;
+	defaultGlobalShortcut: string | null;
 	on: ShortcutTriggerState;
 	callback: () => void;
 };
@@ -271,78 +271,84 @@ export const commands = [
 			}
 		},
 	},
-	{
-		id: 'toggleCpalRecording',
-		title: 'Toggle CPAL recording',
-		defaultLocalShortcut: 'n',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+[',
-		on: 'Pressed',
-		callback: async () => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await rpc.cpalRecorder.getRecorderState.fetchCached();
-			if (getRecorderStateError) {
-				toast.error({
-					id: nanoid(),
-					title: '❌ Failed to get CPAL recorder state',
-					description: 'Your recording could not be started. Please try again.',
-					action: { type: 'more-details', error: getRecorderStateError },
-				});
-				return;
-			}
-			if (recorderState === 'RECORDING') {
-				await stopCpalRecording();
-			} else {
-				await startCpalRecording();
-			}
-		},
-	},
-	{
-		id: 'cancelCpalRecording',
-		title: 'Cancel CPAL recording',
-		defaultLocalShortcut: 'x',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+]',
-		on: 'Pressed',
-		callback: async () => {
-			const toastId = nanoid();
-			toast.loading({
-				id: toastId,
-				title: '⏸️ Canceling CPAL recording...',
-				description: 'Cleaning up recording session...',
-			});
-			const { data: cancelRecordingResult, error: cancelRecordingError } =
-				await rpc.cpalRecorder.cancelRecording.execute({ toastId });
-			if (cancelRecordingError) {
-				toast.error({
-					id: toastId,
-					title: '❌ Failed to cancel CPAL recording',
-					description:
-						'Your recording could not be cancelled. Please try again.',
-					action: { type: 'more-details', error: cancelRecordingError },
-				});
-				return;
-			}
-			switch (cancelRecordingResult.status) {
-				case 'no-recording': {
-					toast.info({
-						id: toastId,
-						title: 'No active recording',
-						description: 'There is no CPAL recording in progress to cancel.',
-					});
-					break;
-				}
-				case 'cancelled': {
-					toast.success({
-						id: toastId,
-						title: '✅ All Done!',
-						description: 'CPAL recording cancelled successfully',
-					});
-					services.sound.playSoundIfEnabled('cpal-cancel');
-					console.info('CPAL Recording cancelled');
-					break;
-				}
-			}
-		},
-	},
+	...(window.__TAURI_INTERNALS__
+		? ([
+				{
+					id: 'toggleCpalRecording',
+					title: 'Toggle CPAL recording',
+					defaultLocalShortcut: null,
+					defaultGlobalShortcut: null,
+					on: 'Pressed',
+					callback: async () => {
+						const { data: recorderState, error: getRecorderStateError } =
+							await rpc.cpalRecorder.getRecorderState.fetchCached();
+						if (getRecorderStateError) {
+							toast.error({
+								id: nanoid(),
+								title: '❌ Failed to get CPAL recorder state',
+								description:
+									'Your recording could not be started. Please try again.',
+								action: { type: 'more-details', error: getRecorderStateError },
+							});
+							return;
+						}
+						if (recorderState === 'RECORDING') {
+							await stopCpalRecording();
+						} else {
+							await startCpalRecording();
+						}
+					},
+				},
+				{
+					id: 'cancelCpalRecording',
+					title: 'Cancel CPAL recording',
+					defaultLocalShortcut: null,
+					defaultGlobalShortcut: null,
+					on: 'Pressed',
+					callback: async () => {
+						const toastId = nanoid();
+						toast.loading({
+							id: toastId,
+							title: '⏸️ Canceling CPAL recording...',
+							description: 'Cleaning up recording session...',
+						});
+						const { data: cancelRecordingResult, error: cancelRecordingError } =
+							await rpc.cpalRecorder.cancelRecording.execute({ toastId });
+						if (cancelRecordingError) {
+							toast.error({
+								id: toastId,
+								title: '❌ Failed to cancel CPAL recording',
+								description:
+									'Your recording could not be cancelled. Please try again.',
+								action: { type: 'more-details', error: cancelRecordingError },
+							});
+							return;
+						}
+						switch (cancelRecordingResult.status) {
+							case 'no-recording': {
+								toast.info({
+									id: toastId,
+									title: 'No active recording',
+									description:
+										'There is no CPAL recording in progress to cancel.',
+								});
+								break;
+							}
+							case 'cancelled': {
+								toast.success({
+									id: toastId,
+									title: '✅ All Done!',
+									description: 'CPAL recording cancelled successfully',
+								});
+								services.sound.playSoundIfEnabled('cpal-cancel');
+								console.info('CPAL Recording cancelled');
+								break;
+							}
+						}
+					},
+				},
+			] as const satisfies SatisfiedCommand[])
+		: []),
 	{
 		id: 'pushToTalk',
 		title: 'Push to talk',
