@@ -29,7 +29,7 @@
 </WhisperingButton>
 
 <Dialog.Root bind:open={dialogOpen}>
-	<Dialog.Content class="max-w-2xl">
+	<Dialog.Content class="sm:max-w-3xl">
 		<Dialog.Header>
 			<Dialog.Title>
 				{isLocal ? 'Local' : 'Global'} Shortcut Format Guide
@@ -41,7 +41,7 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<div class="space-y-4">
+		<div class="flex flex-col gap-4">
 			<!-- Quick format summary -->
 			<div class="rounded-lg bg-muted p-4">
 				<p class="text-sm">
@@ -56,46 +56,43 @@
 				{/if}
 			</div>
 
-			<!-- Keyboard sections -->
-			<div class="space-y-4">
-				{#each Object.entries(isLocal ? LOCAL_SHORTCUTS : GLOBAL_SHORTCUTS) as [section, { keys, description }]}
-					<div>
-						<h4 class="mb-1 font-medium">{section}</h4>
-						<p class="text-xs text-muted-foreground mb-2">{description}</p>
-
-						{#if section === 'Modifiers'}
-							<!-- Show modifiers in a list format -->
-							<div class="space-y-1">
-								{#each keys as key}
-									<div class="flex items-center gap-2">
-										<Badge variant="outline" class="font-mono">
-											{key}
-										</Badge>
-									</div>
-								{/each}
-							</div>
-						{:else}
-							<!-- Show other keys in a wrapped format -->
-							<div class="flex flex-wrap gap-1">
-								{#each keys as key}
-									{@const isPlaceholder =
-										key.includes('-') &&
-										(key.includes('a-z') ||
-											key.includes('A-Z') ||
-											key.includes('0-9') ||
-											key.includes('f1') ||
-											key.includes('F1'))}
-									<Badge
-										variant={isPlaceholder ? 'ghost' : 'secondary'}
-										class="font-mono text-xs"
-									>
-										{key}
-									</Badge>
-								{/each}
-							</div>
-						{/if}
+			<!-- Two-column flex layout -->
+			<div class="flex flex-col sm:flex-row sm:divide-x">
+				<!-- Left column: Modifiers -->
+				<div class="sm:pr-4">
+					<h4 class="text-sm font-semibold mb-1">Modifiers</h4>
+					<p class="text-xs text-muted-foreground mb-2">Hold with other keys</p>
+					<div class="flex flex-wrap sm:flex-col gap-1">
+						{#each (isLocal ? LOCAL_SHORTCUTS : GLOBAL_SHORTCUTS).Modifiers.keys as modifier}
+							<Badge variant="outline" class="font-mono text-sm justify-start">
+								{modifier}
+							</Badge>
+						{/each}
 					</div>
-				{/each}
+				</div>
+
+				<!-- Right column: All other keys -->
+				<div class="flex-1 sm:pl-4">
+					<div class="flex flex-col gap-4">
+						{#each Object.entries(isLocal ? LOCAL_SHORTCUTS : GLOBAL_SHORTCUTS) as [section, { keys, description }]}
+							{#if section !== 'Modifiers'}
+								<div>
+									<h4 class="text-sm font-semibold mb-1">{section}</h4>
+									<p class="text-xs text-muted-foreground mb-2">
+										{description}
+									</p>
+									<div class="flex flex-wrap gap-1">
+										{#each keys as key}
+											<Badge variant="secondary" class="font-mono text-xs">
+												{key}
+											</Badge>
+										{/each}
+									</div>
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
 			</div>
 
 			<!-- Examples -->
