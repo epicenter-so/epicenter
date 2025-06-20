@@ -18,7 +18,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.2.9",
 		"@eslint/js": "^9.27.0",
 		"@lucide/svelte": "^0.516.0",
 		"@sveltejs/adapter-static": "3.0.8",
@@ -28,7 +27,7 @@
 		"@tailwindcss/vite": "^4.1.8",
 		"@tauri-apps/cli": "^2.5.0",
 		"@types/chrome": "^0.0.287",
-		"bits-ui": "2.4.0",
+		"bits-ui": "2.8.3",
 		"clsx": "^2.1.1",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^9.1.0",
@@ -83,7 +82,6 @@
 		"formsnap": "^2.0.1",
 		"idb": "^8.0.3",
 		"nanoid": "^5.1.5",
-		"runed": "^0.28.0",
 		"vaul-svelte": "1.0.0-next.7",
 		"zod": "^3.25.31"
 	}
