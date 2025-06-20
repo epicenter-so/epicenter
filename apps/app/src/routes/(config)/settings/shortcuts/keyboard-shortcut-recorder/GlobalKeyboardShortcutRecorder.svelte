@@ -88,7 +88,7 @@
 	onClear={async () => {
 		const { error: unregisterError } =
 			await rpc.shortcuts.unregisterCommandGlobally.execute({
-				commandId: command.id,
+				commandId: command.id as CommandId,
 			});
 
 		if (unregisterError) {
