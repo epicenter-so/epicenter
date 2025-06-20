@@ -148,6 +148,7 @@
 						onclick={() => {
 							isManualMode = true;
 							manualValue = keyCombination ?? '';
+							keyRecorder.stop();
 						}}
 					>
 						<Pencil class="mr-2 size-3" />
@@ -190,7 +191,7 @@
 							type="submit"
 							size="sm"
 							class="flex-1"
-							disabled={!manualValue.trim()}
+							disabled={!manualValue}
 						>
 							Save
 						</Button>
