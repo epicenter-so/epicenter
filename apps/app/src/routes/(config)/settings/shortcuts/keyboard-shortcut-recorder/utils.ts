@@ -83,3 +83,5 @@ export function createKeyRecorder({
 		register: onRegister,
 	};
 }
+
+export type KeyRecorder = ReturnType<typeof createKeyRecorder>;

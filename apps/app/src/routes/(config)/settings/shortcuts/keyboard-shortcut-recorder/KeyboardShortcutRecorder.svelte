@@ -3,29 +3,24 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils';
+	import type { Settings } from '@repo/shared/settings';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
+	import type { KeyRecorder } from './utils';
 
 	const {
-		command,
+		title,
 		placeholder = 'Press a key combination',
 		autoFocus = true,
 		keyCombination,
-		isListening,
-		onOpenChange,
-		onStartListening,
-		onClear,
-		onSetManualCombination,
+		keyRecorder,
 	}: {
-		command: Command;
+		title: string;
 		placeholder?: string;
 		autoFocus?: boolean;
 		keyCombination: string | null;
-		isListening: boolean;
-		onOpenChange: (isOpen: boolean) => void;
-		onStartListening: () => void;
-		onClear: () => void;
-		onSetManualCombination: (keyCombination: string[]) => void;
+		keyRecorder: KeyRecorder;
 	} = $props();
 
 	let isPopoverOpen = $state(false);
@@ -125,12 +120,12 @@
 	open={isPopoverOpen}
 	onOpenChange={(isOpen) => {
 		isPopoverOpen = isOpen;
-		onOpenChange(isOpen);
 		if (!isOpen) {
+			keyRecorder.stop();
 			isManualMode = false;
 		}
 		if (isOpen && autoFocus && !isManualMode) {
-			setTimeout(() => onStartListening(), 100);
+			setTimeout(() => keyRecorder.start(), 100);
 		}
 	}}
 >
@@ -148,14 +143,14 @@
 		class="w-80"
 		align="end"
 		onEscapeKeydown={(e) => {
-			if (isListening) {
+			if (keyRecorder.isListening) {
 				e.preventDefault();
 			}
 		}}
 	>
 		<div class="space-y-4">
 			<div>
-				<h4 class="mb-1 text-sm font-medium leading-none">{command.title}</h4>
+				<h4 class="mb-1 text-sm font-medium leading-none">{title}</h4>
 				<p class="text-xs text-muted-foreground">
 					{#if isManualMode}
 						Enter shortcut manually (e.g., ctrl+shift+a)
@@ -171,14 +166,14 @@
 					type="button"
 					class={cn(
 						'relative flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-						isListening && 'ring-2 ring-ring ring-offset-2',
+						keyRecorder.isListening && 'ring-2 ring-ring ring-offset-2',
 					)}
 					onclick={(e) => {
 						e.stopPropagation();
-						onStartListening();
+						keyRecorder.start();
 					}}
 					tabindex="0"
-					aria-label={isListening
+					aria-label={keyRecorder.isListening
 						? 'Recording keyboard shortcut'
 						: 'Click to record keyboard shortcut'}
 				>
@@ -186,7 +181,7 @@
 						<div
 							class="flex flex-grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
 						>
-							{#if keyCombination && !isListening}
+							{#if keyCombination && !keyRecorder.isListening}
 								{#each keyCombination.split('+') as key}
 									<kbd
 										class="inline-flex h-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground"
@@ -194,17 +189,17 @@
 										{renderKeySymbol(key)}
 									</kbd>
 								{/each}
-							{:else if !isListening}
+							{:else if !keyRecorder.isListening}
 								<span class="truncate text-muted-foreground">{placeholder}</span
 								>
 							{/if}
 						</div>
-						{#if !isListening}
+						{#if !keyRecorder.isListening}
 							<Keyboard class="size-4 text-muted-foreground" />
 						{/if}
 					</div>
 
-					{#if isListening}
+					{#if keyRecorder.isListening}
 						<div
 							class="absolute inset-0 z-10 flex animate-in fade-in-0 zoom-in-95 items-center justify-center rounded-md border border-input bg-background/95 backdrop-blur-sm"
 							aria-live="polite"
@@ -223,7 +218,7 @@
 							variant="outline"
 							size="sm"
 							class="flex-1"
-							onclick={() => onClear()}
+							onclick={() => keyRecorder.clear()}
 						>
 							<XIcon class="mr-2 size-3" />
 							Clear
@@ -247,8 +242,8 @@
 				<form
 					onsubmit={(e) => {
 						e.preventDefault();
-						if (manualValue && onSetManualCombination) {
-							onSetManualCombination(manualValue.split('+'));
+						if (manualValue) {
+							keyRecorder.register(manualValue.split('+'));
 							isManualMode = false;
 						}
 					}}

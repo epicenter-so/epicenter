@@ -85,17 +85,9 @@
 </script>
 
 <KeyboardShortcutRecorder
-	{command}
+	title={command.title}
 	{placeholder}
 	{autoFocus}
 	keyCombination={settings.value[`shortcuts.local.${command.id}`]}
-	isListening={keyRecorder.isListening}
-	onOpenChange={(isOpen) => {
-		if (!isOpen) keyRecorder.stop();
-	}}
-	onStartListening={() => keyRecorder.start()}
-	onClear={() => keyRecorder.clear()}
-	onSetManualCombination={async (keyCombination) => {
-		await keyRecorder.register(keyCombination);
-	}}
+	{keyRecorder}
 />
