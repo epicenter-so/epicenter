@@ -7,7 +7,7 @@
 	import { cn } from '$lib/utils';
 	import type { Settings } from '@repo/shared/settings';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
-	import type { KeyRecorder } from './utils';
+	import type { KeyRecorder } from './create-key-recorder.svelte';
 
 	const {
 		title,
