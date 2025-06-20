@@ -4,6 +4,12 @@ import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
 
+/**
+ * Error type for local shortcut service operations.
+ * This error is returned when shortcut registration, unregistration, or other
+ * local shortcut operations fail. Uses a tagged error pattern for type safety
+ * and better error discrimination in Result types.
+ */
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
 /**
@@ -243,6 +249,18 @@ export const POSSIBLE_KEY_VALUES = [
 	'zenkakuhankaku',
 ] as const;
 
+/**
+ * Union type representing all possible keyboard key values that can be
+ * returned by `KeyboardEvent.key.toLowerCase()`. This comprehensive type
+ * includes all standard keyboard keys across different platforms and layouts:
+ * - Printable characters (letters, numbers, symbols)
+ * - Navigation and editing keys
+ * - Function and modifier keys
+ * - Media control and special system keys
+ * - International/IME keys for various languages
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values MDN Keyboard Event Key Values}
+ */
 export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
 
 /**
@@ -436,9 +454,36 @@ export const SUPPORTED_KEY_VALUES = [
 	'zoomin',
 ] as const;
 
+/**
+ * Branded type representing keyboard keys that are officially supported
+ * by the local shortcut manager. This is a subset of PossibleKey that
+ * excludes keys that are rarely used or problematic for shortcuts.
+ *
+ * The brand ensures type safety by preventing arbitrary strings from being
+ * used where SupportedKey is expected, even if they match the literal values.
+ *
+ * @see {@link isSupportedKey} Type guard to check if a PossibleKey is supported
+ */
 export type SupportedKey = (typeof SUPPORTED_KEY_VALUES)[number] &
 	Brand<'SupportedKey'>;
 
+/**
+ * Type guard that checks if a given PossibleKey is a SupportedKey.
+ * This function validates that a key value is in the list of supported keys
+ * that can be used for local keyboard shortcuts.
+ *
+ * @param key - The key value to check (from KeyboardEvent.key.toLowerCase())
+ * @returns True if the key is supported for use in shortcuts, false otherwise
+ *
+ * @example
+ * ```typescript
+ * const key = e.key.toLowerCase() as PossibleKey;
+ * if (isSupportedKey(key)) {
+ *   // key is now typed as SupportedKey
+ *   pressedKeys.push(key);
+ * }
+ * ```
+ */
 export function isSupportedKey(key: PossibleKey): key is SupportedKey {
 	return SUPPORTED_KEY_VALUES.includes(key as SupportedKey);
 }
@@ -609,15 +654,35 @@ export function createLocalShortcutManager() {
 	};
 }
 
+/**
+ * Type representing the local shortcut manager instance.
+ * Provides methods to:
+ * - Listen for keyboard events and trigger registered shortcuts
+ * - Register new keyboard shortcuts with specific key combinations
+ * - Unregister individual shortcuts or all shortcuts at once
+ *
+ * The manager handles the complexity of tracking pressed keys, matching
+ * key combinations, and managing shortcut lifecycles.
+ *
+ * @see {@link createLocalShortcutManager} Factory function to create instances
+ */
 export type LocalShortcutManager = ReturnType<
 	typeof createLocalShortcutManager
 >;
 
 /**
- * Check if two arrays match, order does not matter
- * @param a - The first array
- * @param b - The second array
- * @returns true if the arrays match, false otherwise
+ * Checks if two arrays contain the same elements, regardless of order.
+ * Used to match pressed key combinations against registered shortcuts.
+ *
+ * @param a - First array of keys to compare
+ * @param b - Second array of keys to compare
+ * @returns True if both arrays contain exactly the same elements (same length and all elements present in both)
+ *
+ * @example
+ * ```typescript
+ * arraysMatch(['ctrl', 'a'], ['a', 'ctrl']) // returns true
+ * arraysMatch(['ctrl', 'a'], ['ctrl', 'a', 'shift']) // returns false
+ * ```
  */
 export function arraysMatch(a: string[], b: string[]) {
 	return a.length === b.length && a.every((key) => b.includes(key));
