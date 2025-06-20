@@ -1,6 +1,8 @@
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
+import type { Brand } from '$lib/brand';
+import type { Command, CommandId } from '$lib/commands';
 
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
 
@@ -241,12 +243,212 @@ export const POSSIBLE_KEY_VALUES = [
 	'zenkakuhankaku',
 ] as const;
 
+export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
+
+/**
+ * Comprehensive list of all supported key values that can be returned by `e.key.toLowerCase()`.
+ * We will use this to validate the key values that are passed to the shortcut manager.
+ */
+export const SUPPORTED_KEY_VALUES = [
+	// Letters (lowercase)
+	'a',
+	'b',
+	'c',
+	'd',
+	'e',
+	'f',
+	'g',
+	'h',
+	'i',
+	'j',
+	'k',
+	'l',
+	'm',
+	'n',
+	'o',
+	'p',
+	'q',
+	'r',
+	's',
+	't',
+	'u',
+	'v',
+	'w',
+	'x',
+	'y',
+	'z',
+
+	// Numbers
+	'0',
+	'1',
+	'2',
+	'3',
+	'4',
+	'5',
+	'6',
+	'7',
+	'8',
+	'9',
+
+	// Symbols and punctuation (these remain the same with toLowerCase())
+	'`',
+	'~',
+	'!',
+	'@',
+	'#',
+	'$',
+	'%',
+	'^',
+	'&',
+	'*',
+	'(',
+	')',
+	'-',
+	'_',
+	'=',
+	'+',
+	'[',
+	'{',
+	']',
+	'}',
+	'\\',
+	'|',
+	';',
+	':',
+	"'",
+	'"',
+	',',
+	'<',
+	'.',
+	'>',
+	'/',
+	'?',
+
+	// Whitespace
+	' ', // Space
+	'enter',
+	'tab',
+
+	// Navigation keys (lowercase)
+	'arrowleft',
+	'arrowright',
+	'arrowup',
+	'arrowdown',
+	'home',
+	'end',
+	'pageup',
+	'pagedown',
+
+	// Editing keys (lowercase)
+	'backspace',
+	'delete',
+	'insert',
+	'clear',
+	'copy',
+	'cut',
+	'paste',
+	'redo',
+	'undo',
+
+	// Function keys (lowercase)
+	'f1',
+	'f2',
+	'f3',
+	'f4',
+	'f5',
+	'f6',
+	'f7',
+	'f8',
+	'f9',
+	'f10',
+	'f11',
+	'f12',
+	'f13',
+	'f14',
+	'f15',
+	'f16',
+	'f17',
+	'f18',
+	'f19',
+	'f20',
+	'f21',
+	'f22',
+	'f23',
+	'f24',
+
+	// Modifier keys (lowercase)
+	'control',
+	'shift',
+	'alt',
+	'meta', // meta is Command on Mac, Windows key on PC
+	'altgraph',
+	'capslock',
+	'numlock',
+	'scrolllock',
+	'fn',
+	'fnlock',
+	'hyper',
+	'super',
+	'symbol',
+	'symbollock',
+
+	// Special keys (lowercase)
+	'escape',
+	'contextmenu',
+	'pause',
+	'break',
+	'printscreen',
+	'help',
+	'browserback',
+	'browserforward',
+	'browserhome',
+	'browserrefresh',
+	'browsersearch',
+	'browserstop',
+	'browserfavorites',
+
+	// Media keys (lowercase)
+	'mediaplaypause',
+	'mediaplay',
+	'mediapause',
+	'mediastop',
+	'mediatracknext',
+	'mediatrackprevious',
+	'volumeup',
+	'volumedown',
+	'volumemute',
+
+	// Other special values
+	'dead', // Dead keys for creating accented characters
+	'unidentified', // When the key cannot be identified
+	'process', // IME processing
+	'compose', // Compose key
+	'accept',
+	'again',
+	'attn',
+	'cancel',
+	'execute',
+	'find',
+	'finish',
+	'props',
+	'select',
+	'zoomout',
+	'zoomin',
+] as const;
+
+export type SupportedKey = (typeof SUPPORTED_KEY_VALUES)[number] &
+	Brand<'SupportedKey'>;
+
+export function isSupportedKey(key: PossibleKey): key is SupportedKey {
+	return SUPPORTED_KEY_VALUES.includes(key as SupportedKey);
+}
+
 export function createLocalShortcutManager() {
 	const shortcuts = new Map<
-		string,
+		CommandId,
 		{
 			on: ShortcutTriggerState;
-			keyCombination: string[];
+			keyCombination: SupportedKey[];
 			callback: () => void;
 		}
 	>();
@@ -265,13 +467,17 @@ export function createLocalShortcutManager() {
 		 */
 		listen() {
 			/** Array tracking currently pressed keys in lowercase format */
-			let pressedKeys: string[] = [];
+			let pressedKeys: SupportedKey[] = [];
 			/** Set tracking which shortcuts are currently active (held down) */
-			const activeShortcuts = new Set<string>();
+			const activeShortcuts = new Set<CommandId>();
 
 			/** Handle keydown events - adds keys to pressed state and triggers 'Pressed' shortcuts */
 			const keydown = on(window, 'keydown', (e) => {
-				const key = e.key.toLowerCase();
+				const key = e.key.toLowerCase() as PossibleKey;
+
+				// Ignore keys that are not supported
+				if (!isSupportedKey(key)) return;
+
 				// Add key to pressed state if not already present
 				if (!pressedKeys.includes(key)) pressedKeys.push(key);
 
@@ -295,7 +501,11 @@ export function createLocalShortcutManager() {
 
 			/** Handle keyup events - removes keys from pressed state and triggers 'Released' shortcuts */
 			const keyup = on(window, 'keyup', (e) => {
-				const key = e.key.toLowerCase();
+				const key = e.key.toLowerCase() as PossibleKey;
+
+				// Ignore keys that are not supported
+				if (!isSupportedKey(key)) return;
+
 				/** Modifier keys that require special handling */
 				const modifierKeys = ['meta', 'control', 'alt', 'shift'];
 
@@ -366,8 +576,8 @@ export function createLocalShortcutManager() {
 			callback,
 			on,
 		}: {
-			id: string;
-			keyCombination: string[];
+			id: CommandId;
+			keyCombination: SupportedKey[];
 			callback: () => void;
 			on: ShortcutTriggerState;
 		}): Promise<Result<void, LocalShortcutServiceError>> {
@@ -381,7 +591,7 @@ export function createLocalShortcutManager() {
 		 * with the given ID doesn't exist or has already been unregistered.
 		 */
 		async unregister(
-			id: string,
+			id: CommandId,
 		): Promise<Result<void, LocalShortcutServiceError>> {
 			shortcuts.delete(id);
 			return Ok(undefined);

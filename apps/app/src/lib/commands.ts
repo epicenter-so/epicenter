@@ -8,6 +8,7 @@ import {
 } from './deliverTextToUser';
 import { services } from './services';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
+import type { Brand } from './brand';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -454,6 +455,8 @@ export const commands = [
 ] as const satisfies SatisfiedCommand[];
 
 export type Command = (typeof commands)[number];
+
+export type CommandId = Command['id'] & Brand<'CommandId'>;
 
 type CommandCallbacks = Record<Command['id'], Command['callback']>;
 

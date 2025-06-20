@@ -12,6 +12,9 @@ import {
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
+import type { SupportedKey } from './createLocalShortcutManager';
+import type { Brand } from '$lib/brand';
+import type { CommandId } from '$lib/commands';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -26,11 +29,11 @@ type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
  *
  * @see https://www.electronjs.org/docs/latest/api/accelerator
  */
-type Accelerator = string;
+export type Accelerator = string & Brand<'Accelerator'>;
 
 export function createGlobalShortcutManager() {
 	const shortcuts = new Map<
-		string,
+		CommandId,
 		{
 			on: ShortcutTriggerState;
 			accelerator: Accelerator;
@@ -45,7 +48,7 @@ export function createGlobalShortcutManager() {
 			callback,
 			on,
 		}: {
-			id: string;
+			id: CommandId;
 			accelerator: Accelerator;
 			callback: () => void;
 			on: ShortcutTriggerState;
@@ -99,7 +102,7 @@ export function createGlobalShortcutManager() {
 		 * with the given ID doesn't exist or has already been unregistered.
 		 */
 		async unregister(
-			id: string,
+			id: CommandId,
 		): Promise<Result<void, GlobalShortcutServiceError>> {
 			const shortcut = shortcuts.get(id);
 			if (!shortcut) return Ok(undefined);
@@ -163,6 +166,8 @@ const ACCELERATOR_MODIFIERS = [
 	'Super',
 	'Meta',
 ] as const;
+
+type AcceleratorModifier = (typeof ACCELERATOR_MODIFIERS)[number];
 
 /**
  * Valid Electron accelerator key codes
@@ -313,6 +318,8 @@ const ACCELERATOR_KEY_CODES = [
 	'numdiv',
 ] as const;
 
+type AcceleratorKeyCode = (typeof ACCELERATOR_KEY_CODES)[number];
+
 /**
  * Validates if a string is a valid Electron accelerator
  */
@@ -325,13 +332,14 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 
 	// Last part must be a key code
 	const isLastPartValidKeyCode = ACCELERATOR_KEY_CODES.includes(
-		lastPart as any,
+		lastPart as AcceleratorKeyCode,
 	);
 	if (!isLastPartValidKeyCode) return false;
 
 	// All other parts must be modifiers
 	for (const modifier of modifiers) {
-		if (!ACCELERATOR_MODIFIERS.includes(modifier as any)) return false;
+		if (!ACCELERATOR_MODIFIERS.includes(modifier as AcceleratorModifier))
+			return false;
 	}
 
 	// Check for duplicate modifiers
@@ -345,7 +353,9 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 /**
  * Convert pressed keys directly to Tauri accelerator format
  */
-export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
+export function pressedKeysToTauriAccelerator(
+	pressedKeys: SupportedKey[],
+): string {
 	const modifiers: string[] = [];
 	const keyCodes: string[] = [];
 
@@ -383,7 +393,7 @@ export function pressedKeysToTauriAccelerator(pressedKeys: string[]): string {
 /**
  * Convert a key to an Electron modifier (returns null if not a modifier)
  */
-function convertToModifier(key: string): string | null {
+function convertToModifier(key: string): AcceleratorModifier | null {
 	const normalized = key.toLowerCase();
 	switch (normalized) {
 		case 'control':
@@ -406,7 +416,7 @@ function convertToModifier(key: string): string | null {
 /**
  * Convert a key to an Electron key code (returns null if invalid)
  */
-function convertToKeyCode(key: string): string | null {
+function convertToKeyCode(key: string): AcceleratorKeyCode | null {
 	const normalized = key.toLowerCase();
 
 	// Special keys

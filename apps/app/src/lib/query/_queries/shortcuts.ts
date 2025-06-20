@@ -1,6 +1,8 @@
-import { type Command, commandCallbacks } from '$lib/commands';
+import { type Command, commandCallbacks, type CommandId } from '$lib/commands';
 import { services } from '$lib/services';
 import { defineMutation } from '../_utils';
+import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
+import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
@@ -10,10 +12,10 @@ export const shortcuts = {
 			keyCombination,
 		}: {
 			command: Command;
-			keyCombination: string[];
+			keyCombination: SupportedKey[];
 		}) =>
 			services.localShortcutManager.register({
-				id: command.id,
+				id: command.id as CommandId,
 				keyCombination,
 				callback: commandCallbacks[command.id],
 				on: command.on,
@@ -22,7 +24,7 @@ export const shortcuts = {
 
 	unregisterCommandLocally: defineMutation({
 		mutationKey: ['shortcuts', 'unregisterCommandLocally'] as const,
-		resultMutationFn: async ({ commandId }: { commandId: string }) =>
+		resultMutationFn: async ({ commandId }: { commandId: CommandId }) =>
 			services.localShortcutManager.unregister(commandId),
 	}),
 
@@ -33,10 +35,10 @@ export const shortcuts = {
 			keyCombination,
 		}: {
 			command: Command;
-			keyCombination: string;
+			keyCombination: Accelerator;
 		}) =>
 			services.globalShortcutManager.register({
-				id: command.id,
+				id: command.id as CommandId,
 				accelerator: keyCombination,
 				callback: commandCallbacks[command.id],
 				on: command.on,
@@ -45,7 +47,7 @@ export const shortcuts = {
 
 	unregisterCommandGlobally: defineMutation({
 		mutationKey: ['shortcuts', 'unregisterCommandGlobally'] as const,
-		resultMutationFn: ({ commandId }: { commandId: string }) =>
+		resultMutationFn: ({ commandId }: { commandId: CommandId }) =>
 			services.globalShortcutManager.unregister(commandId),
 	}),
 };
