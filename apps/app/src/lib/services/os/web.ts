@@ -1,64 +1,88 @@
 import type { OsService } from './types';
 import type { OsType } from '@tauri-apps/plugin-os';
 
+// Type for navigator with userAgentData support
+type NavigatorWithUAData = Navigator & {
+	userAgentData: {
+		platform: string;
+	};
+};
+
 export function createOsServiceWeb(): OsService {
 	return {
 		type(): OsType {
-			// Modern approach using User-Agent Client Hints
-			if (doesNavigatorSupportUserAgentData(navigator)) {
-				const platform = navigator.userAgentData.platform.toLowerCase();
-
-				// Map client hints platform to OsType
-				switch (platform) {
-					case 'windows':
-						return 'windows';
-					case 'macos':
-						return 'macos';
-					case 'linux':
-						return 'linux';
-					case 'android':
-						return 'android';
-					case 'ios':
-						return 'ios';
-				}
+			// Try modern User-Agent Client Hints API first
+			if (hasUserAgentData(navigator)) {
+				return getPlatformFromClientHints(navigator);
 			}
 
-			// Fallback to traditional detection
-			const userAgent = navigator.userAgent.toLowerCase();
-			const platform = navigator.platform.toLowerCase();
-
-			// iOS detection (must be before macOS)
-			if (
-				/ipad|iphone|ipod/.test(userAgent) ||
-				(platform.includes('mac') && 'ontouchend' in document)
-			) {
-				return 'ios';
-			}
-
-			// Android detection
-			if (/android/.test(userAgent)) {
-				return 'android';
-			}
-
-			// macOS detection
-			if (platform.startsWith('mac')) {
-				return 'macos';
-			}
-
-			// Windows detection
-			if (platform.includes('win')) {
-				return 'windows';
-			}
-
-			// Linux detection (default for Unix-like)
-			return 'linux';
+			// Fallback to traditional user agent detection
+			return getPlatformFromUserAgent(navigator);
 		},
 	};
 }
 
-function doesNavigatorSupportUserAgentData(
+/**
+ * Attempts to detect platform using modern User-Agent Client Hints API
+ * @returns OsType if detected, null otherwise
+ */
+function getPlatformFromClientHints(navigator: NavigatorWithUAData): OsType {
+	const platform = navigator.userAgentData.platform.toLowerCase();
+
+	// Direct mapping from client hints to OsType
+	const platformMap: Record<string, OsType> = {
+		windows: 'windows',
+		macos: 'macos',
+		linux: 'linux',
+		android: 'android',
+		ios: 'ios',
+	};
+
+	return platformMap[platform];
+}
+
+/**
+ * Detects platform using traditional user agent string parsing
+ * @returns OsType based on user agent detection
+ */
+function getPlatformFromUserAgent(navigator: Navigator): OsType {
+	const userAgent = navigator.userAgent.toLowerCase();
+	const platform = navigator.platform?.toLowerCase() || '';
+
+	// iOS detection (must be before macOS)
+	// Handles both regular iOS devices and iPadOS in desktop mode
+	if (
+		/ipad|iphone|ipod/.test(userAgent) ||
+		(platform.includes('mac') && 'ontouchend' in document)
+	) {
+		return 'ios';
+	}
+
+	// Android detection
+	if (/android/.test(userAgent)) {
+		return 'android';
+	}
+
+	// macOS detection
+	if (platform.startsWith('mac')) {
+		return 'macos';
+	}
+
+	// Windows detection
+	if (platform.includes('win')) {
+		return 'windows';
+	}
+
+	// Linux detection (default for Unix-like systems)
+	return 'linux';
+}
+
+/**
+ * Type guard to check if navigator supports User-Agent Client Hints
+ */
+function hasUserAgentData(
 	navigator: Navigator,
-): navigator is Navigator & { userAgentData: { platform: string } } {
+): navigator is NavigatorWithUAData {
 	return (
 		'userAgentData' in navigator &&
 		typeof (navigator.userAgentData as { platform: unknown }).platform ===
