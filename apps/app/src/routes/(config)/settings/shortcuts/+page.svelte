@@ -8,8 +8,8 @@
 	import type { Settings } from '@repo/shared/settings';
 	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
 	import {
-		registerGlobalCommands,
-		registerLocalCommands,
+		syncGlobalShortcutsWithSettings,
+		syncLocalShortcutsWithSettings,
 	} from '../../../+layout/registerCommands.svelte';
 	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
@@ -30,10 +30,10 @@
 
 		switch (type) {
 			case 'local':
-				registerLocalCommands();
+				syncLocalShortcutsWithSettings();
 				break;
 			case 'global':
-				registerGlobalCommands();
+				syncGlobalShortcutsWithSettings();
 				break;
 		}
 

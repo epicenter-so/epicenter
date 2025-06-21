@@ -7,11 +7,21 @@ import { toast } from '$lib/toast';
 import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 import { onMount } from 'svelte';
 
-export function registerLocalCommandsOnMount() {
-	onMount(registerLocalCommands);
+/**
+ * Sets up local keyboard shortcuts synchronization when the component mounts.
+ * This ensures shortcuts are registered/unregistered based on current settings.
+ */
+export function setupLocalShortcutsOnMount() {
+	onMount(syncLocalShortcutsWithSettings);
 }
 
-export async function registerLocalCommands() {
+/**
+ * Synchronizes local keyboard shortcuts with the current settings.
+ * - Registers shortcuts that have key combinations defined in settings
+ * - Unregisters shortcuts that don't have key combinations defined
+ * - Shows error toast if any registration/unregistration fails
+ */
+export async function syncLocalShortcutsWithSettings() {
 	const results = await Promise.all(
 		commands
 			.map((command) => {
@@ -38,11 +48,21 @@ export async function registerLocalCommands() {
 	}
 }
 
-export function registerGlobalCommandsOnMount() {
-	onMount(registerGlobalCommands);
+/**
+ * Sets up global keyboard shortcuts synchronization when the component mounts.
+ * This ensures shortcuts are registered/unregistered based on current settings.
+ */
+export function setupGlobalShortcutsOnMount() {
+	onMount(syncGlobalShortcutsWithSettings);
 }
 
-export async function registerGlobalCommands() {
+/**
+ * Synchronizes global keyboard shortcuts with the current settings.
+ * - Registers shortcuts that have key combinations defined in settings
+ * - Unregisters shortcuts that don't have key combinations defined
+ * - Shows error toast if any registration/unregistration fails
+ */
+export async function syncGlobalShortcutsWithSettings() {
 	const results = await Promise.all(
 		commands
 			.map((command) => {
