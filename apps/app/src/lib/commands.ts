@@ -455,7 +455,7 @@ export const commands = [
 
 export type Command = (typeof commands)[number];
 
-export type CommandId = Command['id'] & Brand<'CommandId'>;
+export type CommandId = Command['id'];
 
 type CommandCallbacks = Record<Command['id'], Command['callback']>;
 
