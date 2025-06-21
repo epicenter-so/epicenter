@@ -95,7 +95,7 @@
 
 <div class="flex items-center justify-end gap-2">
 	{#if shortcutValue}
-		<Badge variant="secondary" class="font-mono text-xs max-w-[120px] truncate">
+		<Badge variant="secondary" class="font-mono text-xs">
 			{shortcutValue}
 		</Badge>
 		<Button
