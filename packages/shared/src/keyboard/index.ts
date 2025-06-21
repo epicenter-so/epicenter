@@ -13,7 +13,6 @@ export {
 	ACCELERATOR_SECTIONS,
 	ACCELERATOR_MODIFIER_KEYS,
 	ACCELERATOR_KEY_CODES,
-	ALL_ACCELERATOR_KEYS,
 	type AcceleratorModifier,
 	type AcceleratorKeyCode,
 } from './desktop.js';
@@ -33,7 +32,7 @@ export const SHORTCUT_EXAMPLES = {
 	global: [
 		'Space',
 		'Control+A',
-		'CommandOrControl+Shift+P',
+		`${CommandOrControl}+Shift+P`,
 		'Alt+S',
 		'F5',
 		'Control+Alt+Delete',
