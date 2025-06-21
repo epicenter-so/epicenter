@@ -54,7 +54,9 @@ export function defineQuery<
 	const newOptions = {
 		...options,
 		queryFn: async (context: QueryFunctionContext<TQueryKey>) => {
-			return resolve(await options.resultQueryFn(context));
+			let result = options.resultQueryFn(context);
+			if (result instanceof Promise) result = await result;
+			return resolve(result);
 		},
 	} satisfies CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>;
 
