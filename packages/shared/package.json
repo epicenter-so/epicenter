@@ -7,7 +7,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./settings": "./src/settings/index.ts",
-		"./keyboard": "./src/keyboard.ts"
+		"./keyboard": "./src/keyboard/index.ts"
 	},
 	"devDependencies": {
 		"@repo/app": "workspace:*",
