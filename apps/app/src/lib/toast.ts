@@ -2,9 +2,9 @@ import { dev } from '$app/environment';
 import { goto } from '$app/navigation';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { notificationLog } from '$lib/components/NotificationLog.svelte';
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import { extension } from '@repo/extension';
-import type { ToastAndNotifyOptions } from '@repo/shared';
+import type { ToastAndNotifyOptions } from '$lib/toasts';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toast as sonnerToast } from 'svelte-sonner';
 

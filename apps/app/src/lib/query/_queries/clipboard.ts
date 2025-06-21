@@ -1,4 +1,4 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import { defineMutation } from '../_utils';
 
 export const clipboard = {

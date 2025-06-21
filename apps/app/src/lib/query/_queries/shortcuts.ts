@@ -1,5 +1,5 @@
 import { type Command, type CommandId, commandCallbacks } from '$lib/commands';
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 import type { SupportedKey } from '$lib/keyboard';
 import { defineMutation } from '../_utils';

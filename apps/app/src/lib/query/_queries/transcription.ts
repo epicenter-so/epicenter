@@ -1,5 +1,5 @@
 import type { Recording } from '$lib/services/db';
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import { toast } from '$lib/toast';
 import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
 import { settings } from '$lib/stores/settings.svelte';
@@ -52,11 +52,7 @@ export const transcription = {
 				});
 			}
 			const { data: transcribedText, error: transcribeError } =
-				await services.transcription.transcribe(recording.blob, {
-					outputLanguage: settings.value['transcription.outputLanguage'],
-					prompt: settings.value['transcription.prompt'],
-					temperature: settings.value['transcription.temperature'],
-				});
+				await transcribeBlob(recording.blob);
 			if (transcribeError) {
 				const { error: setRecordingTranscribingError } =
 					await recordings.updateRecording.execute({
@@ -112,11 +108,7 @@ export const transcription = {
 							cause: undefined,
 						} satisfies WhisperingError);
 					}
-					return await services.transcription.transcribe(recording.blob, {
-						outputLanguage: settings.value['transcription.outputLanguage'],
-						prompt: settings.value['transcription.prompt'],
-						temperature: settings.value['transcription.temperature'],
-					});
+					return await transcribeBlob(recording.blob);
 				}),
 			);
 			const partitionedResults = partitionResults(results);
@@ -124,3 +116,15 @@ export const transcription = {
 		},
 	}),
 };
+
+function transcribeBlob(blob: Blob) {
+	return services
+		.transcription({
+			provider: settings.value['transcription.selectedTranscriptionService'],
+		})
+		.transcribe(blob, {
+			outputLanguage: settings.value['transcription.outputLanguage'],
+			prompt: settings.value['transcription.prompt'],
+			temperature: settings.value['transcription.temperature'],
+		});
+}

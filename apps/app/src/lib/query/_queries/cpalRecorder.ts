@@ -1,4 +1,4 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '$lib/constants';
 import { defineMutation, defineQuery } from '../_utils';

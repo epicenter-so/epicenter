@@ -26,6 +26,7 @@ import { createGlobalShortcutManager } from './shortcuts/createGlobalShortcutMan
 import { createLocalShortcutManager } from './shortcuts/createLocalShortcutManager';
 import { createOsServiceDesktop } from './os/desktop';
 import { createOsServiceWeb } from './os/web';
+import type { Settings } from '$lib/settings';
 
 // Static services (platform-dependent but not settings-dependent)
 const DownloadService = window.__TAURI_INTERNALS__
@@ -69,74 +70,58 @@ const OsService = window.__TAURI_INTERNALS__
 	? createOsServiceDesktop()
 	: createOsServiceWeb();
 
-export const CommandOrControl =
-	OsService.type() === 'macos' ? 'Command' : 'Control';
+function TranscriptionService({
+	provider,
+}: {
+	provider: Settings['transcription.selectedTranscriptionService'];
+}) {
+	switch (provider) {
+		case 'OpenAI': {
+			return createOpenaiTranscriptionService({
+				HttpService,
+				apiKey: settings.value['apiKeys.openai'],
+			});
+		}
+		case 'Groq': {
+			return createGroqTranscriptionService({
+				HttpService,
+				apiKey: settings.value['apiKeys.groq'],
+				modelName: settings.value['transcription.groq.model'],
+			});
+		}
+		case 'faster-whisper-server': {
+			return createFasterWhisperServerTranscriptionService({
+				HttpService,
+				serverModel:
+					settings.value['transcription.fasterWhisperServer.serverModel'],
+				serverUrl:
+					settings.value['transcription.fasterWhisperServer.serverUrl'],
+			});
+		}
+		case 'ElevenLabs': {
+			return createElevenLabsTranscriptionService({
+				apiKey: settings.value['apiKeys.elevenlabs'],
+			});
+		}
+	}
+}
 
-// TODO: Make sure services are only consumed in the query layer, nowhere else
 /**
  * Unified services object providing consistent access to all services.
  */
-export const services = {
-	clipboard: ClipboardService,
-
-	download: DownloadService,
-
-	notification: NotificationService,
-
-	setTrayIcon: SetTrayIconService,
-
-	vad: VadService,
-
-	db: DbService,
-
-	transformer: TransformerService,
-
-	// Dynamic services (settings-dependent)
-	get transcription() {
-		switch (settings.value['transcription.selectedTranscriptionService']) {
-			case 'OpenAI': {
-				return createOpenaiTranscriptionService({
-					HttpService,
-					apiKey: settings.value['apiKeys.openai'],
-				});
-			}
-			case 'Groq': {
-				return createGroqTranscriptionService({
-					HttpService,
-					apiKey: settings.value['apiKeys.groq'],
-					modelName: settings.value['transcription.groq.model'],
-				});
-			}
-			case 'faster-whisper-server': {
-				return createFasterWhisperServerTranscriptionService({
-					HttpService,
-					serverModel:
-						settings.value['transcription.fasterWhisperServer.serverModel'],
-					serverUrl:
-						settings.value['transcription.fasterWhisperServer.serverUrl'],
-				});
-			}
-			case 'ElevenLabs': {
-				return createElevenLabsTranscriptionService({
-					apiKey: settings.value['apiKeys.elevenlabs'],
-				});
-			}
-			default: {
-				return createOpenaiTranscriptionService({
-					HttpService,
-					apiKey: settings.value['apiKeys.openai'],
-				});
-			}
-		}
-	},
-
-	manualRecorder: NavigatorRecorderService,
-	cpalRecorder: CpalRecorderService,
-	sound: PlaySoundService,
-
-	localShortcutManager: LocalShortcutManager,
-
-	globalShortcutManager: GlobalShortcutManager,
-
-	os: OsService,
+export {
+	ClipboardService as clipboard,
+	DownloadService as download,
+	NotificationService as notification,
+	SetTrayIconService as setTrayIcon,
+	VadService as vad,
+	DbService as db,
+	TransformerService as transformer,
+	TranscriptionService as transcription,
+	NavigatorRecorderService as manualRecorder,
+	CpalRecorderService as cpalRecorder,
+	PlaySoundService as sound,
+	LocalShortcutManager as localShortcutManager,
+	GlobalShortcutManager as globalShortcutManager,
+	OsService as os,
 };
