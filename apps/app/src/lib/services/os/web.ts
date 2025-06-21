@@ -1,11 +1,13 @@
 import type { OsService } from './types';
 import type { OsType } from '@tauri-apps/plugin-os';
+import { type } from 'arktype';
+
+const UserAgentData = type({ platform: 'string' });
+type UserAgentData = typeof UserAgentData.infer;
 
 // Type for navigator with userAgentData support
 type NavigatorWithUAData = Navigator & {
-	userAgentData: {
-		platform: string;
-	};
+	userAgentData: UserAgentData;
 };
 
 export function createOsServiceWeb(): OsService {
@@ -13,7 +15,8 @@ export function createOsServiceWeb(): OsService {
 		type(): OsType {
 			// Try modern User-Agent Client Hints API first
 			if (hasUserAgentData(navigator)) {
-				return getPlatformFromClientHints(navigator);
+				const maybeOsType = getPlatformFromClientHints(navigator);
+				if (maybeOsType) return maybeOsType;
 			}
 
 			// Fallback to traditional user agent detection
@@ -23,10 +26,24 @@ export function createOsServiceWeb(): OsService {
 }
 
 /**
+ * Type guard to check if navigator supports User-Agent Client Hints
+ */
+function hasUserAgentData(
+	navigator: Navigator,
+): navigator is NavigatorWithUAData {
+	return (
+		'userAgentData' in navigator &&
+		UserAgentData.allows(navigator.userAgentData)
+	);
+}
+
+/**
  * Attempts to detect platform using modern User-Agent Client Hints API
  * @returns OsType if detected, null otherwise
  */
-function getPlatformFromClientHints(navigator: NavigatorWithUAData): OsType {
+function getPlatformFromClientHints(
+	navigator: NavigatorWithUAData,
+): OsType | null {
 	const platform = navigator.userAgentData.platform.toLowerCase();
 
 	// Direct mapping from client hints to OsType
@@ -38,7 +55,7 @@ function getPlatformFromClientHints(navigator: NavigatorWithUAData): OsType {
 		ios: 'ios',
 	};
 
-	return platformMap[platform];
+	return platformMap[platform] ?? null;
 }
 
 /**
@@ -75,17 +92,4 @@ function getPlatformFromUserAgent(navigator: Navigator): OsType {
 
 	// Linux detection (default for Unix-like systems)
 	return 'linux';
-}
-
-/**
- * Type guard to check if navigator supports User-Agent Client Hints
- */
-function hasUserAgentData(
-	navigator: Navigator,
-): navigator is NavigatorWithUAData {
-	return (
-		'userAgentData' in navigator &&
-		typeof (navigator.userAgentData as { platform: unknown }).platform ===
-			'string'
-	);
 }
