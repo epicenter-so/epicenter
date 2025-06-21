@@ -4,7 +4,7 @@
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { rpc } from '$lib/query';
-	import { services } from '$lib/services';
+	import * as services from '$lib/services';
 	import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
