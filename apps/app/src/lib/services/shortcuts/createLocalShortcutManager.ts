@@ -1,8 +1,8 @@
-import type { CommandId } from '$lib/commands';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { ALL_SUPPORTED_KEYS, type SupportedKey } from '$lib/keyboard';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
+import type { Brand } from '$lib/brand';
 
 /**
  * Error type for local shortcut service operations.
@@ -286,6 +286,8 @@ export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
 export function isSupportedKey(key: PossibleKey): key is SupportedKey {
 	return ALL_SUPPORTED_KEYS.includes(key as SupportedKey);
 }
+
+export type CommandId = string & Brand<'CommandId'>;
 
 export function createLocalShortcutManager() {
 	const shortcuts = new Map<

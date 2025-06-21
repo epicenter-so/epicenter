@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { Command, CommandId } from '$lib/commands';
+	import type { Command } from '$lib/commands';
+	import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { rpc } from '$lib/query';

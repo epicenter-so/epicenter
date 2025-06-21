@@ -1,4 +1,5 @@
-import { type Command, type CommandId, commandCallbacks } from '$lib/commands';
+import { type Command, commandCallbacks } from '$lib/commands';
+import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 import type { SupportedKey } from '$lib/keyboard';
@@ -38,7 +39,6 @@ export const shortcuts = {
 			accelerator: Accelerator;
 		}) =>
 			services.globalShortcutManager.register({
-				id: command.id as CommandId,
 				accelerator,
 				callback: commandCallbacks[command.id],
 				on: command.on,

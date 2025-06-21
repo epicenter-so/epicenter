@@ -1,3 +1,11 @@
+import type { Brand } from '$lib/brand';
+import {
+	ACCELERATOR_KEY_CODES,
+	ACCELERATOR_MODIFIER_KEYS,
+	type AcceleratorKeyCode,
+	type AcceleratorModifier,
+	type SupportedKey,
+} from '$lib/keyboard';
 import {
 	Err,
 	Ok,
@@ -7,22 +15,13 @@ import {
 	tryAsync,
 } from '@epicenterhq/result';
 import {
+	isRegistered as tauriIsRegistered,
 	register as tauriRegister,
 	unregister as tauriUnregister,
 	unregisterAll as tauriUnregisterAll,
-	isRegistered as tauriIsRegistered,
 } from '@tauri-apps/plugin-global-shortcut';
-import type { ShortcutTriggerState } from './shortcut-trigger-state';
-import type { Brand } from '$lib/brand';
-import type { CommandId } from '$lib/commands';
-import {
-	ACCELERATOR_MODIFIER_KEYS,
-	type SupportedKey,
-	type AcceleratorModifier,
-	type AcceleratorKeyCode,
-	ACCELERATOR_KEY_CODES,
-} from '$lib/keyboard';
 import * as os from '@tauri-apps/plugin-os';
+import type { ShortcutTriggerState } from './shortcut-trigger-state';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -42,12 +41,10 @@ export type Accelerator = string & Brand<'Accelerator'>;
 export function createGlobalShortcutManager() {
 	return {
 		async register({
-			id,
 			accelerator,
 			callback,
 			on,
 		}: {
-			id: CommandId;
 			accelerator: Accelerator;
 			callback: () => void;
 			on: ShortcutTriggerState;
@@ -58,7 +55,7 @@ export function createGlobalShortcutManager() {
 				return Err({
 					name: 'InvalidAcceleratorError',
 					message: `Invalid accelerator format: '${accelerator}'. Must follow Electron accelerator specification.`,
-					context: { id, accelerator },
+					context: { accelerator },
 					cause: undefined,
 				});
 			}
@@ -82,7 +79,7 @@ export function createGlobalShortcutManager() {
 				mapError: (error): GlobalShortcutServiceError => ({
 					name: 'GlobalShortcutServiceError',
 					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
-					context: { id, accelerator, error },
+					context: { accelerator, error },
 					cause: error,
 				}),
 			});

@@ -6,8 +6,9 @@ import {
 	deliverTranscribedText,
 	deliverTransformedText,
 } from './deliverTextToUser';
-import { CommandOrControl, services } from './services';
+import * as services from '$lib/services';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
+import { CommandOrControl } from '$lib/constants';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -454,8 +455,6 @@ export const commands = [
 ] as const satisfies SatisfiedCommand[];
 
 export type Command = (typeof commands)[number];
-
-export type CommandId = Command['id'];
 
 type CommandCallbacks = Record<Command['id'], Command['callback']>;
 

@@ -1,4 +1,5 @@
-import { commands, type CommandId } from '$lib/commands';
+import { commands } from '$lib/commands';
+import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
 import { rpc } from '$lib/query';
 import { shortcutStringToArray } from '$lib/services/shortcuts/formatConverters';
 import { settings } from '$lib/stores/settings.svelte';
