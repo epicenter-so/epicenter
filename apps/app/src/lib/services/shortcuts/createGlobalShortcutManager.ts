@@ -13,9 +13,16 @@ import {
 	isRegistered as tauriIsRegistered,
 } from '@tauri-apps/plugin-global-shortcut';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
-import type { SupportedKey } from './createLocalShortcutManager';
 import type { Brand } from '$lib/brand';
 import type { CommandId } from '$lib/commands';
+import {
+	ACCELERATOR_MODIFIER_KEYS,
+	ALL_ACCELERATOR_KEYS,
+	type SupportedKey,
+	type AcceleratorModifier,
+	type AcceleratorKeyCode,
+	ACCELERATOR_KEY_CODES,
+} from '@repo/shared/keyboard';
 import * as os from '@tauri-apps/plugin-os';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
@@ -144,177 +151,6 @@ export function createGlobalShortcutManager() {
 }
 
 /**
- * Valid Electron accelerator modifiers
- */
-const ACCELERATOR_MODIFIERS = [
-	'Command',
-	'Cmd',
-	'Control',
-	'Ctrl',
-	'CommandOrControl',
-	'CmdOrCtrl',
-	'Alt',
-	'Option',
-	'AltGr',
-	'Shift',
-	'Super',
-	'Meta',
-] as const;
-
-type AcceleratorModifier = (typeof ACCELERATOR_MODIFIERS)[number];
-
-/**
- * Valid Electron accelerator key codes
- */
-const ACCELERATOR_KEY_CODES = [
-	// Numbers 0 to 9
-	'0',
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-	// Letters A to Z
-	'A',
-	'B',
-	'C',
-	'D',
-	'E',
-	'F',
-	'G',
-	'H',
-	'I',
-	'J',
-	'K',
-	'L',
-	'M',
-	'N',
-	'O',
-	'P',
-	'Q',
-	'R',
-	'S',
-	'T',
-	'U',
-	'V',
-	'W',
-	'X',
-	'Y',
-	'Z',
-	// Function keys F1 to F24
-	'F1',
-	'F2',
-	'F3',
-	'F4',
-	'F5',
-	'F6',
-	'F7',
-	'F8',
-	'F9',
-	'F10',
-	'F11',
-	'F12',
-	'F13',
-	'F14',
-	'F15',
-	'F16',
-	'F17',
-	'F18',
-	'F19',
-	'F20',
-	'F21',
-	'F22',
-	'F23',
-	'F24',
-	// Various Punctuation
-	')',
-	'!',
-	'@',
-	'#',
-	'$',
-	'%',
-	'^',
-	'&',
-	'*',
-	'(',
-	':',
-	';',
-	'+',
-	'=',
-	'<',
-	',',
-	'_',
-	'-',
-	'>',
-	'.',
-	'?',
-	'/',
-	'~',
-	'`',
-	'{',
-	']',
-	'[',
-	'|',
-	'\\',
-	'}',
-	'"',
-	// TODO: Not sure if ' is allowed, see https://github.com/electron/electron/pull/47508/files
-	"'",
-	// Special characters
-	'Plus',
-	'Space',
-	'Tab',
-	'Capslock',
-	'Numlock',
-	'Scrolllock',
-	'Backspace',
-	'Delete',
-	'Insert',
-	'Return',
-	'Enter',
-	'Up',
-	'Down',
-	'Left',
-	'Right',
-	'Home',
-	'End',
-	'PageUp',
-	'PageDown',
-	'Escape',
-	'Esc',
-	'VolumeUp',
-	'VolumeDown',
-	'VolumeMute',
-	'MediaNextTrack',
-	'MediaPreviousTrack',
-	'MediaStop',
-	'MediaPlayPause',
-	'PrintScreen',
-	// NumPad Keys
-	'num0',
-	'num1',
-	'num2',
-	'num3',
-	'num4',
-	'num5',
-	'num6',
-	'num7',
-	'num8',
-	'num9',
-	'numdec',
-	'numadd',
-	'numsub',
-	'nummult',
-	'numdiv',
-] as const;
-
-type AcceleratorKeyCode = (typeof ACCELERATOR_KEY_CODES)[number];
-
-/**
  * Validates if a string is a valid Electron accelerator
  */
 export function isValidElectronAccelerator(accelerator: string): boolean {
@@ -324,7 +160,7 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 	const modifiers = parts.slice(0, -1);
 	const lastPart = parts.at(-1);
 
-	// Last part must be a key code
+	// Last part must be a key code (exclude modifiers)
 	const isLastPartValidKeyCode = ACCELERATOR_KEY_CODES.includes(
 		lastPart as AcceleratorKeyCode,
 	);
@@ -332,7 +168,7 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 
 	// All other parts must be modifiers
 	for (const modifier of modifiers) {
-		if (!ACCELERATOR_MODIFIERS.includes(modifier as AcceleratorModifier))
+		if (!ACCELERATOR_MODIFIER_KEYS.includes(modifier as AcceleratorModifier))
 			return false;
 	}
 

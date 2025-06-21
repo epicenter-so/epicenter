@@ -9,7 +9,9 @@
 		LOCAL_SHORTCUTS,
 		GLOBAL_SHORTCUTS,
 		SHORTCUT_EXAMPLES,
-	} from '@repo/shared';
+		SUPPORTED_KEY_SECTIONS,
+		ACCELERATOR_SECTIONS,
+	} from '@repo/shared/keyboard';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
@@ -63,7 +65,7 @@
 					<h4 class="text-sm font-semibold mb-1">Modifiers</h4>
 					<p class="text-xs text-muted-foreground mb-2">Hold with other keys</p>
 					<div class="flex flex-wrap sm:flex-col gap-1">
-						{#each (isLocal ? LOCAL_SHORTCUTS : GLOBAL_SHORTCUTS).Modifiers.keys as modifier}
+						{#each (isLocal ? SUPPORTED_KEY_SECTIONS[0] : ACCELERATOR_SECTIONS[0]).keys as modifier}
 							<Badge variant="outline" class="font-mono text-sm justify-start">
 								{modifier}
 							</Badge>
@@ -74,22 +76,20 @@
 				<!-- Right column: All other keys -->
 				<div class="flex-1 sm:pl-4">
 					<div class="flex flex-col gap-4">
-						{#each Object.entries(isLocal ? LOCAL_SHORTCUTS : GLOBAL_SHORTCUTS) as [section, { keys, description }]}
-							{#if section !== 'Modifiers'}
-								<div>
-									<h4 class="text-sm font-semibold mb-1">{section}</h4>
-									<p class="text-xs text-muted-foreground mb-2">
-										{description}
-									</p>
-									<div class="flex flex-wrap gap-1">
-										{#each keys as key}
-											<Badge variant="secondary" class="font-mono text-xs">
-												{key}
-											</Badge>
-										{/each}
-									</div>
+						{#each (isLocal ? SUPPORTED_KEY_SECTIONS : ACCELERATOR_SECTIONS).slice(1) as section}
+							<div>
+								<h4 class="text-sm font-semibold mb-1">{section.title}</h4>
+								<p class="text-xs text-muted-foreground mb-2">
+									{section.description}
+								</p>
+								<div class="flex flex-wrap gap-1">
+									{#each section.keys as key}
+										<Badge variant="secondary" class="font-mono text-xs">
+											{key}
+										</Badge>
+									{/each}
 								</div>
-							{/if}
+							</div>
 						{/each}
 					</div>
 				</div>
