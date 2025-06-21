@@ -115,7 +115,7 @@ export function createGlobalShortcutManager() {
 					cause: error,
 				}),
 			});
-			if (unregisterError) return Ok(undefined);
+			if (unregisterError) return Err(unregisterError);
 			return Ok(undefined);
 		},
 
@@ -136,7 +136,7 @@ export function createGlobalShortcutManager() {
 					};
 				},
 			});
-			if (unregisterAllError) return Ok(undefined);
+			if (unregisterAllError) return Err(unregisterAllError);
 			return Ok(undefined);
 		},
 	};
