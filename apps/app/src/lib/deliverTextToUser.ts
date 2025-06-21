@@ -1,4 +1,3 @@
-import { services } from '$lib/services';
 import { toast } from '$lib/toast';
 import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
 import { rpc } from './query';
@@ -26,8 +25,10 @@ export async function deliverTranscribedText({
 	text: string;
 	toastId: string;
 }) {
-	const userWantsClipboardCopy = settings.value['transcription.clipboard.copyOnSuccess'];
-	const userWantsCursorPaste = settings.value['transcription.clipboard.pasteOnSuccess'];
+	const userWantsClipboardCopy =
+		settings.value['transcription.clipboard.copyOnSuccess'];
+	const userWantsCursorPaste =
+		settings.value['transcription.clipboard.pasteOnSuccess'];
 
 	const statusToToastText = (status: null | 'COPIED' | 'COPIED+PASTED') => {
 		switch (status) {
@@ -97,7 +98,9 @@ export async function deliverTranscribedText({
 	}
 
 	// Can I copy to clipboard?
-	const { error: copyError } = await services.clipboard.setClipboardText(text);
+	const { error: copyError } = await rpc.clipboard.copyToClipboard.execute({
+		text,
+	});
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
@@ -116,8 +119,9 @@ export async function deliverTranscribedText({
 	}
 
 	// Can I paste at cursor?
-	const { error: pasteError } =
-		await services.clipboard.writeTextToCursor(text);
+	const { error: pasteError } = await rpc.clipboard.writeTextToCursor.execute({
+		text,
+	});
 
 	if (pasteError) {
 		toast.warning({
@@ -156,8 +160,10 @@ export async function deliverTransformedText({
 	text: string;
 	toastId: string;
 }) {
-	const userWantsClipboardCopy = settings.value['transformation.clipboard.copyOnSuccess'];
-	const userWantsCursorPaste = settings.value['transformation.clipboard.pasteOnSuccess'];
+	const userWantsClipboardCopy =
+		settings.value['transformation.clipboard.copyOnSuccess'];
+	const userWantsCursorPaste =
+		settings.value['transformation.clipboard.pasteOnSuccess'];
 
 	const statusToToastText = (status: null | 'COPIED' | 'COPIED+PASTED') => {
 		switch (status) {
@@ -228,7 +234,9 @@ export async function deliverTransformedText({
 	}
 
 	// Can I copy to clipboard?
-	const { error: copyError } = await services.clipboard.setClipboardText(text);
+	const { error: copyError } = await rpc.clipboard.copyToClipboard.execute({
+		text,
+	});
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
@@ -247,8 +255,9 @@ export async function deliverTransformedText({
 	}
 
 	// Can I paste at cursor?
-	const { error: pasteError } =
-		await services.clipboard.writeTextToCursor(text);
+	const { error: pasteError } = await rpc.clipboard.writeTextToCursor.execute({
+		text,
+	});
 
 	if (pasteError) {
 		toast.warning({

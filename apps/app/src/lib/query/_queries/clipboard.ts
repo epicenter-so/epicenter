@@ -7,4 +7,9 @@ export const clipboard = {
 		resultMutationFn: ({ text }: { text: string }) =>
 			services.clipboard.setClipboardText(text),
 	}),
+	writeTextToCursor: defineMutation({
+		mutationKey: ['clipboard', 'writeTextToCursor'],
+		resultMutationFn: async ({ text }: { text: string }) =>
+			await services.clipboard.writeTextToCursor(text),
+	}),
 };
