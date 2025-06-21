@@ -5,6 +5,7 @@ This folder contains all components that are directly bound to the global settin
 ## Purpose
 
 Components in this directory:
+
 - Import and use the global `settings` store from `$lib/stores/settings.svelte`
 - Either take **no props** or only take a **`settingsKey` prop** to determine which setting to bind to
 - Update settings directly using `settings.value = {...settings.value, ...}`
@@ -43,7 +44,7 @@ settings/
 
 ```svelte
 <script>
-  import { OpenAiApiKeyInput } from '$lib/components/settings';
+	import { OpenAiApiKeyInput } from '$lib/components/settings';
 </script>
 
 <OpenAiApiKeyInput />
@@ -53,7 +54,7 @@ settings/
 
 ```svelte
 <script>
-  import { DeviceSelector } from '$lib/components/settings';
+	import { DeviceSelector } from '$lib/components/settings';
 </script>
 
 <!-- For VAD recording device -->
@@ -68,28 +69,31 @@ settings/
 When creating a new settings component for this folder:
 
 1. **Import the settings store**:
+
    ```svelte
    <script lang="ts">
-     import { settings } from '$lib/stores/settings.svelte';
+   	import { settings } from '$lib/stores/settings.svelte';
    </script>
    ```
 
 2. **Define props (if needed)**:
+
    ```svelte
    <script lang="ts">
-     import type { Settings } from '@repo/shared/settings';
-     
-     let { settingsKey }: { settingsKey: keyof Settings } = $props();
+   	import type { Settings } from '$lib/settings';
+
+   	let { settingsKey }: { settingsKey: keyof Settings } = $props();
    </script>
    ```
 
 3. **Bind to settings**:
+
    ```svelte
-   <Input 
-     value={settings.value[settingsKey]}
-     oninput={({ currentTarget: { value } }) => {
-       settings.value = { ...settings.value, [settingsKey]: value };
-     }}
+   <Input
+   	value={settings.value[settingsKey]}
+   	oninput={({ currentTarget: { value } }) => {
+   		settings.value = { ...settings.value, [settingsKey]: value };
+   	}}
    />
    ```
 
@@ -109,6 +113,7 @@ When creating a new settings component for this folder:
 ## What NOT to Include
 
 Do not add components that:
+
 - Take `value` and `onChange` props (these belong in regular components)
 - Require complex external state management
 - Are page-specific and not reusable
