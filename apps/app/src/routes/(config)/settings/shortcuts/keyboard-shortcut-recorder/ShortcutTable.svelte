@@ -2,7 +2,6 @@
 	import { commands } from '$lib/commands';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
@@ -57,9 +56,6 @@
 						<Table.Cell class="text-right">
 							{#if type === 'local'}
 								<LocalKeyboardShortcutRecorder
-									shortcutValue={settings.value[
-										`shortcuts.local.${command.id}`
-									]}
 									{command}
 									placeholder={defaultShortcut
 										? `Default: ${defaultShortcut}`
@@ -68,9 +64,6 @@
 								/>
 							{:else}
 								<GlobalKeyboardShortcutRecorder
-									shortcutValue={settings.value[
-										`shortcuts.global.${command.id}`
-									]}
 									{command}
 									placeholder={defaultShortcut
 										? `Default: ${defaultShortcut}`

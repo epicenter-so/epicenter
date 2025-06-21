@@ -17,14 +17,16 @@
 		placeholder,
 		autoFocus = true,
 		pressedKeys,
-		shortcutValue,
 	}: {
 		command: Command;
 		placeholder?: string;
 		autoFocus?: boolean;
 		pressedKeys: PressedKeys;
-		shortcutValue: string | null;
 	} = $props();
+
+	const shortcutValue = $derived(
+		settings.value[`shortcuts.global.${command.id}`],
+	);
 
 	const keyRecorder = createKeyRecorder({
 		pressedKeys,
