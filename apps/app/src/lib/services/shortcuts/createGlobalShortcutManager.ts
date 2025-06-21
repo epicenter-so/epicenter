@@ -10,6 +10,7 @@ import {
 	register as tauriRegister,
 	unregister as tauriUnregister,
 	unregisterAll as tauriUnregisterAll,
+	isRegistered as tauriIsRegistered,
 } from '@tauri-apps/plugin-global-shortcut';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
 import type { SupportedKey } from './createLocalShortcutManager';
@@ -32,15 +33,6 @@ type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
 export type Accelerator = string & Brand<'Accelerator'>;
 
 export function createGlobalShortcutManager() {
-	const shortcuts = new Map<
-		CommandId,
-		{
-			on: ShortcutTriggerState;
-			accelerator: Accelerator;
-			callback: () => void;
-		}
-	>();
-
 	return {
 		async register({
 			id,
@@ -60,13 +52,9 @@ export function createGlobalShortcutManager() {
 					name: 'InvalidAcceleratorError',
 					message: `Invalid accelerator format: '${accelerator}'. Must follow Electron accelerator specification.`,
 					context: { id, accelerator },
-					cause: new Error('Invalid accelerator format'),
+					cause: undefined,
 				});
 			}
-
-			// Unregister existing shortcut first
-			const { error: unregisterError } = await this.unregister(id);
-			if (unregisterError) return Err(unregisterError);
 
 			const { error: registerError } = await tryAsync({
 				try: () =>
@@ -110,26 +98,24 @@ export function createGlobalShortcutManager() {
 		 * with the given ID doesn't exist or has already been unregistered.
 		 */
 		async unregister(
-			id: CommandId,
+			accelerator: Accelerator,
 		): Promise<Result<void, GlobalShortcutServiceError>> {
-			const shortcut = shortcuts.get(id);
-			if (!shortcut) return Ok(undefined);
+			const isRegistered = await tauriIsRegistered(accelerator);
+			if (!isRegistered) return Ok(undefined);
 
 			const { error: unregisterError } = await tryAsync({
-				try: () => tauriUnregister(shortcut.accelerator),
+				try: () => tauriUnregister(accelerator),
 				mapError: (error): GlobalShortcutServiceError => ({
 					name: 'GlobalShortcutServiceError',
-					message: `Failed to unregister global shortcut '${shortcut.accelerator}': ${extractErrorMessage(error)}`,
+					message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					context: {
-						id,
-						accelerator: shortcut.accelerator,
+						accelerator,
 						originalError: error,
 					},
 					cause: error,
 				}),
 			});
-			if (unregisterError) return Err(unregisterError);
-			shortcuts.delete(id);
+			if (unregisterError) return Ok(undefined);
 			return Ok(undefined);
 		},
 
@@ -145,13 +131,12 @@ export function createGlobalShortcutManager() {
 					return {
 						name: 'GlobalShortcutServiceError',
 						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
-						context: { shortcutCount: shortcuts.size, originalError: error },
+						context: { error },
 						cause: error,
 					};
 				},
 			});
-			if (unregisterAllError) return Err(unregisterAllError);
-			shortcuts.clear();
+			if (unregisterAllError) return Ok(undefined);
 			return Ok(undefined);
 		},
 	};
