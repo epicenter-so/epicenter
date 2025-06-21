@@ -37,7 +37,7 @@ export const RECORDING_MODE_OPTIONS = [
 	{ label: 'Manual', value: 'manual', icon: '🎙️', desktopOnly: false },
 	{ label: 'CPAL', value: 'cpal', icon: '🔊', desktopOnly: true },
 	{ label: 'Voice Activated', value: 'vad', icon: '🎤', desktopOnly: false },
-	{ label: 'Live', value: 'live', icon: '🎬', desktopOnly: false },
+	// { label: 'Live', value: 'live', icon: '🎬', desktopOnly: false },
 ] as const satisfies {
 	label: string;
 	value: RecordingMode;
@@ -63,6 +63,10 @@ export const ALWAYS_ON_TOP_OPTIONS = ALWAYS_ON_TOP_VALUES.map((option) => ({
 export const recordingStateSchema = z.enum(['IDLE', 'RECORDING']);
 
 export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
+
+export type CancelRecordingResult =
+	| { status: 'cancelled' }
+	| { status: 'no-recording' };
 
 export const recorderStateToIcons = {
 	IDLE: '🎙️',
