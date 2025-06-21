@@ -101,6 +101,6 @@ export const getDefaultSettingsV1 = () =>
 		'apiKeys.groq': '',
 		'apiKeys.google': '',
 
-		'shortcuts.currentLocalShortcut': 'space',
+		'shortcuts.currentLocalShortcut': ' ',
 		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
 	}) satisfies SettingsV1;
