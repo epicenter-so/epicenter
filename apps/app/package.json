@@ -59,6 +59,7 @@
 		"@repo/extension": "workspace:*",
 		"@repo/shared": "workspace:*",
 		"@ricky0123/vad-web": "^0.0.24",
+		"@standard-schema/spec": "^1.0.0",
 		"@tanstack/query-core": "https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b",
 		"@tanstack/svelte-query": "https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b",
 		"@tanstack/svelte-query-devtools": "https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter",

@@ -1,5 +1,5 @@
-import type { z } from 'zod';
 import { trySync } from '@epicenterhq/result';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 export function parseJson(value: string) {
 	return trySync({
@@ -8,7 +8,7 @@ export function parseJson(value: string) {
 	});
 }
 
-const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
+const attemptMergeStrategy = async <TSchema extends StandardSchemaV1>({
 	key,
 	valueFromStorage,
 	defaultValue,
@@ -16,27 +16,33 @@ const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 }: {
 	key: string;
 	valueFromStorage: unknown;
-	defaultValue: z.infer<TSchema>;
+	defaultValue: StandardSchemaV1.InferOutput<TSchema>;
 	schema: TSchema;
-	error: z.ZodError;
-}): z.infer<TSchema> => {
+	issues: ReadonlyArray<StandardSchemaV1.Issue>;
+}): Promise<StandardSchemaV1.InferOutput<TSchema>> => {
 	// Attempt to merge the default value with the value from storage if possible
 	const defaultValueMergedOldValues = {
 		...defaultValue,
 		...(valueFromStorage as Record<string, unknown>),
 	};
 
-	const parseMergedValuesResult = schema.safeParse(defaultValueMergedOldValues);
-	if (!parseMergedValuesResult.success) return defaultValue;
+	const parseMergedValuesResultMaybePromise = schema['~standard'].validate(
+		defaultValueMergedOldValues,
+	);
+	const parseMergedValuesResult =
+		parseMergedValuesResultMaybePromise instanceof Promise
+			? await parseMergedValuesResultMaybePromise
+			: parseMergedValuesResultMaybePromise;
+	if (parseMergedValuesResult.issues) return defaultValue;
 
-	const updatedValue = parseMergedValuesResult.data;
+	const updatedValue = parseMergedValuesResult.value;
 	return updatedValue;
 };
 
 /**
  * Creates a persisted state object tied to local storage, accessible through `.value`
  */
-export function createPersistedState<TSchema extends z.ZodTypeAny>({
+export function createPersistedState<TSchema extends StandardSchemaV1>({
 	key,
 	schema,
 	defaultValue,
@@ -57,7 +63,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	 * The default value to use if no value is found in local storage or the value
 	 * from local storage fails to pass the schema.
 	 * */
-	defaultValue: z.infer<TSchema>;
+	defaultValue: StandardSchemaV1.InferOutput<TSchema>;
 	/**
 	 * If false, disables the use of local storage. In SvelteKit, you set
 	 * this to `browser` because local storage doesn't exist in the server
@@ -84,17 +90,17 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		/** The value from storage that failed schema validation. */
 		valueFromStorage: unknown;
 		/** The default value to use if the value from storage fails schema validation. */
-		defaultValue: z.infer<TSchema>;
+		defaultValue: StandardSchemaV1.InferOutput<TSchema>;
 		/** The schema used to validate the value from storage. */
 		schema: TSchema;
 		/** The error that occurred when parsing the value from storage. */
-		error: z.ZodError;
-	}) => z.infer<TSchema>;
+		issues: ReadonlyArray<StandardSchemaV1.Issue>;
+	}) => StandardSchemaV1.InferOutput<TSchema>;
 	/**
 	 * Handler for when the value from storage is successfully updated.
 	 * @default `() => {}`
 	 */
-	onUpdateSuccess?: (newValue: z.infer<TSchema>) => void;
+	onUpdateSuccess?: (newValue: StandardSchemaV1.InferOutput<TSchema>) => void;
 	/**
 	 * Handler for when the value from storage fails to update.
 	 * @default `() => {}`
@@ -109,9 +115,9 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	let value = $state(defaultValue);
 
 	if (isBrowser) {
-		const parseValueFromStorage = (
+		const parseValueFromStorage = async (
 			valueFromStorageUnparsed: string | null,
-		): z.infer<TSchema> => {
+		): Promise<StandardSchemaV1.InferOutput<TSchema>> => {
 			const isEmpty = valueFromStorageUnparsed === null;
 			if (isEmpty) return defaultValue;
 
@@ -120,18 +126,25 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 			);
 			if (parseJsonError) return defaultValue;
 
-			const valueFromStorageResult = schema.safeParse(valueFromStorageJson);
-			if (valueFromStorageResult.success) return valueFromStorageResult.data;
+			const valueFromStorageResultMaybePromise =
+				schema['~standard'].validate(valueFromStorageJson);
+			const valueFromStorageResult =
+				valueFromStorageResultMaybePromise instanceof Promise
+					? await valueFromStorageResultMaybePromise
+					: valueFromStorageResultMaybePromise;
 
-			const resolvedValue = resolveParseErrorStrategy({
-				key,
-				valueFromStorage: valueFromStorageJson,
-				defaultValue,
-				schema,
-				error: valueFromStorageResult.error,
-			});
+			if (valueFromStorageResult.issues) {
+				const resolvedValue = resolveParseErrorStrategy({
+					key,
+					valueFromStorage: valueFromStorageJson,
+					defaultValue,
+					schema,
+					issues: valueFromStorageResult.issues,
+				});
+				return resolvedValue;
+			}
 
-			return resolvedValue;
+			return valueFromStorageResult.value;
 		};
 
 		value = parseValueFromStorage(localStorage.getItem(key));
@@ -148,7 +161,7 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 		get value() {
 			return value;
 		},
-		set value(newValue: z.infer<TSchema>) {
+		set value(newValue: StandardSchemaV1.InferInput<TSchema>) {
 			value = newValue;
 			if (!isBrowser) return;
 			try {
