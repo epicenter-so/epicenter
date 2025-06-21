@@ -16,6 +16,7 @@ import type { ShortcutTriggerState } from './shortcut-trigger-state';
 import type { SupportedKey } from './createLocalShortcutManager';
 import type { Brand } from '$lib/brand';
 import type { CommandId } from '$lib/commands';
+import * as os from '@tauri-apps/plugin-os';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -404,32 +405,69 @@ export function pressedKeysToTauriAccelerator(
 }
 
 /**
- * Convert a key to an Electron modifier (returns null if not a modifier)
+ * Converts a browser KeyboardEvent.key value (lowercase) to an Electron Accelerator modifier.
+ *
+ * This function handles platform-specific differences in how modifier keys are represented:
+ * - Browser normalizes platform keys (e.g., Command key → "meta", Option key → "alt")
+ * - Electron expects platform-specific modifiers (e.g., "Command" on macOS, "Super" on Windows/Linux)
+ *
+ * @param key - The lowercase key value from a KeyboardEvent (e.g., "control", "alt", "meta")
+ * @returns The corresponding Electron Accelerator modifier, or null if the key is not a modifier
+ *
+ * @example
+ * // On macOS
+ * convertToModifier('meta') // Returns 'Command'
+ * convertToModifier('alt')  // Returns 'Option'
+ *
+ * @example
+ * // On Windows/Linux
+ * convertToModifier('meta') // Returns 'Super'
+ * convertToModifier('alt')  // Returns 'Alt'
+ *
+ * @example
+ * // Cross-platform
+ * convertToModifier('control') // Returns 'Control' on all platforms
+ * convertToModifier('shift')   // Returns 'Shift' on all platforms
+ * convertToModifier('space')   // Returns null (not a modifier)
  */
 function convertToModifier(key: SupportedKey): AcceleratorModifier | null {
+	const platform = os.type();
+
 	switch (key) {
-		// Use CommandOrControl for cross-platform compatibility
 		case 'control':
-		case 'meta':
-			return 'CommandOrControl';
-		case 'alt':
-			return 'Alt';
+			// Control key is consistent across all platforms
+			return 'Control';
+
 		case 'shift':
+			// Shift key is consistent across all platforms
 			return 'Shift';
+
+		case 'alt':
+			// Alt key is called "Option" on macOS in Electron accelerators
+			return platform === 'macos' ? 'Option' : 'Alt';
+
+		case 'meta':
+			// Meta key maps differently based on platform:
+			// - macOS: Command key (reported as "meta" by browser)
+			// - Windows/Linux: Windows/Super key (reported as "meta" by browser)
+			return platform === 'macos' ? 'Command' : 'Super';
+
 		case 'altgraph':
-			return 'AltGr';
-		// These are valid keyboard keys but not standard accelerator modifiers
+			// AltGr is not available on macOS
+			return platform === 'macos' ? null : 'AltGr';
+
+		// These keys might be reported by browsers but aren't standard Electron modifiers
 		case 'super':
+			// "super" as a key value (different from Meta) maps to Super modifier
+			return 'Super';
+
 		case 'hyper':
 		case 'fn':
-		case 'fnlock':
-		case 'capslock':
-		case 'numlock':
-		case 'scrolllock':
-		case 'symbol':
-		case 'symbollock':
+			// These are not supported as Electron accelerator modifiers
 			return null;
+
 		default:
+			// Any other key is not a modifier
 			return null;
 	}
 }
