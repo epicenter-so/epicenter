@@ -109,6 +109,9 @@ export function createPressedKeys({
 		});
 
 		return () => {
+			// Cleanup called once all subscriptions are removed (no more .current being accessed)
+			// Clear pressed keys to prevent cases where keys are "stuck" in the pressed state
+			pressedKeys = [];
 			keydown();
 			keyup();
 			blur();
