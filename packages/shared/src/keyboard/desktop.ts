@@ -12,8 +12,6 @@ export const ACCELERATOR_SECTIONS = [
 			'Cmd', // macOS Command key
 			'Control',
 			'Ctrl', // Control key
-			'CommandOrControl',
-			'CmdOrCtrl', // Cross-platform
 			'Alt',
 			'Option', // Alt/Option key
 			'AltGr', // Alt Graph key
@@ -204,12 +202,3 @@ export const ACCELERATOR_KEY_CODES = [
 	...ACCELERATOR_SECTIONS[6].keys, // Numpad
 ] as const satisfies (typeof ACCELERATOR_SECTIONS)[number]['keys'][number][];
 export type AcceleratorKeyCode = (typeof ACCELERATOR_KEY_CODES)[number];
-
-/**
- * Flattened array of all accelerator keys for compatibility.
- * This is derived from ACCELERATOR_SECTIONS for use in validation and type guards.
- */
-export const ALL_ACCELERATOR_KEYS = [
-	...ACCELERATOR_MODIFIER_KEYS, // Modifiers
-	...ACCELERATOR_KEY_CODES, // Key codes
-] as const satisfies (typeof ACCELERATOR_SECTIONS)[number]['keys'][number][];

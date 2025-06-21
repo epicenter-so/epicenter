@@ -70,6 +70,9 @@ const OsService = window.__TAURI_INTERNALS__
 	? createOsServiceDesktop()
 	: createOsServiceWeb();
 
+export const CommandOrControl =
+	OsService.type() === 'macos' ? 'Command' : 'Control';
+
 // TODO: Make sure services are only consumed in the query layer, nowhere else
 /**
  * Unified services object providing consistent access to all services.

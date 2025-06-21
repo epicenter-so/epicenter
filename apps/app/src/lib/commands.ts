@@ -6,7 +6,7 @@ import {
 	deliverTranscribedText,
 	deliverTransformedText,
 } from './deliverTextToUser';
-import { services } from './services';
+import { CommandOrControl, services } from './services';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
 
 const stopManualRecording = async () => {
@@ -202,7 +202,7 @@ export const commands = [
 		id: 'toggleManualRecording',
 		title: 'Toggle manual recording',
 		defaultLocalShortcut: ' ',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+[',
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+[`,
 		on: 'Pressed',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
@@ -227,7 +227,7 @@ export const commands = [
 		id: 'cancelManualRecording',
 		title: 'Cancel manual recording',
 		defaultLocalShortcut: 'c',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+]',
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+]`,
 		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
@@ -353,7 +353,7 @@ export const commands = [
 		id: 'pushToTalk',
 		title: 'Push to talk',
 		defaultLocalShortcut: 'p',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+;',
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+;`,
 		on: 'Both',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
@@ -378,7 +378,7 @@ export const commands = [
 		id: 'toggleVadRecording',
 		title: 'Toggle vad recording',
 		defaultLocalShortcut: 'v',
-		defaultGlobalShortcut: "CommandOrControl+Shift+'",
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+'`,
 		on: 'Pressed',
 		callback: async () => {
 			const { data: vadState } =
