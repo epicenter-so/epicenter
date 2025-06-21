@@ -3,31 +3,28 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
 	import { cn } from '$lib/utils';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
-	import { createKeyRecorder } from './create-key-recorder.svelte';
-	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
+	import {
+		type KeyRecorder,
+		createKeyRecorder,
+	} from './create-key-recorder.svelte';
 
 	const {
 		title,
 		placeholder = 'Press a key combination',
 		autoFocus = true,
 		rawKeyCombination,
-		onRegister,
-		onClear,
+		keyRecorder,
 	}: {
 		title: string;
 		placeholder?: string;
 		autoFocus?: boolean;
 		rawKeyCombination: string | null;
-		onRegister: (rawKeyCombination: SupportedKey[]) => void;
-		onClear: () => void | Promise<void>;
+		keyRecorder: KeyRecorder;
 	} = $props();
-
-	const pressedKeys = createPressedKeys();
-
-	const keyRecorder = createKeyRecorder({ pressedKeys, onRegister, onClear });
 
 	let isPopoverOpen = $state(false);
 	let isManualMode = $state(false);
@@ -162,7 +159,7 @@
 					onsubmit={(e) => {
 						e.preventDefault();
 						if (manualValue) {
-							keyRecorder.register(manualValue.split('+'));
+							keyRecorder.register(manualValue.split('+') as SupportedKey[]);
 							isManualMode = false;
 						}
 					}}
