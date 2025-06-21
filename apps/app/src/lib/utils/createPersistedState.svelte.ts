@@ -1,5 +1,12 @@
-import { parseJson } from '@repo/shared';
 import type { z } from 'zod';
+import { trySync } from '@epicenterhq/result';
+
+export function parseJson(value: string) {
+	return trySync({
+		try: () => JSON.parse(value) as unknown,
+		mapError: (error) => ({ name: 'ParseJsonError', error }),
+	});
+}
 
 const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
 	key,
