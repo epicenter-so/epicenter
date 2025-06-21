@@ -17,7 +17,6 @@ import type { Brand } from '$lib/brand';
 import type { CommandId } from '$lib/commands';
 import {
 	ACCELERATOR_MODIFIER_KEYS,
-	ALL_ACCELERATOR_KEYS,
 	type SupportedKey,
 	type AcceleratorModifier,
 	type AcceleratorKeyCode,
