@@ -118,13 +118,9 @@ export const transcription = {
 };
 
 function transcribeBlob(blob: Blob) {
-	return services
-		.transcription({
-			provider: settings.value['transcription.selectedTranscriptionService'],
-		})
-		.transcribe(blob, {
-			outputLanguage: settings.value['transcription.outputLanguage'],
-			prompt: settings.value['transcription.prompt'],
-			temperature: settings.value['transcription.temperature'],
-		});
+	return services.transcription().transcribe(blob, {
+		outputLanguage: settings.value['transcription.outputLanguage'],
+		prompt: settings.value['transcription.prompt'],
+		temperature: settings.value['transcription.temperature'],
+	});
 }

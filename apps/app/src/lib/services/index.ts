@@ -53,6 +53,10 @@ const PlaySoundService = window.__TAURI_INTERNALS__
 	? createPlaySoundServiceDesktop()
 	: createPlaySoundServiceWeb();
 
+const OsService = window.__TAURI_INTERNALS__
+	? createOsServiceDesktop()
+	: createOsServiceWeb();
+
 // Static services (platform-agnostic)
 const VadService = createVadServiceWeb();
 
@@ -66,16 +70,8 @@ const CpalRecorderService = createCpalRecorderService();
 const LocalShortcutManager = createLocalShortcutManager();
 const GlobalShortcutManager = createGlobalShortcutManager();
 
-const OsService = window.__TAURI_INTERNALS__
-	? createOsServiceDesktop()
-	: createOsServiceWeb();
-
-function TranscriptionService({
-	provider,
-}: {
-	provider: Settings['transcription.selectedTranscriptionService'];
-}) {
-	switch (provider) {
+function TranscriptionService() {
+	switch (settings.value['transcription.selectedTranscriptionService']) {
 		case 'OpenAI': {
 			return createOpenaiTranscriptionService({
 				HttpService,
