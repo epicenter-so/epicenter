@@ -1,7 +1,7 @@
 {
 	"name": "@repo/app",
 	"version": "6.5.0",
-	"private": true,
+	"description": "",
 	"exports": {
 		"./commands": "./src/lib/commands.ts"
 	},
@@ -17,13 +17,14 @@
 		"lint": "eslint --fix . && prettier --check .",
 		"format": "prettier --write ."
 	},
+	"license": "MIT",
 	"devDependencies": {
 		"@eslint/js": "^9.27.0",
 		"@lucide/svelte": "^0.516.0",
-		"@sveltejs/adapter-static": "3.0.8",
+		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/adapter-vercel": "^5.7.2",
-		"@sveltejs/kit": "^2.21.1",
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@sveltejs/kit": "^2.22.0",
+		"@sveltejs/vite-plugin-svelte": "^5.1.0",
 		"@tailwindcss/vite": "^4.1.8",
 		"@tauri-apps/cli": "^2.5.0",
 		"@types/chrome": "^0.0.287",
@@ -54,7 +55,7 @@
 	"dependencies": {
 		"@epicenterhq/result": "^0.15.0",
 		"@google/generative-ai": "^0.24.1",
-		"@plasmohq/messaging": "^0.7.1",
+		"@plasmohq/messaging": "^0.7.2",
 		"@repo/extension": "workspace:*",
 		"@repo/shared": "workspace:*",
 		"@ricky0123/vad-web": "^0.0.24",
@@ -63,17 +64,18 @@
 		"@tanstack/svelte-query-devtools": "https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter",
 		"@tanstack/table-core": "8.21.3",
 		"@tauri-apps/api": "^2.5.0",
-		"@tauri-apps/plugin-clipboard-manager": "^2.2.2",
-		"@tauri-apps/plugin-dialog": "^2.2.2",
-		"@tauri-apps/plugin-fs": "^2.3.0",
-		"@tauri-apps/plugin-global-shortcut": "^2.2.1",
-		"@tauri-apps/plugin-http": "^2.4.4",
-		"@tauri-apps/plugin-notification": "^2.2.2",
-		"@tauri-apps/plugin-os": "^2.2.1",
-		"@tauri-apps/plugin-process": "^2.2.1",
-		"@tauri-apps/plugin-shell": "^2.2.1",
-		"@tauri-apps/plugin-sql": "^2.2.0",
-		"@tauri-apps/plugin-window-state": "^2.2.2",
+		"@tauri-apps/plugin-clipboard-manager": "~2.2.3",
+		"@tauri-apps/plugin-dialog": "~2.2.2",
+		"@tauri-apps/plugin-fs": "~2.3.0",
+		"@tauri-apps/plugin-global-shortcut": "~2.2.1",
+		"@tauri-apps/plugin-http": "~2.4.4",
+		"@tauri-apps/plugin-notification": "~2.2.3",
+		"@tauri-apps/plugin-opener": "^2.3.0",
+		"@tauri-apps/plugin-os": "~2.2.2",
+		"@tauri-apps/plugin-process": "~2.2.2",
+		"@tauri-apps/plugin-shell": "~2.2.2",
+		"@tauri-apps/plugin-updater": "~2.8.1",
+		"@tauri-apps/plugin-window-state": "~2.2.3",
 		"audio-recorder-polyfill": "^0.4.1",
 		"cross-env": "^7.0.3",
 		"date-fns": "^4.1.0",
@@ -83,6 +85,6 @@
 		"idb": "^8.0.3",
 		"nanoid": "^5.1.5",
 		"vaul-svelte": "1.0.0-next.7",
-		"zod": "^3.25.31"
+		"zod": "^3.25.67"
 	}
 }

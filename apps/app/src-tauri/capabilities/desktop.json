@@ -9,6 +9,9 @@
     "main"
   ],
   "permissions": [
-    "global-shortcut:default"
+    "global-shortcut:default",
+    "updater:default",
+    "updater:default",
+    "window-state:default"
   ]
 }
