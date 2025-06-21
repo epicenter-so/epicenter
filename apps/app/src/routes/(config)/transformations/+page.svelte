@@ -194,7 +194,7 @@
 	<title>All Transformations</title>
 </svelte:head>
 
-<main class="flex w-full flex-1 flex-col gap-2 px-4 py-4 md:px-8">
+<main class="flex w-full flex-1 flex-col gap-2 px-4 py-4 sm:px-8 mx-auto">
 	<h1 class="scroll-m=20 text-4xl font-bold tracking-tight lg:text-5xl">
 		Transformations
 	</h1>
