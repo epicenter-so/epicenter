@@ -25,6 +25,8 @@ import { createTransformerService } from './transformer';
 import { createVadServiceWeb } from './vad';
 import { createGlobalShortcutManager } from './shortcuts/createGlobalShortcutManager';
 import { createLocalShortcutManager } from './shortcuts/createLocalShortcutManager';
+import { createOsServiceDesktop } from './os/desktop';
+import { createOsServiceWeb } from './os/web';
 
 // Static services (platform-dependent but not settings-dependent)
 const DownloadService = window.__TAURI_INTERNALS__
@@ -64,6 +66,11 @@ const CpalRecorderService = createCpalRecorderService();
 const LocalShortcutManager = createLocalShortcutManager();
 const GlobalShortcutManager = createGlobalShortcutManager();
 
+const OsService = window.__TAURI_INTERNALS__
+	? createOsServiceDesktop()
+	: createOsServiceWeb();
+
+// TODO: Make sure services are only consumed in the query layer, nowhere else
 /**
  * Unified services object providing consistent access to all services.
  */
@@ -128,4 +135,6 @@ export const services = {
 	localShortcutManager: LocalShortcutManager,
 
 	globalShortcutManager: GlobalShortcutManager,
+
+	os: OsService,
 };

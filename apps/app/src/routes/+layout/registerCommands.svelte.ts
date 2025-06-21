@@ -66,15 +66,13 @@ export async function syncGlobalShortcutsWithSettings() {
 	const results = await Promise.all(
 		commands
 			.map((command) => {
-				const keyCombination = settings.value[`shortcuts.global.${command.id}`];
-				if (!keyCombination) {
-					return rpc.shortcuts.unregisterCommandGlobally.execute({
-						commandId: command.id as CommandId,
-					});
-				}
+				const accelerator = settings.value[
+					`shortcuts.global.${command.id}`
+				] as Accelerator | null;
+				if (!accelerator) return;
 				return rpc.shortcuts.registerCommandGlobally.execute({
 					command,
-					keyCombination: keyCombination as Accelerator,
+					accelerator,
 				});
 			})
 			.filter((result) => result !== undefined),

@@ -1,10 +1,8 @@
-import { type Command, commandCallbacks, type CommandId } from '$lib/commands';
+import { type Command, type CommandId, commandCallbacks } from '$lib/commands';
 import { services } from '$lib/services';
-import { defineMutation } from '../_utils';
 import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 import type { SupportedKey } from '@repo/shared/keyboard';
-import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from '@epicenterhq/result';
+import { defineMutation } from '../_utils';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
@@ -34,14 +32,14 @@ export const shortcuts = {
 		mutationKey: ['shortcuts', 'registerCommandGlobally'] as const,
 		resultMutationFn: ({
 			command,
-			keyCombination,
+			accelerator,
 		}: {
 			command: Command;
-			keyCombination: Accelerator;
+			accelerator: Accelerator;
 		}) =>
 			services.globalShortcutManager.register({
 				id: command.id as CommandId,
-				accelerator: keyCombination,
+				accelerator,
 				callback: commandCallbacks[command.id],
 				on: command.on,
 			}),
@@ -49,12 +47,8 @@ export const shortcuts = {
 
 	unregisterCommandGlobally: defineMutation({
 		mutationKey: ['shortcuts', 'unregisterCommandGlobally'] as const,
-		resultMutationFn: async ({ commandId }: { commandId: CommandId }) => {
-			const accelerator = settings.value[`shortcuts.global.${commandId}`];
-			if (!accelerator) return Ok(undefined);
-			return await services.globalShortcutManager.unregister(
-				accelerator as Accelerator,
-			);
+		resultMutationFn: async ({ accelerator }: { accelerator: Accelerator }) => {
+			return await services.globalShortcutManager.unregister(accelerator);
 		},
 	}),
 };

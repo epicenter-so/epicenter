@@ -3,7 +3,10 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { rpc } from '$lib/query';
-	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
+	import {
+		pressedKeysToTauriAccelerator,
+		type Accelerator,
+	} from '$lib/services/shortcuts/createGlobalShortcutManager';
 	import type { SupportedKey } from '@repo/shared/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
@@ -33,7 +36,7 @@
 		onRegister: async (keyCombination: SupportedKey[]) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandGlobally.execute({
-					commandId: command.id as CommandId,
+					accelerator: shortcutValue as Accelerator,
 				});
 
 			if (unregisterError) {
@@ -59,7 +62,7 @@
 			const { error: registerError } =
 				await rpc.shortcuts.registerCommandGlobally.execute({
 					command,
-					keyCombination: accelerator,
+					accelerator,
 				});
 
 			if (registerError) {
