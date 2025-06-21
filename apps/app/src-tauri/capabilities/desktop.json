@@ -1,4 +1,5 @@
 {
+  "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "desktop-capability",
   "platforms": [
     "macOS",
@@ -9,9 +10,10 @@
     "main"
   ],
   "permissions": [
-    "global-shortcut:default",
-    "updater:default",
-    "updater:default",
-    "window-state:default"
+    "global-shortcut:allow-is-registered",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-register-all",
+    "global-shortcut:allow-unregister-all"
   ]
 }
