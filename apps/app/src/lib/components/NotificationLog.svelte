@@ -27,7 +27,7 @@
 <script lang="ts">
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import type { ToastAndNotifyOptions } from '@repo/shared';
+	import type { ToastAndNotifyOptions } from '$lib/toasts';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import {
 		AlertCircle,
