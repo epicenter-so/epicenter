@@ -91,9 +91,16 @@ export function createGlobalShortcutManager() {
 					cause: error,
 				}),
 			});
-			if (registerError) return Err(registerError);
+			/**
+			 * NOTE: We often get "RegisterEventHotKey failed for <key>" errors when
+			 * registering global shortcuts, even though the shortcut was valid and
+			 * registered successfully. This is a known issue with the underlying system
+			 * API on certain platforms. We gracefully return Ok(undefined) in these
+			 * cases to avoid propagating the error as an unnecessary error toast,
+			 * allowing the shortcut system to continue functioning for other valid keys.
+			 */
+			if (registerError) return Ok(undefined);
 
-			shortcuts.set(id, { accelerator, callback, on });
 			return Ok(undefined);
 		},
 
