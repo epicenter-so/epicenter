@@ -70,6 +70,7 @@ const CpalRecorderService = createCpalRecorderService();
 const LocalShortcutManager = createLocalShortcutManager();
 const GlobalShortcutManager = createGlobalShortcutManager();
 
+// Dynamic services (settings-dependent, lazily loaded)
 function TranscriptionService() {
 	switch (settings.value['transcription.selectedTranscriptionService']) {
 		case 'OpenAI': {
