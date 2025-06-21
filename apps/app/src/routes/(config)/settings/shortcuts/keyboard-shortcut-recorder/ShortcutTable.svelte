@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { commands } from '$lib/commands';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { Search, X } from 'lucide-svelte';
+	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
+	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
 
@@ -18,6 +17,8 @@
 			command.title.toLowerCase().includes(searchQuery.toLowerCase()),
 		),
 	);
+
+	const pressedKeys = createPressedKeys();
 </script>
 
 <div class="space-y-4">
@@ -45,8 +46,6 @@
 			</Table.Header>
 			<Table.Body>
 				{#each filteredCommands as command}
-					{@const shortcutValue =
-						settings.value[`shortcuts.${type}.${command.id}`]}
 					{@const defaultShortcut =
 						type === 'local'
 							? command.defaultLocalShortcut
@@ -56,48 +55,29 @@
 							<span class="block truncate pr-2">{command.title}</span>
 						</Table.Cell>
 						<Table.Cell class="text-right">
-							<div class="flex items-center justify-end gap-2">
-								{#if shortcutValue}
-									<Badge
-										variant="secondary"
-										class="font-mono text-xs max-w-[120px] truncate"
-									>
-										{shortcutValue}
-									</Badge>
-									<Button
-										variant="ghost"
-										size="icon"
-										class="size-8 shrink-0"
-										onclick={() => {
-											settings.value = {
-												...settings.value,
-												[`shortcuts.${type}.${command.id}`]: null,
-											};
-										}}
-									>
-										<X class="size-4" />
-										<span class="sr-only">Clear shortcut</span>
-									</Button>
-								{:else}
-									<span class="text-sm text-muted-foreground">Not set</span>
-								{/if}
-
-								{#if type === 'local'}
-									<LocalKeyboardShortcutRecorder
-										{command}
-										placeholder={defaultShortcut
-											? `Default: ${defaultShortcut}`
-											: 'Set shortcut'}
-									/>
-								{:else}
-									<GlobalKeyboardShortcutRecorder
-										{command}
-										placeholder={defaultShortcut
-											? `Default: ${defaultShortcut}`
-											: 'Set shortcut'}
-									/>
-								{/if}
-							</div>
+							{#if type === 'local'}
+								<LocalKeyboardShortcutRecorder
+									shortcutValue={settings.value[
+										`shortcuts.local.${command.id}`
+									]}
+									{command}
+									placeholder={defaultShortcut
+										? `Default: ${defaultShortcut}`
+										: 'Set shortcut'}
+									{pressedKeys}
+								/>
+							{:else}
+								<GlobalKeyboardShortcutRecorder
+									shortcutValue={settings.value[
+										`shortcuts.global.${command.id}`
+									]}
+									{command}
+									placeholder={defaultShortcut
+										? `Default: ${defaultShortcut}`
+										: 'Set shortcut'}
+									{pressedKeys}
+								/>
+							{/if}
 						</Table.Cell>
 					</Table.Row>
 				{/each}
