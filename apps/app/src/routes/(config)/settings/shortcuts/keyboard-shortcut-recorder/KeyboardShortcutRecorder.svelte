@@ -21,7 +21,7 @@
 		placeholder?: string;
 		autoFocus?: boolean;
 		rawKeyCombination: string | null;
-		onRegister: (rawKeyCombination: SupportedKey[]) => void | Promise<void>;
+		onRegister: (rawKeyCombination: SupportedKey[]) => void;
 		onClear: () => void | Promise<void>;
 	} = $props();
 

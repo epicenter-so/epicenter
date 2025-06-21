@@ -1,3 +1,4 @@
+import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination
@@ -25,12 +26,12 @@ export function createKeyRecorder({
 	onClear,
 }: {
 	pressedKeys: PressedKeys;
-	onRegister: (keyCombination: string[]) => void;
-	onClear: () => void | Promise<void>;
+	onRegister: (keyCombination: SupportedKey[]) => void;
+	onClear: () => void;
 }) {
 	// State
 	let isListening = $state(false);
-	const capturedKeys = new Set<string>();
+	const capturedKeys = new Set<SupportedKey>();
 	let captureWindowTimer: NodeJS.Timeout | null = null;
 
 	// Helper: Clear the capture window timer
@@ -103,11 +104,11 @@ export function createKeyRecorder({
 			capturedKeys.clear();
 			clearCaptureTimer();
 		},
-		async clear() {
+		clear() {
 			isListening = false;
 			capturedKeys.clear();
 			clearCaptureTimer();
-			await onClear();
+			onClear();
 		},
 		register: onRegister,
 	};
