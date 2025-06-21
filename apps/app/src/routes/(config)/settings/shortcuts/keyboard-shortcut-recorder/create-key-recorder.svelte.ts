@@ -1,4 +1,4 @@
-import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
+import type { SupportedKey } from '@repo/shared/keyboard';
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination

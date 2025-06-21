@@ -3,14 +3,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
 	import { cn } from '$lib/utils';
-	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
+	import type { SupportedKey } from '@repo/shared/keyboard';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
-	import {
-		type KeyRecorder,
-		createKeyRecorder,
-	} from './create-key-recorder.svelte';
+	import { type KeyRecorder } from './create-key-recorder.svelte';
 
 	const {
 		title,

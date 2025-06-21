@@ -3,7 +3,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { rpc } from '$lib/query';
-	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
+	import type { SupportedKey } from '@repo/shared/keyboard';
 	import { arrayToShortcutString } from '$lib/services/shortcuts/formatConverters';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';

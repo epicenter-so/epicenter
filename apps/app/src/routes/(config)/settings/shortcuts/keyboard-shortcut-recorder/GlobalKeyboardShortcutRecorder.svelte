@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { rpc } from '$lib/query';
 	import { pressedKeysToTauriAccelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
-	import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
+	import type { SupportedKey } from '@repo/shared/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
