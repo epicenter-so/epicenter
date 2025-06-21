@@ -12,8 +12,8 @@
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import {
-		registerGlobalCommandsOnMount,
-		registerLocalCommandsOnMount,
+		setupGlobalShortcutsOnMount,
+		setupLocalShortcutsOnMount,
 	} from './registerCommands.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
@@ -24,13 +24,13 @@
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
-	registerLocalCommandsOnMount();
+	setupLocalShortcutsOnMount();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
 		syncIconWithRecorderState();
 		closeToTrayIfEnabled();
-		registerGlobalCommandsOnMount();
+		setupGlobalShortcutsOnMount();
 	}
 
 	$effect(() => {
