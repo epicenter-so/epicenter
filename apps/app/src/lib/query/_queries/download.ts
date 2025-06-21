@@ -17,7 +17,7 @@ export const download = {
 					title: '⚠️ Recording blob not found',
 					description: "Your recording doesn't have a blob to download.",
 					context: { recording },
-					cause: new Error('Recording blob not found'),
+					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
