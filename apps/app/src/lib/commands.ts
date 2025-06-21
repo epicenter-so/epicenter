@@ -8,7 +8,6 @@ import {
 } from './deliverTextToUser';
 import { services } from './services';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
-import type { Brand } from './brand';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
