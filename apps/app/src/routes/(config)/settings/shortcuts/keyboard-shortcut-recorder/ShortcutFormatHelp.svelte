@@ -6,8 +6,6 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
-		LOCAL_SHORTCUTS,
-		GLOBAL_SHORTCUTS,
 		SHORTCUT_EXAMPLES,
 		SUPPORTED_KEY_SECTIONS,
 		ACCELERATOR_SECTIONS,
