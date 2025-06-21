@@ -5,7 +5,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
-	import type { Settings } from '$lib/settings';
+	import type { Settings } from '@repo/shared/settings';
 	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
 	import {
 		syncGlobalShortcutsWithSettings,

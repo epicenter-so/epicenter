@@ -6,6 +6,8 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
+		"./constants": "./src/constants.ts",
+		"./settings": "./src/settings/index.ts",
 		"./keyboard": "./src/keyboard/index.ts"
 	},
 	"devDependencies": {

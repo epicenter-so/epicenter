@@ -1,6 +1,6 @@
 import type { Result, TaggedError } from '@epicenterhq/result';
 import type { WhisperingError } from '@repo/shared';
-import type { Settings } from '$lib/settings';
+import type { Settings } from '@repo/shared/settings';
 
 export type TranscriptionServiceError =
 	TaggedError<'TranscriptionServiceError'>;

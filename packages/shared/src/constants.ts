@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
-import type { SettingsV6 } from './settings/settingsV6.js';
+import type { Settings } from './settings/index.js';
 
 export const WHISPERING_URL =
 	process.env.NODE_ENV === 'production'
@@ -188,12 +188,12 @@ type ApiTranscriptionService = BaseTranscriptionService & {
 	models: readonly string[];
 	defaultModel: string;
 	modelSettingKey: string;
-	apiKeyField: keyof SettingsV6;
+	apiKeyField: keyof Settings;
 };
 
 type ServerTranscriptionService = BaseTranscriptionService & {
 	type: 'server';
-	serverUrlField: keyof SettingsV6;
+	serverUrlField: keyof Settings;
 };
 
 type SatisfiedTranscriptionService =
