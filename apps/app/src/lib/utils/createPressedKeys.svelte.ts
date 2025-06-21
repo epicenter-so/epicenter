@@ -75,13 +75,16 @@ export function createPressedKeys({
 			// Special handling for modifier keys (meta, control, alt, shift)
 			// This addresses issues with OS/browser intercepting certain key combinations
 			// where non-modifier keyup events might not fire properly
-			if (['meta', 'control', 'alt', 'shift'].includes(key)) {
+			if (
+				key === 'meta' ||
+				key === 'control' ||
+				key === 'alt' ||
+				key === 'shift'
+			) {
 				// When a modifier key is released, clear all non-modifier keys
 				// but keep other modifier keys that might still be pressedKeys
 				// This prevents keys from getting "stuck" in the pressedKeys state
-				pressedKeys = pressedKeys.filter((k) =>
-					['meta', 'control', 'alt', 'shift'].includes(k),
-				);
+				pressedKeys = pressedKeys.filter((k) => k !== key);
 			}
 
 			// Regular key removal
