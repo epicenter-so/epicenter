@@ -1,5 +1,5 @@
 import type { Result, TaggedError } from '@epicenterhq/result';
-import type { WhisperingSoundNames } from '@repo/shared';
+import type { WhisperingSoundNames } from '$lib/constants';
 
 export type PlaySoundServiceError = TaggedError<'PlaySoundServiceError'>;
 

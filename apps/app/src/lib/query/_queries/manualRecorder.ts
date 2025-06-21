@@ -1,6 +1,6 @@
 import { services } from '$lib/services';
 import { toast } from '$lib/toast';
-import type { WhisperingRecordingState } from '@repo/shared';
+import type { WhisperingRecordingState } from '$lib/constants';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
@@ -33,10 +33,9 @@ export const manualRecorder = {
 				bitrateKbps: string;
 			};
 		}) =>
-			services.manualRecorder.startRecording(
-				settings,
-				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
-			),
+			services.manualRecorder.startRecording(settings, {
+				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+			}),
 		onSettled: invalidateRecorderState,
 	}),
 

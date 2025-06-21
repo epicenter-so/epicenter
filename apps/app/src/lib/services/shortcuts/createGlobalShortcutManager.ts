@@ -21,7 +21,7 @@ import {
 	type AcceleratorModifier,
 	type AcceleratorKeyCode,
 	ACCELERATOR_KEY_CODES,
-} from '@repo/shared/keyboard';
+} from '$lib/keyboard';
 import * as os from '@tauri-apps/plugin-os';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;

@@ -8,7 +8,7 @@
 	import { rpc } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
-	import { DEBOUNCE_TIME_MS } from '@repo/shared';
+	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import RenderTransformation from './-components/RenderTransformation.svelte';

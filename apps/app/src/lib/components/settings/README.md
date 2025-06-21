@@ -80,7 +80,7 @@ When creating a new settings component for this folder:
 
    ```svelte
    <script lang="ts">
-   	import type { Settings } from '@repo/shared/settings';
+   	import type { Settings } from '$lib/settings';
 
    	let { settingsKey }: { settingsKey: keyof Settings } = $props();
    </script>

@@ -1,7 +1,7 @@
 import { services } from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from '@epicenterhq/result';
-import type { VadState } from '@repo/shared';
+import type { VadState } from '$lib/constants';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 

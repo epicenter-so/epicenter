@@ -7,7 +7,7 @@
 	import {
 		TRANSCRIPTION_SERVICES,
 		type TranscriptionService,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import { CheckIcon, MicIcon, SettingsIcon } from 'lucide-svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Badge } from '$lib/components/ui/badge';

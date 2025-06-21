@@ -4,7 +4,7 @@ import { extension } from '@repo/extension';
 import type {
 	WhisperingRecordingState,
 	CancelRecordingResult,
-} from '@repo/shared';
+} from '$lib/constants';
 
 const TIMESLICE_MS = 1000;
 // Whisper API recommends a mono channel at 16kHz

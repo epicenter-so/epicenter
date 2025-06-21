@@ -1,5 +1,4 @@
-import { type ZodBoolean, type ZodString, z } from 'zod';
-import type { Command } from '@repo/app/commands';
+import { type ZodBoolean, z } from 'zod';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -8,10 +7,10 @@ import {
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
-} from '../constants.js';
-import type { SettingsV4 } from './settingsV4.js';
+} from '$lib/constants';
+import type { SettingsV2 } from './settingsV2';
 
-export const settingsV5Schema = z.object({
+export const settingsV3Schema = z.object({
 	...({
 		'sound.playOn.manual-start': z.boolean(),
 		'sound.playOn.manual-stop': z.boolean(),
@@ -21,7 +20,9 @@ export const settingsV5Schema = z.object({
 		'sound.playOn.vad-stop': z.boolean(),
 		'sound.playOn.transcriptionComplete': z.boolean(),
 		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies Record<`sound.playOn.${WhisperingSoundNames}`, ZodBoolean>),
+	} satisfies {
+		[K in WhisperingSoundNames as `sound.playOn.${K}`]: ZodBoolean;
+	}),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -38,18 +39,11 @@ export const settingsV5Schema = z.object({
 	] as const),
 	'database.maxRecordingCount': z.string().regex(/^\d+$/, 'Must be a number'),
 
-	// Recording settings
-	'recording.method': z.enum(['navigator', 'tauri']).default('navigator'),
-
-	// Navigator-specific recording settings
-	'recording.navigator.selectedAudioInputDeviceId': z.string().nullable(),
-	'recording.navigator.bitrateKbps': z
+	'recording.selectedAudioInputDeviceId': z.string().nullable(),
+	'recording.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
-
-	// Tauri-specific recording settings
-	'recording.tauri.selectedAudioInputName': z.string().nullable(),
 
 	// Shared transcription settings
 	'transcription.selectedTranscriptionService': z.enum(
@@ -70,39 +64,20 @@ export const settingsV5Schema = z.object({
 	'apiKeys.anthropic': z.string(),
 	'apiKeys.groq': z.string(),
 	'apiKeys.google': z.string(),
-	'apiKeys.elevenlabs': z.string(),
 
-	...({
-		'shortcuts.local.toggleManualRecording': z.string().nullable(),
-		'shortcuts.local.cancelManualRecording': z.string().nullable(),
-		'shortcuts.local.toggleVadRecording': z.string().nullable(),
-		'shortcuts.local.pushToTalk': z.string().nullable(),
-	} satisfies Record<
-		`shortcuts.local.${Command['id']}`,
-		z.ZodNullable<ZodString>
-	>),
-
-	...({
-		'shortcuts.global.toggleManualRecording': z.string().nullable(),
-		'shortcuts.global.cancelManualRecording': z.string().nullable(),
-		'shortcuts.global.toggleVadRecording': z.string().nullable(),
-		'shortcuts.global.pushToTalk': z.string().nullable(),
-	} satisfies Record<
-		`shortcuts.global.${Command['id']}`,
-		z.ZodNullable<ZodString>
-	>),
+	'shortcuts.currentLocalShortcut': z.string(),
+	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type SettingsV5 = z.infer<typeof settingsV5Schema>;
+export type SettingsV3 = z.infer<typeof settingsV3Schema>;
 
-export const migrateV4ToV5 = (settings: SettingsV4) =>
+export const migrateV2ToV3 = (settings: SettingsV2) =>
 	({
 		...settings,
-		'recording.method': 'navigator',
-		'recording.navigator.selectedAudioInputDeviceId':
-			settings['recording.selectedAudioInputDeviceId'],
-		'recording.navigator.bitrateKbps': settings['recording.bitrateKbps'],
-		'recording.tauri.selectedAudioInputName': null,
-
-		'apiKeys.elevenlabs': '',
-	}) satisfies SettingsV5;
+		'sound.playOn.manual-start': true,
+		'sound.playOn.manual-stop': true,
+		'sound.playOn.manual-cancel': true,
+		'sound.playOn.vad-start': true,
+		'sound.playOn.vad-capture': true,
+		'sound.playOn.vad-stop': true,
+	}) satisfies SettingsV3;

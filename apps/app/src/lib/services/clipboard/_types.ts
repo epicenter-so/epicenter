@@ -3,7 +3,7 @@ import type {
 	MaybePromise,
 	WhisperingError,
 	WhisperingWarning,
-} from '@repo/shared';
+} from '$lib/result';
 
 export type ClipboardServiceError = TaggedError<'ClipboardServiceError'>;
 

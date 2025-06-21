@@ -6,12 +6,16 @@ import {
 	GROQ_MODELS,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
-} from '../constants.js';
+} from '$lib/constants';
+import type { SettingsV1 } from './settingsV1';
 
-export const settingsV1Schema = z.object({
-	'sound.playOn.start': z.boolean(),
-	'sound.playOn.stop': z.boolean(),
-	'sound.playOn.cancel': z.boolean(),
+export const settingsV2Schema = z.object({
+	'sound.playOn.start-manual': z.boolean(),
+	'sound.playOn.stop-manual': z.boolean(),
+	'sound.playOn.cancel-manual': z.boolean(),
+	'sound.playOn.start-vad': z.boolean(),
+	'sound.playOn.capture-vad': z.boolean(),
+	'sound.playOn.stop-vad': z.boolean(),
 	'sound.playOn.transcriptionComplete': z.boolean(),
 	'sound.playOn.transformationComplete': z.boolean(),
 
@@ -60,47 +64,15 @@ export const settingsV1Schema = z.object({
 	'shortcuts.currentGlobalShortcut': z.string(),
 });
 
-export type SettingsV1 = z.infer<typeof settingsV1Schema>;
+export type SettingsV2 = z.infer<typeof settingsV2Schema>;
 
-export const getDefaultSettingsV1 = () =>
+export const migrateV1ToV2 = (settings: SettingsV1) =>
 	({
-		'sound.playOn.start': true,
-		'sound.playOn.stop': true,
-		'sound.playOn.cancel': true,
-		'sound.playOn.transcriptionComplete': true,
-		'sound.playOn.transformationComplete': true,
-		'transcription.clipboard.copyOnSuccess': true,
-		'transcription.clipboard.pasteOnSuccess': true,
-		'transformation.clipboard.copyOnSuccess': true,
-		'transformation.clipboard.pasteOnSuccess': true,
-		'recording.isFasterRerecordEnabled': false,
-		'system.closeToTray': false,
-		'system.alwaysOnTop': 'Never',
-
-		// Recording retention defaults
-		'database.recordingRetentionStrategy': 'keep-forever',
-		'database.maxRecordingCount': '5',
-
-		'recording.selectedAudioInputDeviceId': 'default',
-		'recording.bitrateKbps': DEFAULT_BITRATE_KBPS,
-
-		'transcription.selectedTranscriptionService': 'OpenAI',
-		'transcription.groq.model': 'whisper-large-v3',
-		'transcription.outputLanguage': 'auto',
-		'transcription.prompt': '',
-		'transcription.temperature': '0',
-
-		'transcription.fasterWhisperServer.serverUrl': 'http://localhost:8000',
-		'transcription.fasterWhisperServer.serverModel':
-			'Systran/faster-whisper-medium.en',
-
-		'transformations.selectedTransformationId': null,
-
-		'apiKeys.openai': '',
-		'apiKeys.anthropic': '',
-		'apiKeys.groq': '',
-		'apiKeys.google': '',
-
-		'shortcuts.currentLocalShortcut': ' ',
-		'shortcuts.currentGlobalShortcut': 'CommandOrControl+Shift+;',
-	}) satisfies SettingsV1;
+		...settings,
+		'sound.playOn.start-manual': true,
+		'sound.playOn.stop-manual': true,
+		'sound.playOn.cancel-manual': true,
+		'sound.playOn.start-vad': true,
+		'sound.playOn.capture-vad': true,
+		'sound.playOn.stop-vad': true,
+	}) satisfies SettingsV2;

@@ -1,5 +1,5 @@
 import { Err, Ok } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '$lib/result';
 import { ElevenLabsClient } from 'elevenlabs';
 import type { TranscriptionService } from '../_types';
 

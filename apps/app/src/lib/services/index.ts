@@ -1,4 +1,3 @@
-import type { WhisperingSoundNames } from '@repo/shared';
 import { settings } from '../stores/settings.svelte';
 import {
 	createSetTrayIconDesktopService,

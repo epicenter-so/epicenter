@@ -1,6 +1,6 @@
 import { getExtensionFromAudioBlob } from '$lib/utils';
 import { Err, Ok, type Result } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '$lib/result';
 import { z } from 'zod';
 import type { HttpService } from '../../http/_types';
 import type {

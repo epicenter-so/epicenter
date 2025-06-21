@@ -1,4 +1,4 @@
-import type { WhisperingSoundNames } from '@repo/shared';
+import type { WhisperingSoundNames } from '$lib/constants';
 import stopManualSoundSrc from './assets/sound_ex_machina_Button_Blip.mp3';
 import captureVadSoundSrc from './assets/sound_ex_machina_Button_Blip.mp3';
 import startManualSoundSrc from './assets/zapsplat_household_alarm_clock_button_press_12967.mp3';

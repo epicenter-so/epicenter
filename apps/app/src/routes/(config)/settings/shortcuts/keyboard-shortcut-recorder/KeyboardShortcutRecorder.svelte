@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
-	import type { SupportedKey } from '@repo/shared/keyboard';
+	import type { SupportedKey } from '$lib/keyboard';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';
 

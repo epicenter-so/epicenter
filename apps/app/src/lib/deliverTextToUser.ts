@@ -1,5 +1,5 @@
 import { toast } from '$lib/toast';
-import { WHISPERING_RECORDINGS_PATHNAME } from '@repo/shared';
+import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants';
 import { rpc } from './query';
 import { settings } from '$lib/stores/settings.svelte';
 

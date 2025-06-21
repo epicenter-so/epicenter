@@ -1,5 +1,5 @@
 import type { Err, Ok, TaggedError } from '@epicenterhq/result';
-import type { ToastAndNotifyOptions } from './toasts.js';
+import type { ToastAndNotifyOptions } from '$lib/toasts.js';
 
 export type WhisperingWarning = Omit<
 	TaggedError<'WhisperingWarning'>,

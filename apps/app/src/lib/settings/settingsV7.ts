@@ -1,5 +1,5 @@
 import { type ZodBoolean, type ZodString, z } from 'zod';
-import type { Command } from '@repo/app/commands';
+import type { Command } from '$lib/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -11,8 +11,8 @@ import {
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
-} from '../constants.js';
-import type { SettingsV6 } from './settingsV6.js';
+} from '$lib/constants';
+import type { SettingsV6 } from './settingsV6';
 
 export const settingsV7Schema = z.object({
 	...({

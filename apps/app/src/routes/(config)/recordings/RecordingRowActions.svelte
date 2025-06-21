@@ -14,7 +14,7 @@
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS } from '@repo/shared';
+	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		AlertCircleIcon,

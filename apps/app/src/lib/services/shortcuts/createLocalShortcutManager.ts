@@ -1,6 +1,6 @@
 import type { CommandId } from '$lib/commands';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
-import { ALL_SUPPORTED_KEYS, type SupportedKey } from '@repo/shared/keyboard';
+import { ALL_SUPPORTED_KEYS, type SupportedKey } from '$lib/keyboard';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcut-trigger-state';
 

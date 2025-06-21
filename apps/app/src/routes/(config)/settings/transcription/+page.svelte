@@ -15,7 +15,7 @@
 		SUPPORTED_LANGUAGES_OPTIONS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 		WHISPERING_URL,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import {
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,

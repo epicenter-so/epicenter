@@ -9,7 +9,7 @@
 		SHORTCUT_EXAMPLES,
 		SUPPORTED_KEY_SECTIONS,
 		ACCELERATOR_SECTIONS,
-	} from '@repo/shared/keyboard';
+	} from '$lib/keyboard';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);

@@ -20,7 +20,7 @@
 		cpalStateToIcons,
 		RECORDING_MODE_OPTIONS,
 		vadStateToIcons,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';

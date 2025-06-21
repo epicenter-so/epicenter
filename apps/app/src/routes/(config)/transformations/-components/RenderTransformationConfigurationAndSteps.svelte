@@ -24,7 +24,7 @@
 		GROQ_INFERENCE_MODEL_OPTIONS,
 		INFERENCE_PROVIDER_OPTIONS,
 		OPENAI_INFERENCE_MODEL_OPTIONS,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import { CopyIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
 	import {

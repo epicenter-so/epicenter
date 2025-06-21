@@ -15,7 +15,7 @@ import {
 	settingsV5Schema,
 	settingsV6Schema,
 	settingsV7Schema,
-} from '@repo/shared/settings';
+} from '$lib/settings';
 
 const settingsV1 = createPersistedState({
 	key: 'whispering-settings',

@@ -1,4 +1,5 @@
-import { type ZodBoolean, z } from 'zod';
+import { type ZodBoolean, type ZodString, z } from 'zod';
+import type { Command } from '$lib/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
@@ -7,10 +8,10 @@ import {
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
-} from '../constants.js';
-import type { SettingsV2 } from './settingsV2.js';
+} from '$lib/constants';
+import type { SettingsV3 } from './settingsV3';
 
-export const settingsV3Schema = z.object({
+export const settingsV4Schema = z.object({
 	...({
 		'sound.playOn.manual-start': z.boolean(),
 		'sound.playOn.manual-stop': z.boolean(),
@@ -20,9 +21,7 @@ export const settingsV3Schema = z.object({
 		'sound.playOn.vad-stop': z.boolean(),
 		'sound.playOn.transcriptionComplete': z.boolean(),
 		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies {
-		[K in WhisperingSoundNames as `sound.playOn.${K}`]: ZodBoolean;
-	}),
+	} satisfies Record<`sound.playOn.${WhisperingSoundNames}`, ZodBoolean>),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -65,19 +64,34 @@ export const settingsV3Schema = z.object({
 	'apiKeys.groq': z.string(),
 	'apiKeys.google': z.string(),
 
-	'shortcuts.currentLocalShortcut': z.string(),
-	'shortcuts.currentGlobalShortcut': z.string(),
+	...({
+		'shortcuts.local.toggleManualRecording': z.string(),
+		'shortcuts.local.cancelManualRecording': z.string(),
+		'shortcuts.local.toggleVadRecording': z.string(),
+		'shortcuts.local.pushToTalk': z.string(),
+	} satisfies Record<`shortcuts.local.${Command['id']}`, ZodString>),
+
+	...({
+		'shortcuts.global.toggleManualRecording': z.string(),
+		'shortcuts.global.cancelManualRecording': z.string(),
+		'shortcuts.global.toggleVadRecording': z.string(),
+		'shortcuts.global.pushToTalk': z.string(),
+	} satisfies Record<`shortcuts.global.${Command['id']}`, ZodString>),
 });
 
-export type SettingsV3 = z.infer<typeof settingsV3Schema>;
+export type SettingsV4 = z.infer<typeof settingsV4Schema>;
 
-export const migrateV2ToV3 = (settings: SettingsV2) =>
+export const migrateV3ToV4 = (settings: SettingsV3) =>
 	({
 		...settings,
-		'sound.playOn.manual-start': true,
-		'sound.playOn.manual-stop': true,
-		'sound.playOn.manual-cancel': true,
-		'sound.playOn.vad-start': true,
-		'sound.playOn.vad-capture': true,
-		'sound.playOn.vad-stop': true,
-	}) satisfies SettingsV3;
+		'shortcuts.local.toggleManualRecording':
+			settings['shortcuts.currentLocalShortcut'],
+		'shortcuts.local.cancelManualRecording': 'c',
+		'shortcuts.local.toggleVadRecording': 'v',
+		'shortcuts.local.pushToTalk': 'p',
+		'shortcuts.global.toggleManualRecording':
+			settings['shortcuts.currentGlobalShortcut'],
+		'shortcuts.global.cancelManualRecording': "CommandOrControl+Shift+'",
+		'shortcuts.global.toggleVadRecording': '',
+		'shortcuts.global.pushToTalk': '',
+	}) satisfies SettingsV4;

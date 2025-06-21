@@ -8,7 +8,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import { rpc } from '$lib/query';
-	import type { Settings } from '@repo/shared/settings';
+	import type { Settings } from '$lib/settings';
 	import { settings } from '$lib/stores/settings.svelte';
 
 	const combobox = useCombobox();

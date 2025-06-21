@@ -6,7 +6,7 @@ import { extension } from '@repo/extension';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	type WhisperingRecordingState,
-} from '@repo/shared';
+} from '$lib/constants';
 import { CheckMenuItem, Menu, MenuItem } from '@tauri-apps/api/menu';
 import { resolveResource } from '@tauri-apps/api/path';
 import { TrayIcon } from '@tauri-apps/api/tray';
