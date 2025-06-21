@@ -20,7 +20,10 @@
 		});
 	});
 
-	services.localShortcutManager.listen();
+	$effect(() => {
+		const unlisten = services.localShortcutManager.listen();
+		return () => unlisten();
+	});
 </script>
 
 <svelte:head>
