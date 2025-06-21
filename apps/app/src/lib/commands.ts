@@ -202,7 +202,7 @@ export const commands = [
 		id: 'toggleManualRecording',
 		title: 'Toggle manual recording',
 		defaultLocalShortcut: ' ',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+{',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+[',
 		on: 'Pressed',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
@@ -227,7 +227,7 @@ export const commands = [
 		id: 'cancelManualRecording',
 		title: 'Cancel manual recording',
 		defaultLocalShortcut: 'c',
-		defaultGlobalShortcut: 'CommandOrControl+Shift+}',
+		defaultGlobalShortcut: 'CommandOrControl+Shift+]',
 		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
