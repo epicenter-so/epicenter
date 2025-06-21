@@ -1,14 +1,18 @@
 <script lang="ts">
+	import { commands } from '$lib/commands';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
-	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
-	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { commands } from '$lib/commands';
 	import { toast } from '$lib/toast';
 	import type { Settings } from '@repo/shared/settings';
+	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
+	import {
+		registerGlobalCommands,
+		registerLocalCommands,
+	} from '../../../+layout/registerCommands.svelte';
+	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
+	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
 
 	const resetToDefaults = (type: 'local' | 'global') => {
 		const updates = commands.reduce((acc, command) => {
@@ -23,6 +27,15 @@
 			...settings.value,
 			...updates,
 		};
+
+		switch (type) {
+			case 'local':
+				registerLocalCommands();
+				break;
+			case 'global':
+				registerGlobalCommands();
+				break;
+		}
 
 		toast.success({
 			title: 'Shortcuts reset',
