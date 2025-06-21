@@ -41,7 +41,7 @@
 	})();
 </script>
 
-<main class="container flex w-full flex-1 flex-col pb-4 pt-2">
+<main class="sm:container flex w-full flex-1 flex-col pb-4 pt-2 px-4 mx-auto">
 	<div class="space-y-0.5">
 		<h2 class="text-2xl font-bold tracking-tight">Settings</h2>
 		<p class="text-muted-foreground">
@@ -72,7 +72,7 @@
 	</div>
 	<Separator class="my-6" />
 	<div class="flex flex-col space-y-8 lg:flex-row lg:gap-8">
-		<aside class="lg:w-1/5 lg:mx-0">
+		<aside class="lg:w-1/6">
 			<SidebarNav items={sidebarNavItems} />
 		</aside>
 		<div class="flex-1 lg:max-w-2xl">
