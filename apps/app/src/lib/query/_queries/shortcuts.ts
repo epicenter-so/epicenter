@@ -3,6 +3,8 @@ import { services } from '$lib/services';
 import { defineMutation } from '../_utils';
 import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
 import type { SupportedKey } from '$lib/services/shortcuts/createLocalShortcutManager';
+import { settings } from '$lib/stores/settings.svelte';
+import { Ok } from '@epicenterhq/result';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
@@ -47,7 +49,12 @@ export const shortcuts = {
 
 	unregisterCommandGlobally: defineMutation({
 		mutationKey: ['shortcuts', 'unregisterCommandGlobally'] as const,
-		resultMutationFn: ({ commandId }: { commandId: CommandId }) =>
-			services.globalShortcutManager.unregister(commandId),
+		resultMutationFn: async ({ commandId }: { commandId: CommandId }) => {
+			const accelerator = settings.value[`shortcuts.global.${commandId}`];
+			if (!accelerator) return Ok(undefined);
+			return await services.globalShortcutManager.unregister(
+				accelerator as Accelerator,
+			);
+		},
 	}),
 };
