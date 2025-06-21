@@ -137,9 +137,9 @@ export function defineMutation<TData, TError, TVariables, TContext>(
 		 * @param args - The variables to pass to the mutation function
 		 * @returns Promise that resolves with the mutation result
 		 */
-		async execute(...args: Parameters<typeof options.resultMutationFn>) {
+		async execute(variables: TVariables) {
 			try {
-				return Ok(await executeMutation(newOptions, ...args));
+				return Ok(await executeMutation(newOptions, variables));
 			} catch (error) {
 				return Err(error as TError);
 			}
