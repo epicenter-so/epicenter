@@ -8,7 +8,7 @@ import type {
 } from '$lib/constants';
 import { nanoid } from 'nanoid/non-secure';
 
-export type DbServiceErrorProperties = TaggedError<'DbServiceError'>;
+export type DbServiceError = TaggedError<'DbServiceError'>;
 
 export function generateDefaultTransformation(): Transformation {
 	const now = new Date().toISOString();
