@@ -31,19 +31,22 @@
 	const keyRecorder = createKeyRecorder({
 		pressedKeys,
 		onRegister: async (keyCombination: KeyboardEventSupportedKey[]) => {
-			const { error: unregisterError } =
-				await rpc.shortcuts.unregisterCommandGlobally.execute({
-					accelerator: shortcutValue as Accelerator,
-				});
+			if (shortcutValue) {
+				const { error: unregisterError } =
+					await rpc.shortcuts.unregisterCommandGlobally.execute({
+						accelerator: shortcutValue as Accelerator,
+					});
 
-			if (unregisterError) {
-				toast.error({
-					title: 'Failed to unregister shortcut',
-					description:
-						'Could not unregister the global shortcut. It may already be in use by another application.',
-					action: { type: 'more-details', error: unregisterError },
-				});
+				if (unregisterError) {
+					toast.error({
+						title: 'Failed to unregister shortcut',
+						description:
+							'Could not unregister the global shortcut. It may already be in use by another application.',
+						action: { type: 'more-details', error: unregisterError },
+					});
+				}
 			}
+
 			const { data: accelerator, error: acceleratorError } =
 				pressedKeysToTauriAccelerator(keyCombination);
 
