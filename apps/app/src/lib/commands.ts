@@ -199,6 +199,31 @@ type SatisfiedCommand = {
 
 export const commands = [
 	{
+		id: 'pushToTalk',
+		title: 'Push to talk',
+		defaultLocalShortcut: 'p',
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+;`,
+		on: 'Both',
+		callback: async () => {
+			const { data: recorderState, error: getRecorderStateError } =
+				await rpc.manualRecorder.getRecorderState.fetchCached();
+			if (getRecorderStateError) {
+				toast.error({
+					id: nanoid(),
+					title: '❌ Failed to get recorder state',
+					description: 'Your recording could not be started. Please try again.',
+					action: { type: 'more-details', error: getRecorderStateError },
+				});
+				return;
+			}
+			if (recorderState === 'RECORDING') {
+				await stopManualRecording();
+			} else {
+				await startManualRecording();
+			}
+		},
+	},
+	{
 		id: 'toggleManualRecording',
 		title: 'Toggle manual recording',
 		defaultLocalShortcut: ' ',
@@ -349,31 +374,6 @@ export const commands = [
 				},
 			] as const satisfies SatisfiedCommand[])
 		: []),
-	{
-		id: 'pushToTalk',
-		title: 'Push to talk',
-		defaultLocalShortcut: 'p',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+;`,
-		on: 'Both',
-		callback: async () => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await rpc.manualRecorder.getRecorderState.fetchCached();
-			if (getRecorderStateError) {
-				toast.error({
-					id: nanoid(),
-					title: '❌ Failed to get recorder state',
-					description: 'Your recording could not be started. Please try again.',
-					action: { type: 'more-details', error: getRecorderStateError },
-				});
-				return;
-			}
-			if (recorderState === 'RECORDING') {
-				await stopManualRecording();
-			} else {
-				await startManualRecording();
-			}
-		},
-	},
 	{
 		id: 'toggleVadRecording',
 		title: 'Toggle vad recording',
