@@ -422,8 +422,6 @@ function sortModifiers(
 		Cmd: 1,
 		Control: 1,
 		Ctrl: 1,
-		CommandOrControl: 1,
-		CmdOrCtrl: 1,
 		Alt: 2,
 		Option: 2,
 		AltGr: 3,
