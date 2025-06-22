@@ -5,14 +5,36 @@
 	import { HelpCircle, ExternalLink } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { SHORTCUT_EXAMPLES } from '$lib/keyboard';
 	import { KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS } from '$lib/constants/keyboard-event-supported-keys';
 	import { ACCELERATOR_SECTIONS } from '$lib/constants/accelerator-supported-keys';
+	import { CommandOrAlt, CommandOrControl } from '$lib/keyboard';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
 
 	const isLocal = $derived(type === 'local');
+
+	/**
+	 * Examples for each shortcut type
+	 */
+	const SHORTCUT_EXAMPLES = {
+		local: [
+			' ',
+			`${CommandOrControl.toLowerCase()}+a`,
+			`${CommandOrControl.toLowerCase()}+shift+p`,
+			`${CommandOrAlt.toLowerCase()}+s`,
+			'f5',
+			`control+${CommandOrAlt.toLowerCase()}+delete`,
+		],
+		global: [
+			'Space',
+			'Control+A',
+			`${CommandOrControl}+Shift+P`,
+			`${CommandOrAlt}+S`,
+			'F5',
+			`Control+${CommandOrAlt}+Delete`,
+		],
+	} as const;
 </script>
 
 <WhisperingButton
