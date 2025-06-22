@@ -3,19 +3,17 @@
  * Single source of truth for keyboard-related constants across the application
  */
 
-export {
-	SUPPORTED_KEY_SECTIONS,
-	ALL_SUPPORTED_KEYS,
-	type SupportedKey,
-} from './local.js';
+import { createOsServiceDesktop } from '$lib/services/os/desktop';
+import { createOsServiceWeb } from '$lib/services/os/web';
 
-export {
-	ACCELERATOR_SECTIONS,
-	ACCELERATOR_MODIFIER_KEYS,
-	ACCELERATOR_KEY_CODES,
-	type AcceleratorModifier,
-	type AcceleratorKeyCode,
-} from './desktop.js';
+const OsService = window.__TAURI_INTERNALS__
+	? createOsServiceDesktop()
+	: createOsServiceWeb();
+
+export const CommandOrControl =
+	OsService.type() === 'macos' ? 'Command' : 'Control';
+
+export const CommandOrAlt = OsService.type() === 'macos' ? 'Command' : 'Alt';
 
 /**
  * Examples for each shortcut type
@@ -23,18 +21,18 @@ export {
 export const SHORTCUT_EXAMPLES = {
 	local: [
 		' ',
-		'control+a',
-		'command+shift+p',
-		'alt+s',
+		`${CommandOrControl.toLowerCase()}+a`,
+		`${CommandOrControl.toLowerCase()}+shift+p`,
+		`${CommandOrAlt.toLowerCase()}+s`,
 		'f5',
-		'control+alt+delete',
+		`control+${CommandOrAlt.toLowerCase()}+delete`,
 	],
 	global: [
 		'Space',
 		'Control+A',
 		`${CommandOrControl}+Shift+P`,
-		'Alt+S',
+		`${CommandOrAlt}+S`,
 		'F5',
-		'Control+Alt+Delete',
+		`Control+${CommandOrAlt}+Delete`,
 	],
 } as const;
