@@ -1,5 +1,5 @@
 import { type Command, commandCallbacks } from '$lib/commands';
-import type { SupportedKey } from '$lib/constants/local-supported-keys';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/global-shortcut-manager';
 import type { CommandId } from '$lib/services/local-shortcut-manager';
@@ -13,7 +13,7 @@ export const shortcuts = {
 			keyCombination,
 		}: {
 			command: Command;
-			keyCombination: SupportedKey[];
+			keyCombination: KeyboardEventSupportedKey[];
 		}) =>
 			services.localShortcutManager.register({
 				id: command.id as CommandId,

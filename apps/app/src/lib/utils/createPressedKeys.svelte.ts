@@ -1,8 +1,8 @@
-import type { PossibleKey } from '$lib/constants/keyboard-event-possible-keys';
+import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
 import {
 	isSupportedKey,
-	type SupportedKey,
-} from '$lib/constants/local-supported-keys';
+	type KeyboardEventSupportedKey,
+} from '$lib/constants/keyboard-event-supported-keys';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 
@@ -45,7 +45,7 @@ export function createPressedKeys({
 	/**
 	 * Pressed and normalized keys, internally stored and synced via createSubscriber.
 	 */
-	let pressedKeys = $state<SupportedKey[]>([]);
+	let pressedKeys = $state<KeyboardEventSupportedKey[]>([]);
 
 	/**
 	 * Creates a reactive subscription that tracks key events.
@@ -57,7 +57,7 @@ export function createPressedKeys({
 			if (preventDefault) {
 				e.preventDefault();
 			}
-			const key = e.key.toLowerCase() as PossibleKey;
+			const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 			if (!isSupportedKey(key)) return;
 
@@ -68,7 +68,7 @@ export function createPressedKeys({
 		});
 
 		const keyup = on(window, 'keyup', (e) => {
-			const key = e.key.toLowerCase() as PossibleKey;
+			const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 			if (!isSupportedKey(key)) return;
 

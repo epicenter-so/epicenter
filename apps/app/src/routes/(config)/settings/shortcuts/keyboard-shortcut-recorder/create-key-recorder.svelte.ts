@@ -1,4 +1,4 @@
-import type { SupportedKey } from '$lib/keyboard';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination
@@ -26,12 +26,12 @@ export function createKeyRecorder({
 	onClear,
 }: {
 	pressedKeys: PressedKeys;
-	onRegister: (keyCombination: SupportedKey[]) => void;
+	onRegister: (keyCombination: KeyboardEventSupportedKey[]) => void;
 	onClear: () => void;
 }) {
 	// State
 	let isListening = $state(false);
-	const capturedKeys = new Set<SupportedKey>();
+	const capturedKeys = new Set<KeyboardEventSupportedKey>();
 	let captureWindowTimer: NodeJS.Timeout | null = null;
 
 	// Helper: Clear the capture window timer

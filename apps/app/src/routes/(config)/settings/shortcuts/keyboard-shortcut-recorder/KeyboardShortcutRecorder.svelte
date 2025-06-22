@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils';
-	import type { SupportedKey } from '$lib/keyboard';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';
 
@@ -174,7 +174,9 @@
 						onsubmit={(e) => {
 							e.preventDefault();
 							if (manualValue) {
-								keyRecorder.register(manualValue.split('+') as SupportedKey[]);
+								keyRecorder.register(
+									manualValue.split('+') as KeyboardEventSupportedKey[],
+								);
 								isManualMode = false;
 							}
 						}}

@@ -4,7 +4,7 @@ import {
 	ACCELERATOR_MODIFIER_KEYS,
 	type AcceleratorKeyCode,
 	type AcceleratorModifier,
-} from '$lib/constants/global-supported-keys';
+} from '$lib/constants/accelerator-supported-keys';
 import {
 	Err,
 	Ok,
@@ -21,7 +21,7 @@ import {
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
-import type { SupportedKey } from '../constants/local-supported-keys';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -180,7 +180,7 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
  * Convert pressed keys directly to Tauri accelerator format
  */
 export function pressedKeysToTauriAccelerator(
-	pressedKeys: SupportedKey[],
+	pressedKeys: KeyboardEventSupportedKey[],
 ): Result<Accelerator, InvalidAcceleratorError> {
 	const modifiers: AcceleratorModifier[] = [];
 	const keyCodes: AcceleratorKeyCode[] = [];
@@ -262,7 +262,9 @@ export function pressedKeysToTauriAccelerator(
  * convertToModifier('shift')   // Returns 'Shift' on all platforms
  * convertToModifier('space')   // Returns null (not a modifier)
  */
-function convertToModifier(key: SupportedKey): AcceleratorModifier | null {
+function convertToModifier(
+	key: KeyboardEventSupportedKey,
+): AcceleratorModifier | null {
 	const platform = os.type();
 
 	switch (key) {
@@ -307,7 +309,9 @@ function convertToModifier(key: SupportedKey): AcceleratorModifier | null {
 /**
  * Convert a key to an Electron key code (returns null if invalid)
  */
-function convertToKeyCode(key: SupportedKey): AcceleratorKeyCode | null {
+function convertToKeyCode(
+	key: KeyboardEventSupportedKey,
+): AcceleratorKeyCode | null {
 	// Single letters - convert to uppercase
 	if (key.length === 1 && key >= 'a' && key <= 'z') {
 		return key.toUpperCase() as AcceleratorKeyCode;

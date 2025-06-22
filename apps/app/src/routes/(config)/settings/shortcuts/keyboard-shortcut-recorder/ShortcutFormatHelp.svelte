@@ -6,8 +6,8 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { SHORTCUT_EXAMPLES } from '$lib/keyboard';
-	import { SUPPORTED_KEY_SECTIONS } from '$lib/constants/local-supported-keys';
-	import { ACCELERATOR_SECTIONS } from '$lib/constants/global-supported-keys';
+	import { KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS } from '$lib/constants/keyboard-event-supported-keys';
+	import { ACCELERATOR_SECTIONS } from '$lib/constants/accelerator-supported-keys';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
@@ -61,7 +61,7 @@
 					<h4 class="text-sm font-semibold mb-1">Modifiers</h4>
 					<p class="text-xs text-muted-foreground mb-2">Hold with other keys</p>
 					<div class="flex flex-wrap sm:flex-col gap-1">
-						{#each (isLocal ? SUPPORTED_KEY_SECTIONS[0] : ACCELERATOR_SECTIONS[0]).keys as modifier}
+						{#each (isLocal ? KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[0] : ACCELERATOR_SECTIONS[0]).keys as modifier}
 							<Badge variant="outline" class="font-mono text-sm justify-start">
 								{modifier}
 							</Badge>
@@ -72,7 +72,7 @@
 				<!-- Right column: All other keys -->
 				<div class="flex-1 sm:pl-4">
 					<div class="flex flex-col gap-4">
-						{#each (isLocal ? SUPPORTED_KEY_SECTIONS : ACCELERATOR_SECTIONS).slice(1) as section}
+						{#each (isLocal ? KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS : ACCELERATOR_SECTIONS).slice(1) as section}
 							<div>
 								<h4 class="text-sm font-semibold mb-1">{section.title}</h4>
 								<p class="text-xs text-muted-foreground mb-2">

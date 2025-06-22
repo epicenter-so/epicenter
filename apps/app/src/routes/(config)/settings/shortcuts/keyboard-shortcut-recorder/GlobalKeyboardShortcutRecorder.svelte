@@ -1,8 +1,11 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import type { SupportedKey } from '$lib/constants/local-supported-keys';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 	import { rpc } from '$lib/query';
-	import { pressedKeysToTauriAccelerator, type Accelerator } from '$lib/services/global-shortcut-manager';
+	import {
+		pressedKeysToTauriAccelerator,
+		type Accelerator,
+	} from '$lib/services/global-shortcut-manager';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
@@ -27,7 +30,7 @@
 
 	const keyRecorder = createKeyRecorder({
 		pressedKeys,
-		onRegister: async (keyCombination: SupportedKey[]) => {
+		onRegister: async (keyCombination: KeyboardEventSupportedKey[]) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandGlobally.execute({
 					accelerator: shortcutValue as Accelerator,

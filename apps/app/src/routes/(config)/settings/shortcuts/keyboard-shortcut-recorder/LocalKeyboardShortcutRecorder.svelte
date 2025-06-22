@@ -5,7 +5,7 @@
 		arrayToShortcutString,
 		type CommandId,
 	} from '$lib/services/local-shortcut-manager';
-	import type { SupportedKey } from '$lib/services/local-shortcut-manager/supported-key';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
@@ -30,7 +30,7 @@
 
 	const keyRecorder = createKeyRecorder({
 		pressedKeys,
-		onRegister: async (keyCombination: SupportedKey[]) => {
+		onRegister: async (keyCombination: KeyboardEventSupportedKey[]) => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandLocally.execute({
 					commandId: command.id as CommandId,

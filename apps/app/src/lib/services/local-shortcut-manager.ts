@@ -1,11 +1,11 @@
 import type { Brand } from '$lib/brand';
-import type { PossibleKey } from '$lib/constants/keyboard-event-possible-keys';
+import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import {
 	isSupportedKey,
-	type SupportedKey,
-} from '../constants/local-supported-keys';
+	type KeyboardEventSupportedKey,
+} from '$lib/constants/keyboard-event-supported-keys';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
 
 /**
@@ -23,7 +23,7 @@ export function createLocalShortcutManager() {
 		CommandId,
 		{
 			on: ShortcutTriggerState;
-			keyCombination: SupportedKey[];
+			keyCombination: KeyboardEventSupportedKey[];
 			callback: () => void;
 		}
 	>();
@@ -46,7 +46,7 @@ export function createLocalShortcutManager() {
 			 * Maintains real-time state of which keys are physically held down.
 			 * Updated on every keydown (adds key) and keyup (removes key) event.
 			 */
-			let pressedKeys: SupportedKey[] = [];
+			let pressedKeys: KeyboardEventSupportedKey[] = [];
 			/**
 			 * Set tracking which shortcuts have already been triggered and are currently active.
 			 * This prevents key repeat spam when holding down keys - without this, holding
@@ -68,7 +68,7 @@ export function createLocalShortcutManager() {
 			 * ensures callbacks only fire once per physical key press.
 			 */
 			const keydown = on(window, 'keydown', (e) => {
-				const key = e.key.toLowerCase() as PossibleKey;
+				const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 				// Ignore keys that are not supported
 				if (!isSupportedKey(key)) return;
@@ -102,7 +102,7 @@ export function createLocalShortcutManager() {
 			 * on the next key press.
 			 */
 			const keyup = on(window, 'keyup', (e) => {
-				const key = e.key.toLowerCase() as PossibleKey;
+				const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 				// Ignore keys that are not supported
 				if (!isSupportedKey(key)) return;
@@ -178,7 +178,7 @@ export function createLocalShortcutManager() {
 			on,
 		}: {
 			id: CommandId;
-			keyCombination: SupportedKey[];
+			keyCombination: KeyboardEventSupportedKey[];
 			callback: () => void;
 			on: ShortcutTriggerState;
 		}): Promise<Result<void, LocalShortcutServiceError>> {
@@ -248,14 +248,20 @@ function arraysMatch(a: string[], b: string[]) {
  * Convert a shortcut string to an array of keys
  * @example "ctrl+shift+a" → ["ctrl", "shift", "a"]
  */
-export function shortcutStringToArray(shortcut: string): SupportedKey[] {
-	return shortcut.split('+').map((key) => key.toLowerCase() as SupportedKey);
+export function shortcutStringToArray(
+	shortcut: string,
+): KeyboardEventSupportedKey[] {
+	return shortcut
+		.split('+')
+		.map((key) => key.toLowerCase() as KeyboardEventSupportedKey);
 }
 
 /**
  * Join an array of keys into a shortcut string
  * @example ["ctrl", "shift", "a"] → "ctrl+shift+a"
  */
-export function arrayToShortcutString(keys: SupportedKey[]): string {
+export function arrayToShortcutString(
+	keys: KeyboardEventSupportedKey[],
+): string {
 	return keys.map((key) => key.toLowerCase()).join('+');
 }

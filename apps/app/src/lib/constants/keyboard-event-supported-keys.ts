@@ -5,7 +5,7 @@ import type { KeyboardEventPossibleKey } from './keyboard-event-possible-keys';
  * Each section groups related keys with descriptive metadata.
  * Keys are lowercase as returned by KeyboardEvent.key.toLowerCase()
  */
-export const SUPPORTED_KEY_SECTIONS = [
+export const KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS = [
 	{
 		title: 'Modifiers',
 		description: 'Hold with other keys',
@@ -222,23 +222,24 @@ export const SUPPORTED_KEY_SECTIONS = [
 
 /**
  * Flattened array of all supported local shortcut keys for compatibility.
- * This is derived from SUPPORTED_KEY_SECTIONS for use in validation and type guards.
+ * This is derived from KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS for use in validation and type guards.
  */
-export const ALL_SUPPORTED_KEYS = [
-	...SUPPORTED_KEY_SECTIONS[0].keys, // Modifiers
-	...SUPPORTED_KEY_SECTIONS[1].keys, // Letters
-	...SUPPORTED_KEY_SECTIONS[2].keys, // Numbers
-	...SUPPORTED_KEY_SECTIONS[3].keys, // Symbols
-	...SUPPORTED_KEY_SECTIONS[4].keys, // Whitespace
-	...SUPPORTED_KEY_SECTIONS[5].keys, // Navigation
-	...SUPPORTED_KEY_SECTIONS[6].keys, // Editing
-	...SUPPORTED_KEY_SECTIONS[7].keys, // Function
-	...SUPPORTED_KEY_SECTIONS[8].keys, // Special
-	...SUPPORTED_KEY_SECTIONS[9].keys, // Media
-	...SUPPORTED_KEY_SECTIONS[10].keys, // Other
-] as const satisfies (typeof SUPPORTED_KEY_SECTIONS)[number]['keys'][number][];
+export const KEYBOARD_EVENT_SUPPORTED_KEYS = [
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[0].keys, // Modifiers
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[1].keys, // Letters
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[2].keys, // Numbers
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[3].keys, // Symbols
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[4].keys, // Whitespace
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[5].keys, // Navigation
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[6].keys, // Editing
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[7].keys, // Function
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[8].keys, // Special
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[9].keys, // Media
+	...KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS[10].keys, // Other
+] as const satisfies (typeof KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS)[number]['keys'][number][];
 
-export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
+export type KeyboardEventSupportedKey =
+	(typeof KEYBOARD_EVENT_SUPPORTED_KEYS)[number];
 
 /**
  * Type guard that validates whether a KeyboardEventPossibleKey (any key from the browser)
@@ -246,7 +247,7 @@ export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
  * filtering out keys we've decided not to support while providing type safety.
  *
  * When this returns true, TypeScript narrows the type from KeyboardEventPossibleKey to
- * SupportedKey, giving you compile-time guarantees about the key's validity.
+ * KeyboardEventSupportedKey, giving you compile-time guarantees about the key's validity.
  *
  * @param key - Any key value from KeyboardEvent.key.toLowerCase()
  * @returns True if we've chosen to support this key for shortcuts, false otherwise
@@ -255,13 +256,15 @@ export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
  * ```typescript
  * const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
  * if (isSupportedKey(key)) {
- *   // TypeScript now knows this is a SupportedKey - our validated choice!
+ *   // TypeScript now knows this is a KeyboardEventSupportedKey - our validated choice!
  *   pressedKeys.push(key);
  * }
  * ```
  */
 export function isSupportedKey(
 	key: KeyboardEventPossibleKey,
-): key is SupportedKey {
-	return ALL_SUPPORTED_KEYS.includes(key as SupportedKey);
+): key is KeyboardEventSupportedKey {
+	return KEYBOARD_EVENT_SUPPORTED_KEYS.includes(
+		key as KeyboardEventSupportedKey,
+	);
 }
