@@ -5,7 +5,7 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
-	import { extension } from '@repo/extension';
+	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
@@ -43,8 +43,8 @@
 		window.commands = commandCallbacks;
 		window.goto = goto;
 		if (!window.__TAURI_INTERNALS__) {
-			const _notifyWhisperingTabReadyResult =
-				await extension.notifyWhisperingTabReady(undefined);
+			// const _notifyWhisperingTabReadyResult =
+			// 	await extension.notifyWhisperingTabReady(undefined);
 		}
 	});
 

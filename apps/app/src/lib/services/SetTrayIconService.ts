@@ -1,8 +1,8 @@
 import { goto } from '$app/navigation';
-import { commandCallbacks } from '$lib/commands';
+// import { commandCallbacks } from '$lib/commands';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, type TaggedError, tryAsync } from '@epicenterhq/result';
-import { extension } from '@repo/extension';
+import { type Err, Ok, type TaggedError, tryAsync } from '@epicenterhq/result';
+// import { extension } from '@repo/extension';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	type WhisperingRecordingState,
@@ -31,16 +31,16 @@ type SetTrayIconService = {
 export function createSetTrayIconWebService(): SetTrayIconService {
 	return {
 		setTrayIcon: async (icon: WhisperingRecordingState) => {
-			const { error: setRecorderStateError } = await extension.setRecorderState(
-				{ recorderState: icon },
-			);
-			if (setRecorderStateError)
-				return Err({
-					name: 'SetTrayIconServiceError',
-					message: 'Failed to set recorder state',
-					context: { icon },
-					cause: setRecorderStateError,
-				} as SetTrayIconServiceErrorProperties);
+			// const { error: setRecorderStateError } = await extension.setRecorderState(
+			// 	{ recorderState: icon },
+			// );
+			// if (setRecorderStateError)
+			// 	return Err({
+			// 		name: 'SetTrayIconServiceError',
+			// 		message: 'Failed to set recorder state',
+			// 		context: { icon },
+			// 		cause: setRecorderStateError,
+			// 	} as SetTrayIconServiceErrorProperties);
 			return Ok(undefined);
 		},
 	};
@@ -138,7 +138,7 @@ async function initTray() {
 				e.button === 'Left' &&
 				e.buttonState === 'Down'
 			) {
-				commandCallbacks.toggleManualRecording();
+				// commandCallbacks.toggleManualRecording();
 				return true;
 			}
 			return false;

@@ -1,6 +1,6 @@
 import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
 import type { TaggedError } from '@epicenterhq/result';
-import { extension } from '@repo/extension';
+// import { extension } from '@repo/extension';
 import type {
 	WhisperingRecordingState,
 	CancelRecordingResult,
@@ -363,7 +363,7 @@ async function enumerateRecordingDevices(): Promise<
 > {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		extension.openWhisperingTab({});
+		// extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {
@@ -392,7 +392,7 @@ async function enumerateRecordingDevices(): Promise<
 async function getStreamForDeviceId(recordingDeviceId: string) {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
-		extension.openWhisperingTab({});
+		// extension.openWhisperingTab({});
 	}
 	return tryAsync({
 		try: async () => {
