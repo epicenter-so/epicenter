@@ -24,7 +24,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'super',
 			'symbol',
 			'symbollock',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Letters',
@@ -56,12 +56,23 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'x',
 			'y',
 			'z',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Numbers',
 		description: 'Number keys 0-9',
-		keys: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const,
+		keys: [
+			'0',
+			'1',
+			'2',
+			'3',
+			'4',
+			'5',
+			'6',
+			'7',
+			'8',
+			'9',
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Symbols & Punctuation',
@@ -99,12 +110,12 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'>',
 			'/',
 			'?',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Whitespace',
 		description: 'Space, enter, and tab keys',
-		keys: [' ', 'enter', 'tab'] as const,
+		keys: [' ', 'enter', 'tab'] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Navigation',
@@ -118,7 +129,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'end',
 			'pageup',
 			'pagedown',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Editing',
@@ -133,7 +144,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'paste',
 			'redo',
 			'undo',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Function Keys',
@@ -163,7 +174,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'f22',
 			'f23',
 			'f24',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Special Keys',
@@ -182,7 +193,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'browsersearch',
 			'browserstop',
 			'browserfavorites',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Media Keys',
@@ -197,7 +208,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'volumeup',
 			'volumedown',
 			'volumemute',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 	{
 		title: 'Other Keys',
@@ -218,7 +229,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'select',
 			'zoomout',
 			'zoomin',
-		] as const,
+		] as const satisfies PossibleKey[],
 	},
 ] as const;
 
