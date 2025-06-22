@@ -7,7 +7,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS } from '$lib/constants/keyboard-event-supported-keys';
 	import { ACCELERATOR_SECTIONS } from '$lib/constants/accelerator-supported-keys';
-	import { CommandOrAlt, CommandOrControl } from '$lib/keyboard';
+	import { CommandOrAlt, CommandOrControl } from '$lib/constants/modifiers';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
