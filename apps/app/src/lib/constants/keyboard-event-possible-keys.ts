@@ -3,7 +3,7 @@
  * This includes printable characters, special keys, navigation keys, function keys, etc.
  * Used for validation and type safety in keyboard event handling.
  */
-const POSSIBLE_KEY_VALUES = [
+const KEYBOARD_EVENT_POSSIBLE_KEYS = [
 	// Letters (lowercase)
 	'a',
 	'b',
@@ -247,4 +247,5 @@ const POSSIBLE_KEY_VALUES = [
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values MDN Keyboard Event Key Values}
  */
-export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
+export type KeyboardEventPossibleKey =
+	(typeof KEYBOARD_EVENT_POSSIBLE_KEYS)[number];

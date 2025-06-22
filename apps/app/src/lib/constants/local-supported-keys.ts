@@ -1,4 +1,4 @@
-import type { PossibleKey } from './keyboard-event-possible-keys';
+import type { KeyboardEventPossibleKey } from './keyboard-event-possible-keys';
 
 /**
  * Structured keyboard key sections for local (browser-based) shortcuts.
@@ -24,7 +24,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'super',
 			'symbol',
 			'symbollock',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Letters',
@@ -56,7 +56,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'x',
 			'y',
 			'z',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Numbers',
@@ -72,7 +72,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'7',
 			'8',
 			'9',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Symbols & Punctuation',
@@ -110,12 +110,12 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'>',
 			'/',
 			'?',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Whitespace',
 		description: 'Space, enter, and tab keys',
-		keys: [' ', 'enter', 'tab'] as const satisfies PossibleKey[],
+		keys: [' ', 'enter', 'tab'] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Navigation',
@@ -129,7 +129,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'end',
 			'pageup',
 			'pagedown',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Editing',
@@ -144,7 +144,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'paste',
 			'redo',
 			'undo',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Function Keys',
@@ -174,7 +174,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'f22',
 			'f23',
 			'f24',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Special Keys',
@@ -193,7 +193,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'browsersearch',
 			'browserstop',
 			'browserfavorites',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Media Keys',
@@ -208,7 +208,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'volumeup',
 			'volumedown',
 			'volumemute',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 	{
 		title: 'Other Keys',
@@ -229,7 +229,7 @@ export const SUPPORTED_KEY_SECTIONS = [
 			'select',
 			'zoomout',
 			'zoomin',
-		] as const satisfies PossibleKey[],
+		] as const satisfies KeyboardEventPossibleKey[],
 	},
 ] as const;
 
@@ -254,11 +254,11 @@ export const ALL_SUPPORTED_KEYS = [
 export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
 
 /**
- * Type guard that validates whether a PossibleKey (any key from the browser)
+ * Type guard that validates whether a KeyboardEventPossibleKey (any key from the browser)
  * is one of our chosen SupportedKeys. This function acts as a gatekeeper,
  * filtering out keys we've decided not to support while providing type safety.
  *
- * When this returns true, TypeScript narrows the type from PossibleKey to
+ * When this returns true, TypeScript narrows the type from KeyboardEventPossibleKey to
  * SupportedKey, giving you compile-time guarantees about the key's validity.
  *
  * @param key - Any key value from KeyboardEvent.key.toLowerCase()
@@ -266,13 +266,15 @@ export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
  *
  * @example
  * ```typescript
- * const key = e.key.toLowerCase() as PossibleKey;
+ * const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
  * if (isSupportedKey(key)) {
  *   // TypeScript now knows this is a SupportedKey - our validated choice!
  *   pressedKeys.push(key);
  * }
  * ```
  */
-export function isSupportedKey(key: PossibleKey): key is SupportedKey {
+export function isSupportedKey(
+	key: KeyboardEventPossibleKey,
+): key is SupportedKey {
 	return ALL_SUPPORTED_KEYS.includes(key as SupportedKey);
 }
