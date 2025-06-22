@@ -13,7 +13,36 @@ type UpdateStatusMessageFn = (args: {
 	description: string;
 }) => void;
 
+type DeviceAcquisitionOutcome =
+	| {
+			outcome: 'success';
+	  }
+	| {
+			outcome: 'fallback';
+			reason: 'no-device-selected' | 'preferred-device-unavailable';
+			fallbackDeviceId: string;
+	  };
+
 export function createCpalRecorderService() {
+	const enumerateRecordingDevices = async (): Promise<
+		Result<{ deviceId: string; label: string }[], RecordingServiceError>
+	> => {
+		const { data: deviceInfos, error: enumerateRecordingDevicesError } =
+			await invoke<{ deviceId: string; label: string }[]>(
+				'enumerate_recording_devices',
+			);
+		if (enumerateRecordingDevicesError) {
+			return Err({
+				name: 'RecordingServiceError',
+				message:
+					'We need permission to see your microphones. Check your browser settings and try again!',
+				context: {},
+				cause: enumerateRecordingDevicesError,
+			});
+		}
+		return Ok(deviceInfos);
+	};
+
 	return {
 		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecordingServiceError>
@@ -32,37 +61,90 @@ export function createCpalRecorderService() {
 			return Ok(recorderState);
 		},
 
-		enumerateRecordingDevices: async (): Promise<
-			Result<{ deviceId: string; label: string }[], RecordingServiceError>
-		> => {
-			const { data: deviceInfos, error: enumerateRecordingDevicesError } =
-				await invoke<{ deviceId: string; label: string }[]>(
-					'enumerate_recording_devices',
-				);
-			if (enumerateRecordingDevicesError) {
-				return Err({
-					name: 'RecordingServiceError',
-					message:
-						'We need permission to see your microphones. Check your browser settings and try again!',
-					context: {},
-					cause: enumerateRecordingDevicesError,
-				});
-			}
-			return Ok(deviceInfos);
-		},
+		enumerateRecordingDevices,
 
 		startRecording: async (
 			{ selectedDeviceId }: { selectedDeviceId: string | null },
 			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
-		): Promise<Result<void, RecordingServiceError>> => {
+		): Promise<Result<DeviceAcquisitionOutcome, RecordingServiceError>> => {
+			const { data: devices, error: enumerateError } =
+				await enumerateRecordingDevices();
+			if (enumerateError) return Err(enumerateError);
+
+			const acquireDevice = (): Result<
+				{ deviceName: string; deviceOutcome: DeviceAcquisitionOutcome },
+				RecordingServiceError
+			> => {
+				const fallbackDeviceCandidate = devices.at(0);
+				if (!fallbackDeviceCandidate)
+					return Err({
+						name: 'RecordingServiceError',
+						message: selectedDeviceId
+							? "We couldn't find the selected microphone. Make sure it's connected and try again!"
+							: "We couldn't find any microphones. Make sure they're connected and try again!",
+						context: {},
+						cause: undefined,
+					});
+
+				if (!selectedDeviceId) {
+					sendStatus({
+						title: '🔍 No Device Selected',
+						description:
+							"No worries! We'll find the best microphone for you automatically...",
+					});
+					return Ok({
+						deviceName: fallbackDeviceCandidate.deviceId,
+						deviceOutcome: {
+							outcome: 'fallback',
+							reason: 'no-device-selected',
+							fallbackDeviceId: fallbackDeviceCandidate.deviceId,
+						},
+					});
+				}
+
+				const deviceExists = devices.some(
+					(d) => d.deviceId === selectedDeviceId,
+				);
+
+				if (deviceExists) {
+					return Ok({
+						deviceName: selectedDeviceId,
+						deviceOutcome: { outcome: 'success' },
+					});
+				}
+
+				sendStatus({
+					title: '⚠️ Finding a New Microphone',
+					description:
+						"That microphone isn't available. Let's try finding another one...",
+				});
+
+				return Ok({
+					deviceName: fallbackDeviceCandidate.deviceId,
+					deviceOutcome: {
+						outcome: 'fallback',
+						reason: 'preferred-device-unavailable',
+						fallbackDeviceId: fallbackDeviceCandidate.deviceId,
+					},
+				});
+			};
+
+			const { data: deviceAcquisitionOutcome, error: acquireDeviceError } =
+				acquireDevice();
+			if (acquireDeviceError) return Err(acquireDeviceError);
+
+			const { deviceName, deviceOutcome } = deviceAcquisitionOutcome;
+
+			// Now initialize recording with the chosen device
 			sendStatus({
 				title: '🎤 Setting Up',
 				description:
 					'Initializing your recording session and checking microphone access...',
 			});
+
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{ deviceName: selectedDeviceId },
+				{ deviceName },
 			);
 			if (initRecordingSessionError)
 				return Err({
@@ -71,6 +153,7 @@ export function createCpalRecorderService() {
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
 						selectedDeviceId,
+						deviceName,
 					},
 					cause: initRecordingSessionError,
 				});
@@ -90,7 +173,8 @@ export function createCpalRecorderService() {
 					context: {},
 					cause: startRecordingError,
 				});
-			return Ok(undefined);
+
+			return Ok(deviceOutcome);
 		},
 
 		stopRecording: async ({
