@@ -34,6 +34,7 @@ import { createSubscriber } from 'svelte/reactivity';
  */
 export function createPressedKeys({
 	preventDefault = true,
+	onUnsupportedKey,
 }: {
 	/**
 	 * Whether to call preventDefault() on keydown events.
@@ -41,6 +42,7 @@ export function createPressedKeys({
 	 * - false: Allows browser shortcuts to execute alongside key tracking
 	 */
 	preventDefault?: boolean;
+	onUnsupportedKey?: (key: KeyboardEventPossibleKey) => void;
 } = {}) {
 	/**
 	 * Pressed and normalized keys, internally stored and synced via createSubscriber.
@@ -59,7 +61,10 @@ export function createPressedKeys({
 			}
 			const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
-			if (!isSupportedKey(key)) return;
+			if (!isSupportedKey(key)) {
+				onUnsupportedKey?.(key);
+				return;
+			}
 
 			if (!pressedKeys.includes(key)) {
 				pressedKeys.push(key);
