@@ -1,32 +1,35 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
+	import type { DeviceEnumerationStrategy } from '$lib/query/_queries/device';
 	import { toast } from '$lib/toast';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
+		deviceEnumerationStrategy,
 		selected,
 		onSelectedChange,
 	}: {
+		deviceEnumerationStrategy: DeviceEnumerationStrategy;
 		selected: string;
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const getMediaDevicesQuery = createQuery(
-		rpc.device.getMediaDevices.options,
+	const getDevicesQuery = createQuery(
+		rpc.device.getDevices(deviceEnumerationStrategy).options,
 	);
 
 	$effect(() => {
-		if (getMediaDevicesQuery.isError) {
+		if (getDevicesQuery.isError) {
 			toast.warning({
 				title: 'Error loading devices',
-				description: getMediaDevicesQuery.error.message,
+				description: getDevicesQuery.error.message,
 			});
 		}
 	});
 </script>
 
-{#if getMediaDevicesQuery.isPending}
+{#if getDevicesQuery.isPending}
 	<LabeledSelect
 		id="recording-device"
 		label="Recording Device"
@@ -36,12 +39,12 @@
 		onSelectedChange={() => {}}
 		disabled
 	/>
-{:else if getMediaDevicesQuery.isError}
+{:else if getDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getMediaDevicesQuery.error.message}
+		{getDevicesQuery.error.message}
 	</p>
 {:else}
-	{@const items = getMediaDevicesQuery.data.map((device) => ({
+	{@const items = getDevicesQuery.data.map((device) => ({
 		value: device.deviceId,
 		label: device.label,
 	}))}

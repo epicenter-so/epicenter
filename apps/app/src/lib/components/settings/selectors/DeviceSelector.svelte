@@ -1,21 +1,24 @@
 <script lang="ts">
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
+	import { useCombobox } from '$lib/components/useCombobox.svelte';
+	import { rpc } from '$lib/query';
+	import type { DeviceEnumerationStrategy } from '$lib/query/_queries/device';
+	import type { Settings } from '$lib/settings';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from 'lucide-svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { useCombobox } from '$lib/components/useCombobox.svelte';
-	import { rpc } from '$lib/query';
-	import type { Settings } from '$lib/settings';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	const combobox = useCombobox();
 
 	let {
+		deviceEnumerationStrategy,
 		settingsKey,
 	}: {
+		deviceEnumerationStrategy: DeviceEnumerationStrategy;
 		settingsKey: keyof Settings;
 	} = $props();
 
@@ -29,16 +32,16 @@
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
-	const getMediaDevicesQuery = createQuery(() => ({
-		...rpc.device.getMediaDevices.options(),
+	const getDevicesQuery = createQuery(() => ({
+		...rpc.device.getDevices(deviceEnumerationStrategy).options(),
 		enabled: combobox.open,
 	}));
 
 	$effect(() => {
-		if (getMediaDevicesQuery.isError) {
+		if (getDevicesQuery.isError) {
 			toast.warning({
 				title: 'Error loading devices',
-				description: getMediaDevicesQuery.error.message,
+				description: getDevicesQuery.error.message,
 			});
 		}
 	});
@@ -70,16 +73,16 @@
 			<Command.Input placeholder="Select recording device..." />
 			<Command.Empty>No recording devices found.</Command.Empty>
 			<Command.Group class="overflow-y-auto max-h-[400px]">
-				{#if getMediaDevicesQuery.isPending}
+				{#if getDevicesQuery.isPending}
 					<div class="p-4 text-center text-sm text-muted-foreground">
 						Loading devices...
 					</div>
-				{:else if getMediaDevicesQuery.isError}
+				{:else if getDevicesQuery.isError}
 					<div class="p-4 text-center text-sm text-destructive">
-						{getMediaDevicesQuery.error.message}
+						{getDevicesQuery.error.message}
 					</div>
 				{:else}
-					{#each getMediaDevicesQuery.data as device (device.deviceId)}
+					{#each getDevicesQuery.data as device (device.deviceId)}
 						<Command.Item
 							value={device.label}
 							onSelect={() => {
@@ -109,7 +112,7 @@
 			<Command.Item
 				value="Refresh devices"
 				onSelect={() => {
-					getMediaDevicesQuery.refetch();
+					getDevicesQuery.refetch();
 					combobox.closeAndFocusTrigger();
 				}}
 				class="rounded-none p-2 bg-muted/50 text-muted-foreground"

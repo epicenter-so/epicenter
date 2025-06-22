@@ -57,7 +57,10 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector settingsKey="recording.manual.selectedDeviceId" />
+			<DeviceSelector
+				deviceEnumerationStrategy="navigator"
+				settingsKey="recording.manual.selectedDeviceId"
+			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -84,7 +87,10 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector settingsKey="recording.cpal.selectedDeviceId" />
+			<DeviceSelector
+				deviceEnumerationStrategy="cpal"
+				settingsKey="recording.cpal.selectedDeviceId"
+			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -101,7 +107,10 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector settingsKey="recording.vad.selectedDeviceId" />
+			<DeviceSelector
+				deviceEnumerationStrategy="navigator"
+				settingsKey="recording.vad.selectedDeviceId"
+			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -116,7 +125,10 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
-			<DeviceSelector settingsKey="recording.live.selectedDeviceId" />
+			<DeviceSelector
+				deviceEnumerationStrategy="navigator"
+				settingsKey="recording.live.selectedDeviceId"
+			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
