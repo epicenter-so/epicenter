@@ -1,11 +1,8 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import type { SupportedKey } from '$lib/keyboard';
+	import type { SupportedKey } from '$lib/constants/local-supported-keys';
 	import { rpc } from '$lib/query';
-	import {
-		type Accelerator,
-		pressedKeysToTauriAccelerator,
-	} from '$lib/services/shortcuts/createGlobalShortcutManager';
+	import { pressedKeysToTauriAccelerator, type Accelerator } from '$lib/services/global-shortcut-manager';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';

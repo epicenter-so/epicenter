@@ -1,8 +1,8 @@
+import type { PossibleKey } from '$lib/constants/keyboard-event-possible-keys';
 import {
 	isSupportedKey,
-	type PossibleKey,
 	type SupportedKey,
-} from '$lib/services/shortcuts/createLocalShortcutManager';
+} from '$lib/constants/local-supported-keys';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 

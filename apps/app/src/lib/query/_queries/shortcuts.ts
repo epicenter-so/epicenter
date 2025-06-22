@@ -1,8 +1,8 @@
 import { type Command, commandCallbacks } from '$lib/commands';
-import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
+import type { SupportedKey } from '$lib/constants/local-supported-keys';
 import * as services from '$lib/services';
-import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
-import type { SupportedKey } from '$lib/keyboard';
+import type { Accelerator } from '$lib/services/global-shortcut-manager';
+import type { CommandId } from '$lib/services/local-shortcut-manager';
 import { defineMutation } from '../_utils';
 
 export const shortcuts = {

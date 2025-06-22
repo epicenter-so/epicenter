@@ -1,3 +1,5 @@
+import type { AcceleratorPossibleKey } from './accelerator-possible-keys';
+
 /**
  * Structured accelerator key sections for global (system-wide) shortcuts.
  * Each section groups related keys with descriptive metadata.
@@ -18,7 +20,7 @@ export const ACCELERATOR_SECTIONS = [
 			'Shift', // Shift key
 			'Super',
 			'Meta', // Windows/Linux Super key
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Letters',
@@ -50,12 +52,23 @@ export const ACCELERATOR_SECTIONS = [
 			'X',
 			'Y',
 			'Z',
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Numbers',
 		description: 'Number keys 0-9',
-		keys: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const,
+		keys: [
+			'0',
+			'1',
+			'2',
+			'3',
+			'4',
+			'5',
+			'6',
+			'7',
+			'8',
+			'9',
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Function Keys',
@@ -85,7 +98,7 @@ export const ACCELERATOR_SECTIONS = [
 			'F22',
 			'F23',
 			'F24',
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Punctuation',
@@ -124,7 +137,7 @@ export const ACCELERATOR_SECTIONS = [
 			'"',
 			// TODO: Not sure if ' is allowed, see https://github.com/electron/electron/pull/47508/files
 			"'",
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Special Keys',
@@ -159,7 +172,7 @@ export const ACCELERATOR_SECTIONS = [
 			'MediaStop',
 			'MediaPlayPause',
 			'PrintScreen',
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 	{
 		title: 'Numpad Keys',
@@ -180,7 +193,7 @@ export const ACCELERATOR_SECTIONS = [
 			'numsub',
 			'nummult',
 			'numdiv',
-		] as const,
+		] as const satisfies AcceleratorPossibleKey[],
 	},
 ] as const;
 
@@ -200,5 +213,5 @@ export const ACCELERATOR_KEY_CODES = [
 	...ACCELERATOR_SECTIONS[4].keys, // Punctuation
 	...ACCELERATOR_SECTIONS[5].keys, // Special
 	...ACCELERATOR_SECTIONS[6].keys, // Numpad
-] as const satisfies (typeof ACCELERATOR_SECTIONS)[number]['keys'][number][];
+] as const satisfies AcceleratorPossibleKey[];
 export type AcceleratorKeyCode = (typeof ACCELERATOR_KEY_CODES)[number];

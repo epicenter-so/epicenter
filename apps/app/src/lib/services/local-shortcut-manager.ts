@@ -1,8 +1,12 @@
-import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
-import { ALL_SUPPORTED_KEYS, type SupportedKey } from '$lib/keyboard';
-import { on } from 'svelte/events';
-import type { ShortcutTriggerState } from './shortcut-trigger-state';
 import type { Brand } from '$lib/brand';
+import type { PossibleKey } from '$lib/constants/keyboard-event-possible-keys';
+import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
+import { on } from 'svelte/events';
+import {
+	isSupportedKey,
+	type SupportedKey,
+} from '../constants/local-supported-keys';
+import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
 
 /**
  * Error type for local shortcut service operations.
@@ -11,281 +15,6 @@ import type { Brand } from '$lib/brand';
  * and better error discrimination in Result types.
  */
 type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
-
-/**
- * Comprehensive list of all possible values that can be returned by `e.key.toLowerCase()`
- * This includes printable characters, special keys, navigation keys, function keys, etc.
- * Used for validation and type safety in keyboard event handling.
- */
-export const POSSIBLE_KEY_VALUES = [
-	// Letters (lowercase)
-	'a',
-	'b',
-	'c',
-	'd',
-	'e',
-	'f',
-	'g',
-	'h',
-	'i',
-	'j',
-	'k',
-	'l',
-	'm',
-	'n',
-	'o',
-	'p',
-	'q',
-	'r',
-	's',
-	't',
-	'u',
-	'v',
-	'w',
-	'x',
-	'y',
-	'z',
-
-	// Numbers
-	'0',
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-
-	// Symbols and punctuation (these remain the same with toLowerCase())
-	'`',
-	'~',
-	'!',
-	'@',
-	'#',
-	'$',
-	'%',
-	'^',
-	'&',
-	'*',
-	'(',
-	')',
-	'-',
-	'_',
-	'=',
-	'+',
-	'[',
-	'{',
-	']',
-	'}',
-	'\\',
-	'|',
-	';',
-	':',
-	"'",
-	'"',
-	',',
-	'<',
-	'.',
-	'>',
-	'/',
-	'?',
-
-	// Whitespace
-	' ', // Space
-	'enter',
-	'tab',
-
-	// Navigation keys (lowercase)
-	'arrowleft',
-	'arrowright',
-	'arrowup',
-	'arrowdown',
-	'home',
-	'end',
-	'pageup',
-	'pagedown',
-
-	// Editing keys (lowercase)
-	'backspace',
-	'delete',
-	'insert',
-	'clear',
-	'copy',
-	'cut',
-	'paste',
-	'redo',
-	'undo',
-
-	// Function keys (lowercase)
-	'f1',
-	'f2',
-	'f3',
-	'f4',
-	'f5',
-	'f6',
-	'f7',
-	'f8',
-	'f9',
-	'f10',
-	'f11',
-	'f12',
-	'f13',
-	'f14',
-	'f15',
-	'f16',
-	'f17',
-	'f18',
-	'f19',
-	'f20',
-	'f21',
-	'f22',
-	'f23',
-	'f24',
-
-	// Modifier keys (lowercase)
-	'control',
-	'shift',
-	'alt',
-	'meta', // meta is Command on Mac, Windows key on PC
-	'altgraph',
-	'capslock',
-	'numlock',
-	'scrolllock',
-	'fn',
-	'fnlock',
-	'hyper',
-	'super',
-	'symbol',
-	'symbollock',
-
-	// Special keys (lowercase)
-	'escape',
-	'contextmenu',
-	'pause',
-	'break',
-	'printscreen',
-	'help',
-	'browserback',
-	'browserforward',
-	'browserhome',
-	'browserrefresh',
-	'browsersearch',
-	'browserstop',
-	'browserfavorites',
-
-	// Media keys (lowercase)
-	'mediaplaypause',
-	'mediaplay',
-	'mediapause',
-	'mediastop',
-	'mediatracknext',
-	'mediatrackprevious',
-	'volumeup',
-	'volumedown',
-	'volumemute',
-
-	// Other special values
-	'dead', // Dead keys for creating accented characters
-	'unidentified', // When the key cannot be identified
-	'process', // IME processing
-	'compose', // Compose key
-	'accept',
-	'again',
-	'attn',
-	'cancel',
-	'execute',
-	'find',
-	'finish',
-	'props',
-	'select',
-	'zoomout',
-	'zoomin',
-
-	// Soft keys (mobile/special keyboards)
-	'soft1',
-	'soft2',
-	'soft3',
-	'soft4',
-
-	// Additional editing keys
-	'crsel',
-	'exsel',
-	'eraseof',
-
-	// Audio/launch keys
-	'launchapplication1',
-	'launchapplication2',
-	'launchmail',
-	'launchmediacenter',
-
-	// Asian language input keys
-	'alphanumeric',
-	'codeinput',
-	'convert',
-	'finalmode',
-	'groupfirst',
-	'grouplast',
-	'groupnext',
-	'groupprevious',
-	'modechange',
-	'nextcandidate',
-	'nonconvert',
-	'previouscandidate',
-	'singlecandidate',
-
-	// Additional keys
-	'allcandidates',
-	'hankaku',
-	'hiragana',
-	'hiraganakatakana',
-	'junja',
-	'kanamode',
-	'kanjimode',
-	'katakana',
-	'romaji',
-	'zenkaku',
-	'zenkakuhankaku',
-] as const;
-
-/**
- * Union type representing all possible keyboard key values that can be
- * returned by `KeyboardEvent.key.toLowerCase()`. This comprehensive type
- * includes all standard keyboard keys across different platforms and layouts:
- * - Printable characters (letters, numbers, symbols)
- * - Navigation and editing keys
- * - Function and modifier keys
- * - Media control and special system keys
- * - International/IME keys for various languages
- *
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values MDN Keyboard Event Key Values}
- */
-export type PossibleKey = (typeof POSSIBLE_KEY_VALUES)[number];
-
-/**
- * Type guard that validates whether a PossibleKey (any key from the browser)
- * is one of our chosen SupportedKeys. This function acts as a gatekeeper,
- * filtering out keys we've decided not to support while providing type safety.
- *
- * When this returns true, TypeScript narrows the type from PossibleKey to
- * SupportedKey, giving you compile-time guarantees about the key's validity.
- *
- * @param key - Any key value from KeyboardEvent.key.toLowerCase()
- * @returns True if we've chosen to support this key for shortcuts, false otherwise
- *
- * @example
- * ```typescript
- * const key = e.key.toLowerCase() as PossibleKey;
- * if (isSupportedKey(key)) {
- *   // TypeScript now knows this is a SupportedKey - our validated choice!
- *   pressedKeys.push(key);
- * }
- * ```
- */
-export function isSupportedKey(key: PossibleKey): key is SupportedKey {
-	return ALL_SUPPORTED_KEYS.includes(key as SupportedKey);
-}
 
 export type CommandId = string & Brand<'CommandId'>;
 
@@ -513,4 +242,20 @@ export type LocalShortcutManager = ReturnType<
  */
 function arraysMatch(a: string[], b: string[]) {
 	return a.length === b.length && a.every((key) => b.includes(key));
+}
+
+/**
+ * Convert a shortcut string to an array of keys
+ * @example "ctrl+shift+a" → ["ctrl", "shift", "a"]
+ */
+export function shortcutStringToArray(shortcut: string): SupportedKey[] {
+	return shortcut.split('+').map((key) => key.toLowerCase() as SupportedKey);
+}
+
+/**
+ * Join an array of keys into a shortcut string
+ * @example ["ctrl", "shift", "a"] → "ctrl+shift+a"
+ */
+export function arrayToShortcutString(keys: SupportedKey[]): string {
+	return keys.map((key) => key.toLowerCase()).join('+');
 }

@@ -5,11 +5,9 @@
 	import { HelpCircle, ExternalLink } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import {
-		SHORTCUT_EXAMPLES,
-		SUPPORTED_KEY_SECTIONS,
-		ACCELERATOR_SECTIONS,
-	} from '$lib/keyboard';
+	import { SHORTCUT_EXAMPLES } from '$lib/keyboard';
+	import { SUPPORTED_KEY_SECTIONS } from '$lib/constants/local-supported-keys';
+	import { ACCELERATOR_SECTIONS } from '$lib/constants/global-supported-keys';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);

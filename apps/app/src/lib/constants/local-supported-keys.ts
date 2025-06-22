@@ -1,3 +1,5 @@
+import type { PossibleKey } from './keyboard-event-possible-keys';
+
 /**
  * Structured keyboard key sections for local (browser-based) shortcuts.
  * Each section groups related keys with descriptive metadata.
@@ -239,3 +241,27 @@ export const ALL_SUPPORTED_KEYS = [
 ] as const satisfies (typeof SUPPORTED_KEY_SECTIONS)[number]['keys'][number][];
 
 export type SupportedKey = (typeof ALL_SUPPORTED_KEYS)[number];
+
+/**
+ * Type guard that validates whether a PossibleKey (any key from the browser)
+ * is one of our chosen SupportedKeys. This function acts as a gatekeeper,
+ * filtering out keys we've decided not to support while providing type safety.
+ *
+ * When this returns true, TypeScript narrows the type from PossibleKey to
+ * SupportedKey, giving you compile-time guarantees about the key's validity.
+ *
+ * @param key - Any key value from KeyboardEvent.key.toLowerCase()
+ * @returns True if we've chosen to support this key for shortcuts, false otherwise
+ *
+ * @example
+ * ```typescript
+ * const key = e.key.toLowerCase() as PossibleKey;
+ * if (isSupportedKey(key)) {
+ *   // TypeScript now knows this is a SupportedKey - our validated choice!
+ *   pressedKeys.push(key);
+ * }
+ * ```
+ */
+export function isSupportedKey(key: PossibleKey): key is SupportedKey {
+	return ALL_SUPPORTED_KEYS.includes(key as SupportedKey);
+}

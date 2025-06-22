@@ -1,11 +1,13 @@
 import { commands } from '$lib/commands';
-import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
 import { rpc } from '$lib/query';
-import { shortcutStringToArray } from '$lib/services/shortcuts/formatConverters';
+import type { Accelerator } from '$lib/services/global-shortcut-manager';
+import {
+	type CommandId,
+	shortcutStringToArray,
+} from '$lib/services/local-shortcut-manager';
 import { settings } from '$lib/stores/settings.svelte';
-import { partitionResults } from '@epicenterhq/result';
 import { toast } from '$lib/toast';
-import type { Accelerator } from '$lib/services/shortcuts/createGlobalShortcutManager';
+import { partitionResults } from '@epicenterhq/result';
 import { onMount } from 'svelte';
 
 /**

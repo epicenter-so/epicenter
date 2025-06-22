@@ -5,15 +5,19 @@ import {
 } from './SetTrayIconService';
 import { createClipboardServiceDesktop } from './clipboard/desktop';
 import { createClipboardServiceWeb } from './clipboard/web';
+import { createCpalRecorderService } from './cpalRecorder';
 import { createDbServiceDexie } from './db/dexie';
 import { createDownloadServiceDesktop } from './download/desktop';
 import { createDownloadServiceWeb } from './download/web';
 import { createHttpServiceDesktop } from './http/desktop';
 import { createHttpServiceWeb } from './http/web';
+import { createManualRecorderService } from './manualRecorder';
 import { createNotificationServiceDesktop } from './notifications/desktop';
 import { createNotificationServiceWeb } from './notifications/web';
-import { createCpalRecorderService } from './cpalRecorder';
-import { createManualRecorderService } from './manualRecorder';
+import { createOsServiceDesktop } from './os/desktop';
+import { createOsServiceWeb } from './os/web';
+import { createGlobalShortcutManager } from './global-shortcut-manager';
+import { createLocalShortcutManager } from './local-shortcut-manager';
 import { createPlaySoundServiceDesktop } from './sound/desktop';
 import { createPlaySoundServiceWeb } from './sound/web';
 import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
@@ -22,11 +26,6 @@ import { createGroqTranscriptionService } from './transcription/whisper/groq';
 import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
 import { createTransformerService } from './transformer';
 import { createVadServiceWeb } from './vad';
-import { createGlobalShortcutManager } from './shortcuts/createGlobalShortcutManager';
-import { createLocalShortcutManager } from './shortcuts/createLocalShortcutManager';
-import { createOsServiceDesktop } from './os/desktop';
-import { createOsServiceWeb } from './os/web';
-import type { Settings } from '$lib/settings';
 
 // Static services (platform-dependent but not settings-dependent)
 const DownloadService = window.__TAURI_INTERNALS__
@@ -108,17 +107,17 @@ function TranscriptionService() {
  */
 export {
 	ClipboardService as clipboard,
-	DownloadService as download,
-	NotificationService as notification,
-	SetTrayIconService as setTrayIcon,
-	VadService as vad,
-	DbService as db,
-	TransformerService as transformer,
-	TranscriptionService as transcription,
-	NavigatorRecorderService as manualRecorder,
 	CpalRecorderService as cpalRecorder,
-	PlaySoundService as sound,
-	LocalShortcutManager as localShortcutManager,
+	DbService as db,
+	DownloadService as download,
 	GlobalShortcutManager as globalShortcutManager,
+	LocalShortcutManager as localShortcutManager,
+	NavigatorRecorderService as manualRecorder,
+	NotificationService as notification,
 	OsService as os,
+	SetTrayIconService as setTrayIcon,
+	PlaySoundService as sound,
+	TranscriptionService as transcription,
+	TransformerService as transformer,
+	VadService as vad,
 };

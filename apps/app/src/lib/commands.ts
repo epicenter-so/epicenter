@@ -6,9 +6,8 @@ import {
 	deliverTranscribedText,
 	deliverTransformedText,
 } from './deliverTextToUser';
-import * as services from '$lib/services';
+import { CommandOrControl } from './keyboard';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
-import { CommandOrControl } from '$lib/constants';
 
 const stopManualRecording = async () => {
 	const toastId = nanoid();
@@ -554,13 +553,16 @@ async function saveRecordingAndTranscribeTransform({
 	await deliverTranscribedText({ text: transcribedText, toastId });
 
 	// Determine if we need to chain to transformation
-	const needsTransformation =
+	const transformationId =
 		settings.value['transformations.selectedTransformationId'];
+	const needsTransformation = transformationId;
 
 	// Check if transformation is valid if specified
 	if (needsTransformation) {
 		const { data: transformation, error: getTransformationError } =
-			await services.db.getTransformationById(needsTransformation);
+			await rpc.transformations.queries
+				.getTransformationById(() => transformationId)
+				.fetchCached();
 
 		const couldNotRetrieveTransformation = getTransformationError;
 		const transformationNoLongerExists = !transformation;

@@ -4,8 +4,7 @@ import {
 	ACCELERATOR_MODIFIER_KEYS,
 	type AcceleratorKeyCode,
 	type AcceleratorModifier,
-	type SupportedKey,
-} from '$lib/keyboard';
+} from '$lib/constants/global-supported-keys';
 import {
 	Err,
 	Ok,
@@ -21,7 +20,8 @@ import {
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
-import type { ShortcutTriggerState } from './shortcut-trigger-state';
+import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
+import type { SupportedKey } from '../constants/local-supported-keys';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;

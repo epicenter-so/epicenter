@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import type { SupportedKey } from '$lib/keyboard';
 	import { rpc } from '$lib/query';
-	import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
-	import { arrayToShortcutString } from '$lib/services/shortcuts/formatConverters';
+	import {
+		arrayToShortcutString,
+		type CommandId,
+	} from '$lib/services/local-shortcut-manager';
+	import type { SupportedKey } from '$lib/services/local-shortcut-manager/supported-key';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';

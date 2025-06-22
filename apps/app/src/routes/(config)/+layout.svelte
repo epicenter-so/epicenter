@@ -14,7 +14,7 @@
 		recorderStateToIcons,
 		cpalStateToIcons,
 		vadStateToIcons,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getRecorderStateQuery = createQuery(
