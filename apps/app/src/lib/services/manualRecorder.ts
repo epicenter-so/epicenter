@@ -90,13 +90,11 @@ export function createManualRecorderService() {
 
 			const { stream, deviceOutcome } = streamResult;
 
-			// Create the MediaRecorder
-			const { data: mediaRecorder, error: recorderError } = await tryAsync({
-				try: async () => {
-					return new MediaRecorder(stream, {
+			const { data: mediaRecorder, error: recorderError } = trySync({
+				try: () =>
+					new MediaRecorder(stream, {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
-					});
-				},
+					}),
 				mapError: (error): RecordingServiceError => ({
 					name: 'RecordingServiceError',
 					message:
@@ -105,14 +103,17 @@ export function createManualRecorderService() {
 					cause: error,
 				}),
 			});
+
 			if (recorderError) {
 				// Clean up stream if recorder creation fails
 				cleanupRecordingStream(stream);
 				return Err(recorderError);
 			}
 
-			// Set up the active recording
+			// Set up recording state and event handlers
 			const recordedChunks: Blob[] = [];
+
+			// Store active recording state
 			activeRecording = {
 				selectedDeviceId,
 				bitrateKbps,
@@ -123,8 +124,7 @@ export function createManualRecorderService() {
 
 			// Set up event handlers
 			mediaRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
-				if (!event.data.size) return;
-				recordedChunks.push(event.data);
+				if (event.data.size) recordedChunks.push(event.data);
 			});
 
 			// Start recording
