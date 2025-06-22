@@ -88,8 +88,9 @@
 	<ToggleGroup.Root
 		type="single"
 		value={settings.value['recording.mode']}
-		class="max-w-sm w-full"
+		class="max-w-xs w-full"
 		onValueChange={(mode) => {
+			if (!mode) return;
 			settings.value = {
 				...settings.value,
 				'recording.mode': mode as 'manual' | 'cpal' | 'vad' | 'live',
