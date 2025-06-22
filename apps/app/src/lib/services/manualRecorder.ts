@@ -416,3 +416,5 @@ async function getStreamForDeviceId(recordingDeviceId: string) {
 		}),
 	});
 }
+
+export const NavigatorRecorderServiceLive = createManualRecorderService();

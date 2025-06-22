@@ -155,3 +155,7 @@ async function getIconPath(recorderState: WhisperingRecordingState) {
 	} as const satisfies Record<WhisperingRecordingState, string>;
 	return await resolveResource(iconPaths[recorderState]);
 }
+
+export const SetTrayIconServiceLive = window.__TAURI_INTERNALS__
+	? createSetTrayIconDesktopService()
+	: createSetTrayIconWebService();

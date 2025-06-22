@@ -1,123 +1,34 @@
-import { settings } from '../stores/settings.svelte';
-import {
-	createSetTrayIconDesktopService,
-	createSetTrayIconWebService,
-} from './SetTrayIconService';
-import { createClipboardServiceDesktop } from './clipboard/desktop';
-import { createClipboardServiceWeb } from './clipboard/web';
-import { createCpalRecorderService } from './cpalRecorder';
-import { createDbServiceDexie } from './db/dexie';
-import { createDownloadServiceDesktop } from './download/desktop';
-import { createDownloadServiceWeb } from './download/web';
-import { createGlobalShortcutManager } from './global-shortcut-manager';
-import { createHttpServiceDesktop } from './http/desktop';
-import { createHttpServiceWeb } from './http/web';
-import { createLocalShortcutManager } from './local-shortcut-manager';
-import { createManualRecorderService } from './manualRecorder';
-import { createNotificationServiceDesktop } from './notifications/desktop';
-import { createNotificationServiceWeb } from './notifications/web';
-import { createOsServiceDesktop } from './os/desktop';
-import { createOsServiceWeb } from './os/web';
-import { createPlaySoundServiceDesktop } from './sound/desktop';
-import { createPlaySoundServiceWeb } from './sound/web';
-import { createElevenLabsTranscriptionService } from './transcription/whisper/elevenlabs';
-import { createFasterWhisperServerTranscriptionService } from './transcription/whisper/fasterWhisperServer';
-import { createGroqTranscriptionService } from './transcription/whisper/groq';
-import { createOpenaiTranscriptionService } from './transcription/whisper/openai';
-import { createTransformerService } from './transformer';
-import { createVadServiceWeb } from './vad';
-
-// Static services (platform-dependent but not settings-dependent)
-const DownloadService = window.__TAURI_INTERNALS__
-	? createDownloadServiceDesktop()
-	: createDownloadServiceWeb();
-
-const NotificationService = window.__TAURI_INTERNALS__
-	? createNotificationServiceDesktop()
-	: createNotificationServiceWeb();
-
-const ClipboardService = window.__TAURI_INTERNALS__
-	? createClipboardServiceDesktop()
-	: createClipboardServiceWeb();
-
-const SetTrayIconService = window.__TAURI_INTERNALS__
-	? createSetTrayIconDesktopService()
-	: createSetTrayIconWebService();
-
-const HttpService = window.__TAURI_INTERNALS__
-	? createHttpServiceDesktop()
-	: createHttpServiceWeb();
-
-const PlaySoundService = window.__TAURI_INTERNALS__
-	? createPlaySoundServiceDesktop()
-	: createPlaySoundServiceWeb();
-
-const OsService = window.__TAURI_INTERNALS__
-	? createOsServiceDesktop()
-	: createOsServiceWeb();
-
-// Static services (platform-agnostic)
-const VadService = createVadServiceWeb();
-
-const DbService = createDbServiceDexie({ DownloadService });
-
-const TransformerService = createTransformerService({ HttpService, DbService });
-
-const NavigatorRecorderService = createManualRecorderService();
-const CpalRecorderService = createCpalRecorderService();
-
-const LocalShortcutManager = createLocalShortcutManager();
-const GlobalShortcutManager = createGlobalShortcutManager();
-
-// Dynamic services (settings-dependent, lazily loaded)
-function TranscriptionService() {
-	switch (settings.value['transcription.selectedTranscriptionService']) {
-		case 'OpenAI': {
-			return createOpenaiTranscriptionService({
-				HttpService,
-				apiKey: settings.value['apiKeys.openai'],
-			});
-		}
-		case 'Groq': {
-			return createGroqTranscriptionService({
-				HttpService,
-				apiKey: settings.value['apiKeys.groq'],
-				modelName: settings.value['transcription.groq.model'],
-			});
-		}
-		case 'faster-whisper-server': {
-			return createFasterWhisperServerTranscriptionService({
-				HttpService,
-				serverModel:
-					settings.value['transcription.fasterWhisperServer.serverModel'],
-				serverUrl:
-					settings.value['transcription.fasterWhisperServer.serverUrl'],
-			});
-		}
-		case 'ElevenLabs': {
-			return createElevenLabsTranscriptionService({
-				apiKey: settings.value['apiKeys.elevenlabs'],
-			});
-		}
-	}
-}
+import { SetTrayIconServiceLive } from './SetTrayIconService';
+import { ClipboardServiceLive } from './clipboard';
+import { CpalRecorderServiceLive } from './cpalRecorder';
+import { DbServiceLive } from './db';
+import { DownloadServiceLive } from './download';
+import { GlobalShortcutManagerLive } from './global-shortcut-manager';
+import { LocalShortcutManagerLive } from './local-shortcut-manager';
+import { NavigatorRecorderServiceLive } from './manualRecorder';
+import { NotificationServiceLive } from './notifications';
+import { OsServiceLive } from './os';
+import { PlaySoundServiceLive } from './sound';
+import { TranscriptionServiceLive } from './transcription';
+import { TransformerServiceLive } from './transformer';
+import { VadServiceLive } from './vad';
 
 /**
  * Unified services object providing consistent access to all services.
  */
 export {
-	ClipboardService as clipboard,
-	CpalRecorderService as cpalRecorder,
-	DbService as db,
-	DownloadService as download,
-	GlobalShortcutManager as globalShortcutManager,
-	LocalShortcutManager as localShortcutManager,
-	NavigatorRecorderService as manualRecorder,
-	NotificationService as notification,
-	OsService as os,
-	SetTrayIconService as setTrayIcon,
-	PlaySoundService as sound,
-	TranscriptionService as transcription,
-	TransformerService as transformer,
-	VadService as vad,
+	ClipboardServiceLive as clipboard,
+	CpalRecorderServiceLive as cpalRecorder,
+	DbServiceLive as db,
+	DownloadServiceLive as download,
+	GlobalShortcutManagerLive as globalShortcutManager,
+	LocalShortcutManagerLive as localShortcutManager,
+	NavigatorRecorderServiceLive as manualRecorder,
+	NotificationServiceLive as notification,
+	OsServiceLive as os,
+	SetTrayIconServiceLive as setTrayIcon,
+	PlaySoundServiceLive as sound,
+	TranscriptionServiceLive as transcription,
+	TransformerServiceLive as transformer,
+	VadServiceLive as vad,
 };

@@ -5,6 +5,7 @@ import {
 	type AcceleratorKeyCode,
 	type AcceleratorModifier,
 } from '$lib/constants/accelerator-supported-keys';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 import {
 	Err,
 	Ok,
@@ -21,7 +22,6 @@ import {
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
-import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -440,3 +440,5 @@ function sortModifiers(
 		return orderA - orderB;
 	});
 }
+
+export const GlobalShortcutManagerLive = createGlobalShortcutManager();

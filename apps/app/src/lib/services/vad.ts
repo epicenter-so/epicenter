@@ -98,3 +98,5 @@ export function createVadServiceWeb() {
 		},
 	};
 }
+
+export const VadServiceLive = createVadServiceWeb();

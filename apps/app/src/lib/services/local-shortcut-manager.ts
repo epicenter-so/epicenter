@@ -265,3 +265,5 @@ export function arrayToShortcutString(
 ): string {
 	return keys.map((key) => key.toLowerCase()).join('+');
 }
+
+export const LocalShortcutManagerLive = createLocalShortcutManager();

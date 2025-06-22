@@ -1,8 +1,8 @@
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 // import { extension } from '@repo/extension';
-import type { ClipboardService, ClipboardServiceError } from '.';
+import type { ClipboardServiceLive, ClipboardServiceError } from '.';
 
-export function createClipboardServiceWeb(): ClipboardService {
+export function createClipboardServiceWeb(): ClipboardServiceLive {
 	return {
 		setClipboardText: async (text) => {
 			const { error: setClipboardError } = await tryAsync({
