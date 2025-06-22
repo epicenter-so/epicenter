@@ -44,6 +44,7 @@
 			</div>
 
 			<SelectRecordingDevice
+				deviceEnumerationStrategy="navigator"
 				selected={settings.value['recording.manual.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
@@ -83,6 +84,7 @@
 				</div>
 
 				<SelectRecordingDevice
+					deviceEnumerationStrategy="cpal"
 					selected={settings.value['recording.cpal.selectedDeviceId'] ?? ''}
 					onSelectedChange={(selected) => {
 						settings.value = {
@@ -112,6 +114,7 @@
 			</div>
 
 			<SelectRecordingDevice
+				deviceEnumerationStrategy="navigator"
 				selected={settings.value['recording.vad.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
@@ -149,6 +152,7 @@
 			</div>
 
 			<SelectRecordingDevice
+				deviceEnumerationStrategy="navigator"
 				selected={settings.value['recording.live.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
