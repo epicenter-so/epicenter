@@ -1,5 +1,5 @@
 import * as services from '$lib/services';
-import type { PlaySoundServiceError } from '$lib/services/sound/_types';
+import type { PlaySoundServiceError } from '$lib/services/sound';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingSoundNames } from '$lib/constants';

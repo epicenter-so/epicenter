@@ -1,6 +1,6 @@
-import type { HttpService } from '$lib/services/http/_types';
+import type { HttpService } from '$lib/services/http';
 import { Ok } from '@epicenterhq/result';
-import type { TranscriptionService } from '../_types';
+import type { TranscriptionService } from '..';
 import { createWhisperService } from './_createWhisperService';
 
 export function createFasterWhisperServerTranscriptionService({

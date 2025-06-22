@@ -1,5 +1,5 @@
-import type { Result, TaggedError } from '@epicenterhq/result';
 import type { ToastAndNotifyOptions } from '$lib/toasts';
+import type { Result, TaggedError } from '@epicenterhq/result';
 
 export type NotificationServiceError = TaggedError<'NotificationServiceError'>;
 

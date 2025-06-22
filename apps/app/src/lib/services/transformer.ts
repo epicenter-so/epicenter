@@ -16,8 +16,8 @@ import type {
 	TransformationRunFailed,
 	TransformationStep,
 } from './db/models';
+import type { HttpService } from './http';
 import type { DbService } from './db/types';
-import type { HttpService } from './http/_types';
 
 type TransformServiceError = TaggedError<'TransformServiceError'>;
 

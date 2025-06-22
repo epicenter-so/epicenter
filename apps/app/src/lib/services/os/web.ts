@@ -1,4 +1,4 @@
-import type { OsService } from './types';
+import type { OsService } from '.';
 import type { OsType } from '@tauri-apps/plugin-os';
 import { type } from 'arktype';
 

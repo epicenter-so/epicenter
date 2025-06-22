@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
 import type { Settings } from '$lib/settings';
+import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
+import { z } from 'zod';
 
 export const WHISPERING_URL =
 	process.env.NODE_ENV === 'production'

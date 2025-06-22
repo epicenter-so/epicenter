@@ -4,7 +4,7 @@ import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
-import type { DownloadService } from '../download/_types';
+import type { DownloadService } from '$lib/services/download';
 import type { DbService } from './types';
 import type {
 	DbServiceErrorProperties,

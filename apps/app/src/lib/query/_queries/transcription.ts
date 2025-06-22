@@ -1,7 +1,7 @@
 import type { Recording } from '$lib/services/db';
 import * as services from '$lib/services';
 import { toast } from '$lib/toast';
-import type { TranscriptionServiceError } from '$lib/services/transcription/_types';
+import type { TranscriptionServiceError } from '$lib/services/transcription';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, partitionResults } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';

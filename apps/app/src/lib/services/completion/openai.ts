@@ -1,6 +1,6 @@
 import { Err, Ok } from '@epicenterhq/result';
 import { z } from 'zod';
-import type { HttpService } from '$lib/services/http/_types';
+import type { HttpService } from '$lib/services/http';
 import type { CompletionService } from './_types';
 
 export function createOpenAiCompletionService({
