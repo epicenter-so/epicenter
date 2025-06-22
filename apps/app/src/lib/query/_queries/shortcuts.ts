@@ -33,16 +33,25 @@ export const shortcuts = {
 		mutationKey: ['shortcuts', 'registerCommandGlobally'] as const,
 		resultMutationFn: ({
 			command,
-			accelerator,
+			// Parameter renamed to indicate it may contain legacy "CommandOrControl" syntax
+			// Legacy format: "CommandOrControl+Shift+R" → Modern format: "Command+Shift+R" (macOS) or "Control+Shift+R" (Windows/Linux)
+			accelerator: legacyAcceleratorString,
 		}: {
 			command: Command;
 			accelerator: Accelerator;
-		}) =>
-			services.globalShortcutManager.register({
+		}) => {
+			// Convert legacy "CommandOrControl" syntax to platform-specific modifiers for backwards compatibility
+			// This ensures users with old settings don't need to manually update their shortcuts
+			const accelerator = legacyAcceleratorString.replace(
+				'CommandOrControl',
+				services.os.type() === 'macos' ? 'Command' : 'Control',
+			) as Accelerator;
+			return services.globalShortcutManager.register({
 				accelerator,
 				callback: commandCallbacks[command.id],
 				on: command.on,
-			}),
+			});
+		},
 	}),
 
 	unregisterCommandGlobally: defineMutation({
