@@ -225,7 +225,7 @@ export const commands = [
 	},
 	{
 		id: 'toggleManualRecording',
-		title: 'Toggle manual recording',
+		title: 'Toggle recording',
 		defaultLocalShortcut: ' ',
 		defaultGlobalShortcut: `${CommandOrControl}+Shift+[`,
 		on: 'Pressed',
@@ -250,7 +250,7 @@ export const commands = [
 	},
 	{
 		id: 'cancelManualRecording',
-		title: 'Cancel manual recording',
+		title: 'Cancel recording',
 		defaultLocalShortcut: 'c',
 		defaultGlobalShortcut: `${CommandOrControl}+Shift+]`,
 		on: 'Pressed',
@@ -294,6 +294,83 @@ export const commands = [
 					break;
 				}
 			}
+		},
+	},
+	{
+		id: 'toggleVadRecording',
+		title: 'Toggle voice activated recording',
+		defaultLocalShortcut: 'v',
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+'`,
+		on: 'Pressed',
+		callback: async () => {
+			const { data: vadState } =
+				await rpc.vadRecorder.getVadState.fetchCached();
+			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
+				const toastId = nanoid();
+				console.info('Stopping voice activated capture');
+				toast.loading({
+					id: toastId,
+					title: '⏸️ Stopping voice activated capture...',
+					description: 'Finalizing your voice activated capture...',
+				});
+				const { error: stopVadError } =
+					await rpc.vadRecorder.stopActiveListening.execute(undefined);
+				if (stopVadError) {
+					toast.error({ id: toastId, ...stopVadError });
+					return;
+				}
+				toast.success({
+					id: toastId,
+					title: '🎙️ Voice activated capture stopped',
+					description: 'Your voice activated capture has been stopped.',
+				});
+				rpc.sound.playSoundIfEnabled.execute('vad-stop');
+				return;
+			}
+			const toastId = nanoid();
+			console.info('Starting voice activated capture');
+			toast.loading({
+				id: toastId,
+				title: '🎙️ Starting voice activated capture',
+				description: 'Your voice activated capture is starting...',
+			});
+			const { error: startActiveListeningError } =
+				await rpc.vadRecorder.startActiveListening.execute({
+					onSpeechStart: () => {
+						toast.success({
+							title: '🎙️ Speech started',
+							description: 'Recording started. Speak clearly and loudly.',
+						});
+					},
+					onSpeechEnd: async (blob) => {
+						const toastId = nanoid();
+						toast.success({
+							id: toastId,
+							title: '🎙️ Voice activated speech captured',
+							description: 'Your voice activated speech has been captured.',
+						});
+						console.info('Voice activated speech captured');
+						rpc.sound.playSoundIfEnabled.execute('vad-capture');
+
+						await saveRecordingAndTranscribeTransform({
+							blob,
+							toastId,
+							completionTitle: '✨ Voice activated capture complete!',
+							completionDescription:
+								'Voice activated capture complete! Ready for another take',
+						});
+					},
+				});
+			if (startActiveListeningError) {
+				toast.error({ id: toastId, ...startActiveListeningError });
+				return;
+			}
+			toast.success({
+				id: toastId,
+				title: '🎙️ Voice activated capture started',
+				description: 'Your voice activated capture has been started.',
+			});
+			rpc.sound.playSoundIfEnabled.execute('vad-start');
 		},
 	},
 	...(window.__TAURI_INTERNALS__
@@ -374,83 +451,6 @@ export const commands = [
 				},
 			] as const satisfies SatisfiedCommand[])
 		: []),
-	{
-		id: 'toggleVadRecording',
-		title: 'Toggle vad recording',
-		defaultLocalShortcut: 'v',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+'`,
-		on: 'Pressed',
-		callback: async () => {
-			const { data: vadState } =
-				await rpc.vadRecorder.getVadState.fetchCached();
-			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
-				const toastId = nanoid();
-				console.info('Stopping voice activated capture');
-				toast.loading({
-					id: toastId,
-					title: '⏸️ Stopping voice activated capture...',
-					description: 'Finalizing your voice activated capture...',
-				});
-				const { error: stopVadError } =
-					await rpc.vadRecorder.stopActiveListening.execute(undefined);
-				if (stopVadError) {
-					toast.error({ id: toastId, ...stopVadError });
-					return;
-				}
-				toast.success({
-					id: toastId,
-					title: '🎙️ Voice activated capture stopped',
-					description: 'Your voice activated capture has been stopped.',
-				});
-				rpc.sound.playSoundIfEnabled.execute('vad-stop');
-				return;
-			}
-			const toastId = nanoid();
-			console.info('Starting voice activated capture');
-			toast.loading({
-				id: toastId,
-				title: '🎙️ Starting voice activated capture',
-				description: 'Your voice activated capture is starting...',
-			});
-			const { error: startActiveListeningError } =
-				await rpc.vadRecorder.startActiveListening.execute({
-					onSpeechStart: () => {
-						toast.success({
-							title: '🎙️ Speech started',
-							description: 'Recording started. Speak clearly and loudly.',
-						});
-					},
-					onSpeechEnd: async (blob) => {
-						const toastId = nanoid();
-						toast.success({
-							id: toastId,
-							title: '🎙️ Voice activated speech captured',
-							description: 'Your voice activated speech has been captured.',
-						});
-						console.info('Voice activated speech captured');
-						rpc.sound.playSoundIfEnabled.execute('vad-capture');
-
-						await saveRecordingAndTranscribeTransform({
-							blob,
-							toastId,
-							completionTitle: '✨ Voice activated capture complete!',
-							completionDescription:
-								'Voice activated capture complete! Ready for another take',
-						});
-					},
-				});
-			if (startActiveListeningError) {
-				toast.error({ id: toastId, ...startActiveListeningError });
-				return;
-			}
-			toast.success({
-				id: toastId,
-				title: '🎙️ Voice activated capture started',
-				description: 'Your voice activated capture has been started.',
-			});
-			rpc.sound.playSoundIfEnabled.execute('vad-start');
-		},
-	},
 ] as const satisfies SatisfiedCommand[];
 
 export type Command = (typeof commands)[number];
