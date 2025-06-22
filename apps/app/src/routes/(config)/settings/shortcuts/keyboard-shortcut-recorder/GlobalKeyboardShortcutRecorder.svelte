@@ -1,18 +1,14 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import type { CommandId } from '$lib/services/shortcuts/createLocalShortcutManager';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import type { SupportedKey } from '$lib/keyboard';
 	import { rpc } from '$lib/query';
 	import {
-		pressedKeysToTauriAccelerator,
 		type Accelerator,
+		pressedKeysToTauriAccelerator,
 	} from '$lib/services/shortcuts/createGlobalShortcutManager';
-	import type { SupportedKey } from '$lib/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
-	import { X } from 'lucide-svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './create-key-recorder.svelte';
 
@@ -100,7 +96,7 @@
 		onClear: async () => {
 			const { error: unregisterError } =
 				await rpc.shortcuts.unregisterCommandGlobally.execute({
-					commandId: command.id as CommandId,
+					accelerator: shortcutValue as Accelerator,
 				});
 
 			if (unregisterError) {
@@ -124,29 +120,10 @@
 	});
 </script>
 
-<div class="flex items-center justify-end gap-2">
-	{#if shortcutValue}
-		<Badge variant="secondary" class="font-mono text-xs">
-			{shortcutValue}
-		</Badge>
-		<Button
-			variant="ghost"
-			size="icon"
-			class="size-8 shrink-0"
-			onclick={() => keyRecorder.clear()}
-		>
-			<X class="size-4" />
-			<span class="sr-only">Clear shortcut</span>
-		</Button>
-	{:else}
-		<span class="text-sm text-muted-foreground">Not set</span>
-	{/if}
-
-	<KeyboardShortcutRecorder
-		title={command.title}
-		{placeholder}
-		{autoFocus}
-		rawKeyCombination={shortcutValue}
-		{keyRecorder}
-	/>
-</div>
+<KeyboardShortcutRecorder
+	title={command.title}
+	{placeholder}
+	{autoFocus}
+	rawKeyCombination={shortcutValue}
+	{keyRecorder}
+/>
