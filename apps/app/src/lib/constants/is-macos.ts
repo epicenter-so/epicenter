@@ -1,3 +1,3 @@
-import * as services from '$lib/services';
+import { OsServiceLive } from '$lib/services/os';
 
-export const IS_MACOS = services.os.type() === 'macos';
+export const IS_MACOS = OsServiceLive.type() === 'macos';
