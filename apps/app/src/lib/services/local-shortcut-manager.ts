@@ -1,11 +1,13 @@
 import type { Brand } from '$lib/brand';
 import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
+import {
+	type KeyboardEventSupportedKey,
+	isSupportedKey,
+} from '$lib/constants/keyboard-event-supported-keys';
+import { normalizeOptionKeyCharacter } from '$lib/constants/macos-option-key-map';
+import * as services from '$lib/services';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
-import {
-	isSupportedKey,
-	type KeyboardEventSupportedKey,
-} from '$lib/constants/keyboard-event-supported-keys';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
 
 /**
@@ -68,7 +70,21 @@ export function createLocalShortcutManager() {
 			 * ensures callbacks only fire once per physical key press.
 			 */
 			const keydown = on(window, 'keydown', (e) => {
-				const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+				let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+
+				// macOS Option key normalization:
+				// On macOS, the Option key (Alt) triggers special character insertion.
+				// For example, Option+A produces "å" instead of registering as "alt+a".
+				// This breaks keyboard shortcut detection because we get the special
+				// character instead of the actual key that was pressed.
+				//
+				// To fix this, when Option is held on macOS, we normalize these special
+				// characters back to their base keys (e.g., "å" → "a", "ç" → "c").
+				// This ensures keyboard shortcuts work consistently across platforms.
+				const isMacos = services.os.type() === 'macos';
+				if (isMacos && pressedKeys.includes('alt')) {
+					key = normalizeOptionKeyCharacter(key);
+				}
 
 				// Ignore keys that are not supported
 				if (!isSupportedKey(key)) return;
