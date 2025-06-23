@@ -204,6 +204,7 @@ export const KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS = [
 		title: 'Other Keys',
 		description: 'Additional special keys',
 		keys: [
+			'dead',
 			'compose',
 			'accept',
 			'again',
