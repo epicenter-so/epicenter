@@ -1,4 +1,5 @@
 import { type Command, commandCallbacks } from '$lib/commands';
+import { IS_MACOS } from '$lib/constants/is-macos';
 import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/global-shortcut-manager';
@@ -44,7 +45,7 @@ export const shortcuts = {
 			// This ensures users with old settings don't need to manually update their shortcuts
 			const accelerator = legacyAcceleratorString.replace(
 				'CommandOrControl',
-				services.os.type() === 'macos' ? 'Command' : 'Control',
+				IS_MACOS ? 'Command' : 'Control',
 			) as Accelerator;
 			return services.globalShortcutManager.register({
 				accelerator,

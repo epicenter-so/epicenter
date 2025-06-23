@@ -9,6 +9,7 @@ import * as services from '$lib/services';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
+import { IS_MACOS } from '$lib/constants/is-macos';
 
 /**
  * Error type for local shortcut service operations.
@@ -81,8 +82,7 @@ export function createLocalShortcutManager() {
 				// To fix this, when Option is held on macOS, we normalize these special
 				// characters back to their base keys (e.g., "å" → "a", "ç" → "c").
 				// This ensures keyboard shortcuts work consistently across platforms.
-				const isMacos = services.os.type() === 'macos';
-				if (isMacos && pressedKeys.includes('alt')) {
+				if (IS_MACOS && pressedKeys.includes('alt')) {
 					key = normalizeOptionKeyCharacter(key);
 				}
 

@@ -1,6 +1,5 @@
-import * as services from '$lib/services';
+import { IS_MACOS } from './is-macos';
 
-export const CommandOrControl =
-	services.os.type() === 'macos' ? 'Command' : 'Control';
+export const CommandOrControl = IS_MACOS ? 'Command' : 'Control';
 
-export const CommandOrAlt = services.os.type() === 'macos' ? 'Command' : 'Alt';
+export const CommandOrAlt = IS_MACOS ? 'Command' : 'Alt';

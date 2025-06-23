@@ -1,3 +1,4 @@
+import { IS_MACOS } from '$lib/constants/is-macos';
 import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
 import { isSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
 import { normalizeOptionKeyCharacter } from '$lib/constants/macos-option-key-map';
@@ -69,8 +70,7 @@ export function createPressedKeys({
 			// To fix this, when Option is held on macOS, we normalize these special
 			// characters back to their base keys (e.g., "å" → "a", "ç" → "c").
 			// This ensures keyboard shortcuts work consistently across platforms.
-			const isMacos = services.os.type() === 'macos';
-			if (isMacos && pressedKeys.includes('alt')) {
+			if (IS_MACOS && pressedKeys.includes('alt')) {
 				key = normalizeOptionKeyCharacter(key);
 			}
 
