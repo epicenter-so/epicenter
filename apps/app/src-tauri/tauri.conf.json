@@ -1,17 +1,14 @@
 {
-	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
 	"build": {
-		"beforeBuildCommand": "pnpm run build",
-		"beforeDevCommand": "pnpm run dev:web",
+		"beforeBuildCommand": "pnpm build",
+		"beforeDevCommand": "pnpm dev:web",
 		"frontendDist": "../build",
-		"devUrl": "http://localhost:5173"
+		"devUrl": "http://localhost:1420"
 	},
 	"bundle": {
 		"active": true,
 		"category": "Productivity",
-		"copyright": "",
 		"targets": "all",
-		"externalBin": [],
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -19,27 +16,9 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		],
-		"windows": {
-			"certificateThumbprint": null,
-			"digestAlgorithm": "sha256",
-			"timestampUrl": ""
-		},
 		"longDescription": "Seamlessly integrate speech-to-text transcriptions anywhere on your desktop. Powered by OpenAI's Whisper API.",
-		"macOS": {
-			"entitlements": "entitlements.plist",
-			"exceptionDomain": "",
-			"frameworks": [],
-			"providerShortName": null,
-			"signingIdentity": null
-		},
-		"resources": ["recorder-state-icons/*"],
 		"shortDescription": "",
-		"linux": {
-			"deb": {
-				"depends": []
-			}
-		},
-		"createUpdaterArtifacts": "v1Compatible"
+		"createUpdaterArtifacts": true
 	},
 	"productName": "Whispering",
 	"version": "6.5.0",
@@ -55,11 +34,10 @@
 	"app": {
 		"windows": [
 			{
-				"fullscreen": false,
-				"height": 600,
 				"resizable": true,
 				"title": "Whispering",
 				"width": 800,
+				"height": 600,
 				"minHeight": 84,
 				"minWidth": 72
 			}

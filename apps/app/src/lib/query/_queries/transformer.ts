@@ -1,10 +1,10 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import type {
 	TransformationRunCompleted,
 	TransformationRunFailed,
 } from '$lib/services/db';
 import { Err, Ok, type Result } from '@epicenterhq/result';
-import type { WhisperingError, WhisperingResult } from '@repo/shared';
+import type { WhisperingError, WhisperingResult } from '$lib/result';
 import { defineMutation } from '../_utils';
 import { queryClient } from '../index';
 import { transformationRunKeys } from './transformationRuns';

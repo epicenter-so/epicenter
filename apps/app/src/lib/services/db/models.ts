@@ -5,10 +5,10 @@ import type {
 	GROQ_INFERENCE_MODELS,
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
-} from '@repo/shared';
+} from '$lib/constants';
 import { nanoid } from 'nanoid/non-secure';
 
-export type DbServiceErrorProperties = TaggedError<'DbServiceError'>;
+export type DbServiceError = TaggedError<'DbServiceError'>;
 
 export function generateDefaultTransformation(): Transformation {
 	const now = new Date().toISOString();

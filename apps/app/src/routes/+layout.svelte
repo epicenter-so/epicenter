@@ -4,6 +4,7 @@
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import '../app.css';
+	import * as services from '$lib/services';
 	import AppShell from './+layout/AppShell.svelte';
 
 	let { children } = $props();
@@ -17,6 +18,11 @@
 				await navigation.complete;
 			});
 		});
+	});
+
+	$effect(() => {
+		const unlisten = services.localShortcutManager.listen();
+		return () => unlisten();
 	});
 </script>
 

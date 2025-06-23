@@ -1,99 +1,154 @@
 <script lang="ts">
+	import { commands } from '$lib/commands';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Layers2Icon } from 'lucide-svelte';
-	import HotkeysJsFormatGuide from './HotkeysJsFormatGuide.svelte';
-	import TauriGlobalShortcutFormatGuide from './TauriGlobalShortcutFormatGuide.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { toast } from '$lib/toast';
+	import type { Settings } from '$lib/settings';
+	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
 	import {
-		GlobalShortcutTable,
-		LocalShortcutTable,
-	} from './keyboard-shortcut-recorder/index.svelte';
+		syncGlobalShortcutsWithSettings,
+		syncLocalShortcutsWithSettings,
+	} from '../../../+layout/registerCommands.svelte';
+	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
+	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
+
+	const resetToDefaults = (type: 'local' | 'global') => {
+		const updates = commands.reduce((acc, command) => {
+			acc[`shortcuts.${type}.${command.id}`] =
+				type === 'local'
+					? command.defaultLocalShortcut
+					: command.defaultGlobalShortcut;
+			return acc;
+		}, {} as Partial<Settings>);
+
+		settings.value = {
+			...settings.value,
+			...updates,
+		};
+
+		switch (type) {
+			case 'local':
+				syncLocalShortcutsWithSettings();
+				break;
+			case 'global':
+				syncGlobalShortcutsWithSettings();
+				break;
+		}
+
+		toast.success({
+			title: 'Shortcuts reset',
+			description: `All ${type} shortcuts have been reset to defaults.`,
+		});
+	};
 </script>
 
 <svelte:head>
 	<title>Configure Shortcuts - Whispering</title>
 </svelte:head>
 
-<div class="container mx-auto py-6 max-w-4xl">
-	<header class="mb-8">
+<div class="container mx-auto max-w-4xl space-y-6 py-6">
+	<header>
 		<h1 class="text-3xl font-bold tracking-tight">Keyboard Shortcuts</h1>
-		<p class="text-muted-foreground mt-2">
+		<p class="mt-2 text-muted-foreground">
 			Configure keyboard shortcuts to quickly access Whispering features.
 		</p>
 	</header>
 
-	<Tabs.Root value="local" class="w-full">
-		<Tabs.List class="grid grid-cols-2 mb-6 w-full">
-			<Tabs.Trigger value="local" class="text-sm font-medium">
-				Local Shortcuts</Tabs.Trigger
-			>
-			<Tabs.Trigger value="global" class="text-sm font-medium">
-				Global Shortcuts</Tabs.Trigger
-			>
+	<Tabs.Root value="local">
+		<Tabs.List class="grid w-full grid-cols-2">
+			<Tabs.Trigger value="local">Local Shortcuts</Tabs.Trigger>
+			<Tabs.Trigger value="global">Global Shortcuts</Tabs.Trigger>
 		</Tabs.List>
 
-		<Tabs.Content value="local" class="space-y-8">
+		<Tabs.Content value="local" class="mt-6 space-y-6">
 			<section>
-				<div class="space-y-2">
-					<h2 class="text-2xl font-semibold tracking-tight">Local Shortcuts</h2>
-					<p class="text-sm text-muted-foreground">
-						Set keyboard shortcuts that work when the app is in focus. These
-						shortcuts will only trigger when Whispering is the active
-						application.
-					</p>
+				<div
+					class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+				>
+					<header class="space-y-1">
+						<div class="flex items-center gap-2">
+							<h2 class="text-xl font-semibold tracking-tight sm:text-2xl">
+								Local Shortcuts
+							</h2>
+							<ShortcutFormatHelp type="local" />
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Set keyboard shortcuts that work when the app is in focus. These
+							shortcuts will only trigger when Whispering is the active
+							application.
+						</p>
+					</header>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={() => resetToDefaults('local')}
+						class="shrink-0"
+					>
+						<RotateCcw class="mr-2 size-4" />
+						Reset to defaults
+					</Button>
 				</div>
+
 				<Separator class="my-6" />
 
-				<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
-					<HotkeysJsFormatGuide />
-				</div>
-
-				<LocalShortcutTable />
+				<ShortcutTable type="local" />
 			</section>
 		</Tabs.Content>
 
-		<Tabs.Content value="global" class="space-y-8">
-			<section>
-				<div class="space-y-2">
-					<h2 class="text-2xl font-semibold tracking-tight">
-						Global Shortcuts
-					</h2>
-					<p class="text-sm text-muted-foreground">
-						Set system-wide keyboard shortcuts that work even when Whispering is
-						not in focus. These shortcuts will trigger from anywhere on your
-						system.
-					</p>
-				</div>
-				<Separator class="my-6" />
-
-				{#if window.__TAURI_INTERNALS__}
-					<div class="bg-card rounded-lg border p-4 shadow-xs mb-6">
-						<TauriGlobalShortcutFormatGuide />
-					</div>
-
-					<GlobalShortcutTable />
-				{:else}
-					<div class="rounded-lg border bg-card text-card-foreground shadow-xs">
-						<div
-							class="p-8 flex flex-col items-center justify-center text-center"
-						>
-							<Layers2Icon class="size-10" />
-							<h3 class="text-xl font-medium my-3">Global Shortcuts</h3>
-							<p class="text-muted-foreground mb-8 max-w-md">
-								Global shortcuts allow you to use Whispering from any
-								application on your computer. This feature is only available in
-								the desktop app or browser extension.
+		<Tabs.Content value="global" class="mt-6 space-y-6">
+			{#if window.__TAURI_INTERNALS__}
+				<section>
+					<div
+						class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+					>
+						<header class="space-y-1">
+							<div class="flex items-center gap-2">
+								<h2 class="text-xl font-semibold tracking-tight sm:text-2xl">
+									Global Shortcuts
+								</h2>
+								<ShortcutFormatHelp type="global" />
+							</div>
+							<p class="text-sm text-muted-foreground">
+								Set system-wide keyboard shortcuts that work even when
+								Whispering is not in focus. These shortcuts will trigger from
+								anywhere on your system.
 							</p>
-							<a
-								href="/global-shortcut"
-								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 font-medium"
-							>
-								Enable Global Shortcuts
-							</a>
-						</div>
+						</header>
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={() => resetToDefaults('global')}
+							class="shrink-0"
+						>
+							<RotateCcw class="mr-2 size-4" />
+							Reset to defaults
+						</Button>
 					</div>
-				{/if}
-			</section>
+
+					<Separator class="my-6" />
+
+					<ShortcutTable type="global" />
+				</section>
+			{:else}
+				<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+					<div
+						class="flex flex-col items-center justify-center p-8 text-center"
+					>
+						<Layers2Icon class="mb-4 size-10 text-muted-foreground" />
+						<h3 class="mb-2 text-xl font-medium">Global Shortcuts</h3>
+						<p class="mb-6 max-w-md text-sm text-muted-foreground">
+							Global shortcuts allow you to use Whispering from any application
+							on your computer. This feature is only available in the desktop
+							app or browser extension.
+						</p>
+						<Button href="/desktop-app" variant="default">
+							Enable Global Shortcuts
+						</Button>
+					</div>
+				</div>
+			{/if}
 		</Tabs.Content>
 	</Tabs.Root>
 </div>

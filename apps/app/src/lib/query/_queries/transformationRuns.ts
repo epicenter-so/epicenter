@@ -1,4 +1,4 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import type { Accessor } from '@tanstack/svelte-query';
 import { defineQuery } from '../_utils';
 

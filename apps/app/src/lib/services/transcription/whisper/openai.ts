@@ -1,7 +1,7 @@
 import { Err, Ok } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
-import type { TranscriptionService } from '../_types';
-import type { HttpService } from '../../http/_types';
+import type { WhisperingError } from '$lib/result';
+import type { TranscriptionService } from '..';
+import type { HttpService } from '$lib/services/http';
 import { createWhisperService } from './_createWhisperService';
 
 export function createOpenaiTranscriptionService({

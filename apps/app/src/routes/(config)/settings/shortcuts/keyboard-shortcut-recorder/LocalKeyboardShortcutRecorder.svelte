@@ -1,115 +1,102 @@
 <script lang="ts">
-	import { toast } from '$lib/toast';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { trySync } from '@epicenterhq/result';
 	import type { Command } from '$lib/commands';
-	import { WhisperingError } from '@repo/shared';
-	import hotkeys from 'hotkeys-js';
-	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
-	import { createKeyRecorder } from './index.svelte';
-	import { createLocalKeyMapper } from './key-mappers';
 	import { rpc } from '$lib/query';
+	import {
+		arrayToShortcutString,
+		type CommandId,
+	} from '$lib/services/local-shortcut-manager';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { toast } from '$lib/toast';
+	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
+	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
+	import { createKeyRecorder } from './create-key-recorder.svelte';
 
 	const {
 		command,
 		placeholder,
-		autoFocus = false,
+		autoFocus = true,
+		pressedKeys,
 	}: {
 		command: Command;
 		placeholder?: string;
 		autoFocus?: boolean;
+		pressedKeys: PressedKeys;
 	} = $props();
 
-	let isPopoverOpen = $state(false);
-
-	// Get the current key combination from settings
-	const keyCombination = $derived(
+	const shortcutValue = $derived(
 		settings.value[`shortcuts.local.${command.id}`],
 	);
 
-	// Create a key mapper for local shortcuts
-	const keyMapper = createLocalKeyMapper();
-
-	// Create the key recorder with callbacks
-	const keyRecorder = createKeyRecorder(
-		{
-			onUnregister: () => {
-				const currentCommandKey =
-					settings.value[`shortcuts.local.${command.id}`];
-				if (!currentCommandKey) return;
-
-				const { error: unregisterError } = trySync({
-					try: () => hotkeys.unbind(currentCommandKey),
-					mapError: (error) =>
-						WhisperingError({
-							title: `Error unregistering old command with id ${command.id} locally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
+	const keyRecorder = createKeyRecorder({
+		pressedKeys,
+		onRegister: async (keyCombination: KeyboardEventSupportedKey[]) => {
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandLocally.execute({
+					commandId: command.id as CommandId,
+				});
+			if (unregisterError) {
+				toast.error({
+					title: 'Error unregistering local shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
+			}
+			const { error: registerError } =
+				await rpc.shortcuts.registerCommandLocally.execute({
+					command,
+					keyCombination,
 				});
 
-				if (unregisterError) {
-					toast.error(unregisterError);
-				}
-			},
-			onRegister: async (keyCombination) => {
-				const { error: registerError } =
-					await rpc.shortcuts.registerCommandLocally.execute({
-						command,
-						keyCombination,
-					});
-
-				if (registerError) {
-					toast.error(registerError);
-					return;
-				}
-
-				settings.value = {
-					...settings.value,
-					[`shortcuts.local.${command.id}`]: keyCombination,
-				};
-
-				toast.success({
-					title: `Local shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
+			if (registerError) {
+				toast.error({
+					title: 'Error registering local shortcut',
+					description: registerError.message,
+					action: { type: 'more-details', error: registerError },
 				});
+				return;
+			}
 
-				isPopoverOpen = false;
-			},
-			onClear: () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.local.${command.id}`]: null,
-				};
+			settings.value = {
+				...settings.value,
+				[`shortcuts.local.${command.id}`]:
+					arrayToShortcutString(keyCombination),
+			};
 
-				toast.success({
-					title: 'Local shortcut cleared',
-					description: `Please set a new shortcut to trigger "${command.title}"`,
-				});
-
-				isPopoverOpen = false;
-			},
-			onEscape: () => {
-				isPopoverOpen = false;
-			},
+			toast.success({
+				title: `Local shortcut set to ${keyCombination}`,
+				description: `Press the shortcut to trigger "${command.title}"`,
+			});
 		},
-		{ mapKeyboardEvent: keyMapper.mapKeyboardEvent },
-	);
+		onClear: async () => {
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandLocally.execute({
+					commandId: command.id as CommandId,
+				});
+			if (unregisterError) {
+				toast.error({
+					title: 'Error clearing local shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
+			}
+			settings.value = {
+				...settings.value,
+				[`shortcuts.local.${command.id}`]: null,
+			};
 
-	// Handle popover open/close
-	function handleOpenChange(isOpen: boolean) {
-		isPopoverOpen = isOpen;
-		if (!isOpen) keyRecorder.stop();
-	}
+			toast.success({
+				title: 'Local shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
+		},
+	});
 </script>
 
 <KeyboardShortcutRecorder
-	{command}
+	title={command.title}
 	{placeholder}
 	{autoFocus}
-	{keyCombination}
-	isListening={keyRecorder.isListening}
-	onOpenChange={handleOpenChange}
-	onStartListening={() => keyRecorder.start()}
-	onClear={() => keyRecorder.clear()}
+	rawKeyCombination={shortcutValue}
+	{keyRecorder}
 />

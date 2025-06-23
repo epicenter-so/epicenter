@@ -1,5 +1,5 @@
 import { queryClient } from '$lib/query';
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import type { Transformation } from '$lib/services/db/models';
 import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';

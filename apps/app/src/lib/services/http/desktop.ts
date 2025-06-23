@@ -1,6 +1,6 @@
 import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { fetch } from '@tauri-apps/plugin-http';
-import type { HttpService, ConnectionError, ParseError } from './_types';
+import type { HttpService, ConnectionError, ParseError } from '.';
 
 export function createHttpServiceDesktop(): HttpService {
 	return {

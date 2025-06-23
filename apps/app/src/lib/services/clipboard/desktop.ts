@@ -2,10 +2,10 @@ import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';
-import type { ClipboardService, ClipboardServiceError } from './_types';
-import type { WhisperingWarning } from '@repo/shared';
+import type { ClipboardServiceLive, ClipboardServiceError } from '.';
+import type { WhisperingWarning } from '$lib/result';
 
-export function createClipboardServiceDesktop(): ClipboardService {
+export function createClipboardServiceDesktop(): ClipboardServiceLive {
 	return {
 		setClipboardText: (text) =>
 			tryAsync({

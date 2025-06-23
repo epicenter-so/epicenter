@@ -4,14 +4,17 @@
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import { rpc } from '$lib/query';
-	import { services } from '$lib/services';
-	import { extension } from '@repo/extension';
+	import * as services from '$lib/services';
+	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import { registerCommandsOnLoad } from './registerCommands.svelte';
+	import {
+		setupGlobalShortcutsOnMount,
+		setupLocalShortcutsOnMount,
+	} from './registerCommands.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 	import { commandCallbacks } from '$lib/commands';
@@ -21,13 +24,14 @@
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
+	setupLocalShortcutsOnMount();
+
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
 		syncIconWithRecorderState();
 		closeToTrayIfEnabled();
+		setupGlobalShortcutsOnMount();
 	}
-
-	registerCommandsOnLoad();
 
 	$effect(() => {
 		getRecorderStateQuery.data;
@@ -39,8 +43,8 @@
 		window.commands = commandCallbacks;
 		window.goto = goto;
 		if (!window.__TAURI_INTERNALS__) {
-			const _notifyWhisperingTabReadyResult =
-				await extension.notifyWhisperingTabReady(undefined);
+			// const _notifyWhisperingTabReadyResult =
+			// 	await extension.notifyWhisperingTabReady(undefined);
 		}
 	});
 

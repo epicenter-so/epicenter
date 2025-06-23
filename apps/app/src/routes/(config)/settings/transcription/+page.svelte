@@ -15,10 +15,12 @@
 		SUPPORTED_LANGUAGES_OPTIONS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 		WHISPERING_URL,
-	} from '@repo/shared';
-	import ElevenLabsApiKeyInput from '../../-components/ElevenLabsApiKeyInput.svelte';
-	import GroqApiKeyInput from '../../-components/GroqApiKeyInput.svelte';
-	import OpenAiApiKeyInput from '../../-components/OpenAiApiKeyInput.svelte';
+	} from '$lib/constants';
+	import {
+		ElevenLabsApiKeyInput,
+		GroqApiKeyInput,
+		OpenAiApiKeyInput,
+	} from '$lib/components/settings';
 </script>
 
 <svelte:head>

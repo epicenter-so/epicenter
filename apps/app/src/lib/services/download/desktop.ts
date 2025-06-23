@@ -2,7 +2,7 @@ import { getExtensionFromAudioBlob } from '$lib/utils';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
-import type { DownloadService, DownloadServiceError } from './_types';
+import type { DownloadService, DownloadServiceError } from '.';
 
 export function createDownloadServiceDesktop(): DownloadService {
 	return {

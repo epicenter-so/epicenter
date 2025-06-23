@@ -24,13 +24,15 @@
 		GROQ_INFERENCE_MODEL_OPTIONS,
 		INFERENCE_PROVIDER_OPTIONS,
 		OPENAI_INFERENCE_MODEL_OPTIONS,
-	} from '@repo/shared';
+	} from '$lib/constants';
 	import { CopyIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
-	import AnthropicApiKeyInput from '../../-components/AnthropicApiKeyInput.svelte';
-	import GoogleApiKeyInput from '../../-components/GoogleApiKeyInput.svelte';
-	import GroqApiKeyInput from '../../-components/GroqApiKeyInput.svelte';
-	import OpenAiApiKeyInput from '../../-components/OpenAiApiKeyInput.svelte';
+	import {
+		AnthropicApiKeyInput,
+		GoogleApiKeyInput,
+		GroqApiKeyInput,
+		OpenAiApiKeyInput,
+	} from '$lib/components/settings';
 
 	let {
 		transformation,

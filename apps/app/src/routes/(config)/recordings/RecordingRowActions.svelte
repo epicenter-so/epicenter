@@ -11,11 +11,10 @@
 		deliverTransformedText,
 	} from '$lib/deliverTextToUser';
 	import { rpc } from '$lib/query';
-	import { services } from '$lib/services';
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS } from '@repo/shared';
+	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		AlertCircleIcon,
@@ -127,7 +126,7 @@
 						});
 					},
 					onSuccess: (transcribedText) => {
-						services.sound.playSoundIfEnabled('transcriptionComplete');
+						rpc.sound.playSoundIfEnabled.execute('transcriptionComplete');
 
 						deliverTranscribedText({ text: transcribedText, toastId });
 					},
@@ -176,7 +175,7 @@
 								return;
 							}
 
-							services.sound.playSoundIfEnabled('transformationComplete');
+							rpc.sound.playSoundIfEnabled.execute('transformationComplete');
 
 							deliverTransformedText({
 								text: transformationRun.output,

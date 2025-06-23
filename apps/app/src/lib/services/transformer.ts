@@ -1,23 +1,24 @@
 import { settings } from '$lib/stores/settings.svelte';
 import {
 	Err,
+	extractErrorMessage,
+	isErr,
 	Ok,
 	type Result,
 	type TaggedError,
-	extractErrorMessage,
-	isErr,
 } from '@epicenterhq/result';
 import { createAnthropicCompletionService } from './completion/anthropic';
 import { createGoogleCompletionService } from './completion/google';
 import { createGroqCompletionService } from './completion/groq';
 import { createOpenAiCompletionService } from './completion/openai';
+import { DbServiceLive } from './db';
 import type {
 	TransformationRunCompleted,
 	TransformationRunFailed,
 	TransformationStep,
 } from './db/models';
 import type { DbService } from './db/types';
-import type { HttpService } from './http/_types';
+import { HttpServiceLive, type HttpService } from './http';
 
 type TransformServiceError = TaggedError<'TransformServiceError'>;
 
@@ -360,3 +361,8 @@ export function createTransformerService({
 		},
 	};
 }
+
+export const TransformerServiceLive = createTransformerService({
+	HttpService: HttpServiceLive,
+	DbService: DbServiceLive,
+});

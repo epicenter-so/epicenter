@@ -1,7 +1,7 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from '@epicenterhq/result';
-import type { VadState } from '@repo/shared';
+import type { VadState } from '$lib/constants';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
 
@@ -33,8 +33,7 @@ export const vadRecorder = {
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
 			const result = await services.vad.startActiveListening({
-				// TODO: This always uses the navigator device ID, but the SelectRecordingDevice component changes its displayed value when the user selects a Tauri device. This will mislead users into thinking that the selected Tauri device is used.
-				deviceId: settings.value['recording.vad.navigator.selectedDeviceId'],
+				deviceId: settings.value['recording.vad.selectedDeviceId'],
 				onSpeechStart: () => {
 					invalidateVadState();
 					onSpeechStart();

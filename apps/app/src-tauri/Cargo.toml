@@ -1,59 +1,47 @@
 [package]
-name = "app"
+name = "whispering"
 version = "6.5.0"
 description = "A Tauri App"
 authors = ["you"]
-license = ""
-repository = ""
-default-run = "app"
+repository = "https://github.com/braden-w/whispering"
 edition = "2021"
-rust-version = "1.83.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "whispering_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
-tauri-build = { version = "2.0.3", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.1.1", features = [  "image-png", "tray-icon"] }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = ["image-png", "tray-icon"] }
+tauri-plugin-opener = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
-tauri-plugin-global-shortcut = "2"
 tauri-plugin-http = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-os = "2"
 tauri-plugin-process = "2"
 tauri-plugin-shell = "2"
-tauri-plugin-single-instance = "2"
-tauri-plugin-updater = "2"
-tauri-plugin-window-state = "2"
-enigo = "0.3.0"
-cpal = "0.15.3"
-once_cell = "1.20.2"
-thiserror = "2.0.9"
+enigo = "0.5.0"
+cpal = "0.16.0"
 tracing = "0.1.41"
+thiserror = "2.0.12"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 accessibility-sys =  "0.1.3"
 core-foundation-sys =  "0.8.7"
 
-[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-updater = "2"
-tauri-plugin-window-state = "2"
 
-
-
-[features]
-# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
-# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
-# DO NOT REMOVE!!
-custom-protocol = [ "tauri/custom-protocol" ]
-
-[lib]
-name = "app_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]

@@ -1,8 +1,8 @@
-import { services } from '$lib/services';
+import * as services from '$lib/services';
 import type { Recording } from '$lib/services/db';
-import type { DownloadServiceError } from '$lib/services/download/_types';
+import type { DownloadServiceError } from '$lib/services/download';
 import { Err, type Result } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
+import type { WhisperingError } from '$lib/result';
 import { defineMutation } from '../_utils';
 
 export const download = {
@@ -17,7 +17,7 @@ export const download = {
 					title: '⚠️ Recording blob not found',
 					description: "Your recording doesn't have a blob to download.",
 					context: { recording },
-					cause: new Error('Recording blob not found'),
+					cause: undefined,
 				} satisfies WhisperingError);
 			}
 

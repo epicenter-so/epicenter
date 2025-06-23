@@ -7,10 +7,8 @@
 
 	let {
 		items,
-		class: className = undefined,
 	}: {
 		items: readonly { href: string; title: string }[];
-		class?: string | undefined | null;
 	} = $props();
 
 	const [send, receive] = crossfade({
@@ -20,7 +18,7 @@
 </script>
 
 <nav
-	class={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1', className)}
+	class="flex gap-2 overflow-auto lg:flex-col lg:gap-1"
 	aria-label="Settings navigation"
 >
 	{#each items as item (item.href)}

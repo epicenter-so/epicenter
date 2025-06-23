@@ -54,7 +54,9 @@ export function defineQuery<
 	const newOptions = {
 		...options,
 		queryFn: async (context: QueryFunctionContext<TQueryKey>) => {
-			return resolve(await options.resultQueryFn(context));
+			let result = options.resultQueryFn(context);
+			if (result instanceof Promise) result = await result;
+			return resolve(result);
 		},
 	} satisfies CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>;
 
@@ -137,9 +139,9 @@ export function defineMutation<TData, TError, TVariables, TContext>(
 		 * @param args - The variables to pass to the mutation function
 		 * @returns Promise that resolves with the mutation result
 		 */
-		async execute(...args: Parameters<typeof options.resultMutationFn>) {
+		async execute(variables: TVariables) {
 			try {
-				return Ok(await executeMutation(newOptions, ...args));
+				return Ok(await executeMutation(newOptions, variables));
 			} catch (error) {
 				return Err(error as TError);
 			}

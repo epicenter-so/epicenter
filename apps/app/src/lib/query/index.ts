@@ -11,6 +11,7 @@ export const queryClient = new QueryClient({
 
 // Import all query modules
 import { clipboard } from './_queries/clipboard';
+import { cpalRecorder } from './_queries/cpalRecorder';
 import { device } from './_queries/device';
 import { download } from './_queries/download';
 import { manualRecorder } from './_queries/manualRecorder';
@@ -21,6 +22,7 @@ import { transformationRuns } from './_queries/transformationRuns';
 import { transformations } from './_queries/transformations';
 import { transformer } from './_queries/transformer';
 import { vadRecorder } from './_queries/vadRecorder';
+import { sound } from './_queries/sound';
 
 /**
  * Unified namespace for all query operations.
@@ -28,12 +30,14 @@ import { vadRecorder } from './_queries/vadRecorder';
  */
 export const rpc = {
 	clipboard,
+	cpalRecorder,
 	device,
 	download,
 	manualRecorder,
 	vadRecorder,
 	recordings,
 	shortcuts,
+	sound,
 	transcription,
 	transformations,
 	transformationRuns,

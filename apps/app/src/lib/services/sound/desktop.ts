@@ -1,5 +1,5 @@
 import { tryAsync } from '@epicenterhq/result';
-import type { PlaySoundService, PlaySoundServiceError } from './_types';
+import type { PlaySoundService, PlaySoundServiceError } from '.';
 import { audioElements } from './_audioElements';
 
 export function createPlaySoundServiceDesktop(): PlaySoundService {

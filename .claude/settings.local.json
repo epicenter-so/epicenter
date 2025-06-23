@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(git diff:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(rg:*)",
+      "Bash(rm:*)",
+      "Bash(sed:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:www.shadcn-svelte.com)"
+    ],
+    "deny": []
+  }
+}

@@ -1,5 +1,5 @@
 import { tryAsync } from '@epicenterhq/result';
-import type { DownloadService, DownloadServiceError } from './_types';
+import type { DownloadService, DownloadServiceError } from '.';
 
 export function createDownloadServiceWeb(): DownloadService {
 	return {

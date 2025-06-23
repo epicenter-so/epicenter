@@ -1,127 +1,64 @@
 import { type Command, commandCallbacks } from '$lib/commands';
-import { tryAsync, trySync } from '@epicenterhq/result';
-import type { WhisperingError } from '@repo/shared';
-import hotkeys from 'hotkeys-js';
+import { IS_MACOS } from '$lib/constants/is-macos';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+import * as services from '$lib/services';
+import type { Accelerator } from '$lib/services/global-shortcut-manager';
+import type { CommandId } from '$lib/services/local-shortcut-manager';
 import { defineMutation } from '../_utils';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({
 		mutationKey: ['shortcuts', 'registerCommandLocally'] as const,
-		resultMutationFn: async ({
+		resultMutationFn: ({
 			command,
 			keyCombination,
 		}: {
 			command: Command;
-			keyCombination: string;
-		}) => {
-			if (command.id === 'pushToTalk') {
-				const registerPushToTalkLocallyResult = trySync({
-					try: () => {
-						let isKeyPressed = false;
-						hotkeys(keyCombination, { keydown: true, keyup: true }, (event) => {
-							// Prevent the default refresh event under WINDOWS system
-							event.preventDefault();
-							if (event.type === 'keydown' && !isKeyPressed) {
-								isKeyPressed = true;
-								commandCallbacks.pushToTalk();
-							} else if (event.type === 'keyup') {
-								isKeyPressed = false;
-								commandCallbacks.pushToTalk();
-							}
+			keyCombination: KeyboardEventSupportedKey[];
+		}) =>
+			services.localShortcutManager.register({
+				id: command.id as CommandId,
+				keyCombination,
+				callback: commandCallbacks[command.id],
+				on: command.on,
+			}),
+	}),
 
-							return false;
-						});
-					},
-					mapError: (error): WhisperingError => ({
-						name: 'WhisperingError',
-						title: 'Error registering push to talk local shortcut',
-						description: 'Please make sure it is a valid keyboard shortcut.',
-						action: { type: 'more-details', error },
-						context: {},
-						cause: error,
-					}),
-				});
-				return registerPushToTalkLocallyResult;
-			}
-			const registerNewCommandLocallyResult = trySync({
-				try: () =>
-					hotkeys(keyCombination, (event) => {
-						// Prevent the default refresh event under WINDOWS system
-						event.preventDefault();
-						commandCallbacks[command.id]();
-						return false;
-					}),
-				mapError: (error): WhisperingError => ({
-					name: 'WhisperingError',
-					title: 'Error registering local shortcut',
-					description: 'Please make sure it is a valid keyboard shortcut.',
-					action: { type: 'more-details', error },
-					context: {},
-					cause: error,
-				}),
-			});
-			return registerNewCommandLocallyResult;
-		},
+	unregisterCommandLocally: defineMutation({
+		mutationKey: ['shortcuts', 'unregisterCommandLocally'] as const,
+		resultMutationFn: async ({ commandId }: { commandId: CommandId }) =>
+			services.localShortcutManager.unregister(commandId),
 	}),
 
 	registerCommandGlobally: defineMutation({
 		mutationKey: ['shortcuts', 'registerCommandGlobally'] as const,
-		resultMutationFn: async ({
+		resultMutationFn: ({
 			command,
-			keyCombination,
+			// Parameter renamed to indicate it may contain legacy "CommandOrControl" syntax
+			// Legacy format: "CommandOrControl+Shift+R" → Modern format: "Command+Shift+R" (macOS) or "Control+Shift+R" (Windows/Linux)
+			accelerator: legacyAcceleratorString,
 		}: {
 			command: Command;
-			keyCombination: string;
+			accelerator: Accelerator;
 		}) => {
-			if (command.id === 'pushToTalk') {
-				const registerPushToTalkGloballyResult = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { register } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await register(keyCombination, (event) => {
-							if (event.state === 'Pressed' || event.state === 'Released') {
-								commandCallbacks.pushToTalk();
-							}
-						});
-					},
-					mapError: (error): WhisperingError => ({
-						name: 'WhisperingError',
-						title: 'Error registering global shortcut.',
-						description:
-							'Please make sure it is a valid Electron keyboard shortcut.',
-						action: { type: 'more-details', error },
-						context: {},
-						cause: error,
-					}),
-				});
-				return registerPushToTalkGloballyResult;
-			}
-
-			const registerNewShortcutKeyResult = await tryAsync({
-				try: async () => {
-					if (!window.__TAURI_INTERNALS__) return;
-					const { register } = await import(
-						'@tauri-apps/plugin-global-shortcut'
-					);
-					return await register(keyCombination, (event) => {
-						if (event.state === 'Pressed') {
-							commandCallbacks[command.id]();
-						}
-					});
-				},
-				mapError: (error): WhisperingError => ({
-					name: 'WhisperingError',
-					title: 'Error registering global shortcut.',
-					description:
-						'Please make sure it is a valid Electron keyboard shortcut.',
-					action: { type: 'more-details', error },
-					context: {},
-					cause: error,
-				}),
+			// Convert legacy "CommandOrControl" syntax to platform-specific modifiers for backwards compatibility
+			// This ensures users with old settings don't need to manually update their shortcuts
+			const accelerator = legacyAcceleratorString.replace(
+				'CommandOrControl',
+				IS_MACOS ? 'Command' : 'Control',
+			) as Accelerator;
+			return services.globalShortcutManager.register({
+				accelerator,
+				callback: commandCallbacks[command.id],
+				on: command.on,
 			});
-			return registerNewShortcutKeyResult;
+		},
+	}),
+
+	unregisterCommandGlobally: defineMutation({
+		mutationKey: ['shortcuts', 'unregisterCommandGlobally'] as const,
+		resultMutationFn: async ({ accelerator }: { accelerator: Accelerator }) => {
+			return await services.globalShortcutManager.unregister(accelerator);
 		},
 	}),
 };

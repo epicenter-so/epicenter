@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
-	import TransformationSelector from '$lib/components/TransformationSelector.svelte';
+	import {
+		DeviceSelector,
+		TranscriptionSelector,
+		TransformationSelector,
+	} from '$lib/components/settings';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import DeviceSelector from '$lib/components/device-selectors/DeviceSelector.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { rpc } from '$lib/query';
@@ -12,20 +15,22 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { recorderStateToIcons, vadStateToIcons } from '@repo/shared';
-	import { createQuery } from '@tanstack/svelte-query';
 	import {
-		AudioLinesIcon,
-		Loader2Icon,
-		MicIcon,
-		VideoIcon,
-	} from 'lucide-svelte';
+		recorderStateToIcons,
+		cpalStateToIcons,
+		RECORDING_MODE_OPTIONS,
+		vadStateToIcons,
+	} from '$lib/constants';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
-	import { RECORDING_MODE_OPTIONS } from '@repo/shared';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
+	);
+	const getCpalStateQuery = createQuery(
+		rpc.cpalRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
@@ -53,6 +58,14 @@
 		return blobUrlManager.createUrl(latestRecording.blob);
 	});
 
+	const availableModes = $derived(
+		RECORDING_MODE_OPTIONS.filter((mode) => {
+			if (!mode.desktopOnly) return true;
+			// Desktop only, only show if Tauri is available
+			return window.__TAURI_INTERNALS__;
+		}),
+	);
+
 	onDestroy(() => {
 		blobUrlManager.revokeCurrentUrl();
 	});
@@ -75,16 +88,20 @@
 	<ToggleGroup.Root
 		type="single"
 		value={settings.value['recording.mode']}
-		class="max-w-xs w-full grid grid-cols-2 gap-2"
+		class="max-w-xs w-full"
 		onValueChange={(mode) => {
+			if (!mode) return;
 			settings.value = {
 				...settings.value,
-				'recording.mode': mode as 'manual' | 'vad' | 'live',
+				'recording.mode': mode as 'manual' | 'cpal' | 'vad' | 'live',
 			};
 		}}
 	>
-		{#each RECORDING_MODE_OPTIONS as option}
-			<ToggleGroup.Item value={option.value} aria-label={`Switch to ${option.label.toLowerCase()} mode`}>
+		{#each availableModes as option}
+			<ToggleGroup.Item
+				value={option.value}
+				aria-label={`Switch to ${option.label.toLowerCase()} mode`}
+			>
 				{option.icon}
 				{option.label}
 			</ToggleGroup.Item>
@@ -94,7 +111,6 @@
 	<div class="max-w-md flex items-end justify-between w-full gap-2 pt-1">
 		<div class="flex-1"></div>
 		{#if settings.value['recording.mode'] === 'manual'}
-			{@const currentMethod = settings.value[`recording.manual.method`]}
 			<WhisperingButton
 				tooltipContent={getRecorderStateQuery.data === 'IDLE'
 					? 'Start recording'
@@ -123,22 +139,50 @@
 					</WhisperingButton>
 				{:else}
 					<DeviceSelector
-						selectedDeviceId={settings.value[
-							`recording.manual.${currentMethod}.selectedDeviceId`
-						]}
-						updateSelectedDevice={(deviceId) => {
-							settings.value = {
-								...settings.value,
-								[`recording.manual.${currentMethod}.selectedDeviceId`]:
-									deviceId,
-							};
-						}}
+						deviceEnumerationStrategy="navigator"
+						settingsKey="recording.manual.selectedDeviceId"
 					/>
+					<TranscriptionSelector />
+					<TransformationSelector />
+				{/if}
+			</div>
+		{:else if settings.value['recording.mode'] === 'cpal' && window.__TAURI_INTERNALS__}
+			<WhisperingButton
+				tooltipContent={getCpalStateQuery.data === 'IDLE'
+					? 'Start CPAL recording'
+					: 'Stop CPAL recording'}
+				onclick={commandCallbacks.toggleCpalRecording}
+				variant="ghost"
+				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+			>
+				<span
+					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
+					class="text-[100px] leading-none"
+				>
+					{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
+				</span>
+			</WhisperingButton>
+			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+				{#if getCpalStateQuery.data === 'RECORDING'}
+					<WhisperingButton
+						tooltipContent="Cancel CPAL recording"
+						onclick={commandCallbacks.cancelCpalRecording}
+						variant="ghost"
+						size="icon"
+						style="view-transition-name: cancel-icon;"
+					>
+						🚫
+					</WhisperingButton>
+				{:else}
+					<DeviceSelector
+						deviceEnumerationStrategy="cpal"
+						settingsKey="recording.cpal.selectedDeviceId"
+					/>
+					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'vad'}
-			{@const currentMethod = settings.value[`recording.vad.method`]}
 			<WhisperingButton
 				tooltipContent={getVadStateQuery.data === 'IDLE'
 					? 'Start voice activated session'
@@ -157,18 +201,19 @@
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				{#if getVadStateQuery.data === 'IDLE'}
 					<DeviceSelector
-						selectedDeviceId={settings.value[
-							`recording.vad.${currentMethod}.selectedDeviceId`
-						]}
-						updateSelectedDevice={(deviceId) => {
-							settings.value = {
-								...settings.value,
-								[`recording.vad.${currentMethod}.selectedDeviceId`]: deviceId,
-							};
-						}}
+						deviceEnumerationStrategy="navigator"
+						settingsKey="recording.vad.selectedDeviceId"
 					/>
+					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
+			</div>
+		{:else if settings.value['recording.mode'] === 'live'}
+			<div class="flex flex-col items-center justify-center gap-4">
+				<span class="text-[100px] leading-none">🎬</span>
+				<p class="text-muted-foreground text-center">
+					Live mode is not yet implemented
+				</p>
 			</div>
 		{/if}
 	</div>

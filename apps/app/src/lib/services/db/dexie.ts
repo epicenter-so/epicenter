@@ -4,10 +4,10 @@ import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
-import type { DownloadService } from '../download/_types';
+import type { DownloadService } from '$lib/services/download';
 import type { DbService } from './types';
 import type {
-	DbServiceErrorProperties,
+	DbServiceError,
 	Recording,
 	Transformation,
 	TransformationRun,
@@ -357,7 +357,7 @@ export function createDbServiceDexie({
 						),
 					);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting all recordings from Dexie',
 					context: {},
@@ -376,7 +376,7 @@ export function createDbServiceDexie({
 					if (!latestRecording) return null;
 					return recordingWithSerializedAudioToRecording(latestRecording);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting latest recording from Dexie',
 					context: {},
@@ -392,7 +392,7 @@ export function createDbServiceDexie({
 						.where('transcriptionStatus')
 						.equals('TRANSCRIBING' satisfies Recording['transcriptionStatus'])
 						.primaryKeys(),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting transcribing recording ids from Dexie',
 					context: {},
@@ -408,7 +408,7 @@ export function createDbServiceDexie({
 					if (!maybeRecording) return null;
 					return recordingWithSerializedAudioToRecording(maybeRecording);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting recording by id from Dexie',
 					context: { id },
@@ -433,7 +433,7 @@ export function createDbServiceDexie({
 				try: async () => {
 					await db.recordings.add(dbRecording);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding recording to Dexie',
 					context: { recording },
@@ -459,7 +459,7 @@ export function createDbServiceDexie({
 				try: async () => {
 					await db.recordings.put(dbRecording);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating recording in Dexie',
 					context: { recording },
@@ -475,7 +475,7 @@ export function createDbServiceDexie({
 				try: async () => {
 					await db.recordings.delete(recording.id);
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error deleting recording from Dexie',
 					context: { recording },
@@ -490,7 +490,7 @@ export function createDbServiceDexie({
 			const ids = recordingsToDelete.map((r) => r.id);
 			const { error: deleteRecordingsError } = await tryAsync({
 				try: () => db.recordings.bulkDelete(ids),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error deleting recordings from Dexie',
 					context: { recordingsToDelete },
@@ -512,7 +512,7 @@ export function createDbServiceDexie({
 				case 'limit-count': {
 					const { data: count, error: countError } = await tryAsync({
 						try: () => db.recordings.count(),
-						mapError: (error): DbServiceErrorProperties => ({
+						mapError: (error): DbServiceError => ({
 							name: 'DbServiceError',
 							message:
 								'Unable to get recording count while cleaning up old recordings',
@@ -535,7 +535,7 @@ export function createDbServiceDexie({
 								.primaryKeys();
 							await db.recordings.bulkDelete(idsToDelete);
 						},
-						mapError: (error): DbServiceErrorProperties => ({
+						mapError: (error): DbServiceError => ({
 							name: 'DbServiceError',
 							message: 'Unable to clean up old recordings',
 							context: {},
@@ -548,7 +548,7 @@ export function createDbServiceDexie({
 		async getAllTransformations() {
 			return tryAsync({
 				try: () => db.transformations.toArray(),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting all transformations from Dexie',
 					context: {},
@@ -564,7 +564,7 @@ export function createDbServiceDexie({
 						(await db.transformations.get(id)) ?? null;
 					return maybeTransformation;
 				},
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting transformation by id from Dexie',
 					context: { id },
@@ -576,7 +576,7 @@ export function createDbServiceDexie({
 		async createTransformation(transformation) {
 			const { error: createTransformationError } = await tryAsync({
 				try: () => db.transformations.add(transformation),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding transformation to Dexie',
 					context: { transformation },
@@ -595,7 +595,7 @@ export function createDbServiceDexie({
 			} satisfies Transformation;
 			const { error: updateTransformationError } = await tryAsync({
 				try: () => db.transformations.put(transformationWithTimestamp),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation in Dexie',
 					context: { transformation },
@@ -609,7 +609,7 @@ export function createDbServiceDexie({
 		async deleteTransformation(transformation) {
 			const { error: deleteTransformationError } = await tryAsync({
 				try: () => db.transformations.delete(transformation.id),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error deleting transformation from Dexie',
 					context: { transformation },
@@ -624,7 +624,7 @@ export function createDbServiceDexie({
 			const ids = transformations.map((t) => t.id);
 			const { error: deleteTransformationsError } = await tryAsync({
 				try: () => db.transformations.bulkDelete(ids),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error deleting transformations from Dexie',
 					context: { transformations },
@@ -639,7 +639,7 @@ export function createDbServiceDexie({
 			const { data: transformationRun, error: getTransformationRunByIdError } =
 				await tryAsync({
 					try: () => db.transformationRuns.where('id').equals(id).first(),
-					mapError: (error): DbServiceErrorProperties => ({
+					mapError: (error): DbServiceError => ({
 						name: 'DbServiceError',
 						message: 'Error getting transformation run by id from Dexie',
 						context: { id },
@@ -666,7 +666,7 @@ export function createDbServiceDexie({
 									new Date(a.startedAt).getTime(),
 							),
 						),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message:
 						'Error getting transformation runs by transformation id from Dexie',
@@ -690,7 +690,7 @@ export function createDbServiceDexie({
 									new Date(a.startedAt).getTime(),
 							),
 						),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message:
 						'Error getting transformation runs by recording id from Dexie',
@@ -714,7 +714,7 @@ export function createDbServiceDexie({
 			} satisfies TransformationRun;
 			const { error: createTransformationRunError } = await tryAsync({
 				try: () => db.transformationRuns.add(transformationRunWithTimestamps),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding transformation run to Dexie',
 					context: { transformationRun },
@@ -755,7 +755,7 @@ export function createDbServiceDexie({
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(addStepRunToTransformationRun),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding step run to transformation run in Dexie',
 					context: { transformationRun, stepId },
@@ -794,7 +794,7 @@ export function createDbServiceDexie({
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunAndRunStepAsFailed),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation step run status in Dexie',
 					context: { transformationRun, stepRunId },
@@ -832,7 +832,7 @@ export function createDbServiceDexie({
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunStepAsCompleted),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation step run status in Dexie',
 					context: { transformationRun, stepRunId },
@@ -861,7 +861,7 @@ export function createDbServiceDexie({
 						.where('id')
 						.equals(transformationRun.id)
 						.modify(markTransformationRunAsCompleted),
-				mapError: (error): DbServiceErrorProperties => ({
+				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation step run status in Dexie',
 					context: { transformationRun, output },
