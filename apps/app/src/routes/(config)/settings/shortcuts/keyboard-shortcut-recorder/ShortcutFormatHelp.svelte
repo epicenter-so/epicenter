@@ -1,13 +1,16 @@
 <script lang="ts">
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { HelpCircle, ExternalLink } from 'lucide-svelte';
+	import { HelpCircle, ExternalLink, AlertTriangle } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS } from '$lib/constants/keyboard-event-supported-keys';
 	import { ACCELERATOR_SECTIONS } from '$lib/constants/accelerator-supported-keys';
 	import { CommandOrAlt, CommandOrControl } from '$lib/constants/modifiers';
+	import { OPTION_DEAD_KEYS } from '$lib/constants/macos-option-key-map';
+	import { IS_MACOS } from '$lib/constants/is-macos';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);
@@ -122,6 +125,31 @@
 					{/each}
 				</div>
 			</div>
+
+			{#if IS_MACOS}
+				<Alert.Root variant="warning">
+					<AlertTriangle class="size-4" />
+					<Alert.Title>macOS Option Key Limitations</Alert.Title>
+					<Alert.Description class="space-y-2">
+						<p>
+							On macOS, certain Option (Alt) key combinations act as "dead keys"
+							that don't register properly when recording:
+						</p>
+						<div class="flex flex-wrap gap-1 my-2">
+							{#each OPTION_DEAD_KEYS as key}
+								<Badge variant="outline" class="font-mono text-xs">
+									Option+{key.toUpperCase()}
+								</Badge>
+							{/each}
+						</div>
+						<p class="font-medium">Workarounds:</p>
+						<ul class="list-disc list-inside space-y-1 ml-2">
+							<li>Record in reverse: Press the letter first, then Option</li>
+							<li>Edit manually: Type "alt+e" instead of recording</li>
+						</ul>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
 		</div>
 
 		<Dialog.Footer>

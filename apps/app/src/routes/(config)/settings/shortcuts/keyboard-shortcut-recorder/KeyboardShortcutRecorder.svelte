@@ -3,9 +3,11 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import { cn } from '$lib/utils';
+	import * as Alert from '$lib/components/ui/alert/index.js';
+	import { IS_MACOS } from '$lib/constants/is-macos';
 	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
-	import { Keyboard, Pencil, XIcon } from 'lucide-svelte';
+	import { cn } from '$lib/utils';
+	import { Keyboard, Pencil, XIcon, AlertTriangle } from 'lucide-svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';
 
 	const {
@@ -92,6 +94,18 @@
 						{/if}
 					</p>
 				</div>
+
+				{#if IS_MACOS && !isManualMode}
+					<Alert.Root variant="warning" class="text-xs">
+						<AlertTriangle class="size-4" />
+						<Alert.Title class="text-xs font-medium">macOS Option Key Note</Alert.Title>
+						<Alert.Description class="text-xs">
+							Some Option+key combinations (E, I, N, U, `) may not record
+							properly. Try recording in reverse (press letter first, then
+							Option) or edit manually.
+						</Alert.Description>
+					</Alert.Root>
+				{/if}
 
 				{#if !isManualMode}
 					<!-- Recording mode -->
