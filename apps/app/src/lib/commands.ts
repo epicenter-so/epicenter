@@ -550,7 +550,10 @@ async function saveRecordingAndTranscribeTransform({
 
 	rpc.sound.playSoundIfEnabled.execute('transcriptionComplete');
 
-	await deliverTranscribedText({ text: transcribedText, toastId });
+	await deliverTranscribedText({
+		text: transcribedText,
+		toastId: transcribeToastId,
+	});
 
 	// Determine if we need to chain to transformation
 	const transformationId =
