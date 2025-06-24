@@ -6,6 +6,7 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import UpdateDialog, {
 		updateDialog,
+		type UpdateInfo,
 	} from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';

@@ -2,10 +2,14 @@
 	import type { Update } from '@tauri-apps/plugin-updater';
 
 	export const updateDialog = createUpdateDialog();
+	export type UpdateInfo = Pick<
+		Update,
+		'version' | 'date' | 'body' | 'downloadAndInstall'
+	> | null;
 
 	function createUpdateDialog() {
 		let isOpen = $state(false);
-		let update = $state<Update | null>(null);
+		let update = $state<UpdateInfo | null>(null);
 		let downloadProgress = $state(0);
 		let downloadTotal = $state(0);
 		let error = $state<string | null>(null);
@@ -29,7 +33,7 @@
 			get error() {
 				return error;
 			},
-			open(newUpdate: Update) {
+			open(newUpdate: UpdateInfo) {
 				update = newUpdate;
 				isOpen = true;
 				downloadProgress = 0;

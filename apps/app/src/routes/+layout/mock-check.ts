@@ -1,4 +1,5 @@
-import { Update } from '@tauri-apps/plugin-updater';
+import type { UpdateInfo } from '$lib/components/UpdateDialog.svelte';
+import type { DownloadEvent } from '@tauri-apps/plugin-updater';
 
 /**
  * Mock update check for testing the auto-update functionality.
@@ -20,7 +21,7 @@ import { Update } from '@tauri-apps/plugin-updater';
  * - Realistic download progress simulation (50MB over 5 seconds)
  * - Sample release notes in markdown format
  */
-export async function mockCheck(): Promise<Update> {
+export async function mockCheck(): Promise<UpdateInfo> {
 	// Simulate network delay for realism
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -29,10 +30,7 @@ export async function mockCheck(): Promise<Update> {
 	// return null;
 
 	// Return mock update data that matches the full Update type
-	const update = new Update({
-		rawJson: {},
-		rid: 0,
-		currentVersion: '1.0.0',
+	return {
 		version: '2.0.0',
 		date: new Date().toISOString(),
 		body: `## What's New in v2.0.0
@@ -59,66 +57,41 @@ export async function mockCheck(): Promise<Update> {
 ### 📝 Notes
 This is a mock update for testing purposes. The actual update
 process would download and install real application files.`,
-	});
-	return update;
-	// return {
-	// 	close: async () => {},
-	// 	/**
-	// 	 * Mock download and install function that simulates real update behavior
-	// 	 */
-	// 	downloadAndInstall: async (
-	// 		progressCallback?: (event: DownloadEvent) => void,
-	// 	) => {
-	// 		// Simulate download progress
-	// 		const totalSize = 50 * 1024 * 1024; // 50MB
-	// 		let downloaded = 0;
+		/**
+		 * Mock download and install function that simulates real update behavior
+		 */
+		downloadAndInstall: async (
+			progressCallback?: (event: DownloadEvent) => void,
+		) => {
+			// Simulate download progress
+			const totalSize = 50 * 1024 * 1024; // 50MB
+			let downloaded = 0;
 
-	// 		// Emit Started event
-	// 		progressCallback?.({
-	// 			event: 'Started',
-	// 			data: { contentLength: totalSize },
-	// 		});
+			// Emit Started event
+			progressCallback?.({
+				event: 'Started',
+				data: { contentLength: totalSize },
+			});
 
-	// 		// Simulate download in chunks
-	// 		for (let i = 0; i < 10; i++) {
-	// 			// Check if we should simulate an error (uncomment to test error handling)
-	// 			// if (i === 5) throw new Error('Network connection lost');
+			// Simulate download in chunks
+			for (let i = 0; i < 10; i++) {
+				// Check if we should simulate an error (uncomment to test error handling)
+				// if (i === 5) throw new Error('Network connection lost');
 
-	// 			await new Promise((resolve) => setTimeout(resolve, 500));
-	// 			const chunkSize = totalSize / 10;
-	// 			downloaded += chunkSize;
+				await new Promise((resolve) => setTimeout(resolve, 500));
+				const chunkSize = totalSize / 10;
+				downloaded += chunkSize;
 
-	// 			progressCallback?.({
-	// 				event: 'Progress',
-	// 				data: { chunkLength: chunkSize },
-	// 			});
-	// 		}
+				progressCallback?.({
+					event: 'Progress',
+					data: { chunkLength: chunkSize },
+				});
+			}
 
-	// 		// Emit Finished event
-	// 		progressCallback?.({
-	// 			event: 'Finished',
-	// 			data: undefined,
-	// 		});
-	// 	},
-
-	// 	/**
-	// 	 * Mock download function (alternative to downloadAndInstall)
-	// 	 */
-	// 	download: async (progressCallback?: (event: DownloadEvent) => void) => {
-	// 		// Same implementation as downloadAndInstall for mock purposes
-	// 		await mockCheck()?.then((update) =>
-	// 			update?.downloadAndInstall(progressCallback),
-	// 		);
-	// 	},
-
-	// 	/**
-	// 	 * Mock install function (for separate download/install flow)
-	// 	 */
-	// 	install: async () => {
-	// 		// Simulate installation delay
-	// 		await new Promise((resolve) => setTimeout(resolve, 1000));
-	// 	},
-	// };
+			// Emit Finished event
+			progressCallback?.({ event: 'Finished' });
+		},
+	};
 }
 
 /**
