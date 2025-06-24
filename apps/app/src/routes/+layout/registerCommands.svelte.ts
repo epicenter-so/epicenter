@@ -79,7 +79,7 @@ export async function syncGlobalShortcutsWithSettings() {
  * Checks if any global shortcuts are duplicated and resets all to defaults if duplicates found.
  * Returns true if duplicates were found and reset, false otherwise.
  */
-export function checkAndResetDuplicateGlobalShortcuts(): boolean {
+export function resetShortcutsDoDefaultIfDuplicates(): boolean {
 	const globalShortcuts = new Map<string, string>();
 
 	// Check for duplicates
