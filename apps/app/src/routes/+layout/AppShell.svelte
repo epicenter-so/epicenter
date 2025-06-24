@@ -14,6 +14,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { relaunch } from '@tauri-apps/plugin-process';
 	import { check } from '@tauri-apps/plugin-updater';
+
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps, toast } from 'svelte-sonner';
@@ -25,6 +26,7 @@
 		syncLocalShortcutsWithSettings,
 	} from './registerCommands.svelte';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { mockCheck, shouldUseMockUpdates } from './mock-check';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -47,7 +49,8 @@
 
 	async function checkForUpdates() {
 		try {
-			const update = await check();
+			// Use mock or real check based on configuration
+			const update = await (shouldUseMockUpdates() ? mockCheck() : check());
 			if (update) {
 				toast.info(`Update ${update.version} available`, {
 					action: {
@@ -86,6 +89,7 @@
 				toast: 'flex flex-wrap [&>[data-content]]:flex-1',
 				icon: 'flex-shrink-0',
 				actionButton: 'w-full mt-3 inline-flex justify-center',
+				closeButton: 'w-full mt-3 inline-flex justify-center',
 			},
 		},
 	} satisfies ToasterProps;
