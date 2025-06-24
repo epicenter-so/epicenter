@@ -6,28 +6,25 @@
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import UpdateDialog, {
 		updateDialog,
-		type UpdateInfo,
 	} from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
 	import { extractErrorMessage } from '@epicenterhq/result';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { relaunch } from '@tauri-apps/plugin-process';
 	import { check } from '@tauri-apps/plugin-updater';
-
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps, toast } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
+	import { mockCheck, shouldUseMockUpdates } from './mock-check';
 	import {
 		resetShortcutsDoDefaultIfDuplicates,
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
 	} from './registerCommands.svelte';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
-	import { mockCheck, shouldUseMockUpdates } from './mock-check';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
