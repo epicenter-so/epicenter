@@ -268,7 +268,7 @@
 			Click the microphone or press
 			{' '}<WhisperingButton
 				tooltipContent="Go to local shortcut in settings"
-				href="/settings/shortcuts"
+				href="/settings/shortcuts/local"
 				variant="link"
 				size="inline"
 			>
@@ -285,7 +285,7 @@
 				Press
 				{' '}<WhisperingButton
 					tooltipContent="Go to global shortcut in settings"
-					href="/settings/shortcuts"
+					href="/settings/shortcuts/global"
 					variant="link"
 					size="inline"
 				>

@@ -93,6 +93,11 @@ export function resetShortcutsDoDefaultIfDuplicates(): boolean {
 					title: 'Shortcuts reset',
 					description:
 						'Duplicate global shortcuts detected. All global shortcuts have been reset to defaults.',
+					action: {
+						type: 'link',
+						label: 'Configure shortcuts',
+						goto: '/settings/shortcuts/global',
+					},
 				});
 
 				return true;

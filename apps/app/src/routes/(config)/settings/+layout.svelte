@@ -5,15 +5,6 @@
 
 	let { children } = $props();
 
-	const sidebarNavItems = [
-		{ title: 'General', href: '/settings' },
-		{ title: 'Recording', href: '/settings/recording' },
-		{ title: 'Transcription', href: '/settings/transcription' },
-		{ title: 'API Keys', href: '/settings/api-keys' },
-		{ title: 'Sound', href: '/settings/sound' },
-		{ title: 'Shortcuts', href: '/settings/shortcuts' },
-	] as const;
-
 	const isString = (value: unknown): value is string =>
 		typeof value === 'string';
 	const versionPromise = (async () => {
@@ -73,7 +64,7 @@
 	<Separator class="my-6" />
 	<div class="flex flex-col space-y-8 lg:flex-row lg:gap-8">
 		<aside class="lg:w-1/6">
-			<SidebarNav items={sidebarNavItems} />
+			<SidebarNav />
 		</aside>
 		<div class="flex-1 lg:max-w-2xl">
 			{@render children()}
