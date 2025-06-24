@@ -76,10 +76,6 @@ export function createGroqTranscriptionService({
 
 			return Ok(undefined);
 		},
-		errorConfig: {
-			title: '🔧 Groq Service Error',
-			description:
-				'The Groq transcription service encountered an issue. This is typically a temporary problem on their end.',
-		},
+		errorTitle: '🔧 Groq Service Error',
 	});
 }

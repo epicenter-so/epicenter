@@ -55,10 +55,6 @@ export function createOpenaiTranscriptionService({
 
 			return Ok(undefined);
 		},
-		errorConfig: {
-			title: '🔧 OpenAI Service Error',
-			description:
-				'The OpenAI Whisper service encountered an issue. This is typically a temporary problem on their end.',
-		},
+		errorTitle: '🔧 OpenAI Service Error',
 	});
 }

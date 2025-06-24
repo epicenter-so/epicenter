@@ -19,10 +19,6 @@ export function createFasterWhisperServerTranscriptionService({
 			url: `${serverUrl}/v1/audio/transcriptions`,
 		},
 		preValidate: async () => Ok(undefined),
-		errorConfig: {
-			title: '🔧 Server Connection Issue',
-			description:
-				'Unable to connect to your faster-whisper server. Please check that the server is running and your settings are correct.',
-		},
+		errorTitle: '🔧 Server Connection Issue',
 	});
 }

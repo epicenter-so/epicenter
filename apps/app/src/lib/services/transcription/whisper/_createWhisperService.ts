@@ -17,7 +17,7 @@ export function createWhisperService({
 	modelName,
 	postConfig,
 	preValidate,
-	errorConfig,
+	errorTitle,
 }: {
 	HttpService: HttpService;
 	modelName: string;
@@ -25,7 +25,7 @@ export function createWhisperService({
 	preValidate: () => Promise<
 		Ok<undefined> | Err<TranscriptionServiceError | WhisperingError>
 	>;
-	errorConfig: { title: string; description: string };
+	errorTitle: string;
 }): TranscriptionService {
 	return {
 		transcribe: async (
@@ -203,12 +203,8 @@ export function createWhisperService({
 			if ('error' in whisperApiResponse) {
 				return Err({
 					name: 'WhisperingError',
-					title: errorConfig.title,
-					description: errorConfig.description,
-					action: {
-						type: 'more-details',
-						error: whisperApiResponse.error.message,
-					},
+					title: errorTitle,
+					description: whisperApiResponse.error.message,
 					context: {},
 					cause: undefined,
 				} satisfies WhisperingError);
