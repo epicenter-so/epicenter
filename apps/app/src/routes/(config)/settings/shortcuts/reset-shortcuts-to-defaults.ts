@@ -1,7 +1,6 @@
 import { commands } from '$lib/commands';
 import type { Settings } from '$lib/settings';
 import { settings } from '$lib/stores/settings.svelte';
-import { toast } from '$lib/toast';
 import {
 	syncGlobalShortcutsWithSettings,
 	syncLocalShortcutsWithSettings,
