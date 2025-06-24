@@ -125,24 +125,6 @@
 					};
 				}}
 			></SelectRecordingDevice>
-
-			<LabeledSelect
-				id="bit-rate"
-				label="Bitrate"
-				items={BITRATE_OPTIONS.map((option) => ({
-					value: option.value,
-					label: option.label,
-				}))}
-				selected={settings.value['recording.vad.bitrateKbps'] ?? ''}
-				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.vad.bitrateKbps': selected,
-					};
-				}}
-				placeholder="Select a bitrate"
-				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
-			/>
 		</div>
 	{:else if settings.value['recording.mode'] === 'live'}
 		<div class="pl-4 border-l-2 border-muted space-y-6">

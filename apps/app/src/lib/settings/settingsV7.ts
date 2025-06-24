@@ -27,7 +27,10 @@ export const settingsV7Schema = z.object({
 		'sound.playOn.vad-stop': z.boolean(),
 		'sound.playOn.transcriptionComplete': z.boolean(),
 		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies Record<`sound.playOn.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`, ZodBoolean>),
+	} satisfies Record<
+		`sound.playOn.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`,
+		ZodBoolean
+	>),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -58,10 +61,6 @@ export const settingsV7Schema = z.object({
 
 	// VAD mode settings (navigator only)
 	'recording.vad.selectedDeviceId': z.string().nullable(),
-	'recording.vad.bitrateKbps': z
-		.enum(BITRATE_VALUES_KBPS)
-		.optional()
-		.default(DEFAULT_BITRATE_KBPS),
 
 	// Live mode settings (navigator only)
 	'recording.live.selectedDeviceId': z.string().nullable(),
@@ -158,7 +157,6 @@ export const migrateV6ToV7 = (settings: SettingsV6): SettingsV7 => {
 		'recording.manual.bitrateKbps': manualNavigatorBitrate,
 		'recording.cpal.selectedDeviceId': manualTauriDeviceId,
 		'recording.vad.selectedDeviceId': vadNavigatorDeviceId,
-		'recording.vad.bitrateKbps': vadNavigatorBitrate,
 		'recording.live.selectedDeviceId': liveNavigatorDeviceId,
 		'recording.live.bitrateKbps': liveNavigatorBitrate,
 
