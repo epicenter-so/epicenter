@@ -31,7 +31,9 @@
 			};
 		}}
 		placeholder="Select a recording mode"
-		description="Choose how you want to activate recording: Manual control, CPAL (native), Voice Activated Detection, or Live streaming"
+		description={`Choose how you want to activate recording: ${RECORDING_MODE_OPTIONS.map(
+			(option) => option.label.toLowerCase(),
+		).join(', ')}`}
 	/>
 
 	{#if settings.value['recording.mode'] === 'manual'}
