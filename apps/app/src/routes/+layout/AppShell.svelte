@@ -11,41 +11,42 @@
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import {
-		setupGlobalShortcutsOnMount,
-		setupLocalShortcutsOnMount,
-	} from './registerCommands.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 	import { commandCallbacks } from '$lib/commands';
+	import {
+		syncGlobalShortcutsWithSettings,
+		syncLocalShortcutsWithSettings,
+	} from './registerCommands.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
-	setupLocalShortcutsOnMount();
+	onMount(() => {
+		window.commands = commandCallbacks;
+		window.goto = goto;
+		syncLocalShortcutsWithSettings();
+		if (window.__TAURI_INTERNALS__) {
+			syncGlobalShortcutsWithSettings();
+		} else {
+			// const _notifyWhisperingTabReadyResult =
+			// await extension.notifyWhisperingTabReady(undefined);
+		}
+	});
+
+	closeToTrayIfEnabled();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
 		syncIconWithRecorderState();
-		closeToTrayIfEnabled();
-		setupGlobalShortcutsOnMount();
 	}
 
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
 		services.db.cleanupExpiredRecordings();
-	});
-
-	onMount(async () => {
-		window.commands = commandCallbacks;
-		window.goto = goto;
-		if (!window.__TAURI_INTERNALS__) {
-			// const _notifyWhisperingTabReadyResult =
-			// 	await extension.notifyWhisperingTabReady(undefined);
-		}
 	});
 
 	const TOASTER_SETTINGS = {

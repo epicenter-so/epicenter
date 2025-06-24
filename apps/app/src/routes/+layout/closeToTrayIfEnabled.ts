@@ -1,12 +1,12 @@
 import { settings } from '$lib/stores/settings.svelte';
 import type { UnlistenFn } from '@tauri-apps/api/event';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { exit } from '@tauri-apps/plugin-process';
 import { onDestroy, onMount } from 'svelte';
 
 export function closeToTrayIfEnabled() {
-	let unlisten: UnlistenFn;
+	let unlisten: UnlistenFn | undefined;
 	onMount(async () => {
+		if (!window.__TAURI_INTERNALS__) return;
+		const { getCurrentWindow } = await import('@tauri-apps/api/window');
 		unlisten = await getCurrentWindow().onCloseRequested(async (event) => {
 			if (settings.value['system.closeToTray']) {
 				event.preventDefault();
@@ -16,6 +16,7 @@ export function closeToTrayIfEnabled() {
 	});
 
 	onDestroy(() => {
+		if (!unlisten) return;
 		unlisten();
 	});
 }

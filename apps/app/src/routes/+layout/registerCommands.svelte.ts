@@ -8,15 +8,6 @@ import {
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
 import { partitionResults } from '@epicenterhq/result';
-import { onMount } from 'svelte';
-
-/**
- * Sets up local keyboard shortcuts synchronization when the component mounts.
- * This ensures shortcuts are registered/unregistered based on current settings.
- */
-export function setupLocalShortcutsOnMount() {
-	onMount(syncLocalShortcutsWithSettings);
-}
 
 /**
  * Synchronizes local keyboard shortcuts with the current settings.
@@ -49,14 +40,6 @@ export async function syncLocalShortcutsWithSettings() {
 			action: { type: 'more-details', error: errs },
 		});
 	}
-}
-
-/**
- * Sets up global keyboard shortcuts synchronization when the component mounts.
- * This ensures shortcuts are registered/unregistered based on current settings.
- */
-export function setupGlobalShortcutsOnMount() {
-	onMount(syncGlobalShortcutsWithSettings);
 }
 
 /**
