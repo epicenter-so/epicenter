@@ -37,7 +37,7 @@ export const RECORDING_MODE_OPTIONS = [
 	{ label: 'Manual', value: 'manual', icon: '🎙️', desktopOnly: false },
 	{ label: 'Voice Activated', value: 'vad', icon: '🎤', desktopOnly: false },
 	// { label: 'Live', value: 'live', icon: '🎬', desktopOnly: false },
-	{ label: 'CPAL', value: 'cpal', icon: '🔊', desktopOnly: true },
+	// { label: 'CPAL', value: 'cpal', icon: '🔊', desktopOnly: true },
 ] as const satisfies {
 	label: string;
 	value: RecordingMode;
