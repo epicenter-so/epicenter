@@ -252,7 +252,7 @@ export const commands = [
 		id: 'cancelManualRecording',
 		title: 'Cancel recording',
 		defaultLocalShortcut: 'c',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+;`,
+		defaultGlobalShortcut: `${CommandOrControl}+Shift+'`,
 		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
@@ -300,7 +300,7 @@ export const commands = [
 		id: 'toggleVadRecording',
 		title: 'Toggle voice activated recording',
 		defaultLocalShortcut: 'v',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+L`,
+		defaultGlobalShortcut: null,
 		on: 'Pressed',
 		callback: async () => {
 			const { data: vadState } =

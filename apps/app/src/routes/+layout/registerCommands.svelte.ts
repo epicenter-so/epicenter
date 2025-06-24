@@ -8,6 +8,8 @@ import {
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
 import { partitionResults } from '@epicenterhq/result';
+import type { Settings } from '$lib/settings';
+import { resetShortcutsToDefaults } from '../(config)/settings/shortcuts/reset-shortcuts-to-defaults';
 
 /**
  * Synchronizes local keyboard shortcuts with the current settings.
@@ -71,4 +73,32 @@ export async function syncGlobalShortcutsWithSettings() {
 			action: { type: 'more-details', error: errs },
 		});
 	}
+}
+
+/**
+ * Checks if any global shortcuts are duplicated and resets all to defaults if duplicates found.
+ * Returns true if duplicates were found and reset, false otherwise.
+ */
+export function checkAndResetDuplicateGlobalShortcuts(): boolean {
+	const globalShortcuts = new Map<string, string>();
+
+	// Check for duplicates
+	for (const command of commands) {
+		const shortcut = settings.value[`shortcuts.global.${command.id}`];
+		if (shortcut) {
+			if (globalShortcuts.has(shortcut)) {
+				// If duplicates found, reset all global shortcuts to defaults
+				resetShortcutsToDefaults('global');
+				toast.success({
+					title: 'Shortcuts reset',
+					description:
+						'Duplicate global shortcuts detected. All global shortcuts have been reset to defaults.',
+				});
+
+				return true;
+			}
+			globalShortcuts.set(shortcut, command.id);
+		}
+	}
+	return false;
 }

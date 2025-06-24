@@ -15,6 +15,7 @@
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 	import { commandCallbacks } from '$lib/commands';
 	import {
+		resetShortcutsDoDefaultIfDuplicates,
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
 	} from './registerCommands.svelte';
@@ -30,6 +31,7 @@
 		syncLocalShortcutsWithSettings();
 		if (window.__TAURI_INTERNALS__) {
 			syncGlobalShortcutsWithSettings();
+			resetShortcutsDoDefaultIfDuplicates();
 		} else {
 			// const _notifyWhisperingTabReadyResult =
 			// await extension.notifyWhisperingTabReady(undefined);

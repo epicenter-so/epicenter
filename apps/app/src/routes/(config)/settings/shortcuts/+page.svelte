@@ -1,42 +1,15 @@
 <script lang="ts">
-	import { commands } from '$lib/commands';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
-	import type { Settings } from '$lib/settings';
 	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
-	import {
-		syncGlobalShortcutsWithSettings,
-		syncLocalShortcutsWithSettings,
-	} from '../../../+layout/registerCommands.svelte';
 	import ShortcutFormatHelp from './keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import ShortcutTable from './keyboard-shortcut-recorder/ShortcutTable.svelte';
+	import { resetShortcutsToDefaults } from './reset-shortcuts-to-defaults';
 
 	const resetToDefaults = (type: 'local' | 'global') => {
-		const updates = commands.reduce((acc, command) => {
-			acc[`shortcuts.${type}.${command.id}`] =
-				type === 'local'
-					? command.defaultLocalShortcut
-					: command.defaultGlobalShortcut;
-			return acc;
-		}, {} as Partial<Settings>);
-
-		settings.value = {
-			...settings.value,
-			...updates,
-		};
-
-		switch (type) {
-			case 'local':
-				syncLocalShortcutsWithSettings();
-				break;
-			case 'global':
-				syncGlobalShortcutsWithSettings();
-				break;
-		}
-
+		resetShortcutsToDefaults(type);
 		toast.success({
 			title: 'Shortcuts reset',
 			description: `All ${type} shortcuts have been reset to defaults.`,
