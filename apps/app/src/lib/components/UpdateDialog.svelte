@@ -56,6 +56,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { relaunch } from '@tauri-apps/plugin-process';
 	import { toast } from 'svelte-sonner';
+	import * as Alert from '$lib/components/ui/alert/index.js';
+	import { AlertTriangle } from 'lucide-svelte';
+	import { extractErrorMessage } from '@epicenterhq/result';
 
 	async function handleDownloadAndInstall() {
 		if (!updateDialog.update) return;
@@ -91,12 +94,9 @@
 				}
 			});
 		} catch (err) {
-			updateDialog.setError(
-				err instanceof Error ? err.message : 'Failed to install update',
-			);
-			toast.error('Update failed', {
-				description:
-					err instanceof Error ? err.message : 'An unknown error occurred',
+			updateDialog.setError(extractErrorMessage(err));
+			toast.error('Failed to install update', {
+				description: extractErrorMessage(err),
 			});
 		}
 	}
@@ -138,9 +138,13 @@
 		{/if}
 
 		{#if updateDialog.error}
-			<div class="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-				Error: {updateDialog.error}
-			</div>
+			<Alert.Root variant="destructive">
+				<AlertTriangle class="size-4" />
+				<Alert.Title>Error installing update</Alert.Title>
+				<Alert.Description>
+					{updateDialog.error}
+				</Alert.Description>
+			</Alert.Root>
 		{/if}
 
 		<Dialog.Footer>
