@@ -8,11 +8,9 @@ export function closeToTrayIfEnabled() {
 	let unlisten: UnlistenFn;
 	onMount(async () => {
 		unlisten = await getCurrentWindow().onCloseRequested(async (event) => {
-			event.preventDefault();
 			if (settings.value['system.closeToTray']) {
+				event.preventDefault();
 				getCurrentWindow().hide();
-			} else {
-				exit(0);
 			}
 		});
 	});
