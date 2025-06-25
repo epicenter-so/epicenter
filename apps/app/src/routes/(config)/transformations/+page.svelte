@@ -111,13 +111,13 @@
 
 	let sorting = createPersistedState({
 		key: 'whispering-transformations-data-table-sorting',
-		defaultValue: [{ id: 'title', desc: false }],
+		onParseError: (error) => [{ id: 'title', desc: false }],
 		schema: z.array(z.object({ desc: z.boolean(), id: z.string() })),
 	});
 	let columnFilters = $state<ColumnFiltersState>([]);
 	let rowSelection = createPersistedState({
 		key: 'whispering-transformations-data-table-row-selection',
-		defaultValue: {},
+		onParseError: (error) => ({}),
 		schema: z.record(z.string(), z.boolean()),
 	});
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });

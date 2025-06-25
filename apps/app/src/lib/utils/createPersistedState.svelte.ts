@@ -1,52 +1,24 @@
-import {
-	Err,
-	Ok,
-	trySync,
-	type Result,
-	type TaggedError,
-} from '@epicenterhq/result';
+import { trySync, type TaggedError } from '@epicenterhq/result';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 
-type SyncStandardSchemaV1<Input = unknown, Output = Input> = {
-	readonly '~standard': SyncStandardSchemaV1.Props<Input, Output>;
-};
-
-namespace SyncStandardSchemaV1 {
-	export type Props<Input = unknown, Output = Input> = Omit<
-		StandardSchemaV1.Props<Input, Output>,
-		'validate'
-	> & {
-		validate: (value: unknown) => StandardSchemaV1.Result<Output>;
-	};
-}
-
-const attemptMergeStrategy = async <TSchema extends SyncStandardSchemaV1>({
-	key,
-	value,
-	defaultValue,
-	schema,
-}: {
-	key: string;
-	value: unknown;
-	defaultValue: StandardSchemaV1.InferOutput<TSchema>;
-	schema: TSchema;
-	issues: ReadonlyArray<StandardSchemaV1.Issue>;
-}): Promise<StandardSchemaV1.InferOutput<TSchema>> => {
-	// Attempt to merge the default value with the value from storage if possible
-	const defaultValueMergedOldValues = {
-		...defaultValue,
-		...(value as Record<string, unknown>),
-	};
-
-	let result = schema['~standard'].validate(defaultValueMergedOldValues);
-	if (result instanceof Promise) result = await result;
-	if (result.issues) return defaultValue;
-	return result.value;
-};
-
-type SchemaError = TaggedError<'SchemaError'>;
+type ParseErrorReason<TSchema extends StandardSchemaV1> =
+	| { type: 'storage_empty'; key: string }
+	| { type: 'json_parse_error'; key: string; rawValue: string; error: unknown }
+	| {
+			type: 'schema_validation_async_during_sync';
+			key: string;
+			value: unknown;
+			schema: TSchema;
+	  }
+	| {
+			type: 'schema_validation_failed';
+			key: string;
+			value: unknown;
+			schema: TSchema;
+			issues: ReadonlyArray<StandardSchemaV1.Issue>;
+	  };
 
 /**
  * Creates a persisted state object tied to local storage, accessible through `.value`
@@ -55,7 +27,7 @@ type SchemaError = TaggedError<'SchemaError'>;
  * - Synchronous initialization with immediate access to a valid value
  * - Automatic validation using the provided schema
  * - Cross-tab synchronization via storage events
- * - Graceful error recovery with fallback to default value
+ * - Graceful error recovery via onParseError handler
  * - Type-safe getter and setter
  *
  * @example
@@ -63,8 +35,10 @@ type SchemaError = TaggedError<'SchemaError'>;
  * const settings = createPersistedState({
  *   key: 'app-settings',
  *   schema: settingsSchema,
- *   defaultValue: { theme: 'light', notifications: true },
- *   onError: (error) => console.error('Settings error:', error)
+ *   onParseError: (error) => {
+ *     console.error('Settings parse error:', error);
+ *     return { theme: 'light', notifications: true }; // return default
+ *   }
  * });
  *
  * // Use in component
@@ -76,11 +50,10 @@ type SchemaError = TaggedError<'SchemaError'>;
  * settings.value = { theme: 'dark', notifications: false };
  * ```
  */
-export function createPersistedState<TSchema extends SyncStandardSchemaV1>({
+export function createPersistedState<TSchema extends StandardSchemaV1>({
 	key,
 	schema,
-	defaultValue,
-	resolveParseErrorStrategy = attemptMergeStrategy,
+	onParseError,
 	onUpdateSuccess,
 	onUpdateError,
 	onUpdateSettled,
@@ -88,32 +61,35 @@ export function createPersistedState<TSchema extends SyncStandardSchemaV1>({
 	/** The key used to store the value in local storage. */
 	key: string;
 	/**
-	 * The schema is used to validate the value from local storage
-	 * (`defaultValue` will be used if the value from local storage is invalid).
+	 * The schema used to validate the value from local storage.
 	 * */
 	schema: TSchema;
 	/**
-	 * The default value to use if no value is found in local storage or the value
-	 * from local storage fails to pass the schema.
-	 * */
-	defaultValue: StandardSchemaV1.InferOutput<TSchema>;
-	/**
-	 * Handler for when the value from storage fails schema validation.
-	 * Return a valid value to use it and save to storage.
-	 * @default `() => defaultValue`
+	 * Handler called when the value from storage cannot be parsed or validated.
+	 * This function can perform side effects and must return a valid value.
+	 *
+	 * @param error - A discriminated union describing what went wrong:
+	 *   - `storage_empty`: No value found in storage
+	 *   - `json_parse_error`: Failed to parse JSON from storage
+	 *   - `schema_validation_async_during_sync`: Schema returned a Promise during synchronous parsing
+	 *   - `schema_validation_failed`: Schema validation failed with issues
+	 *
+	 * @returns A valid value that satisfies the schema
+	 *
+	 * @example
+	 * ```ts
+	 * onParseError: (error) => {
+	 *   if (error.type === 'storage_empty') {
+	 *     return { theme: 'light' }; // default value
+	 *   }
+	 *   console.error('Parse error:', error);
+	 *   return { theme: 'light' }; // fallback value
+	 * }
+	 * ```
 	 */
-	resolveParseErrorStrategy?: (params: {
-		/** The key used to store the value in local storage. */
-		key: string;
-		/** The value from storage that failed schema validation. */
-		value: unknown;
-		/** The default value to use if the value from storage fails schema validation. */
-		defaultValue: StandardSchemaV1.InferOutput<TSchema>;
-		/** The schema used to validate the value from storage. */
-		schema: TSchema;
-		/** The error that occurred when parsing the value from storage. */
-		issues: ReadonlyArray<StandardSchemaV1.Issue>;
-	}) => StandardSchemaV1.InferOutput<TSchema>;
+	onParseError: (
+		error: ParseErrorReason<TSchema>,
+	) => StandardSchemaV1.InferOutput<TSchema>;
 	/**
 	 * Handler for when the value from storage is successfully updated.
 	 */
@@ -127,62 +103,56 @@ export function createPersistedState<TSchema extends SyncStandardSchemaV1>({
 	 */
 	onUpdateSettled?: () => void;
 }) {
-	let value = $state(defaultValue);
-
 	const parseValueFromStorage = (
 		rawValue: string | null,
-	): Result<
-		StandardSchemaV1.InferOutput<TSchema>,
-		ParseJsonError | SchemaError
-	> => {
-		const isEmpty = rawValue === null;
-		if (isEmpty) return Ok(defaultValue);
+	): StandardSchemaV1.InferOutput<TSchema> => {
+		if (rawValue === null) return onParseError({ type: 'storage_empty', key });
 
-		const { data: value, error: parseJsonError } = parseJson(rawValue);
-		if (parseJsonError) return Err(parseJsonError);
-
-		const result = schema['~standard'].validate(value);
-
-		if (result.issues) {
-			return Err({
-				name: 'SchemaError',
-				message: 'Schema validation failed',
-				context: { value },
-				cause: result.issues,
+		const { data: parsedValue, error: parseError } = parseJson(rawValue);
+		if (parseError) {
+			return onParseError({
+				type: 'json_parse_error',
+				key,
+				rawValue,
+				error: parseError,
 			});
 		}
-		return Ok(result.value as StandardSchemaV1.InferOutput<TSchema>);
+
+		const result = schema['~standard'].validate(parsedValue);
+		if (result instanceof Promise) {
+			return onParseError({
+				type: 'schema_validation_async_during_sync',
+				key,
+				value: parsedValue,
+				schema,
+			});
+		}
+
+		if (result.issues) {
+			return onParseError({
+				type: 'schema_validation_failed',
+				key,
+				value: parsedValue,
+				schema,
+				issues: result.issues,
+			});
+		}
+
+		return result.value as StandardSchemaV1.InferOutput<TSchema>;
 	};
 
-	// 			const resolvedValue = resolveParseErrorStrategy({
-	// 	key,
-	// 	value: value,
-	// 	defaultValue,
-	// 	schema,
-	// 	issues: result.issues,
-	// });
-	// return resolvedValue;
+	let value = $state(parseValueFromStorage(window.localStorage.getItem(key)));
 
 	const subscribe = createSubscriber((update) => {
 		const storage = on(window, 'storage', (e) => {
 			if (e.key !== key) return;
-			const { data, error } = parseValueFromStorage(e.newValue);
-			if (error) {
-			} else {
-				value = data;
-				update(); // Notify reactive contexts of state change
-			}
+			value = parseValueFromStorage(e.newValue);
+			update(); // Notify reactive contexts of state change
 		});
 
 		const focus = on(window, 'focus', () => {
-			const { data, error } = parseValueFromStorage(
-				window.localStorage.getItem(key),
-			);
-			if (error) {
-			} else {
-				value = data;
-				update(); // Notify reactive contexts of state change
-			}
+			value = parseValueFromStorage(window.localStorage.getItem(key));
+			update(); // Notify reactive contexts of state change
 		});
 
 		return () => {
@@ -191,13 +161,7 @@ export function createPersistedState<TSchema extends SyncStandardSchemaV1>({
 		};
 	});
 
-	const { data, error } = parseValueFromStorage(
-		window.localStorage.getItem(key),
-	);
-	if (error) {
-	} else {
-		value = data;
-	}
+	// No need for initial load in $effect since value is set synchronously above
 
 	return {
 		get value() {

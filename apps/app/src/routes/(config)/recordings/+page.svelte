@@ -211,24 +211,24 @@
 
 	let sorting = createPersistedState({
 		key: 'whispering-recordings-data-table-sorting',
-		defaultValue: [{ id: 'timestamp', desc: true }],
+		onParseError: (error) => [{ id: 'timestamp', desc: true }],
 		schema: z.array(z.object({ desc: z.boolean(), id: z.string() })),
 	});
 	let columnFilters = $state<ColumnFiltersState>([]);
 	let columnVisibility = createPersistedState({
 		key: 'whispering-recordings-data-table-column-visibility',
-		defaultValue: {
+		onParseError: (error) => ({
 			ID: false,
 			Title: false,
 			Subtitle: false,
 			'Created At': false,
 			'Updated At': false,
-		},
+		}),
 		schema: z.record(z.string(), z.boolean()),
 	});
 	let rowSelection = createPersistedState({
 		key: 'whispering-recordings-data-table-row-selection',
-		defaultValue: {},
+		onParseError: (error) => ({}),
 		schema: z.record(z.string(), z.boolean()),
 	});
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
