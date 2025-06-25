@@ -13,7 +13,7 @@ importers:
         version: 1.9.4
       concurrently:
         specifier: latest
-        version: 9.1.2
+        version: 9.2.0
       turbo:
         specifier: latest
         version: 2.5.4
@@ -44,9 +44,12 @@ importers:
       '@tanstack/svelte-query-devtools':
         specifier: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter
         version: https://pkg.pr.new/@tanstack/svelte-query-devtools@svelte-5-adapter(@tanstack/svelte-query@https://pkg.pr.new/epicenterhq/query/@tanstack/svelte-query@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b(svelte@5.34.7))(svelte@5.34.7)
+      '@tanstack/svelte-table':
+        specifier: 9.0.0-alpha.10
+        version: 9.0.0-alpha.10(svelte@5.34.7)
       '@tanstack/table-core':
-        specifier: 8.21.3
-        version: 8.21.3
+        specifier: 9.0.0-alpha.10
+        version: 9.0.0-alpha.10
       '@tauri-apps/api':
         specifier: ^2.5.0
         version: 2.5.0
@@ -980,8 +983,14 @@ packages:
     peerDependencies:
       svelte: ^5.7.0
 
-  '@tanstack/table-core@8.21.3':
-    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
+  '@tanstack/svelte-table@9.0.0-alpha.10':
+    resolution: {integrity: sha512-H0eAQlpXgK9JYYrgc0cWXVqEJywxkhuYODnVobUZGskFg6J+5PP+7UCjzrY9ftMge6s1hwb2Ipq3u4wPYJz7HA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      svelte: ^5.0.0-next
+
+  '@tanstack/table-core@9.0.0-alpha.10':
+    resolution: {integrity: sha512-f2kEGGL+d+I7evkhU926cID2MyH7nPI8acAPcwpaAR1DrgTNStAMp3NS+tgMDyrYtc8zd+RyTxC8m+NBhHhFmA==}
     engines: {node: '>=12'}
 
   '@tauri-apps/api@2.5.0':
@@ -1337,8 +1346,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  concurrently@9.1.2:
-    resolution: {integrity: sha512-H9MWcoPsYddwbOGM6difjVwVZHl63nwMEwDJG/L7VGtuaJhb12h2caPG2tVPWs7emuYix252iGfqOyrz1GczTQ==}
+  concurrently@9.2.0:
+    resolution: {integrity: sha512-IsB/fiXTupmagMW4MNp2lx2cdSN2FfZq78vF90LBB+zZHArbIQZjQtzXCiXnvTxCZSvXanTqFLWBjw2UkLx1SQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3217,7 +3226,12 @@ snapshots:
       '@tanstack/query-core': https://pkg.pr.new/epicenterhq/query/@tanstack/query-core@fcc9ad6fc7c2ab51fb289b380b3cb99409ea802b
       svelte: 5.34.7
 
-  '@tanstack/table-core@8.21.3': {}
+  '@tanstack/svelte-table@9.0.0-alpha.10(svelte@5.34.7)':
+    dependencies:
+      '@tanstack/table-core': 9.0.0-alpha.10
+      svelte: 5.34.7
+
+  '@tanstack/table-core@9.0.0-alpha.10': {}
 
   '@tauri-apps/api@2.5.0': {}
 
@@ -3594,7 +3608,7 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  concurrently@9.1.2:
+  concurrently@9.2.0:
     dependencies:
       chalk: 4.1.2
       lodash: 4.17.21

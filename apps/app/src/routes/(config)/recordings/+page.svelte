@@ -8,9 +8,9 @@
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import {
 		FlexRender,
-		createSvelteTable,
+		createTable as createSvelteTable,
 		renderComponent,
-	} from '$lib/components/ui/data-table/index.js';
+	} from '@tanstack/svelte-table';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input/index.js';

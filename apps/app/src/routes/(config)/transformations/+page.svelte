@@ -17,9 +17,9 @@
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
 	import {
 		FlexRender,
-		createSvelteTable,
+		createTable as createSvelteTable,
 		renderComponent,
-	} from '$lib/components/ui/data-table/index.js';
+	} from '@tanstack/svelte-table';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
