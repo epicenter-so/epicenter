@@ -71,7 +71,6 @@ export function createTransformerService({
 						const { data: completionResponse, error: completionError } =
 							await createOpenAiCompletionService({
 								apiKey: settings.value['apiKeys.openai'],
-								HttpService,
 							}).complete({
 								systemPrompt,
 								userPrompt,
@@ -91,7 +90,6 @@ export function createTransformerService({
 						const { data: completionResponse, error: completionError } =
 							await createGroqCompletionService({
 								apiKey: settings.value['apiKeys.groq'],
-								HttpService,
 							}).complete({
 								model,
 								systemPrompt,
