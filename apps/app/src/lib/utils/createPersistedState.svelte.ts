@@ -9,7 +9,20 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 
-const attemptMergeStrategy = async <TSchema extends StandardSchemaV1>({
+type SyncStandardSchemaV1<Input = unknown, Output = Input> = {
+	readonly '~standard': SyncStandardSchemaV1.Props<Input, Output>;
+};
+
+namespace SyncStandardSchemaV1 {
+	export type Props<Input = unknown, Output = Input> = Omit<
+		StandardSchemaV1.Props<Input, Output>,
+		'validate'
+	> & {
+		validate: (value: unknown) => StandardSchemaV1.Result<Output>;
+	};
+}
+
+const attemptMergeStrategy = async <TSchema extends SyncStandardSchemaV1>({
 	key,
 	value,
 	defaultValue,
@@ -63,7 +76,7 @@ type SchemaError = TaggedError<'SchemaError'>;
  * settings.value = { theme: 'dark', notifications: false };
  * ```
  */
-export function createPersistedState<TSchema extends StandardSchemaV1>({
+export function createPersistedState<TSchema extends SyncStandardSchemaV1>({
 	key,
 	schema,
 	defaultValue,
@@ -116,10 +129,11 @@ export function createPersistedState<TSchema extends StandardSchemaV1>({
 }) {
 	let value = $state(defaultValue);
 
-	const parseValueFromStorage = async (
+	const parseValueFromStorage = (
 		rawValue: string | null,
-	): Promise<
-		Result<StandardSchemaV1.InferOutput<TSchema>, ParseJsonError | SchemaError>
+	): Result<
+		StandardSchemaV1.InferOutput<TSchema>,
+		ParseJsonError | SchemaError
 	> => {
 		const isEmpty = rawValue === null;
 		if (isEmpty) return Ok(defaultValue);
@@ -127,16 +141,16 @@ export function createPersistedState<TSchema extends StandardSchemaV1>({
 		const { data: value, error: parseJsonError } = parseJson(rawValue);
 		if (parseJsonError) return Err(parseJsonError);
 
-		let result = schema['~standard'].validate(value);
-		if (result instanceof Promise) result = await result;
+		const result = schema['~standard'].validate(value);
 
-		if (result.issues)
+		if (result.issues) {
 			return Err({
 				name: 'SchemaError',
 				message: 'Schema validation failed',
 				context: { value },
 				cause: result.issues,
 			});
+		}
 		return Ok(result.value as StandardSchemaV1.InferOutput<TSchema>);
 	};
 
@@ -152,25 +166,23 @@ export function createPersistedState<TSchema extends StandardSchemaV1>({
 	const subscribe = createSubscriber((update) => {
 		const storage = on(window, 'storage', (e) => {
 			if (e.key !== key) return;
-			parseValueFromStorage(e.newValue).then(({ data, error }) => {
-				if (error) {
-				} else {
-					value = data;
-					update(); // Notify reactive contexts of state change
-				}
-			});
+			const { data, error } = parseValueFromStorage(e.newValue);
+			if (error) {
+			} else {
+				value = data;
+				update(); // Notify reactive contexts of state change
+			}
 		});
 
 		const focus = on(window, 'focus', () => {
-			parseValueFromStorage(window.localStorage.getItem(key)).then(
-				({ data, error }) => {
-					if (error) {
-					} else {
-						value = data;
-						update(); // Notify reactive contexts of state change
-					}
-				},
+			const { data, error } = parseValueFromStorage(
+				window.localStorage.getItem(key),
 			);
+			if (error) {
+			} else {
+				value = data;
+				update(); // Notify reactive contexts of state change
+			}
 		});
 
 		return () => {
@@ -179,14 +191,13 @@ export function createPersistedState<TSchema extends StandardSchemaV1>({
 		};
 	});
 
-	parseValueFromStorage(window.localStorage.getItem(key)).then(
-		({ data, error }) => {
-			if (error) {
-			} else {
-				value = data;
-			}
-		},
+	const { data, error } = parseValueFromStorage(
+		window.localStorage.getItem(key),
 	);
+	if (error) {
+	} else {
+		value = data;
+	}
 
 	return {
 		get value() {
