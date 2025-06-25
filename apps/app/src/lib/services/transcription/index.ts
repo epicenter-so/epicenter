@@ -12,13 +12,11 @@ export function TranscriptionServiceLive() {
 	switch (settings.value['transcription.selectedTranscriptionService']) {
 		case 'OpenAI': {
 			return createOpenaiTranscriptionService({
-				HttpService: HttpServiceLive,
 				apiKey: settings.value['apiKeys.openai'],
 			});
 		}
 		case 'Groq': {
 			return createGroqTranscriptionService({
-				HttpService: HttpServiceLive,
 				apiKey: settings.value['apiKeys.groq'],
 				modelName: settings.value['transcription.groq.model'],
 			});
