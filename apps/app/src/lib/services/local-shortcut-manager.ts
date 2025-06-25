@@ -71,6 +71,9 @@ export function createLocalShortcutManager() {
 			 * ensures callbacks only fire once per physical key press.
 			 */
 			const keydown = on(window, 'keydown', (e) => {
+				// Skip shortcut processing if user is typing in an input field
+				if (isTypingInInput()) return;
+
 				let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 				// macOS Option key normalization:
@@ -118,6 +121,9 @@ export function createLocalShortcutManager() {
 			 * on the next key press.
 			 */
 			const keyup = on(window, 'keyup', (e) => {
+				// Skip shortcut processing if user is typing in an input field
+				if (isTypingInInput()) return;
+
 				const key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
 				// Ignore keys that are not supported
@@ -258,6 +264,47 @@ export type LocalShortcutManager = ReturnType<
  */
 function arraysMatch(a: string[], b: string[]) {
 	return a.length === b.length && a.every((key) => b.includes(key));
+}
+
+/**
+ * Checks if the currently focused element should capture keyboard input.
+ * Returns true if the user is typing in an input field, textarea, or other editable element.
+ * This prevents keyboard shortcuts from interfering with text input.
+ */
+function isTypingInInput(): boolean {
+	const activeElement = document.activeElement;
+	if (!activeElement) return false;
+
+	// Check if it's an input element (but not buttons, checkboxes, etc.)
+	if (activeElement.tagName === 'INPUT') {
+		const inputType = (activeElement as HTMLInputElement).type;
+		const textInputTypes = [
+			'text',
+			'password',
+			'email',
+			'url',
+			'tel',
+			'search',
+			'number',
+			'date',
+			'time',
+			'datetime-local',
+			'month',
+			'week',
+		];
+		return textInputTypes.includes(inputType);
+	}
+
+	// Check if it's a textarea
+	if (activeElement.tagName === 'TEXTAREA') return true;
+
+	// Check if it's a contenteditable element
+	if (activeElement.getAttribute('contenteditable') === 'true') return true;
+
+	// Check if it has role="textbox"
+	if (activeElement.getAttribute('role') === 'textbox') return true;
+
+	return false;
 }
 
 /**
