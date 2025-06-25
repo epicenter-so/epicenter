@@ -164,9 +164,16 @@ export const GROQ_MODELS_OPTIONS = GROQ_MODELS.map((model) => ({
 	label: model,
 }));
 
-export const OPENAI_TRANSCRIPTION_MODELS = ['whisper-1'] as const;
+export const OPENAI_TRANSCRIPTION_MODELS = [
+	'whisper-1',
+	'gpt-4o-transcribe',
+	'gpt-4o-mini-transcribe',
+] as const;
 
-export const ELEVENLABS_TRANSCRIPTION_MODELS = ['scribe_v1'] as const;
+export const ELEVENLABS_TRANSCRIPTION_MODELS = [
+	'scribe_v1',
+	'scribe_v1_experimental',
+] as const;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'OpenAI',
@@ -225,7 +232,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'ElevenLabs',
 		name: 'ElevenLabs',
 		icon: PauseIcon,
-		models: ['scribe_v1'],
+		models: ELEVENLABS_TRANSCRIPTION_MODELS,
 		defaultModel: 'scribe_v1',
 		modelSettingKey: 'transcription.elevenlabs.model',
 		apiKeyField: 'apiKeys.elevenlabs',
@@ -330,10 +337,17 @@ export const INFERENCE_PROVIDER_OPTIONS = INFERENCE_PROVIDERS.map(
 );
 
 // https://platform.openai.com/docs/models
+// https://platform.openai.com/docs/api-reference/models/list
 export const OPENAI_INFERENCE_MODELS = [
+	'gpt-4.1',
+	'gpt-4.1-mini',
+	'gpt-4.1-nano',
 	'gpt-4o',
 	'gpt-4o-mini',
-	'gpt-3.5-turbo',
+	'o3',
+	'o3-pro',
+	'o3-mini',
+	'o4-mini',
 ] as const;
 
 export const OPENAI_INFERENCE_MODEL_OPTIONS = OPENAI_INFERENCE_MODELS.map(
@@ -344,7 +358,22 @@ export const OPENAI_INFERENCE_MODEL_OPTIONS = OPENAI_INFERENCE_MODELS.map(
 );
 
 // https://console.groq.com/docs/models
-export const GROQ_INFERENCE_MODELS = ['llama-3.3-70b-versatile'] as const;
+export const GROQ_INFERENCE_MODELS = [
+	// Production models
+	'gemma2-9b-it',
+	'meta-llama/llama-guard-4-12b',
+	'llama-3.3-70b-versatile',
+	'llama-3.1-8b-instant',
+	// Preview models
+	'deepseek-r1-distill-llama-70b',
+	'meta-llama/llama-4-maverick-17b-128e-instruct',
+	'meta-llama/llama-4-scout-17b-16e-instruct',
+	'meta-llama/llama-prompt-guard-2-22m',
+	'meta-llama/llama-prompt-guard-2-86m',
+	'mistral-saba-24bqwen-qwq-32b',
+	'qwen-qwq-32b',
+	'qwen/qwen3-32b',
+] as const;
 
 export const GROQ_INFERENCE_MODEL_OPTIONS = GROQ_INFERENCE_MODELS.map(
 	(model) => ({
@@ -353,14 +382,11 @@ export const GROQ_INFERENCE_MODEL_OPTIONS = GROQ_INFERENCE_MODELS.map(
 	}),
 );
 
-// https://docs.anthropic.com/claude/docs/models-overview
+// https://docs.anthropic.com/en/docs/about-claude/models/overview#model-aliases
 export const ANTHROPIC_INFERENCE_MODELS = [
+	'claude-opus-4-0',
+	'claude-sonnet-4-0',
 	'claude-3-7-sonnet-latest',
-	'claude-3-5-sonnet-latest',
-	'claude-3-5-haiku-latest',
-	'claude-3-opus-latest',
-	'claude-3-sonnet-latest',
-	'claude-3-haiku-latest',
 ] as const;
 
 export const ANTHROPIC_INFERENCE_MODEL_OPTIONS = ANTHROPIC_INFERENCE_MODELS.map(
@@ -370,11 +396,11 @@ export const ANTHROPIC_INFERENCE_MODEL_OPTIONS = ANTHROPIC_INFERENCE_MODELS.map(
 	}),
 );
 
+// https://ai.google.dev/gemini-api/docs/models#model-variations
 export const GOOGLE_INFERENCE_MODELS = [
-	'gemini-2.0-pro',
-	'gemini-2.0-flash',
-	'gemini-2.0-flash-thinking',
-	'gemini-2.0-flash-lite-preview',
+	'gemini-2.5-pro',
+	'gemini-2.5-flash',
+	'gemini-2.5-flash-lite-preview-06-17',
 ] as const;
 
 export const GOOGLE_INFERENCE_MODEL_OPTIONS = GOOGLE_INFERENCE_MODELS.map(
