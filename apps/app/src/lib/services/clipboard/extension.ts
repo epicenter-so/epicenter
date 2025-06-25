@@ -1,7 +1,7 @@
 import { tryAsync, trySync } from '@epicenterhq/result';
-import type { ClipboardServiceLive, ClipboardServiceError } from '.';
+import type { ClipboardService, ClipboardServiceError } from '.';
 
-export function createClipboardServiceExtension(): ClipboardServiceLive {
+export function createClipboardServiceExtension(): ClipboardService {
 	return {
 		setClipboardText: (text) =>
 			tryAsync({
