@@ -3,6 +3,7 @@ import { toast } from '$lib/toast';
 import type { WhisperingRecordingState } from '$lib/constants';
 import { defineMutation, defineQuery } from '../_utils';
 import { queryClient } from '../index';
+import { settings } from '$lib/stores/settings.svelte';
 
 const recorderKeys = {
 	state: ['cpalRecorder', 'state'] as const,
@@ -29,11 +30,17 @@ export const cpalRecorder = {
 		}: {
 			toastId: string;
 			selectedDeviceId: string | null;
-		}) =>
-			services.cpalRecorder.startRecording(
+		}) => {
+			if (settings.value['recording.mode'] !== 'cpal') {
+				settings.value = { ...settings.value, 'recording.mode': 'cpal' };
+			}
+			return services.cpalRecorder.startRecording(
 				{ selectedDeviceId },
-				{ sendStatus: (options) => toast.loading({ id: toastId, ...options }) },
-			),
+				{
+					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				},
+			);
+		},
 		onSettled: invalidateRecorderState,
 	}),
 

@@ -32,6 +32,10 @@ export const vadRecorder = {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
+			if (settings.value['recording.mode'] !== 'vad') {
+				settings.value = { ...settings.value, 'recording.mode': 'vad' };
+			}
+
 			const result = await services.vad.startActiveListening({
 				deviceId: settings.value['recording.vad.selectedDeviceId'],
 				onSpeechStart: () => {
