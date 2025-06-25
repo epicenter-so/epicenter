@@ -1,6 +1,6 @@
 import { settings } from '$lib/stores/settings.svelte';
-import { createOpenaiTranscriptionService } from './whisper/openai';
-import { createGroqTranscriptionService } from './whisper/groq';
+import { createOpenaiTranscriptionService } from './openai';
+import { createGroqTranscriptionService } from './groq';
 import { createFasterWhisperServerTranscriptionService } from './whisper/fasterWhisperServer';
 import { createElevenLabsTranscriptionService } from './whisper/elevenlabs';
 import { HttpServiceLive } from '$lib/services/http';

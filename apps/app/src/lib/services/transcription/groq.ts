@@ -1,8 +1,8 @@
 import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
-import type { TranscriptionService } from '..';
+import type { TranscriptionService } from '.';
 import type { HttpService } from '$lib/services/http';
-import { createWhisperService } from './_createWhisperService';
+import { createWhisperService } from './whisper/_createWhisperService';
 
 type ModelName =
 	/**
