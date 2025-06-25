@@ -16,6 +16,7 @@
 		vadStateToIcons,
 	} from '$lib/constants';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { MediaQuery } from 'svelte/reactivity';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -26,6 +27,8 @@
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
 	let { children } = $props();
+
+	const isMobile = new MediaQuery('(max-width: 640px)');
 </script>
 
 <header
@@ -42,7 +45,7 @@
 			variant="ghost"
 			class="-ml-4"
 		>
-			<span class="sm:text-lg font-bold">whispering</span>
+			<span class="text-lg font-bold">whispering</span>
 		</WhisperingButton>
 	</div>
 	{#if settings.value['recording.mode'] === 'manual'}
@@ -146,7 +149,7 @@
 		</WhisperingButton>
 	{/if}
 
-	<NavItems class="-mr-4" />
+	<NavItems class="-mr-4" collapsed={isMobile.current} />
 </header>
 
 {@render children()}

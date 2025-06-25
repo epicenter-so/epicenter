@@ -54,7 +54,7 @@ const startManualRecording = async () => {
 	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 		await rpc.manualRecorder.startRecording.execute({
 			toastId,
-			settings: {
+			recordingSettings: {
 				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				bitrateKbps: settings.value['recording.manual.bitrateKbps'],
 			},
