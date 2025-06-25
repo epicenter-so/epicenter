@@ -33,7 +33,11 @@
 	<div class="text-destructive text-sm">
 		{latestTransformationRunByRecordingIdQuery.error.message}
 	</div>
-{:else if latestTransformationRunByRecordingIdQuery.data?.output}
+{:else if latestTransformationRunByRecordingIdQuery.data?.status === 'failed'}
+	<div class="text-destructive text-sm">
+		{latestTransformationRunByRecordingIdQuery.data.error}
+	</div>
+{:else if latestTransformationRunByRecordingIdQuery.data?.status === 'completed'}
 	<CopyableTextDialog
 		{id}
 		label="Latest Transformation Run Output"
