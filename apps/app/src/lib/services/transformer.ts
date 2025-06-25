@@ -18,25 +18,20 @@ import type {
 	TransformationStep,
 } from './db/models';
 import type { DbService } from './db/types';
-import { HttpServiceLive, type HttpService } from './http';
 
 type TransformServiceError = TaggedError<'TransformServiceError'>;
 
 export function createTransformerService({
 	DbService,
-	HttpService,
 }: {
 	DbService: DbService;
-	HttpService: HttpService;
 }) {
 	const handleStep = async ({
 		input,
 		step,
-		HttpService,
 	}: {
 		input: string;
 		step: TransformationStep;
-		HttpService: HttpService;
 	}): Promise<Result<string, string>> => {
 		switch (step.type) {
 			case 'find_replace': {
@@ -107,7 +102,6 @@ export function createTransformerService({
 						const { data: completionResponse, error: completionError } =
 							await createAnthropicCompletionService({
 								apiKey: settings.value['apiKeys.anthropic'],
-								HttpService,
 							}).complete({
 								model:
 									step['prompt_transform.inference.provider.Anthropic.model'],
@@ -171,7 +165,6 @@ export function createTransformerService({
 		 *
 		 * @param input - The text input to be transformed by this step
 		 * @param step - The transformation step configuration containing type and parameters
-		 * @param HttpService - Service for making HTTP requests to AI providers
 		 * @returns Promise<Result<string, string>> - Success with transformed text or error with descriptive message
 		 *
 		 * @example
@@ -180,7 +173,6 @@ export function createTransformerService({
 		 * const result = await handleStep({
 		 *   input: "Hello world",
 		 *   step: { type: 'find_replace', 'find_replace.findText': 'world', 'find_replace.replaceText': 'universe' },
-		 *   HttpService
 		 * });
 		 * // Result: Ok("Hello universe")
 		 *
@@ -188,7 +180,6 @@ export function createTransformerService({
 		 * const result = await handleStep({
 		 *   input: "Summarize this text",
 		 *   step: { type: 'prompt_transform', provider: 'OpenAI', ... },
-		 *   HttpService
 		 * });
 		 * // On API error: Err("OpenAI API Error: Rate limit exceeded (429)")
 		 * ```
@@ -284,7 +275,6 @@ export function createTransformerService({
 				const handleStepResult = await handleStep({
 					input: currentInput,
 					step,
-					HttpService,
 				});
 
 				if (isErr(handleStepResult)) {
@@ -361,6 +351,5 @@ export function createTransformerService({
 }
 
 export const TransformerServiceLive = createTransformerService({
-	HttpService: HttpServiceLive,
 	DbService: DbServiceLive,
 });
