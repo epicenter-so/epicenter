@@ -20,6 +20,9 @@ importers:
 
   apps/app:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.55.0
+        version: 0.55.0
       '@epicenterhq/result':
         specifier: ^0.15.0
         version: 0.15.0
@@ -244,6 +247,10 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@anthropic-ai/sdk@0.55.0':
+    resolution: {integrity: sha512-VdxPRWPoeeVQt0XUZ3cXfeLB65Skkoo1FS7JAkr8/C7Q8+wjV7k2RsVGmFXBq12VeHxua7MUtNqXx6k8hgoIVg==}
+    hasBin: true
 
   '@ark/schema@0.46.0':
     resolution: {integrity: sha512-c2UQdKgP2eqqDArfBqQIJppxJHvNNXuQPeuSPlDML4rjw+f1cu0qAlzOG4b8ujgm9ctIDWwhpyw6gjG5ledIVQ==}
@@ -2704,6 +2711,8 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
+
+  '@anthropic-ai/sdk@0.55.0': {}
 
   '@ark/schema@0.46.0':
     dependencies:

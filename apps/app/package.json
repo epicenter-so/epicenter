@@ -51,6 +51,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@anthropic-ai/sdk": "^0.55.0",
 		"@epicenterhq/result": "^0.15.0",
 		"@google/generative-ai": "^0.24.1",
 		"@plasmohq/messaging": "^0.7.2",
