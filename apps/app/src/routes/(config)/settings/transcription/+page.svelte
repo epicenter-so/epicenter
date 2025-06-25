@@ -69,7 +69,7 @@
 				You can find more details about the models in the <Button
 					variant="link"
 					class="px-0.3 py-0.2 h-fit"
-					href="https://console.groq.com/docs/speech-text"
+					href="https://console.groq.com/docs/speech-to-text"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
