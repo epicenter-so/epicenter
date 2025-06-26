@@ -10,19 +10,19 @@ export const queryClient = new QueryClient({
 });
 
 // Import all query modules
-import { clipboard } from './_queries/clipboard';
-import { cpalRecorder } from './_queries/cpalRecorder';
-import { device } from './_queries/device';
-import { download } from './_queries/download';
-import { manualRecorder } from './_queries/manualRecorder';
-import { recordings } from './_queries/recordings';
-import { shortcuts } from './_queries/shortcuts';
-import { transcription } from './_queries/transcription';
-import { transformationRuns } from './_queries/transformationRuns';
-import { transformations } from './_queries/transformations';
-import { transformer } from './_queries/transformer';
-import { vadRecorder } from './_queries/vadRecorder';
-import { sound } from './_queries/sound';
+import { clipboard } from './clipboard';
+import { cpalRecorder } from './cpalRecorder';
+import { device } from './device';
+import { download } from './download';
+import { manualRecorder } from './manualRecorder';
+import { recordings } from './recordings';
+import { shortcuts } from './shortcuts';
+import { transcription } from './transcription';
+import { transformationRuns } from './transformationRuns';
+import { transformations } from './transformations';
+import { transformer } from './transformer';
+import { vadRecorder } from './vadRecorder';
+import { sound } from './sound';
 
 /**
  * Unified namespace for all query operations.

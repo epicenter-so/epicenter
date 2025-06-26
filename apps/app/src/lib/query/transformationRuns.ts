@@ -1,6 +1,6 @@
 import * as services from '$lib/services';
 import type { Accessor } from '@tanstack/svelte-query';
-import { defineQuery } from '../_utils';
+import { defineQuery } from './_utils';
 
 // Define the query key as a constant array
 export const transformationRunKeys = {

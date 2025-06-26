@@ -1,5 +1,5 @@
 import * as services from '$lib/services';
-import { defineQuery } from '../_utils';
+import { defineQuery } from './_utils';
 
 const deviceKeys = {
 	mediaDevices: ['device', 'mediaDevices'] as const,

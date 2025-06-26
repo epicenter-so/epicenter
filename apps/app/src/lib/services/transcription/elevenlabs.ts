@@ -1,7 +1,7 @@
 import { Err, Ok } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
 import { ElevenLabsClient } from 'elevenlabs';
-import type { TranscriptionService } from '..';
+import type { TranscriptionService } from '.';
 
 type ModelName = 'scribe_v1';
 

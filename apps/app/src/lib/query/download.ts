@@ -3,7 +3,7 @@ import type { Recording } from '$lib/services/db';
 import type { DownloadServiceError } from '$lib/services/download';
 import { Err, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
-import { defineMutation } from '../_utils';
+import { defineMutation } from './_utils';
 
 export const download = {
 	downloadRecording: defineMutation({

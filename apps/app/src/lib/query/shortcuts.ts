@@ -4,7 +4,7 @@ import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-su
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/global-shortcut-manager';
 import type { CommandId } from '$lib/services/local-shortcut-manager';
-import { defineMutation } from '../_utils';
+import { defineMutation } from './_utils';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({

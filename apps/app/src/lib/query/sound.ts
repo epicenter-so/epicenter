@@ -3,7 +3,7 @@ import type { PlaySoundServiceError } from '$lib/services/sound';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingSoundNames } from '$lib/constants';
-import { defineMutation } from '../_utils';
+import { defineMutation } from './_utils';
 
 const soundKeys = {
 	all: ['sound'] as const,

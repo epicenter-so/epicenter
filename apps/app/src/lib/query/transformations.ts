@@ -5,7 +5,7 @@ import { toast } from '$lib/toast';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from '@epicenterhq/result';
 import type { Accessor } from '@tanstack/svelte-query';
-import { defineMutation, defineQuery } from '../_utils';
+import { defineMutation, defineQuery } from './_utils';
 
 // Define the query key as a constant array
 export const transformationsKeys = {

@@ -1,11 +1,11 @@
 import { SetTrayIconServiceLive } from './SetTrayIconService';
 import { ClipboardServiceLive } from './clipboard';
-import { CpalRecorderServiceLive } from './cpalRecorder';
+import { CpalRecorderServiceLive } from './cpal-recorder';
 import { DbServiceLive } from './db';
 import { DownloadServiceLive } from './download';
 import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
-import { NavigatorRecorderServiceLive } from './manualRecorder';
+import { NavigatorRecorderServiceLive } from './manual-recorder';
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';

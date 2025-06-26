@@ -5,8 +5,8 @@ import type { TranscriptionServiceError } from '$lib/services/transcription';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, partitionResults } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
-import { defineMutation } from '../_utils';
-import { queryClient } from '../index';
+import { defineMutation } from './_utils';
+import { queryClient } from './index';
 import { recordings } from './recordings';
 
 const transcriptionKeys = {
