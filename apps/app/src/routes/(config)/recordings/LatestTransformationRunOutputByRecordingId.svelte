@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CopyableTextDialog from '$lib/components/copyable/CopyableTextDialog.svelte';
+	import CopyableTextareaExpandsToDialog from '$lib/components/copyable/CopyableTextareaExpandsToDialog.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { rpc } from '$lib/query';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
@@ -30,21 +30,21 @@
 		<Skeleton class="h-3" />
 	</div>
 {:else if latestTransformationRunByRecordingIdQuery.error}
-	<CopyableTextDialog
+	<CopyableTextareaExpandsToDialog
 		{id}
 		title="Query Error"
 		label="query error"
 		text={latestTransformationRunByRecordingIdQuery.error.message}
 	/>
 {:else if latestTransformationRunByRecordingIdQuery.data?.status === 'failed'}
-	<CopyableTextDialog
+	<CopyableTextareaExpandsToDialog
 		{id}
 		title="Transformation Error"
 		label="transformation error"
 		text={latestTransformationRunByRecordingIdQuery.data.error}
 	/>
 {:else if latestTransformationRunByRecordingIdQuery.data?.status === 'completed'}
-	<CopyableTextDialog
+	<CopyableTextareaExpandsToDialog
 		{id}
 		title="Transformation Output"
 		label="transformation output"
