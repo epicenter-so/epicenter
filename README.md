@@ -64,7 +64,7 @@ Whispering stores as much data as possible locally on your device, including rec
 
 2. **Transcription Service**: The only data sent elsewhere is your recording to an external transcription service—if you choose one. You have the following options:
    - External services like OpenAI or Groq
-   - A local transcription service such as `faster-whisper-server`, which keeps everything on-device
+   - A local transcription service such as `Speaches`, which keeps everything on-device
 
 3. **Configurable Settings**: You can change the transcription service in the settings to ensure maximum local functionality.
 
