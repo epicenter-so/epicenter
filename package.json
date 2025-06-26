@@ -12,7 +12,7 @@
 		"format": "concurrently \"biome format --write .\" \"turbo run format --filter=@repo/app\"",
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint --filter=@repo/app\"",
 		"format-and-lint": "concurrently \"biome check --write --unsafe .\" \"turbo run format --filter=@repo/app && turbo run lint --filter=@repo/app\"",
-		"bump-version": "node scripts/bump-version.js"
+		"bump-version": "bun run scripts/bump-version.ts"
 	},
 	"packageManager": "pnpm@10.11.0",
 	"devDependencies": {
