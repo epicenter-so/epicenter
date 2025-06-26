@@ -3,25 +3,19 @@ import {
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICE_IDS,
-	type WhisperingSoundNames,
 } from '$lib/constants';
 import { type ZodBoolean, z } from 'zod';
 import type { SettingsV2 } from './settingsV2';
 
 export const settingsV3Schema = z.object({
-	...({
-		'sound.playOn.manual-start': z.boolean(),
-		'sound.playOn.manual-stop': z.boolean(),
-		'sound.playOn.manual-cancel': z.boolean(),
-		'sound.playOn.vad-start': z.boolean(),
-		'sound.playOn.vad-capture': z.boolean(),
-		'sound.playOn.vad-stop': z.boolean(),
-		'sound.playOn.transcriptionComplete': z.boolean(),
-		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies {
-		[K in WhisperingSoundNames as `sound.playOn.${K}`]: ZodBoolean;
-	}),
+	'sound.playOn.manual-start': z.boolean(),
+	'sound.playOn.manual-stop': z.boolean(),
+	'sound.playOn.manual-cancel': z.boolean(),
+	'sound.playOn.vad-start': z.boolean(),
+	'sound.playOn.vad-capture': z.boolean(),
+	'sound.playOn.vad-stop': z.boolean(),
+	'sound.playOn.transcriptionComplete': z.boolean(),
+	'sound.playOn.transformationComplete': z.boolean(),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),

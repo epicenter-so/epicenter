@@ -3,7 +3,6 @@ import {
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICE_IDS,
 } from '$lib/constants';
 import { z } from 'zod';
 import type { SettingsV1 } from './settingsV1';

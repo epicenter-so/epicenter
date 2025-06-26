@@ -1,27 +1,22 @@
-import type { Command } from '$lib/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
 	RECORDING_MODES,
 	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICE_IDS,
-	type WhisperingSoundNames,
 } from '$lib/constants';
-import { type ZodBoolean, type ZodString, z } from 'zod';
+import { z } from 'zod';
 import type { SettingsV5 } from './settingsV5';
 
 export const settingsV6Schema = z.object({
-	...({
-		'sound.playOn.manual-start': z.boolean(),
-		'sound.playOn.manual-stop': z.boolean(),
-		'sound.playOn.manual-cancel': z.boolean(),
-		'sound.playOn.vad-start': z.boolean(),
-		'sound.playOn.vad-capture': z.boolean(),
-		'sound.playOn.vad-stop': z.boolean(),
-		'sound.playOn.transcriptionComplete': z.boolean(),
-		'sound.playOn.transformationComplete': z.boolean(),
-	} satisfies Record<`sound.playOn.${WhisperingSoundNames}`, ZodBoolean>),
+	'sound.playOn.manual-start': z.boolean(),
+	'sound.playOn.manual-stop': z.boolean(),
+	'sound.playOn.manual-cancel': z.boolean(),
+	'sound.playOn.vad-start': z.boolean(),
+	'sound.playOn.vad-capture': z.boolean(),
+	'sound.playOn.vad-stop': z.boolean(),
+	'sound.playOn.transcriptionComplete': z.boolean(),
+	'sound.playOn.transformationComplete': z.boolean(),
 
 	'transcription.clipboard.copyOnSuccess': z.boolean(),
 	'transcription.clipboard.pasteOnSuccess': z.boolean(),
@@ -97,27 +92,17 @@ export const settingsV6Schema = z.object({
 	'apiKeys.google': z.string(),
 	'apiKeys.elevenlabs': z.string(),
 
-	...({
-		'shortcuts.local.toggleManualRecording': z.string().nullable(),
-		'shortcuts.local.cancelManualRecording': z.string().nullable(),
-		// REMOVED: 'shortcuts.local.closeManualRecordingSession': z.string().nullable(),
-		'shortcuts.local.toggleVadRecording': z.string().nullable(),
-		'shortcuts.local.pushToTalk': z.string().nullable(),
-	} satisfies Record<
-		`shortcuts.local.${Command['id']}`,
-		z.ZodNullable<ZodString>
-	>),
+	'shortcuts.local.toggleManualRecording': z.string().nullable(),
+	'shortcuts.local.cancelManualRecording': z.string().nullable(),
+	// REMOVED: 'shortcuts.local.closeManualRecordingSession': z.string().nullable(),
+	'shortcuts.local.toggleVadRecording': z.string().nullable(),
+	'shortcuts.local.pushToTalk': z.string().nullable(),
 
-	...({
-		'shortcuts.global.toggleManualRecording': z.string().nullable(),
-		'shortcuts.global.cancelManualRecording': z.string().nullable(),
-		// REMOVED: 'shortcuts.global.closeManualRecordingSession': z.string().nullable(),
-		'shortcuts.global.toggleVadRecording': z.string().nullable(),
-		'shortcuts.global.pushToTalk': z.string().nullable(),
-	} satisfies Record<
-		`shortcuts.global.${Command['id']}`,
-		z.ZodNullable<ZodString>
-	>),
+	'shortcuts.global.toggleManualRecording': z.string().nullable(),
+	'shortcuts.global.cancelManualRecording': z.string().nullable(),
+	// REMOVED: 'shortcuts.global.closeManualRecordingSession': z.string().nullable(),
+	'shortcuts.global.toggleVadRecording': z.string().nullable(),
+	'shortcuts.global.pushToTalk': z.string().nullable(),
 });
 
 export type SettingsV6 = z.infer<typeof settingsV6Schema>;
