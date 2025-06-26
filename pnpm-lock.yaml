@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
+      '@types/node':
+        specifier: ^22.15.32
+        version: 22.15.32
       concurrently:
         specifier: latest
         version: 9.2.0

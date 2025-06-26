@@ -17,6 +17,7 @@
 	"packageManager": "pnpm@10.11.0",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.15.32",
 		"concurrently": "latest",
 		"turbo": "latest"
 	}
