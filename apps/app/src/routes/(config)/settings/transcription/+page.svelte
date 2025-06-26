@@ -1,9 +1,6 @@
 <script lang="ts">
-	import CopyableCode from '$lib/components/copyable/CopyableInlineCode.svelte';
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import { ClipboardIcon } from '$lib/components/icons';
-	import { CheckIcon } from 'lucide-svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
@@ -23,6 +20,7 @@
 		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { CheckIcon } from 'lucide-svelte';
 </script>
 
 <svelte:head>
