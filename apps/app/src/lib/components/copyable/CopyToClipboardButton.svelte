@@ -35,14 +35,6 @@
 	} & Pick<Props, 'disabled' | 'variant' | 'size'> = $props();
 
 	let hasCopied = $state(false);
-
-	$effect(() => {
-		if (hasCopied) {
-			setTimeout(() => {
-				hasCopied = false;
-			}, 2000);
-		}
-	});
 </script>
 
 <WhisperingButton
@@ -53,6 +45,9 @@
 			{
 				onSuccess: () => {
 					hasCopied = true;
+					setTimeout(() => {
+						hasCopied = false;
+					}, 2000);
 					toast.success({
 						title: `Copied ${contentName} to clipboard!`,
 						description: copyableText,
