@@ -10,13 +10,44 @@
 	import { createMutation } from '@tanstack/svelte-query';
 	import { toast } from '$lib/toast';
 
+	/**
+	 * Props for the CopyableTextDialog component.
+	 *
+	 * @example
+	 * ```svelte
+	 * <CopyableTextDialog
+	 *   id="transcription-1"
+	 *   title="Transcribed Text"
+	 *   text={transcriptionResult}
+	 *   label="transcription"
+	 *   rows={3}
+	 * />
+	 * ```
+	 *
+	 * @example
+	 * ```svelte
+	 * <CopyableTextDialog
+	 *   id="error-1"
+	 *   title="Transformation Error"
+	 *   text={errorMessage}
+	 *   label="error details"
+	 * />
+	 * ```
+	 */
 	let {
+		/** Unique identifier for the dialog trigger element */
 		id,
+		/** The title displayed in the dialog header (capitalized) */
+		title,
+		/** The text content to display and copy */
 		text,
+		/** Label used for tooltips and accessibility (lowercase) */
 		label,
+		/** Number of rows for the preview textarea */
 		rows = 2,
 	}: {
 		id: string;
+		title: string;
 		text: string;
 		label: string;
 		rows?: number;
@@ -48,7 +79,7 @@
 		{/snippet}
 	</Dialog.Trigger>
 	<Dialog.Content class="max-w-4xl">
-		<Card.Title class="text-lg">Transcribed Text</Card.Title>
+		<Card.Title class="text-lg">{title}</Card.Title>
 		<Textarea readonly value={text} rows={20} />
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>
@@ -63,13 +94,13 @@
 							onSuccess: () => {
 								isDialogOpen = false;
 								toast.success({
-									title: `Copied transcribed text to clipboard!`,
+									title: `Copied ${title.toLowerCase()} to clipboard!`,
 									description: text,
 								});
 							},
 							onError: (error) => {
 								toast.error({
-									title: `Error copying transcribed text to clipboard`,
+									title: `Error copying ${title.toLowerCase()} to clipboard`,
 									description: error.message,
 									action: { type: 'more-details', error },
 								});

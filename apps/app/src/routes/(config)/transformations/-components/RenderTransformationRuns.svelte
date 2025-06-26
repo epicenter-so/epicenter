@@ -140,27 +140,30 @@
 																		stepRunId: stepRun.id,
 																		propertyName: 'input',
 																	})}
-																	label="Input"
+																	title="Step Input"
+																	label="step input"
 																	text={stepRun.input}
 																/>
 															</Table.Cell>
 															<Table.Cell>
-																{#if stepRun.output}
+																{#if stepRun.status === 'completed'}
 																	<CopyableTextDialog
 																		id={getTransformationStepRunTransitionId({
 																			stepRunId: stepRun.id,
 																			propertyName: 'output',
 																		})}
-																		label="Output"
+																		title="Step Output"
+																		label="step output"
 																		text={stepRun.output}
 																	/>
-																{:else if stepRun.error}
+																{:else if stepRun.status === 'failed'}
 																	<CopyableTextDialog
 																		id={getTransformationStepRunTransitionId({
 																			stepRunId: stepRun.id,
 																			propertyName: 'error',
 																		})}
-																		label="Error"
+																		title="Step Error"
+																		label="step error"
 																		text={stepRun.error}
 																	/>
 																{/if}

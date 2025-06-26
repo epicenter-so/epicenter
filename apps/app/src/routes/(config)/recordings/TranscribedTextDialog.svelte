@@ -20,7 +20,8 @@
 
 <CopyableTextDialog
 	{id}
-	label="Transcribed Text"
+	title="Transcribed Text"
+	label="transcribed text"
 	text={transcribedText}
 	{rows}
 />

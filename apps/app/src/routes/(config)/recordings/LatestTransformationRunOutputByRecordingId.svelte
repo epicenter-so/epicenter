@@ -30,17 +30,24 @@
 		<Skeleton class="h-3" />
 	</div>
 {:else if latestTransformationRunByRecordingIdQuery.error}
-	<div class="text-destructive text-sm">
-		{latestTransformationRunByRecordingIdQuery.error.message}
-	</div>
+	<CopyableTextDialog
+		{id}
+		title="Query Error"
+		label="query error"
+		text={latestTransformationRunByRecordingIdQuery.error.message}
+	/>
 {:else if latestTransformationRunByRecordingIdQuery.data?.status === 'failed'}
-	<div class="text-destructive text-sm">
-		{latestTransformationRunByRecordingIdQuery.data.error}
-	</div>
+	<CopyableTextDialog
+		{id}
+		title="Transformation Error"
+		label="transformation error"
+		text={latestTransformationRunByRecordingIdQuery.data.error}
+	/>
 {:else if latestTransformationRunByRecordingIdQuery.data?.status === 'completed'}
 	<CopyableTextDialog
 		{id}
-		label="Latest Transformation Run Output"
+		title="Transformation Output"
+		label="transformation output"
 		text={latestTransformationRunByRecordingIdQuery.data.output}
 	/>
 {/if}
