@@ -158,12 +158,6 @@ export const GROQ_MODELS = [
 	'distil-whisper-large-v3-en',
 ] as const;
 
-// TODO: Remove this in favor of inline map options
-export const GROQ_MODELS_OPTIONS = GROQ_MODELS.map((model) => ({
-	value: model,
-	label: model,
-}));
-
 export const OPENAI_TRANSCRIPTION_MODELS = [
 	'whisper-1',
 	'gpt-4o-transcribe',

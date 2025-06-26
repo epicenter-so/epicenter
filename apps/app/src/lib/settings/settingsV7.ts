@@ -1,17 +1,14 @@
-import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { Command } from '$lib/commands';
 import {
 	ALWAYS_ON_TOP_VALUES,
 	BITRATE_VALUES_KBPS,
 	DEFAULT_BITRATE_KBPS,
-	ELEVENLABS_TRANSCRIPTION_MODELS,
-	GROQ_MODELS,
-	OPENAI_TRANSCRIPTION_MODELS,
 	RECORDING_MODES,
 	SUPPORTED_LANGUAGES,
 	TRANSCRIPTION_SERVICE_IDS,
 	type WhisperingSoundNames,
 } from '$lib/constants';
+import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { SettingsV6 } from './settingsV6';
 
 export const settingsV7Schema = z.object({
@@ -69,18 +66,21 @@ export const settingsV7Schema = z.object({
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	'transcription.selectedTranscriptionService': z.enum(
-		TRANSCRIPTION_SERVICE_IDS,
-	),
+	'transcription.selectedTranscriptionService': z.enum([
+		'OpenAI',
+		'Groq',
+		'faster-whisper-server',
+		'ElevenLabs',
+	]),
 	// Shared settings in transcription
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES),
 	'transcription.prompt': z.string(),
 	'transcription.temperature': z.string(),
 
 	// Service-specific settings
-	'transcription.openai.model': z.enum(OPENAI_TRANSCRIPTION_MODELS),
-	'transcription.elevenlabs.model': z.enum(ELEVENLABS_TRANSCRIPTION_MODELS),
-	'transcription.groq.model': z.enum(GROQ_MODELS),
+	'transcription.openai.model': z.string(),
+	'transcription.elevenlabs.model': z.string(),
+	'transcription.groq.model': z.string(),
 	'transcription.fasterWhisperServer.serverUrl': z.string(),
 	'transcription.fasterWhisperServer.serverModel': z.string(),
 
