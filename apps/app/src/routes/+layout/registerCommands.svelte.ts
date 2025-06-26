@@ -76,10 +76,43 @@ export async function syncGlobalShortcutsWithSettings() {
 }
 
 /**
+ * Checks if any local shortcuts are duplicated and resets all to defaults if duplicates found.
+ * Returns true if duplicates were found and reset, false otherwise.
+ */
+export function resetLocalShortcutsToDefaultIfDuplicates(): boolean {
+	const localShortcuts = new Map<string, string>();
+
+	// Check for duplicates
+	for (const command of commands) {
+		const shortcut = settings.value[`shortcuts.local.${command.id}`];
+		if (shortcut) {
+			if (localShortcuts.has(shortcut)) {
+				// If duplicates found, reset all local shortcuts to defaults
+				resetShortcutsToDefaults('local');
+				toast.success({
+					title: 'Shortcuts reset',
+					description:
+						'Duplicate local shortcuts detected. All local shortcuts have been reset to defaults.',
+					action: {
+						type: 'link',
+						label: 'Configure shortcuts',
+						goto: '/settings/shortcuts/local',
+					},
+				});
+
+				return true;
+			}
+			localShortcuts.set(shortcut, command.id);
+		}
+	}
+	return false;
+}
+
+/**
  * Checks if any global shortcuts are duplicated and resets all to defaults if duplicates found.
  * Returns true if duplicates were found and reset, false otherwise.
  */
-export function resetShortcutsDoDefaultIfDuplicates(): boolean {
+export function resetGlobalShortcutsToDefaultIfDuplicates(): boolean {
 	const globalShortcuts = new Map<string, string>();
 
 	// Check for duplicates

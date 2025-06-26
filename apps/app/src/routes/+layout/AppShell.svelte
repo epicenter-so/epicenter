@@ -20,7 +20,8 @@
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { mockCheck, shouldUseMockUpdates } from './mock-check';
 	import {
-		resetShortcutsDoDefaultIfDuplicates,
+		resetGlobalShortcutsToDefaultIfDuplicates,
+		resetLocalShortcutsToDefaultIfDuplicates,
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
 	} from './registerCommands.svelte';
@@ -35,9 +36,10 @@
 		window.commands = commandCallbacks;
 		window.goto = goto;
 		syncLocalShortcutsWithSettings();
+		resetLocalShortcutsToDefaultIfDuplicates();
 		if (window.__TAURI_INTERNALS__) {
 			syncGlobalShortcutsWithSettings();
-			resetShortcutsDoDefaultIfDuplicates();
+			resetGlobalShortcutsToDefaultIfDuplicates();
 			checkForUpdates();
 		} else {
 			// const _notifyWhisperingTabReadyResult =
