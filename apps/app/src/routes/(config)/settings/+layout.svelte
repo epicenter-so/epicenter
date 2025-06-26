@@ -66,7 +66,7 @@
 		<aside class="lg:w-1/6">
 			<SidebarNav />
 		</aside>
-		<div class="flex-1 lg:max-w-2xl">
+		<div class="flex-1 lg:max-w-3xl">
 			{@render children()}
 		</div>
 	</div>
