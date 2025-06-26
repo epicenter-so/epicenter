@@ -172,7 +172,7 @@ export const ELEVENLABS_TRANSCRIPTION_MODELS = [
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'OpenAI',
 	'Groq',
-	'faster-whisper-server',
+	'speaches',
 	'ElevenLabs',
 ] as const;
 
@@ -233,10 +233,10 @@ export const TRANSCRIPTION_SERVICES = [
 		type: 'api',
 	},
 	{
-		id: 'faster-whisper-server',
-		name: 'Faster Whisper Server',
+		id: 'speaches',
+		name: 'Speaches',
 		icon: ServerIcon,
-		serverUrlField: 'transcription.fasterWhisperServer.serverUrl',
+		serverUrlField: 'transcription.speaches.baseUrl',
 		type: 'server',
 	},
 ] as const satisfies SatisfiedTranscriptionService[];

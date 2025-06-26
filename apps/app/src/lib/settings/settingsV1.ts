@@ -93,7 +93,7 @@ export const getDefaultSettingsV1 = () =>
 
 		'transcription.fasterWhisperServer.serverUrl': 'http://localhost:8000',
 		'transcription.fasterWhisperServer.serverModel':
-			'Systran/faster-whisper-medium.en',
+			'Systran/faster-distil-whisper-small.en',
 
 		'transformations.selectedTransformationId': null,
 

@@ -5,6 +5,7 @@ export * from './settingsV4';
 export * from './settingsV5';
 export * from './settingsV6';
 export * from './settingsV7';
+export * from './settingsV8';
 
-export type { SettingsV7 as Settings } from './settingsV7';
-export { settingsV7Schema as settingsSchema } from './settingsV7';
+export type { SettingsV8 as Settings } from './settingsV8';
+export { settingsV8Schema as settingsSchema } from './settingsV8';

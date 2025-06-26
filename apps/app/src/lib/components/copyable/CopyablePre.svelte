@@ -42,7 +42,7 @@
 	<pre class={copyableVariants({ variant })}>
 {copyableText}
 	<CopyToClipboardButton
-			class="absolute right-4 top-4"
+			class="absolute right-4 top-1/2 -translate-y-1/2"
 			contentName={variant === 'code' ? 'code' : 'transcribed text'}
 			{copyableText}></CopyToClipboardButton>
 </pre>

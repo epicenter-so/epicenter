@@ -1,8 +1,8 @@
+import type { HttpService } from '$lib/services/http';
 import { getExtensionFromAudioBlob } from '$lib/utils';
 import { Err, Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
 import { z } from 'zod';
-import type { HttpService } from '$lib/services/http';
 import type { TranscriptionService, TranscriptionServiceError } from '..';
 
 const whisperApiResponseSchema = z.union([
@@ -12,42 +12,20 @@ const whisperApiResponseSchema = z.union([
 
 const MAX_FILE_SIZE_MB = 25 as const;
 
-export function createWhisperService({
+export function createSpeachesTranscriptionService({
 	HttpService,
-	modelName,
-	postConfig,
-	preValidate,
-	errorTitle,
+	modelId,
+	baseUrl,
 }: {
 	HttpService: HttpService;
-	modelName: string;
-	postConfig: { url: string; headers?: Record<string, string> };
-	preValidate: () => Promise<
-		Ok<undefined> | Err<TranscriptionServiceError | WhisperingError>
-	>;
-	errorTitle: string;
+	modelId: string;
+	baseUrl: string;
 }): TranscriptionService {
 	return {
 		transcribe: async (
 			audioBlob,
 			options,
 		): Promise<Result<string, TranscriptionServiceError | WhisperingError>> => {
-			const { error: validationError } = await preValidate();
-			if (validationError) {
-				return Err(validationError);
-			}
-
-			const blobSizeInMb = audioBlob.size / (1024 * 1024);
-			if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-				return Err({
-					name: 'WhisperingError',
-					title: `The file size (${blobSizeInMb}MB) is too large`,
-					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-					context: {},
-					cause: undefined,
-				});
-			}
-
 			const formData = new FormData();
 			formData.append(
 				'file',
@@ -57,7 +35,7 @@ export function createWhisperService({
 					{ type: audioBlob.type },
 				),
 			);
-			formData.append('model', modelName);
+			formData.append('model', modelId);
 			if (options.outputLanguage !== 'auto') {
 				formData.append('language', options.outputLanguage);
 			}
@@ -67,9 +45,9 @@ export function createWhisperService({
 
 			const { data: whisperApiResponse, error: postError } =
 				await HttpService.post({
-					url: postConfig.url,
+					url: `${baseUrl}/v1/audio/transcriptions`,
 					body: formData,
-					headers: postConfig.headers,
+					headers: undefined, // No headers needed for Speaches
 					schema: whisperApiResponseSchema,
 				});
 
@@ -88,7 +66,7 @@ export function createWhisperService({
 					}
 
 					case 'ResponseError': {
-						const { status } = postError;
+						const { status, message } = postError;
 
 						if (status === 401) {
 							return Err({
@@ -147,8 +125,7 @@ export function createWhisperService({
 							return Err({
 								name: 'WhisperingError',
 								title: '⏱️ Rate Limit Reached',
-								description:
-									"You're making requests faster than allowed. Please wait about 30 seconds before trying again, or consider upgrading for higher limits.",
+								description: message,
 								action: { type: 'more-details', error: postError.cause },
 								context: {},
 								cause: postError,
@@ -203,7 +180,7 @@ export function createWhisperService({
 			if ('error' in whisperApiResponse) {
 				return Err({
 					name: 'WhisperingError',
-					title: errorTitle,
+					title: '🔧 Speaches Connection Issue',
 					description: whisperApiResponse.error.message,
 					context: {},
 					cause: undefined,
