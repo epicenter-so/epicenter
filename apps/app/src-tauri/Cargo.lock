@@ -5681,7 +5681,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 
 [[package]]
 name = "whispering"
-version = "6.5.0"
+version = "7.0.0"
 dependencies = [
  "accessibility-sys",
  "core-foundation-sys",
