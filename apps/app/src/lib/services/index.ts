@@ -9,7 +9,7 @@ import { NavigatorRecorderServiceLive } from './manual-recorder';
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';
-import { TranscriptionServiceLive } from './transcription';
+import * as transcriptions from './transcription';
 import { TransformerServiceLive } from './transformer';
 import { VadServiceLive } from './vad';
 
@@ -28,7 +28,7 @@ export {
 	OsServiceLive as os,
 	SetTrayIconServiceLive as setTrayIcon,
 	PlaySoundServiceLive as sound,
-	TranscriptionServiceLive as transcription,
+	transcriptions,
 	TransformerServiceLive as transformer,
 	VadServiceLive as vad,
 };

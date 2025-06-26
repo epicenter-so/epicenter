@@ -1,20 +1,22 @@
-import { Err, Ok } from '@epicenterhq/result';
+import type { ElevenLabsModel } from '$lib/constants';
 import type { WhisperingError } from '$lib/result';
+import type { Settings } from '$lib/settings';
+import { Err, Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { ElevenLabsClient } from 'elevenlabs';
-import type { TranscriptionService } from '.';
 
-type ModelName = 'scribe_v1';
-
-export function createElevenLabsTranscriptionService({
-	apiKey,
-	modelName = 'scribe_v1',
-}: {
-	apiKey: string;
-	modelName?: ModelName;
-}): TranscriptionService {
+export function createElevenLabsTranscriptionService() {
 	return {
-		transcribe: async (audioBlob, options) => {
-			if (!apiKey) {
+		transcribe: async (
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				apiKey: string;
+				model: (string & {}) | ElevenLabsModel;
+			},
+		): Promise<Result<string, WhisperingError>> => {
+			if (!options.apiKey) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 API Key Required',
@@ -32,7 +34,7 @@ export function createElevenLabsTranscriptionService({
 
 			try {
 				const client = new ElevenLabsClient({
-					apiKey,
+					apiKey: options.apiKey,
 				});
 
 				// Check file size
@@ -52,7 +54,7 @@ export function createElevenLabsTranscriptionService({
 				// Use the client's speechToText functionality
 				const transcription = await client.speechToText.convert({
 					file: audioBlob,
-					model_id: modelName,
+					model_id: options.model,
 					// Map outputLanguage if not set to 'auto'
 					language_code:
 						options.outputLanguage !== 'auto'
@@ -78,3 +80,10 @@ export function createElevenLabsTranscriptionService({
 		},
 	};
 }
+
+export type ElevenLabsTranscriptionService = ReturnType<
+	typeof createElevenLabsTranscriptionService
+>;
+
+export const elevenlabsTranscriptionServiceLive =
+	createElevenLabsTranscriptionService();

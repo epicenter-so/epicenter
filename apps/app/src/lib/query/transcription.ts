@@ -1,7 +1,6 @@
 import type { Recording } from '$lib/services/db';
 import * as services from '$lib/services';
 import { toast } from '$lib/toast';
-import type { TranscriptionServiceError } from '$lib/services/transcription';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, partitionResults } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
@@ -25,7 +24,7 @@ export const transcription = {
 		mutationKey: transcriptionKeys.isTranscribing,
 		resultMutationFn: async (
 			recording: Recording,
-		): Promise<Result<string, WhisperingError | TranscriptionServiceError>> => {
+		): Promise<Result<string, WhisperingError>> => {
 			if (!recording.blob) {
 				return Err({
 					name: 'WhisperingError',
@@ -117,10 +116,44 @@ export const transcription = {
 	}),
 };
 
-function transcribeBlob(blob: Blob) {
-	return services.transcription().transcribe(blob, {
-		outputLanguage: settings.value['transcription.outputLanguage'],
-		prompt: settings.value['transcription.prompt'],
-		temperature: settings.value['transcription.temperature'],
-	});
+async function transcribeBlob(
+	blob: Blob,
+): Promise<Result<string, WhisperingError>> {
+	const selectedService =
+		settings.value['transcription.selectedTranscriptionService'];
+
+	switch (selectedService) {
+		case 'OpenAI':
+			return services.transcriptions.openai.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.openai'],
+				model: settings.value['transcription.openai.model'],
+			});
+		case 'Groq':
+			return services.transcriptions.groq.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.groq'],
+				model: settings.value['transcription.groq.model'],
+			});
+		case 'speaches':
+			return services.transcriptions.speaches.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				modelId: settings.value['transcription.speaches.modelId'],
+				baseUrl: settings.value['transcription.speaches.baseUrl'],
+			});
+		case 'ElevenLabs':
+			return services.transcriptions.elevenlabs.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.elevenlabs'],
+				model: settings.value['transcription.elevenlabs.model'],
+			});
+	}
 }

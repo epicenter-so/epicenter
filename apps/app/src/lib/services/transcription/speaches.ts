@@ -1,31 +1,31 @@
-import type { HttpService } from '$lib/services/http';
-import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, type Result } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
+import type { HttpService } from '$lib/services/http';
+import type { Settings } from '$lib/settings';
+import { getExtensionFromAudioBlob } from '$lib/utils';
+import { Err, Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { z } from 'zod';
-import type { TranscriptionService, TranscriptionServiceError } from '.';
 
 const whisperApiResponseSchema = z.union([
 	z.object({ text: z.string() }),
 	z.object({ error: z.object({ message: z.string() }) }),
 ]);
 
-const MAX_FILE_SIZE_MB = 25 as const;
-
 export function createSpeachesTranscriptionService({
 	HttpService,
-	modelId,
-	baseUrl,
 }: {
 	HttpService: HttpService;
-	modelId: string;
-	baseUrl: string;
-}): TranscriptionService {
+}) {
 	return {
 		transcribe: async (
-			audioBlob,
-			options,
-		): Promise<Result<string, TranscriptionServiceError | WhisperingError>> => {
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				modelId: string;
+				baseUrl: string;
+			},
+		): Promise<Result<string, WhisperingError>> => {
 			const formData = new FormData();
 			formData.append(
 				'file',
@@ -35,7 +35,7 @@ export function createSpeachesTranscriptionService({
 					{ type: audioBlob.type },
 				),
 			);
-			formData.append('model', modelId);
+			formData.append('model', options.modelId);
 			if (options.outputLanguage !== 'auto') {
 				formData.append('language', options.outputLanguage);
 			}
@@ -45,7 +45,7 @@ export function createSpeachesTranscriptionService({
 
 			const { data: whisperApiResponse, error: postError } =
 				await HttpService.post({
-					url: `${baseUrl}/v1/audio/transcriptions`,
+					url: `${options.baseUrl}/v1/audio/transcriptions`,
 					body: formData,
 					headers: undefined, // No headers needed for Speaches
 					schema: whisperApiResponseSchema,
@@ -191,3 +191,14 @@ export function createSpeachesTranscriptionService({
 		},
 	};
 }
+
+export type SpeachesTranscriptionService = ReturnType<
+	typeof createSpeachesTranscriptionService
+>;
+
+import { HttpServiceLive } from '$lib/services/http';
+
+export const speachesTranscriptionServiceLive =
+	createSpeachesTranscriptionService({
+		HttpService: HttpServiceLive,
+	});

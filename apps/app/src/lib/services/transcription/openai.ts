@@ -1,22 +1,32 @@
-import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
 import type { WhisperingError } from '$lib/result';
-import type { TranscriptionService } from '.';
+import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
+import {
+	Err,
+	Ok,
+	type Result,
+	type TaggedError,
+	tryAsync,
+	trySync,
+} from '@epicenterhq/result';
 import OpenAI from 'openai';
 
 const MAX_FILE_SIZE_MB = 25 as const;
 
-export function createOpenaiTranscriptionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): TranscriptionService {
-	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createOpenaiTranscriptionService() {
 	return {
-		async transcribe(audioBlob, options) {
+		async transcribe(
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				apiKey: string;
+				model: (string & {}) | OpenAI.Audio.AudioModel;
+			},
+		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
-			if (!apiKey) {
+			if (!options.apiKey) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 API Key Required',
@@ -32,7 +42,7 @@ export function createOpenaiTranscriptionService({
 				} satisfies WhisperingError);
 			}
 
-			if (!apiKey.startsWith('sk-')) {
+			if (!options.apiKey.startsWith('sk-')) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 Invalid API Key Format',
@@ -84,9 +94,12 @@ export function createOpenaiTranscriptionService({
 			// Call OpenAI API
 			const { data: transcription, error: openaiApiError } = await tryAsync({
 				try: () =>
-					client.audio.transcriptions.create({
+					new OpenAI({
+						apiKey: options.apiKey,
+						dangerouslyAllowBrowser: true,
+					}).audio.transcriptions.create({
 						file,
-						model: 'whisper-1',
+						model: options.model,
 						language:
 							options.outputLanguage !== 'auto'
 								? options.outputLanguage
@@ -271,3 +284,10 @@ export function createOpenaiTranscriptionService({
 		},
 	};
 }
+
+export type OpenaiTranscriptionService = ReturnType<
+	typeof createOpenaiTranscriptionService
+>;
+
+export const openaiTranscriptionServiceLive =
+	createOpenaiTranscriptionService();

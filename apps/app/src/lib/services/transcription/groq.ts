@@ -1,48 +1,34 @@
+import type { GroqModel } from '$lib/constants';
 import type { WhisperingError } from '$lib/result';
+import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync, trySync, type Result } from '@epicenterhq/result';
-import type { TranscriptionService, TranscriptionServiceError } from '.';
+import {
+	Err,
+	Ok,
+	type Result,
+	type TaggedError,
+	tryAsync,
+	trySync,
+} from '@epicenterhq/result';
 
 import Groq from 'groq-sdk';
 
-type ModelName =
-	/**
-	 * Best accuracy (10.3% WER) and full multilingual support, including translation.
-	 * Recommended for error-sensitive applications requiring multilingual support.
-	 * Cost: $0.111/hour
-	 */
-	| 'whisper-large-v3'
-	/**
-	 * Fast multilingual model with good accuracy (12% WER).
-	 * Best price-to-performance ratio for multilingual applications.
-	 * Cost: $0.04/hour, 216x real-time processing
-	 */
-	| 'whisper-large-v3-turbo'
-	/**
-	 * Fastest and most cost-effective model, but English-only.
-	 * Recommended for English transcription where speed and cost are priorities.
-	 * Cost: $0.02/hour, 250x real-time processing, 13% WER
-	 */
-	| 'distil-whisper-large-v3-en';
-
 const MAX_FILE_SIZE_MB = 25 as const;
 
-export function createGroqTranscriptionService({
-	apiKey,
-	modelName,
-}: {
-	apiKey: string;
-	modelName: ModelName;
-}): TranscriptionService {
-	const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createGroqTranscriptionService() {
 	return {
 		async transcribe(
-			audioBlob,
-			options,
-		): Promise<Result<string, TranscriptionServiceError | WhisperingError>> {
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				apiKey: string;
+				model: (string & {}) | GroqModel;
+			},
+		): Promise<Result<string, WhisperingError>> {
 			// Pre-validate API key
-			if (!apiKey) {
+			if (!options.apiKey) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 API Key Required',
@@ -57,7 +43,7 @@ export function createGroqTranscriptionService({
 				} satisfies WhisperingError);
 			}
 
-			if (!apiKey.startsWith('gsk_')) {
+			if (!options.apiKey.startsWith('gsk_')) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 Invalid API Key Format',
@@ -110,9 +96,12 @@ export function createGroqTranscriptionService({
 			// Make the transcription request
 			const { data: transcription, error: groqApiError } = await tryAsync({
 				try: () =>
-					client.audio.transcriptions.create({
+					new Groq({
+						apiKey: options.apiKey,
+						dangerouslyAllowBrowser: true,
+					}).audio.transcriptions.create({
 						file,
-						model: modelName,
+						model: options.model,
 						language:
 							options.outputLanguage === 'auto'
 								? undefined
@@ -268,3 +257,9 @@ export function createGroqTranscriptionService({
 		},
 	};
 }
+
+export type GroqTranscriptionService = ReturnType<
+	typeof createGroqTranscriptionService
+>;
+
+export const groqTranscriptionServiceLive = createGroqTranscriptionService();
