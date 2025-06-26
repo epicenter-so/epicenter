@@ -51,6 +51,9 @@ export function createGlobalShortcutManager() {
 		}): Promise<
 			Result<void, InvalidAcceleratorError | GlobalShortcutServiceError>
 		> {
+			const { error: unregisterError } = await this.unregister(accelerator);
+			if (unregisterError) return Err(unregisterError);
+
 			if (!isValidElectronAccelerator(accelerator)) {
 				return Err({
 					name: 'InvalidAcceleratorError',
