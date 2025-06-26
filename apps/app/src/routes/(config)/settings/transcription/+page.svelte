@@ -1,6 +1,9 @@
 <script lang="ts">
 	import CopyableCode from '$lib/components/copyable/CopyableInlineCode.svelte';
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
+	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import { ClipboardIcon } from '$lib/components/icons';
+	import { CheckIcon } from 'lucide-svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
@@ -85,7 +88,9 @@
 				<Card.Header>
 					<Card.Title class="text-lg">Speaches Setup</Card.Title>
 					<Card.Description>
-						Install Speaches server and configure Whispering. Speaches is the successor to faster-whisper-server with improved features and active development.
+						Install Speaches server and configure Whispering. Speaches is the
+						successor to faster-whisper-server with improved features and active
+						development.
 					</Card.Description>
 				</Card.Header>
 				<Card.Content class="space-y-6">
@@ -110,7 +115,8 @@
 					<div class="space-y-4">
 						<div>
 							<p class="text-sm font-medium">
-								<span class="text-muted-foreground">Step 1:</span> Install Speaches server
+								<span class="text-muted-foreground">Step 1:</span> Install Speaches
+								server
 							</p>
 							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
 								<li class="list-disc">
@@ -126,18 +132,18 @@
 									</Button>
 								</li>
 								<li class="list-disc">
-									Choose CUDA, CUDA with CDI, or CPU variant depending on your system
+									Choose CUDA, CUDA with CDI, or CPU variant depending on your
+									system
 								</li>
 							</ul>
 						</div>
 
 						<div>
 							<p class="text-sm font-medium mb-2">
-								<span class="text-muted-foreground">Step 2:</span> Start Speaches container
+								<span class="text-muted-foreground">Step 2:</span> Start Speaches
+								container
 							</p>
 							<CopyablePre
-								label="docker compose up --detach"
-								hideLabel
 								copyableText="docker compose up --detach"
 								variant="code"
 							/>
@@ -145,7 +151,8 @@
 
 						<div>
 							<p class="text-sm font-medium">
-								<span class="text-muted-foreground">Step 3:</span> Download a speech recognition model
+								<span class="text-muted-foreground">Step 3:</span> Download a speech
+								recognition model
 							</p>
 							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
 								<li class="list-disc">
@@ -166,8 +173,6 @@
 							</ul>
 							<div class="mt-2">
 								<CopyablePre
-									label="uvx speaches-cli model download Systran/faster-distil-whisper-small.en"
-									hideLabel
 									copyableText="uvx speaches-cli model download Systran/faster-distil-whisper-small.en"
 									variant="code"
 								/>
@@ -176,7 +181,8 @@
 
 						<div>
 							<p class="text-sm font-medium">
-								<span class="text-muted-foreground">Step 4:</span> Configure the settings below
+								<span class="text-muted-foreground">Step 4:</span> Configure the
+								settings below
 							</p>
 							<ul class="ml-6 mt-2 space-y-1 text-sm text-muted-foreground">
 								<li class="list-disc">Enter your Speaches server URL</li>
@@ -202,9 +208,22 @@
 		>
 			{#snippet description()}
 				<p class="text-muted-foreground text-sm">
-					The URL where your Speaches server is running (<code>SPEACHES_BASE_URL</code>), typically <CopyableCode
-						copyableText="http://localhost:8000"
-					/>
+					The URL where your Speaches server is running (<code>
+						SPEACHES_BASE_URL
+					</code>), typically
+					<CopyToClipboardButton
+						contentDescription="speaches base url"
+						textToCopy="http://localhost:8000"
+						class="bg-muted rounded px-[0.3rem] py-[0.15rem] font-mono text-sm hover:bg-muted/80"
+						variant="ghost"
+						size="sm"
+					>
+						http://localhost:8000
+						{#snippet copiedContent()}
+							http://localhost:8000
+							<CheckIcon class="size-4" />
+						{/snippet}
+					</CopyToClipboardButton>
 				</p>
 			{/snippet}
 		</LabeledInput>
@@ -223,9 +242,20 @@
 		>
 			{#snippet description()}
 				<p class="text-muted-foreground text-sm">
-					The model you downloaded in step 3 (<code>MODEL_ID</code>), e.g. <CopyableCode
-						copyableText="Systran/faster-distil-whisper-small.en"
-					/>
+					The model you downloaded in step 3 (<code>MODEL_ID</code>), e.g.
+					<CopyToClipboardButton
+						contentDescription="speaches model id"
+						textToCopy="Systran/faster-distil-whisper-small.en"
+						class="bg-muted rounded px-[0.3rem] py-[0.15rem] font-mono text-sm hover:bg-muted/80"
+						variant="ghost"
+						size="sm"
+					>
+						Systran/faster-distil-whisper-small.en
+						{#snippet copiedContent()}
+							Systran/faster-distil-whisper-small.en
+							<CheckIcon class="size-4" />
+						{/snippet}
+					</CopyToClipboardButton>
 				</p>
 			{/snippet}
 		</LabeledInput>

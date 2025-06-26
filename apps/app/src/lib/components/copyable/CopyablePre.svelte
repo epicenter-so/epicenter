@@ -19,6 +19,7 @@
 
 <script lang="ts">
 	import { cn } from '$lib/utils';
+	import { ClipboardIcon } from '$lib/components/icons';
 	import CopyToClipboardButton from './CopyToClipboardButton.svelte';
 
 	const {
@@ -36,6 +37,9 @@
 {copyableText}
 	<CopyToClipboardButton
 		class="absolute right-4 top-1/2 -translate-y-1/2"
-		contentName={variant === 'code' ? 'code' : 'transcribed text'}
-		{copyableText}></CopyToClipboardButton>
+		contentDescription={variant === 'code' ? 'code' : 'transcribed text'}
+		textToCopy={copyableText}
+	>
+		<ClipboardIcon class="size-4" />
+	</CopyToClipboardButton>
 </pre>

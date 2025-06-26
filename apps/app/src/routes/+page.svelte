@@ -228,8 +228,8 @@
 				rows={1}
 			/>
 			<CopyToClipboardButton
-				contentName="transcribed text"
-				copyableText={latestRecording.transcribedText}
+				contentDescription="transcribed text"
+				textToCopy={latestRecording.transcribedText}
 				viewTransitionName={getRecordingTransitionId({
 					recordingId: latestRecording.id,
 					propertyName: 'transcribedText',
@@ -238,13 +238,11 @@
 				variant="secondary"
 				disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
 			>
-				{#snippet copyIcon()}
-					{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-						<Loader2Icon class="size-6 animate-spin" />
-					{:else}
-						<ClipboardIcon class="size-6" />
-					{/if}
-				{/snippet}
+				{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+					<Loader2Icon class="size-6 animate-spin" />
+				{:else}
+					<ClipboardIcon class="size-6" />
+				{/if}
 			</CopyToClipboardButton>
 		</div>
 
