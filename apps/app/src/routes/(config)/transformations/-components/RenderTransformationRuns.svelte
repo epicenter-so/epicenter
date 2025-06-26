@@ -81,19 +81,23 @@
 
 					{#if expandedRunId === run.id}
 						<Table.Row>
-							<Table.Cell class="space-y-4" colspan={4}>
+							<Table.Cell class="space-y-4 p-4" colspan={4}>
+								<Label class="text-sm font-medium">Input</Label>
 								<CopyablePre
 									variant="text"
 									copyableText={run.input}
 									label="Input"
 								/>
-								{#if run.output}
+
+								{#if run.status === 'completed'}
+									<Label class="text-sm font-medium">Output</Label>
 									<CopyablePre
 										variant="text"
 										copyableText={run.output}
 										label="Output"
 									/>
-								{:else if run.error}
+								{:else if run.status === 'failed'}
+									<Label class="text-sm font-medium">Error</Label>
 									<CopyablePre
 										variant="error"
 										copyableText={run.error}

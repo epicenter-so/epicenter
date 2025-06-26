@@ -1,7 +1,7 @@
 import { settings } from '$lib/stores/settings.svelte';
-import { createOpenaiTranscriptionService } from './whisper/openai';
-import { createGroqTranscriptionService } from './whisper/groq';
-import { createFasterWhisperServerTranscriptionService } from './whisper/fasterWhisperServer';
+import { createOpenaiTranscriptionService } from './openai';
+import { createGroqTranscriptionService } from './groq';
+import { createSpeachesTranscriptionService } from './whisper/speaches';
 import { createElevenLabsTranscriptionService } from './whisper/elevenlabs';
 import { HttpServiceLive } from '$lib/services/http';
 
@@ -12,24 +12,20 @@ export function TranscriptionServiceLive() {
 	switch (settings.value['transcription.selectedTranscriptionService']) {
 		case 'OpenAI': {
 			return createOpenaiTranscriptionService({
-				HttpService: HttpServiceLive,
 				apiKey: settings.value['apiKeys.openai'],
 			});
 		}
 		case 'Groq': {
 			return createGroqTranscriptionService({
-				HttpService: HttpServiceLive,
 				apiKey: settings.value['apiKeys.groq'],
 				modelName: settings.value['transcription.groq.model'],
 			});
 		}
-		case 'faster-whisper-server': {
-			return createFasterWhisperServerTranscriptionService({
+		case 'speaches': {
+			return createSpeachesTranscriptionService({
 				HttpService: HttpServiceLive,
-				serverModel:
-					settings.value['transcription.fasterWhisperServer.serverModel'],
-				serverUrl:
-					settings.value['transcription.fasterWhisperServer.serverUrl'],
+				modelId: settings.value['transcription.speaches.modelId'],
+				baseUrl: settings.value['transcription.speaches.baseUrl'],
 			});
 		}
 		case 'ElevenLabs': {

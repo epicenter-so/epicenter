@@ -26,12 +26,11 @@ export function generateDefaultTransformationStep(): TransformationStep {
 	return {
 		id: nanoid(),
 		type: 'prompt_transform',
-		'prompt_transform.inference.provider': 'Groq',
+		'prompt_transform.inference.provider': 'Google',
 		'prompt_transform.inference.provider.OpenAI.model': 'gpt-4o',
 		'prompt_transform.inference.provider.Groq.model': 'llama-3.3-70b-versatile',
-		'prompt_transform.inference.provider.Anthropic.model':
-			'claude-3-5-sonnet-latest',
-		'prompt_transform.inference.provider.Google.model': 'gemini-2.0-flash',
+		'prompt_transform.inference.provider.Anthropic.model': 'claude-sonnet-4-0',
+		'prompt_transform.inference.provider.Google.model': 'gemini-2.5-flash',
 
 		'prompt_transform.systemPromptTemplate': '',
 		'prompt_transform.userPromptTemplate': '',

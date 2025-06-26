@@ -4,7 +4,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import WhisperingTooltip from '$lib/components/WhisperingTooltip.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import { TrashIcon } from '$lib/components/icons';
+	import { TrashIcon, ClipboardIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import {
 		deliverTranscribedText,
@@ -195,13 +195,15 @@
 		/>
 
 		<CopyToClipboardButton
-			contentName="transcribed text"
-			copyableText={recording.transcribedText}
+			contentDescription="transcribed text"
+			textToCopy={recording.transcribedText}
 			viewTransitionName={getRecordingTransitionId({
 				recordingId,
 				propertyName: 'transcribedText',
 			})}
-		/>
+		>
+			<ClipboardIcon class="size-4" />
+		</CopyToClipboardButton>
 
 		{#if latestTransformationRunByRecordingIdQuery.isPending}
 			<Loader2Icon class="size-4 animate-spin" />
@@ -222,8 +224,8 @@
 			</WhisperingTooltip>
 		{:else}
 			<CopyToClipboardButton
-				contentName="latest transformation run output"
-				copyableText={latestTransformationRunByRecordingIdQuery.data?.status ===
+				contentDescription="latest transformation run output"
+				textToCopy={latestTransformationRunByRecordingIdQuery.data?.status ===
 				'completed'
 					? latestTransformationRunByRecordingIdQuery.data.output
 					: ''}
@@ -232,9 +234,7 @@
 					propertyName: 'latestTransformationRunOutput',
 				})}
 			>
-				{#snippet copyIcon()}
-					<FileStackIcon class="size-4" />
-				{/snippet}
+				<FileStackIcon class="size-4" />
 			</CopyToClipboardButton>
 		{/if}
 

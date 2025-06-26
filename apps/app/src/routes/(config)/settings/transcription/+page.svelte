@@ -1,26 +1,28 @@
 <script lang="ts">
+	import CopyableCode from '$lib/components/copyable/CopyableInlineCode.svelte';
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
+	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import { ClipboardIcon } from '$lib/components/icons';
+	import { CheckIcon } from 'lucide-svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
 		LabeledTextarea,
 	} from '$lib/components/labeled/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { settings } from '$lib/stores/settings.svelte';
-	import {
-		GROQ_MODELS_OPTIONS,
-		SUPPORTED_LANGUAGES_OPTIONS,
-		TRANSCRIPTION_SERVICE_OPTIONS,
-		WHISPERING_URL,
-	} from '$lib/constants';
 	import {
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
+	import {
+		GROQ_MODELS,
+		SUPPORTED_LANGUAGES_OPTIONS,
+		TRANSCRIPTION_SERVICE_OPTIONS,
+	} from '$lib/constants';
+	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
 <svelte:head>
@@ -56,7 +58,7 @@
 		<LabeledSelect
 			id="groq-model"
 			label="Groq Model"
-			items={GROQ_MODELS_OPTIONS}
+			items={GROQ_MODELS.map((model) => ({ value: model, label: model }))}
 			selected={settings.value['transcription.groq.model']}
 			onSelectedChange={(selected) => {
 				settings.value = {
@@ -80,87 +82,183 @@
 		<GroqApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
 		<ElevenLabsApiKeyInput />
-	{:else if settings.value['transcription.selectedTranscriptionService'] === 'faster-whisper-server'}
-		<Card.Root class="w-full">
-			<Card.Header>
-				<Card.Title class="text-xl">
-					How to setup local Whisper API with
-					<code
-						class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono font-semibold"
-					>
-						faster-whisper-server
-					</code>
-				</Card.Title>
-				<Card.Description class="leading-7">
-					<p>
-						Ensure Docker or an equivalent (e.g., Orbstack) is installed on your
-						computer.
-					</p>
-					<p>Then run the following command in terminal:</p>
-				</Card.Description>
-			</Card.Header>
-			<Card.Content>
-				<Tabs.Root value="cpu-mode">
-					<Tabs.List
-						class="w-full justify-start rounded-none border-b bg-transparent p-0"
-					>
-						<Tabs.Trigger
-							value="cpu-mode"
-							class="text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:text-foreground relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-semibold shadow-none transition-none data-[state=active]:shadow-none"
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'speaches'}
+		<div class="space-y-4">
+			<Card.Root>
+				<Card.Header>
+					<Card.Title class="text-lg">Speaches Setup</Card.Title>
+					<Card.Description>
+						Install Speaches server and configure Whispering. Speaches is the
+						successor to faster-whisper-server with improved features and active
+						development.
+					</Card.Description>
+				</Card.Header>
+				<Card.Content class="space-y-6">
+					<div class="flex gap-3">
+						<Button
+							href="https://speaches.ai/installation/"
+							target="_blank"
+							rel="noopener noreferrer"
 						>
-							CPU Mode
-						</Tabs.Trigger>
-						<Tabs.Trigger
-							value="gpu-mode"
-							class="text-muted-foreground data-[state=active]:border-b-primary data-[state=active]:text-foreground relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-semibold shadow-none transition-none data-[state=active]:shadow-none"
+							Installation Guide
+						</Button>
+						<Button
+							variant="outline"
+							href="https://speaches.ai/usage/speech-to-text/"
+							target="_blank"
+							rel="noopener noreferrer"
 						>
-							GPU Mode
-						</Tabs.Trigger>
-					</Tabs.List>
+							Speech-to-Text Setup
+						</Button>
+					</div>
 
-					<Tabs.Content value="cpu-mode">
-						<CopyablePre
-							variant="code"
-							label="For computers without CUDA support:"
-							copyableText={`docker run -e ALLOW_ORIGINS='["${WHISPERING_URL}"]' --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu`}
-						/>
-					</Tabs.Content>
-					<Tabs.Content value="gpu-mode">
-						<CopyablePre
-							variant="code"
-							label="For computers with CUDA support:"
-							copyableText={`docker run -e ALLOW_ORIGINS='["${WHISPERING_URL}"]' --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda`}
-						/>
-					</Tabs.Content>
-				</Tabs.Root>
-			</Card.Content>
-		</Card.Root>
+					<div class="space-y-4">
+						<div>
+							<p class="text-sm font-medium">
+								<span class="text-muted-foreground">Step 1:</span> Install Speaches
+								server
+							</p>
+							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
+								<li class="list-disc">
+									Download the necessary docker compose files from the <Button
+										variant="link"
+										size="sm"
+										class="px-0 h-auto underline"
+										href="https://speaches.ai/installation/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										installation guide
+									</Button>
+								</li>
+								<li class="list-disc">
+									Choose CUDA, CUDA with CDI, or CPU variant depending on your
+									system
+								</li>
+							</ul>
+						</div>
+
+						<div>
+							<p class="text-sm font-medium mb-2">
+								<span class="text-muted-foreground">Step 2:</span> Start Speaches
+								container
+							</p>
+							<CopyablePre
+								copyableText="docker compose up --detach"
+								variant="code"
+							/>
+						</div>
+
+						<div>
+							<p class="text-sm font-medium">
+								<span class="text-muted-foreground">Step 3:</span> Download a speech
+								recognition model
+							</p>
+							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
+								<li class="list-disc">
+									View available models in the <Button
+										variant="link"
+										size="sm"
+										class="px-0 h-auto underline"
+										href="https://speaches.ai/usage/speech-to-text/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										speech-to-text guide
+									</Button>
+								</li>
+								<li class="list-disc">
+									Run the following command to download a model:
+								</li>
+							</ul>
+							<div class="mt-2">
+								<CopyablePre
+									copyableText="uvx speaches-cli model download Systran/faster-distil-whisper-small.en"
+									variant="code"
+								/>
+							</div>
+						</div>
+
+						<div>
+							<p class="text-sm font-medium">
+								<span class="text-muted-foreground">Step 4:</span> Configure the
+								settings below
+							</p>
+							<ul class="ml-6 mt-2 space-y-1 text-sm text-muted-foreground">
+								<li class="list-disc">Enter your Speaches server URL</li>
+								<li class="list-disc">Enter the model ID you downloaded</li>
+							</ul>
+						</div>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		</div>
 
 		<LabeledInput
-			id="faster-whisper-server-url"
-			label="faster-whisper-server URL"
-			placeholder="Your faster-whisper-server URL"
-			value={settings.value['transcription.fasterWhisperServer.serverUrl']}
+			id="speaches-base-url"
+			label="Base URL"
+			placeholder="http://localhost:8000"
+			value={settings.value['transcription.speaches.baseUrl']}
 			oninput={({ currentTarget: { value } }) => {
 				settings.value = {
 					...settings.value,
-					'transcription.fasterWhisperServer.serverUrl': value,
+					'transcription.speaches.baseUrl': value,
 				};
 			}}
-		/>
+		>
+			{#snippet description()}
+				<p class="text-muted-foreground text-sm">
+					The URL where your Speaches server is running (<code>
+						SPEACHES_BASE_URL
+					</code>), typically
+					<CopyToClipboardButton
+						contentDescription="speaches base url"
+						textToCopy="http://localhost:8000"
+						class="bg-muted rounded px-[0.3rem] py-[0.15rem] font-mono text-sm hover:bg-muted/80"
+						variant="ghost"
+						size="sm"
+					>
+						http://localhost:8000
+						{#snippet copiedContent()}
+							http://localhost:8000
+							<CheckIcon class="size-4" />
+						{/snippet}
+					</CopyToClipboardButton>
+				</p>
+			{/snippet}
+		</LabeledInput>
 
 		<LabeledInput
-			id="faster-whisper-server-model"
-			label="faster-whisper-server Model"
-			placeholder="Your faster-whisper-server Model"
-			value={settings.value['transcription.fasterWhisperServer.serverModel']}
+			id="speaches-model-id"
+			label="Model ID"
+			placeholder="Systran/faster-distil-whisper-small.en"
+			value={settings.value['transcription.speaches.modelId']}
 			oninput={({ currentTarget: { value } }) => {
 				settings.value = {
 					...settings.value,
-					'transcription.fasterWhisperServer.serverModel': value,
+					'transcription.speaches.modelId': value,
 				};
 			}}
-		/>
+		>
+			{#snippet description()}
+				<p class="text-muted-foreground text-sm">
+					The model you downloaded in step 3 (<code>MODEL_ID</code>), e.g.
+					<CopyToClipboardButton
+						contentDescription="speaches model id"
+						textToCopy="Systran/faster-distil-whisper-small.en"
+						class="bg-muted rounded px-[0.3rem] py-[0.15rem] font-mono text-sm hover:bg-muted/80"
+						variant="ghost"
+						size="sm"
+					>
+						Systran/faster-distil-whisper-small.en
+						{#snippet copiedContent()}
+							Systran/faster-distil-whisper-small.en
+							<CheckIcon class="size-4" />
+						{/snippet}
+					</CopyToClipboardButton>
+				</p>
+			{/snippet}
+		</LabeledInput>
 	{/if}
 
 	<LabeledSelect

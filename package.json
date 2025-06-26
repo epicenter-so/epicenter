@@ -11,11 +11,13 @@
 		"dev": "turbo run dev",
 		"format": "concurrently \"biome format --write .\" \"turbo run format --filter=@repo/app\"",
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint --filter=@repo/app\"",
-		"format-and-lint": "concurrently \"biome check --write --unsafe .\" \"turbo run format --filter=@repo/app && turbo run lint --filter=@repo/app\""
+		"format-and-lint": "concurrently \"biome check --write --unsafe .\" \"turbo run format --filter=@repo/app && turbo run lint --filter=@repo/app\"",
+		"bump-version": "node scripts/bump-version.js"
 	},
 	"packageManager": "pnpm@10.11.0",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.15.32",
 		"concurrently": "latest",
 		"turbo": "latest"
 	}

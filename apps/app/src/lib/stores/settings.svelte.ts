@@ -1,5 +1,5 @@
 import {
-	type SettingsV7,
+	type SettingsV8,
 	getDefaultSettingsV1,
 	migrateV1ToV2,
 	migrateV2ToV3,
@@ -7,6 +7,7 @@ import {
 	migrateV4ToV5,
 	migrateV5ToV6,
 	migrateV6ToV7,
+	migrateV7ToV8,
 	settingsV1Schema,
 	settingsV2Schema,
 	settingsV3Schema,
@@ -14,18 +15,21 @@ import {
 	settingsV5Schema,
 	settingsV6Schema,
 	settingsV7Schema,
+	settingsV8Schema,
 } from '$lib/settings';
 import { toast } from '$lib/toast';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 
 export const settings = createPersistedState({
 	key: 'whispering-settings',
-	schema: settingsV7Schema,
+	schema: settingsV8Schema,
 	onParseError: (error) => {
-		const defaultSettings = migrateV6ToV7(
-			migrateV5ToV6(
-				migrateV4ToV5(
-					migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(getDefaultSettingsV1()))),
+		const defaultSettings = migrateV7ToV8(
+			migrateV6ToV7(
+				migrateV5ToV6(
+					migrateV4ToV5(
+						migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(getDefaultSettingsV1()))),
+					),
 				),
 			),
 		);
@@ -70,48 +74,61 @@ export const settings = createPersistedState({
  * Attempts to preserve existing values by spreading them onto defaults when
  * schema validation fails.
  */
-function migrateSettings(value: unknown): SettingsV7 {
+function migrateSettings(value: unknown): SettingsV8 {
 	// Try parsing from newest to oldest version
+	const v8Result = settingsV8Schema.safeParse(value);
+	if (v8Result.success) {
+		return v8Result.data;
+	}
+
 	const v7Result = settingsV7Schema.safeParse(value);
 	if (v7Result.success) {
-		return v7Result.data;
+		return migrateV7ToV8(v7Result.data);
 	}
 
 	const v6Result = settingsV6Schema.safeParse(value);
 	if (v6Result.success) {
-		return migrateV6ToV7(v6Result.data);
+		return migrateV7ToV8(migrateV6ToV7(v6Result.data));
 	}
 
 	const v5Result = settingsV5Schema.safeParse(value);
 	if (v5Result.success) {
-		return migrateV6ToV7(migrateV5ToV6(v5Result.data));
+		return migrateV7ToV8(migrateV6ToV7(migrateV5ToV6(v5Result.data)));
 	}
 
 	const v4Result = settingsV4Schema.safeParse(value);
 	if (v4Result.success) {
-		return migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4Result.data)));
+		return migrateV7ToV8(
+			migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(v4Result.data))),
+		);
 	}
 
 	const v3Result = settingsV3Schema.safeParse(value);
 	if (v3Result.success) {
-		return migrateV6ToV7(
-			migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(v3Result.data))),
+		return migrateV7ToV8(
+			migrateV6ToV7(migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(v3Result.data)))),
 		);
 	}
 
 	const v2Result = settingsV2Schema.safeParse(value);
 	if (v2Result.success) {
-		return migrateV6ToV7(
-			migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(v2Result.data)))),
+		return migrateV7ToV8(
+			migrateV6ToV7(
+				migrateV5ToV6(
+					migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(v2Result.data))),
+				),
+			),
 		);
 	}
 
 	const v1Result = settingsV1Schema.safeParse(value);
 	if (v1Result.success) {
-		return migrateV6ToV7(
-			migrateV5ToV6(
-				migrateV4ToV5(
-					migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(v1Result.data))),
+		return migrateV7ToV8(
+			migrateV6ToV7(
+				migrateV5ToV6(
+					migrateV4ToV5(
+						migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(v1Result.data))),
+					),
 				),
 			),
 		);
@@ -119,10 +136,12 @@ function migrateSettings(value: unknown): SettingsV7 {
 
 	// If no schema matches, try to merge whatever we have onto defaults
 	// This handles corrupted or partial data
-	const defaultSettings = migrateV6ToV7(
-		migrateV5ToV6(
-			migrateV4ToV5(
-				migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(getDefaultSettingsV1()))),
+	const defaultSettings = migrateV7ToV8(
+		migrateV6ToV7(
+			migrateV5ToV6(
+				migrateV4ToV5(
+					migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(getDefaultSettingsV1()))),
+				),
 			),
 		),
 	);
@@ -132,9 +151,9 @@ function migrateSettings(value: unknown): SettingsV7 {
 		...(typeof value === 'object' && value !== null ? value : {}),
 	};
 
-	const mergedSettingsV7Result = settingsV7Schema.safeParse(mergedSettings);
-	if (mergedSettingsV7Result.success) {
-		return mergedSettingsV7Result.data;
+	const mergedSettingsV8Result = settingsV8Schema.safeParse(mergedSettings);
+	if (mergedSettingsV8Result.success) {
+		return mergedSettingsV8Result.data;
 	}
 	return defaultSettings;
 }
