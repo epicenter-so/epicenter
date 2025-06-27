@@ -1,3 +1,34 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="right">
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=en">English</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=zh-CN">简体中文</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=zh-TW">繁體中文</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=ja">日本語</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=ko">한국어</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=hi">हिन्दी</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=th">ไทย</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=fr">Français</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=de">Deutsch</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=es">Español</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=it">Itapano</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=ru">Русский</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=pt">Português</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=nl">Nederlands</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=pl">Polski</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=ar">العربية</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=fa">فارسی</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=tr">Türkçe</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=vi">Tiếng Việt</a></p>
+        <p><a href="https://openaitx.github.io/view.html?user=braden-w&project=whispering&lang=id">Bahasa Indonesia</a></p>
+      </div>
+    </div>
+  </details>
+</div>
+
 <p align="center">
   <a href="https://whispering.bradenwong.com">
     <img width="180" src="./apps/app/src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
