@@ -32,18 +32,20 @@
 
 ## About
 
-Whispering is a completely free and open source transcription app that respects your privacy and wallet. While others charge $5-15/month for basic transcription or $30+ one-time fees, Whispering believes transcription should be fundamentally free, open, and private.
+Whispering is a fully free and open source transcription app. While other apps charge monthly subscriptions, we believe transcription should be accessible to everyone.
 
 Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything on-device. Your audio goes directly to your chosen service—no middleman, no tracking, no data collection.
 
-> Our Mission: Transcription is an essential tool that should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
+Transcription is an essential tool that should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
 
 ### Quick Start
 1. **Download** the app for your platform
 2. **Add your API key** (OpenAI, Groq, or others) or **configure your local transcription server**
 3. **Press** `Ctrl/Cmd + Shift + ;` to transcribe anywhere (and configure more in settings)
 
-That's it. No credit card (just your API Key). No subscription. No tracking.
+That's it. We don't charge you (only your API provider does).
+
+No credit card. No subscription. No tracking.
 
 ## Why Whispering Wins
 
