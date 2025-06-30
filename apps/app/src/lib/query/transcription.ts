@@ -30,8 +30,6 @@ export const transcription = {
 					name: 'WhisperingError',
 					title: '⚠️ Recording blob not found',
 					description: "Your recording doesn't have a blob to transcribe.",
-					context: { recording },
-					cause: undefined,
 				});
 			}
 			const { error: setRecordingTranscribingError } =
@@ -103,8 +101,6 @@ export const transcription = {
 							name: 'WhisperingError',
 							title: '⚠️ Recording blob not found',
 							description: "Your recording doesn't have a blob to transcribe.",
-							context: { recording },
-							cause: undefined,
 						} satisfies WhisperingError);
 					}
 					return await transcribeBlob(recording.blob);

@@ -7,7 +7,10 @@ export type WhisperingWarning = Omit<
 > &
 	Omit<ToastAndNotifyOptions, 'variant'>;
 
-export type WhisperingError = Omit<TaggedError<'WhisperingError'>, 'message'> &
+export type WhisperingError = Omit<
+	TaggedError<'WhisperingError'>,
+	'message' | 'cause' | 'context'
+> &
 	Omit<ToastAndNotifyOptions, 'variant'>;
 
 export type WhisperingResult<T> = Ok<T> | Err<WhisperingError>;

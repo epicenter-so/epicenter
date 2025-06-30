@@ -47,8 +47,6 @@ export function createVadServiceWeb() {
 						name: 'WhisperingError',
 						title: '❌ Failed to start voice activated capture',
 						description: 'Your voice activated capture could not be started.',
-						context: {},
-						cause: error,
 					}),
 				});
 				if (initializeVadError) return Err(initializeVadError);
@@ -66,8 +64,6 @@ export function createVadServiceWeb() {
 							error instanceof Error
 								? error.message
 								: 'An unknown error occurred while starting the VAD.',
-						context: {},
-						cause: error,
 					}),
 			});
 			if (startError) return Err(startError);
@@ -86,8 +82,6 @@ export function createVadServiceWeb() {
 						title: 'Failed to stop Voice Activity Detector',
 						description:
 							error instanceof Error ? error.message : 'Failed to stop VAD',
-						context: {},
-						cause: error,
 					}),
 			});
 			if (destroyError) return Err(destroyError);

@@ -1,4 +1,4 @@
-import type { ElevenLabsModel } from '$lib/constants';
+import type { ElevenLabsModel } from '$lib/constants/transcription/models';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { Err, Ok, type Result, type TaggedError } from '@epicenterhq/result';
@@ -27,8 +27,6 @@ export function createElevenLabsTranscriptionService() {
 						label: 'Add API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
@@ -46,8 +44,6 @@ export function createElevenLabsTranscriptionService() {
 						name: 'WhisperingError',
 						title: '📁 File Size Too Large',
 						description: `Your audio file (${blobSizeInMb.toFixed(1)}MB) exceeds the ${MAX_FILE_SIZE_MB}MB limit. Please use a smaller file or compress the audio.`,
-						context: {},
-						cause: undefined,
 					} satisfies WhisperingError);
 				}
 
@@ -73,8 +69,6 @@ export function createElevenLabsTranscriptionService() {
 					description:
 						'Unable to complete the transcription using ElevenLabs. This may be due to a service issue or unsupported audio format. Please try again.',
 					action: { type: 'more-details', error },
-					context: {},
-					cause: error,
 				} satisfies WhisperingError);
 			}
 		},

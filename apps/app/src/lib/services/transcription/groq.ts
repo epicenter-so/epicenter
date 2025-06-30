@@ -1,4 +1,4 @@
-import type { GroqModel } from '$lib/constants';
+import type { GroqModel } from '$lib/constants/transcription/models';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
@@ -38,8 +38,6 @@ export function createGroqTranscriptionService() {
 						label: 'Add API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
@@ -54,8 +52,6 @@ export function createGroqTranscriptionService() {
 						label: 'Update API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
@@ -66,8 +62,6 @@ export function createGroqTranscriptionService() {
 					name: 'WhisperingError',
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-					context: {},
-					cause: undefined,
 				});
 			}
 
@@ -86,8 +80,6 @@ export function createGroqTranscriptionService() {
 						description:
 							'Failed to create audio file for transcription. Please try again.',
 						action: { type: 'more-details', error },
-						context: {},
-						cause: error,
 					}) satisfies WhisperingError,
 			});
 
@@ -135,8 +127,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							`Invalid request to Groq API. ${error?.message ?? ''}`.trim(),
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -153,8 +143,6 @@ export function createGroqTranscriptionService() {
 							label: 'Update API key',
 							goto: '/settings/transcription',
 						},
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -167,8 +155,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions.",
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -181,8 +167,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							'The requested resource was not found. This might indicate an issue with the model or API endpoint.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -195,8 +179,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							'The request was valid but the server cannot process it. Please check your audio file and parameters.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -208,8 +190,6 @@ export function createGroqTranscriptionService() {
 						description:
 							message ?? 'Too many requests. Please try again later.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -222,8 +202,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							`The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -236,8 +214,6 @@ export function createGroqTranscriptionService() {
 							message ??
 							'Unable to connect to the Groq service. This could be a network issue or temporary service interruption.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -248,8 +224,6 @@ export function createGroqTranscriptionService() {
 					description:
 						message ?? 'An unexpected error occurred. Please try again.',
 					action: { type: 'more-details', error: groqApiError },
-					context: {},
-					cause: groqApiError,
 				} satisfies WhisperingError);
 			}
 

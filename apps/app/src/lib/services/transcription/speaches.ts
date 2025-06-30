@@ -60,8 +60,6 @@ export function createSpeachesTranscriptionService({
 							description:
 								'Unable to connect to the transcription service. This could be a network issue or temporary service interruption. Please try again in a moment.',
 							action: { type: 'more-details', error: postError.cause },
-							context: {},
-							cause: postError.cause,
 						} satisfies WhisperingError);
 					}
 
@@ -79,8 +77,6 @@ export function createSpeachesTranscriptionService({
 									label: 'Update API key',
 									goto: '/settings/transcription',
 								},
-								context: {},
-								cause: postError.cause,
 							} satisfies WhisperingError);
 						}
 
@@ -91,8 +87,6 @@ export function createSpeachesTranscriptionService({
 								description:
 									"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions. Please check your account status.",
 								action: { type: 'more-details', error: postError.cause },
-								context: {},
-								cause: postError,
 							} satisfies WhisperingError);
 						}
 
@@ -103,8 +97,6 @@ export function createSpeachesTranscriptionService({
 								description:
 									'Your audio file exceeds the maximum size limit (typically 25MB). Try splitting it into smaller segments or reducing the audio quality.',
 								action: { type: 'more-details', error: postError.cause },
-								context: {},
-								cause: postError,
 							} satisfies WhisperingError);
 						}
 
@@ -115,8 +107,6 @@ export function createSpeachesTranscriptionService({
 								description:
 									"This audio format isn't supported. Please convert your file to MP3, WAV, M4A, or another common audio format.",
 								action: { type: 'more-details', error: postError.cause },
-								context: {},
-								cause: postError,
 							} satisfies WhisperingError);
 						}
 
@@ -127,8 +117,6 @@ export function createSpeachesTranscriptionService({
 								title: '⏱️ Rate Limit Reached',
 								description: message,
 								action: { type: 'more-details', error: postError.cause },
-								context: {},
-								cause: postError,
 							} satisfies WhisperingError);
 						}
 
@@ -138,8 +126,6 @@ export function createSpeachesTranscriptionService({
 								title: '🔧 Service Unavailable',
 								description: `The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
 								action: { type: 'more-details', error: postError.cause },
-								context: {},
-								cause: postError,
 							} satisfies WhisperingError);
 						}
 
@@ -148,8 +134,6 @@ export function createSpeachesTranscriptionService({
 							title: '❌ Request Failed',
 							description: `The request failed with error ${status}. This may be temporary - please try again. If the problem persists, please contact support.`,
 							action: { type: 'more-details', error: postError.cause },
-							context: {},
-							cause: postError,
 						} satisfies WhisperingError);
 					}
 
@@ -160,8 +144,6 @@ export function createSpeachesTranscriptionService({
 							description:
 								'Received an unexpected response from the transcription service. This is usually temporary - please try again.',
 							action: { type: 'more-details', error: postError.cause },
-							context: {},
-							cause: postError.cause,
 						} satisfies WhisperingError);
 
 					default:
@@ -171,8 +153,6 @@ export function createSpeachesTranscriptionService({
 							description:
 								'An unexpected error occurred during transcription. Please try again, and contact support if the issue continues.',
 							action: { type: 'more-details', error: postError },
-							context: {},
-							cause: postError,
 						} satisfies WhisperingError);
 				}
 			}
@@ -182,8 +162,6 @@ export function createSpeachesTranscriptionService({
 					name: 'WhisperingError',
 					title: '🔧 Speaches Connection Issue',
 					description: whisperApiResponse.error.message,
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 

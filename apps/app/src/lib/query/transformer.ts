@@ -41,8 +41,6 @@ export const transformer = {
 						title: '⚠️ Transformation failed',
 						description: transformationRunError.message,
 						action: { type: 'more-details', error: transformationRunError },
-						context: {},
-						cause: transformationRunError,
 					});
 
 				if (transformationRun.error) {
@@ -51,8 +49,6 @@ export const transformer = {
 						title: '⚠️ Transformation failed',
 						description: transformationRun.error,
 						action: { type: 'more-details', error: transformationRun.error },
-						context: {},
-						cause: transformationRun.error,
 					});
 				}
 
@@ -61,8 +57,6 @@ export const transformer = {
 						name: 'WhisperingError',
 						title: '⚠️ Transformation produced no output',
 						description: 'The transformation completed but produced no output.',
-						context: {},
-						cause: transformationRun.error,
 					});
 				}
 
@@ -104,8 +98,6 @@ export const transformer = {
 					name: 'WhisperingError',
 					title: '⚠️ Recording not found',
 					description: 'Could not find the selected recording.',
-					cause: getRecordingError || undefined,
-					context: { recordingId, transformationId, getRecordingError },
 				});
 			}
 
