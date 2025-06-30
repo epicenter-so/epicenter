@@ -85,8 +85,8 @@ export const getDefaultSettingsV1 = () =>
 		'recording.selectedAudioInputDeviceId': 'default',
 		'recording.bitrateKbps': DEFAULT_BITRATE_KBPS,
 
-		'transcription.selectedTranscriptionService': 'OpenAI',
-		'transcription.groq.model': 'whisper-large-v3',
+		'transcription.selectedTranscriptionService': 'Groq',
+		'transcription.groq.model': 'distil-whisper-large-v3-en',
 		'transcription.outputLanguage': 'auto',
 		'transcription.prompt': '',
 		'transcription.temperature': '0',

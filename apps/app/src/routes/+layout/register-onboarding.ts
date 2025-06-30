@@ -26,7 +26,7 @@ export function registerOnboarding() {
 		
 		toast.info({
 			title: 'Welcome to Whispering!',
-			description: `Please configure ${missingConfig} to get started.`,
+			description: `Please configure your ${missingConfig} to get started.`,
 			action: {
 				type: 'link',
 				label: 'Configure',
