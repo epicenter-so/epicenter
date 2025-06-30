@@ -1,4 +1,4 @@
-export { type AcceleratorPossibleKey } from './accelerator/possible-keys';
+export type { AcceleratorPossibleKey } from './accelerator/possible-keys';
 
 export {
 	ACCELERATOR_SECTIONS,
@@ -8,7 +8,7 @@ export {
 	type AcceleratorKeyCode,
 } from './accelerator/supported-keys';
 
-export { type KeyboardEventPossibleKey } from './browser/possible-keys';
+export type { KeyboardEventPossibleKey } from './browser/possible-keys';
 
 export {
 	KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS,
