@@ -1,4 +1,4 @@
-import type { KeyboardEventPossibleKey } from './keyboard-event-possible-keys';
+import type { KeyboardEventPossibleKey } from './browser/possible-keys';
 
 /**
  * Maps macOS Option+Key special characters to their base keyboard keys.

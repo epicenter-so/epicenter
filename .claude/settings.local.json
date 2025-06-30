@@ -10,7 +10,14 @@
       "Bash(rm:*)",
       "Bash(sed:*)",
       "mcp__ide__getDiagnostics",
-      "WebFetch(domain:www.shadcn-svelte.com)"
+      "WebFetch(domain:www.shadcn-svelte.com)",
+      "Bash(gh issue view:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:speaches.ai)",
+      "WebFetch(domain:github.com)",
+      "Bash(ls:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

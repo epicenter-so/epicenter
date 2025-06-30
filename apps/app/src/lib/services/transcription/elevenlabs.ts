@@ -1,7 +1,7 @@
-import type { ElevenLabsModel } from '$lib/constants/transcription/models';
+import type { ElevenLabsModel } from '$lib/constants/transcription';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
-import { Err, Ok, type Result, type TaggedError } from '@epicenterhq/result';
+import { Err, type Result } from '@epicenterhq/result';
 import { ElevenLabsClient } from 'elevenlabs';
 
 export function createElevenLabsTranscriptionService() {

@@ -1,17 +1,12 @@
-import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
-import type { TaggedError } from '@epicenterhq/result';
 // import { extension } from '@repo/extension';
 import type {
-	WhisperingRecordingState,
 	CancelRecordingResult,
-} from '$lib/constants';
-
-const TIMESLICE_MS = 1000;
-// Whisper API recommends a mono channel at 16kHz
-const WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS = {
-	channelCount: { ideal: 1 },
-	sampleRate: { ideal: 16_000 },
-} satisfies MediaTrackConstraints;
+	TIMESLICE_MS,
+	WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
+	WhisperingRecordingState,
+} from '$lib/constants/audio';
+import type { TaggedError } from '@epicenterhq/result';
+import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
 
 type RecordingServiceError = TaggedError<'RecordingServiceError'>;
 

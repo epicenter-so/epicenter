@@ -1,5 +1,5 @@
 import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
-import type { VadState } from '$lib/constants';
+import type { VadState } from '$lib/constants/audio';
 import { WhisperingError } from '$lib/result';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 

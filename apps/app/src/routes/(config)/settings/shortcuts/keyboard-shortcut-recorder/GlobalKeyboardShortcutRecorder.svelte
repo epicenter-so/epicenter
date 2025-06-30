@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
-	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { rpc } from '$lib/query';
 	import {
 		pressedKeysToTauriAccelerator,

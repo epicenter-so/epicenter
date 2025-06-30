@@ -5,7 +5,7 @@ import type {
 	GROQ_INFERENCE_MODELS,
 	INFERENCE_PROVIDERS,
 	OPENAI_INFERENCE_MODELS,
-} from '$lib/constants';
+} from '$lib/constants/inference';
 import { nanoid } from 'nanoid/non-secure';
 
 export type DbServiceError = TaggedError<'DbServiceError'>;

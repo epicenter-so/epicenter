@@ -4,8 +4,8 @@ import {
 	ACCELERATOR_MODIFIER_KEYS,
 	type AcceleratorKeyCode,
 	type AcceleratorModifier,
-} from '$lib/constants/accelerator-supported-keys';
-import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	type KeyboardEventSupportedKey,
+} from '$lib/constants/keyboard';
 import {
 	Err,
 	Ok,

@@ -1,15 +1,8 @@
-import type { GroqModel } from '$lib/constants/transcription/models';
+import type { GroqModel } from '$lib/constants/transcription';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import {
-	Err,
-	Ok,
-	type Result,
-	type TaggedError,
-	tryAsync,
-	trySync,
-} from '@epicenterhq/result';
+import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
 
 import Groq from 'groq-sdk';
 

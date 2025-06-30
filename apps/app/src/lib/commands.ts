@@ -6,7 +6,7 @@ import {
 	deliverTranscribedText,
 	deliverTransformedText,
 } from './deliverTextToUser';
-import { CommandOrAlt, CommandOrControl } from './constants/modifiers';
+import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import type { ShortcutTriggerState } from './services/shortcuts/shortcut-trigger-state';
 
 const stopManualRecording = async () => {

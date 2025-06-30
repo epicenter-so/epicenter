@@ -1,15 +1,14 @@
 import type { Brand } from '$lib/brand';
-import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
 import {
+	type KeyboardEventPossibleKey,
 	type KeyboardEventSupportedKey,
 	isSupportedKey,
-} from '$lib/constants/keyboard-event-supported-keys';
-import { normalizeOptionKeyCharacter } from '$lib/constants/macos-option-key-map';
-import * as services from '$lib/services';
+	normalizeOptionKeyCharacter,
+} from '$lib/constants/keyboard';
+import { IS_MACOS } from '$lib/constants/platform';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
-import { IS_MACOS } from '$lib/constants/is-macos';
 
 /**
  * Error type for local shortcut service operations.

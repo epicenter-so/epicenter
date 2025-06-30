@@ -1,4 +1,4 @@
-import type { AcceleratorPossibleKey } from './accelerator-possible-keys';
+import type { AcceleratorPossibleKey } from './possible-keys';
 
 /**
  * Structured accelerator key sections for global (system-wide) shortcuts.

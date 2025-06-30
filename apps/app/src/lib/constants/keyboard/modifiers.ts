@@ -1,4 +1,4 @@
-import { IS_MACOS } from './is-macos';
+import { IS_MACOS } from '$lib/constants/platform';
 
 export const CommandOrControl = IS_MACOS ? 'Command' : 'Control';
 

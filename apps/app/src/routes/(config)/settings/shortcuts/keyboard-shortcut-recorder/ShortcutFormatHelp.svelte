@@ -6,11 +6,14 @@
 	import { HelpCircle, ExternalLink, AlertTriangle } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS } from '$lib/constants/keyboard-event-supported-keys';
-	import { ACCELERATOR_SECTIONS } from '$lib/constants/accelerator-supported-keys';
-	import { CommandOrAlt, CommandOrControl } from '$lib/constants/modifiers';
-	import { OPTION_DEAD_KEYS } from '$lib/constants/macos-option-key-map';
-	import { IS_MACOS } from '$lib/constants/is-macos';
+	import {
+		KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS,
+		ACCELERATOR_SECTIONS,
+		CommandOrAlt,
+		CommandOrControl,
+		OPTION_DEAD_KEYS,
+	} from '$lib/constants/keyboard';
+	import { IS_MACOS } from '$lib/constants/platform';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);

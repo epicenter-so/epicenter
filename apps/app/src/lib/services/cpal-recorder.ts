@@ -3,7 +3,7 @@ import type { Result, TaggedError } from '@epicenterhq/result';
 import type {
 	WhisperingRecordingState,
 	CancelRecordingResult,
-} from '$lib/constants';
+} from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 
 type RecordingServiceError = TaggedError<'RecordingServiceError'>;

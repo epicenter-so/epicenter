@@ -1,4 +1,4 @@
-import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination

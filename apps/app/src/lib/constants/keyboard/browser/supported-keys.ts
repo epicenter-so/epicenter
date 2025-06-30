@@ -1,4 +1,4 @@
-import type { KeyboardEventPossibleKey } from './keyboard-event-possible-keys';
+import type { KeyboardEventPossibleKey } from './possible-keys';
 
 /**
  * Structured keyboard key sections for local (browser-based) shortcuts.
