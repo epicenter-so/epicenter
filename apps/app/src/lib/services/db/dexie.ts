@@ -1,18 +1,9 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
+import type { DownloadService } from '$lib/services/download';
 import { toast } from '$lib/toast';
-import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
-import type { DownloadService } from '$lib/services/download';
-import type { DbService } from './types';
-import type {
-	DbServiceError,
-	Recording,
-	Transformation,
-	TransformationRun,
-	TransformationStepRun,
-} from './models';
 import type {
 	RecordingsDbSchemaV1,
 	RecordingsDbSchemaV2,
@@ -20,7 +11,20 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './_schemas';
-import type { Settings } from '$lib/settings';
+import type {
+	DbServiceError,
+	Recording,
+	Transformation,
+	TransformationRun,
+	TransformationRunCompleted,
+	TransformationRunFailed,
+	TransformationStepRun,
+	TransformationStepRunRunning,
+	TransformationStepRunCompleted,
+	TransformationStepRunFailed,
+	TransformationRunRunning,
+} from './models';
+import type { DbService } from './types';
 
 const DB_NAME = 'RecordingDB';
 
@@ -502,6 +506,13 @@ export function createDbServiceDexie({
 			return Ok(undefined);
 		},
 
+		/**
+		 * Checks and deletes expired recordings based on current settings.
+		 * This should be called:
+		 * 1. On initial load
+		 * 2. Before adding new recordings
+		 * 3. When retention settings change
+		 */
 		async cleanupExpiredRecordings({
 			recordingRetentionStrategy,
 			maxRecordingCount,

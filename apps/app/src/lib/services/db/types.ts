@@ -30,13 +30,6 @@ export type DbService = {
 	deleteRecordings: (
 		recordings: Recording[],
 	) => Promise<Result<void, DbServiceError>>;
-	/**
-	 * Checks and deletes expired recordings based on current settings.
-	 * This should be called:
-	 * 1. On initial load
-	 * 2. Before adding new recordings
-	 * 3. When retention settings change
-	 */
 	cleanupExpiredRecordings: (opts: {
 		recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
 		maxRecordingCount: Settings['database.maxRecordingCount'];
