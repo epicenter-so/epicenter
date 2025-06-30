@@ -36,12 +36,81 @@ Whispering is a free and open source transcription app. Bring your own API key f
 
 > We believe transcription should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
 
+
 ### Quick Start
+
 1. **Download** the app for your platform
 2. **Add your API key** (OpenAI, Groq, or others) or **configure your local transcription server**
 3. **Press** `Ctrl/Cmd + Shift + ;` to transcribe anywhere (and configure more in settings)
 
-That's it. We don't charge you (only your API provider does).  No credit card. No subscription. No tracking.
+That's it. We don't charge you (only your API provider does). No credit card. No subscription. No tracking.
+
+### The Complete Setup Guide
+
+Need more details? Here's everything you need to know:
+
+#### Step 1: Install Whispering
+Choose your platform and [download the app](#installation). The desktop app is recommended for global transcription support.
+
+#### Step 2: Configure Your Transcription Service & API Key
+
+1. Open Whispering
+2. Navigate to **Settings** (⚙️) → **Transcription**
+3. Select your transcription service from the dropdown
+4. Add your API key for the chosen service
+   - **Recommended**: Start with [Groq](https://console.groq.com/keys) for fastest & cheapest transcription (`distil-whisper-large-v3-en` is lightning fast and $0.02 / hour as of 06-30-2025)
+   - **Alternative**: Use Speaches for local transcription and complete privacy (no API key needed)
+
+#### Step 3: Start Transcribing!
+- **Quick access**: Press `Ctrl/Cmd + Shift + ;` anywhere on your desktop
+- **In-app**: Click the large microphone button
+- **Hands-free**: Enable Voice Activity Detection (VAD) mode
+
+Your transcription will be automatically copied to clipboard and ready to paste!
+
+#### Optional: Step 4: Configure Transformations
+Enhance your transcriptions with AI-powered post-processing by creating custom workflows:
+
+**Creating a Transformation Workflow:**
+1. Navigate to **Transformations** (📚) in the main navigation
+2. Click "Create Transformation" 
+3. Give your workflow a title (e.g., "Format")
+
+**Configuring Step 1: Prompt Transform**
+1. Add a new step and select **"Prompt Transform"**
+2. Choose your AI model profile (e.g., **"Google Gemini 2.5 Flash"**)
+3. Configure your prompts using dynamic injection:
+
+   **System Prompt Example:**
+   ```
+   You are a professional text formatter. Format the following transcribed text for clarity and readability.
+   ```
+
+   **User Prompt Example:**
+   ```
+   Please format this transcription: {{input}}
+   
+   Requirements:
+   - Fix capitalization and punctuation
+   - Break into logical paragraphs
+   - Maintain original meaning
+   ```
+
+**How Prompt Injection Works:**
+- The `{{input}}` placeholder dynamically receives your transcribed text
+- When the workflow runs, `{{input}}` is replaced with the actual transcription
+- The complete prompt (with injected content) is sent to Google Gemini 2.5 Flash
+- The AI processes your text according to the instructions and returns the formatted result
+
+**Chaining Multiple Steps:**
+Create complex workflows by adding more transformation steps:
+- **Step 1:** Prompt Transform (Format with Gemini 2.5 Flash)
+- **Step 2:** Find & Replace (Remove filler words like "um", "uh")  
+- **Step 3:** Prompt Transform (Translate to Spanish with GPT-4)
+
+Each step receives the output from the previous step as its `{{input}}`.
+
+**Note:** Additional AI provider API keys may be needed ([see providers](#api-key-providers))
 
 ## Why Whispering Wins
 
@@ -165,34 +234,23 @@ The Chrome Extension is currently temporarily disabled while we stabilize recent
 - Global shortcut support (`Ctrl/Cmd + Shift + X`) from any website
 - Automatic transcription copying and pasting
 
-## Getting Started
 
-### 1. Choose Your Transcription Provider
-Get an API key from any supported service:
+## API Key Providers
+
+Get an API key from any of these supported services:
+
+### Transcription Services
 - **[Groq](https://console.groq.com/keys)** - Fastest & cheapest transcription
 - **[OpenAI](https://platform.openai.com/api-keys)** - Industry-standard Whisper models ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
-- **[Google](https://aistudio.google.com/app/apikey)** - Gemini models via AI Studio
-- **[ElevenLabs](https://elevenlabs.io/app/settings/api-keys)** - High-quality voice AI
-- **Local** - Use Speaches for complete privacy
+- **[ElevenLabs](https://elevenlabs.io/app/settings/api-keys)** - High-quality voice AI transcription
+- **Local** - Use Speaches for complete privacy (no API key needed)
 
-### 2. Configure Whispering
-1. Open Settings → API Keys
-2. Add your chosen provider's key
-3. Select your preferred model
-
-### 3. Start Transcribing
-- **Global**: Press `Ctrl/Cmd + Shift + ;` anywhere
-- **In-app**: Click the microphone button
-- **Automatic**: Enable voice activity detection
-
-### 4. Optionally Configure Transformations
-Transform your transcriptions with AI-powered post-processing:
+### Transformation Services (Optional)
+For AI-powered post-processing of your transcriptions:
 - **[OpenAI](https://platform.openai.com/api-keys)** - GPT-4 and GPT-3.5 for advanced text processing
 - **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude models for intelligent transformations
 - **[Google](https://aistudio.google.com/app/apikey)** - Gemini models for creative text enhancement
 - **[Groq](https://console.groq.com/keys)** - Fast Llama models for quick transformations
-
-Configure transformation chains in `Transformations` to automatically correct grammar, format text, translate languages, or apply custom templates.
 
 ## Usage
 
