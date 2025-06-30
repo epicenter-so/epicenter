@@ -121,6 +121,8 @@ Download the latest release for your platform:
 - **Linux**: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
 
 #### macOS Installation
+Download: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
+
 1. Download the appropriate `.dmg` file for your processor
 2. Open the `.dmg` file and drag to Applications
 3. If you see "unverified developer" warning, right-click and select "Open"
@@ -130,11 +132,15 @@ Download the latest release for your platform:
    ```
 
 #### Windows Installation
+Download: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
+
 1. Download the `.msi` installer
 2. Run the installer (click "More Info" → "Run Anyway" if prompted)
 3. Follow the installation wizard
 
 #### Linux Installation
+Download: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
+
 Choose your preferred package format:
 
 AppImage (Universal):
@@ -161,11 +167,10 @@ The Chrome Extension is currently temporarily disabled while we stabilize recent
 
 ## Getting Started
 
-### 1. Choose Your Provider
+### 1. Choose Your Transcription Provider
 Get an API key from any supported service:
 - **[Groq](https://console.groq.com/keys)** - Fastest & cheapest transcription
 - **[OpenAI](https://platform.openai.com/api-keys)** - Industry-standard Whisper models ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
-- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude-powered transcription
 - **[Google](https://aistudio.google.com/app/apikey)** - Gemini models via AI Studio
 - **[ElevenLabs](https://elevenlabs.io/app/settings/api-keys)** - High-quality voice AI
 - **Local** - Use Speaches for complete privacy
@@ -179,6 +184,15 @@ Get an API key from any supported service:
 - **Global**: Press `Ctrl/Cmd + Shift + ;` anywhere
 - **In-app**: Click the microphone button
 - **Automatic**: Enable voice activity detection
+
+### 4. Optionally Configure Transformations
+Transform your transcriptions with AI-powered post-processing:
+- **[OpenAI](https://platform.openai.com/api-keys)** - GPT-4 and GPT-3.5 for advanced text processing
+- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude models for intelligent transformations
+- **[Google](https://aistudio.google.com/app/apikey)** - Gemini models for creative text enhancement
+- **[Groq](https://console.groq.com/keys)** - Fast Llama models for quick transformations
+
+Configure transformation chains in `Transformations` to automatically correct grammar, format text, translate languages, or apply custom templates.
 
 ## Usage
 
