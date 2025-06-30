@@ -103,7 +103,14 @@ Whispering stores as much data as possible locally on your device, including rec
    - External services like OpenAI, Groq, or ElevenLabs (with your own API keys)
    - A local transcription service such as Speaches, which keeps everything on-device
 
-3. Configurable Settings: You can change the transcription service in the settings to ensure maximum local functionality and privacy.
+3. **Transformation Service (Optional)**: Whispering includes configurable transformation settings that allow you to pipe transcription output into custom transformation flows. These flows can leverage:
+   - External Large Language Models (LLMs) like OpenAI's GPT-4, Anthropic's Claude, Google's Gemini, or Groq's Llama models
+   - Hosted LLMs within your custom workflows for advanced text processing
+   - Simple find-and-replace operations for basic text modifications
+   
+   When using AI-powered transformations, your transcribed text is sent to your chosen LLM provider using your own API key. All transformation configurations, including prompts and step sequences, are stored locally in your settings.
+
+You can change both the transcription and transformation services in the settings to ensure maximum local functionality and privacy.
 
 ## Installation
 
@@ -156,10 +163,12 @@ The Chrome Extension is currently temporarily disabled while we stabilize recent
 
 ### 1. Choose Your Provider
 Get an API key from any supported service:
-- [Groq](https://console.groq.com) - Fastest & cheapest
-- [OpenAI](https://platform.openai.com)
-- [ElevenLabs](https://elevenlabs.io)
-- Local - Use Speaches for complete privacy
+- **[Groq](https://console.groq.com/keys)** - Fastest & cheapest transcription
+- **[OpenAI](https://platform.openai.com/api-keys)** - Industry-standard Whisper models ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
+- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude-powered transcription
+- **[Google](https://aistudio.google.com/app/apikey)** - Gemini models via AI Studio
+- **[ElevenLabs](https://elevenlabs.io/app/settings/api-keys)** - High-quality voice AI
+- **Local** - Use Speaches for complete privacy
 
 ### 2. Configure Whispering
 1. Open Settings → API Keys
