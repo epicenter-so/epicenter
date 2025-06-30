@@ -742,7 +742,7 @@ export function createDbServiceDexie({
 			stepId,
 		}) {
 			const now = new Date().toISOString();
-			const transformationStepRun = {
+			const newTransformationStepRun = {
 				id: nanoid(),
 				stepId,
 				input,
@@ -753,7 +753,7 @@ export function createDbServiceDexie({
 
 			const updatedRun: TransformationRun = {
 				...transformationRun,
-				stepRuns: [...transformationRun.stepRuns, transformationStepRun],
+				stepRuns: [...transformationRun.stepRuns, newTransformationStepRun],
 			};
 
 			const { error: addStepRunToTransformationRunError } = await tryAsync({
@@ -768,7 +768,7 @@ export function createDbServiceDexie({
 			if (addStepRunToTransformationRunError)
 				return Err(addStepRunToTransformationRunError);
 
-			return Ok(updatedRun);
+			return Ok(newTransformationStepRun);
 		},
 
 		async markTransformationRunAndRunStepAsFailed({
