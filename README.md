@@ -3,7 +3,7 @@
     <img width="180" src="./apps/app/src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
   <h1 align="center">Whispering</h1>
-  <p align="center">Seamless dictation powered by OpenAI's Whisper Model</p>
+  <p align="center">Fully open source transcription</p>
 </p>
 
 <p align="center">
@@ -13,13 +13,7 @@
   <a href="LICENSE" target="_blank">
     <img alt="MIT License" src="https://img.shields.io/github/license/braden-w/whispering.svg?style=flat-square" />
   </a>
-  <!-- Badges for Technologies -->
-  <img alt="TypeScript" src="https://img.shields.io/badge/-TypeScript-blue?style=flat-square&logo=typescript&logoColor=white" />
-  <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
   <!-- Platform Support Badges -->
-  <a href="https://chrome.google.com/webstore/detail/whispering/oilbfihknpdbpfkcncojikmooipnlglo" target="_blank">
-    <img alt="Chrome" src="https://img.shields.io/chrome-web-store/stars/oilbfihknpdbpfkcncojikmooipnlglo?color=blue&label=Chrome&style=flat-square&logo=google-chrome&logoColor=white" />
-  </a>
   <a href="https://github.com/braden-w/whispering/releases" target="_blank">
     <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
   </a>
@@ -29,18 +23,46 @@
   <a href="https://github.com/braden-w/whispering/releases" target="_blank">
     <img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
   </a>
+  <!-- Tech Stack Badges -->
+  <img alt="Svelte 5" src="https://img.shields.io/badge/-Svelte%205-orange?style=flat-square&logo=svelte&logoColor=white" />
+  <img alt="Tauri" src="https://img.shields.io/badge/-Tauri-blue?style=flat-square&logo=tauri&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/-TypeScript-blue?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
-
 
 ## About
 
-Whispering is an open-source transcription application that provides global speech-to-text functionality, with options such as keyboard shortcuts and automatic copy and paste to make dictating as seamless as possible.
+Whispering is a completely free and open source transcription app that respects your privacy and wallet. While others charge $5-15/month for basic transcription or $30+ one-time fees, Whispering believes transcription should be fundamentally free, open, and private.
 
-Under the hood, it's powered by OpenAI's Whisper model, making it significantly more accurate than built-in dictation.
+Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything on-device. Your audio goes directly to your chosen service—no middleman, no tracking, no data collection.
 
-> **Important Note**: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, I recommend using a dedicated recording app on your phone or device that utilizes native recording APIs. This ensures optimal audio quality and recording stability.
+> Our Mission: Transcription is an essential tool that should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
 
-## Demos
+### Quick Start
+1. **Download** the app for your platform
+2. **Add your API key** (OpenAI, Groq, or others) or **configure your local transcription server**
+3. **Press** `Ctrl/Cmd + Shift + ;` to transcribe anywhere (and configure more in settings)
+
+That's it. No credit card (just your API Key). No subscription. No tracking.
+
+## Why Whispering Wins
+
+### 💰 Actual Cost Comparison
+| Your Usage | Whispering | Competitors |
+|------------|------------|-------------|
+| Light (10 min/day) | ~$0.30/month | $5-15/month |
+| Regular (30 min/day) | ~$0.90/month | $12-24/month |
+| Heavy (2 hrs/day) | ~$3.60/month | $24-30/month |
+
+*Based on typical API pricing. You pay your provider directly.*
+
+### 🔒 Your Data, Your Control
+- **Direct API connections** - Your audio never touches our servers
+- **Local storage** - All recordings stay on your device
+- **Open source** - Audit the code yourself
+- **No telemetry** - We don't even know you're using it
+
+## Demo Videos
 
 https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
@@ -48,233 +70,297 @@ https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
 ## Key Features
 
-1. **Global Transcription**: Access Whisper's speech-to-text functionality anywhere with a global keyboard shortcut or within two button clicks.
-2. **Cross-Platform Experience**:
-   - Desktop App: Enables global transcription across all applications.
-   - Browser Extension: Provides global transcription in the browser by communicating with the web app.
-3. **Chat Integration**: The browser extension adds a recording button to ChatGPT and Claude websites, allowing direct voice input and transcription in the chat interface.
-4. **Transcription Management**: Review and edit transcriptions within the Whispering app to ensure accuracy and clarity.
-5. **Automatic Clipboard Integration**: Once transcription is complete, the text is automatically copied to your clipboard. An option for automatic pasting is also available.
+1. Global Transcription: Access speech-to-text functionality anywhere with a global keyboard shortcut or within two button clicks. Works across all applications on desktop.
+
+2. Cross-Platform Experience:
+   - Desktop App: Enables global transcription across all applications with customizable shortcuts
+   - Web App: Full-featured transcription interface accessible from any browser
+   - Browser Extension: Provides global transcription in Chrome by communicating with the web app (temporarily disabled)
+
+3. Multiple Recording Modes:
+   - Manual: Click to start/stop recording with full control
+   - Voice Activity Detection (VAD): Hands-free recording with automatic speech detection and silence trimming
+
+4. Multi-Provider Transcription:
+   - OpenAI Whisper: Industry-standard accuracy with multiple model options (`whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`)
+   - Groq: Lightning-fast transcription with cost efficiency (`whisper-large-v3`, `whisper-large-v3-turbo`, `distil-whisper-large-v3-en`)
+   - ElevenLabs: High-quality transcription service (`scribe_v1`, `scribe_v1_experimental`)
+   - Speaches: Local transcription for complete privacy and offline functionality
+
+5. Transformation Pipeline: Post-process transcriptions with AI-powered transformations including grammar correction, formatting, translation, and custom templates. Chain multiple transformations together.
+
+6. Transcription Management: Review, edit, and organize all transcriptions within the app. Export to multiple formats with comprehensive search and filtering.
+
+7. Automatic Clipboard Integration: Transcribed text is automatically copied to clipboard with optional automatic pasting (configurable in settings).
+
+> Important Note: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, we recommend using a dedicated recording app that utilizes native recording APIs for optimal audio quality and stability.
 
 ## How is my data stored?
 
 Whispering stores as much data as possible locally on your device, including recordings and text transcriptions. This approach ensures maximum privacy and data security. Here's an overview of how data is handled:
 
-1. **Local Storage**: Voice recordings and transcriptions are stored in IndexedDB, which is used as a blob storage and a place to store all of your data like text and transcriptions.
+1. **Local Storage**: Voice recordings and transcriptions are stored in IndexedDB, which is used as blob storage and a place to store all of your data like text and transcriptions.
 
 2. **Transcription Service**: The only data sent elsewhere is your recording to an external transcription service—if you choose one. You have the following options:
-   - External services like OpenAI or Groq
-   - A local transcription service such as `Speaches`, which keeps everything on-device
+   - External services like OpenAI, Groq, or ElevenLabs (with your own API keys)
+   - A local transcription service such as Speaches, which keeps everything on-device
 
-3. **Configurable Settings**: You can change the transcription service in the settings to ensure maximum local functionality.
-
+3. Configurable Settings: You can change the transcription service in the settings to ensure maximum local functionality and privacy.
 
 ## Installation
 
+### Desktop App (Recommended)
+Download the latest release for your platform:
+- **macOS**: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
+- **Windows**: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
+- **Linux**: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
+
+#### macOS Installation
+1. Download the appropriate `.dmg` file for your processor
+2. Open the `.dmg` file and drag to Applications
+3. If you see "unverified developer" warning, right-click and select "Open"
+4. Apple Silicon troubleshooting: If you get a "damaged" error, run:
+   ```bash
+   xattr -cr /Applications/Whispering.app
+   ```
+
+#### Windows Installation
+1. Download the `.msi` installer
+2. Run the installer (click "More Info" → "Run Anyway" if prompted)
+3. Follow the installation wizard
+
+#### Linux Installation
+Choose your preferred package format:
+
+AppImage (Universal):
+```bash
+chmod +x whispering_x.x.x_amd64.AppImage
+./whispering_x.x.x_amd64.AppImage
+```
+
+DEB Package (Debian/Ubuntu):
+```bash
+sudo dpkg -i whispering_x.x.x_amd64.deb
+sudo apt-get install -f  # Fix dependencies if needed
+```
+
 ### Web App
+Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) for the browser version.
 
-Visit [whispering.bradenwong.com](https://whispering.bradenwong.com/), which has the latest version of the `apps/app` folder hosted on Vercel.
+### Chrome Extension (Temporarily Disabled)
+The Chrome Extension is currently temporarily disabled while we stabilize recent changes. When available, it provides:
+- A Whispering icon on the Chrome extensions bar for quick access
+- Recording buttons directly integrated into ChatGPT and Claude websites
+- Global shortcut support (`Ctrl/Cmd + Shift + X`) from any website
+- Automatic transcription copying and pasting
 
-### Chrome Extension
+## Getting Started
 
-**Temporarily Unavailable**: The Chrome Extension is currently temporarily disabled while we stabilize recent changes to the desktop app. We expect to restore it later this summer. You can still find the listing [here](https://chrome.google.com/webstore/detail/whispering/oilbfihknpdbpfkcncojikmooipnlglo), but installation is currently unavailable.
+### 1. Choose Your Provider
+Get an API key from any supported service:
+- [Groq](https://console.groq.com) - Fastest & cheapest
+- [OpenAI](https://platform.openai.com)
+- [ElevenLabs](https://elevenlabs.io)
+- Local - Use Speaches for complete privacy
 
-### Desktop App
+### 2. Configure Whispering
+1. Open Settings → API Keys
+2. Add your chosen provider's key
+3. Select your preferred model
 
-To download and install the Whispering desktop app, follow the steps for your operating system:
-
-#### Windows
-
-1. Download the installation package ending in `.msi` from the [latest releases page](https://github.com/braden-w/whispering/releases).
-2. Open the downloaded `.msi` file to run the installer.
-3. If prompted as unsafe, click on `More Info` -> `Run Anyway` to proceed with the installation.
-4. Follow the on-screen instructions to complete the installation.
-
-#### macOS
-
-For macOS, follow these steps to install Whispering:
-
-1. **Download the installation package**:
-   - Visit the [latest releases page](https://github.com/braden-w/whispering/releases).
-   - Choose the appropriate package:
-     - For Apple Silicon: `Whispering_x.x.x_aarch64.dmg`
-     - For Intel: `Whispering_x.x.x_x64.dmg`
-
-2. **Install the application**:
-   - Open the downloaded `.dmg` file.
-   - Drag the Whispering app to the Applications folder.
-
-3. **Launch Whispering**:
-   - Open Whispering from the Applications folder.
-   - If you see a warning about unverified developer:
-     - Click `Cancel`
-     - Right-click the app in Finder and select `Open`
-
-4. **Troubleshooting** (Apple Silicon only):
-   If you encounter the error `"Whispering" is damaged and can't be opened`:
-   - Open Terminal
-   - Run the following command:
-     ```bash
-     xattr -cr /Applications/Whispering.app
-     ```
-   - Try opening the application again
-
-After completing these steps, Whispering should be ready to use on your macOS system.
-
-#### Linux
-
-For Linux, there are multiple installation options available. Choose the one that suits your environment:
-
-1. **AppImage**:
-
-   - Download the `.AppImage` file from the [latest releases page](https://github.com/braden-w/whispering/releases).
-   - Make the file executable:
-     ```bash
-     chmod +x whispering_x.x.x_amd64.AppImage
-     ```
-   - Run the AppImage:
-     ```bash
-     ./whispering_x.x.x_amd64.AppImage
-     ```
-
-2. **DEB Package (Debian/Ubuntu)**:
-   - Download the `.deb` file from the [latest releases page](https://github.com/braden-w/whispering/releases).
-   - Install the package using `dpkg`:
-     ```bash
-     sudo dpkg -i whispering_x.x.x_amd64.deb
-     ```
-   - Resolve any dependency issues:
-     ```bash
-     sudo apt-get install -f
-     ```
-
-After installation, the app will be ready to use.
+### 3. Start Transcribing
+- **Global**: Press `Ctrl/Cmd + Shift + ;` anywhere
+- **In-app**: Click the microphone button
+- **Automatic**: Enable voice activity detection
 
 ## Usage
 
-### Chrome Extension
-
-After installing the Chrome Extension, you will find a Whispering icon on the Chrome extensions bar. Click on this icon to open the extension. Click the microphone button to record your voice, and then click the square button when you're done. Your transcription will appear in the text box below.
-
-To access the ChatGPT or Claude feature, navigate to the ChatGPT or Claude web page. You'll see a new recording button in the chat interface. Click this button to start and stop recording, and the transcribed text will be automatically inserted into the chat input field.
-
-To access the shortcut feature, press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> or <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> (later configurable through Chrome extension shortcuts) to start recording from any website. The transcription will be automatically copied into your clipboard and paste into the current input field.
-
-The Chrome Extension communicates with [whispering.bradenwong.com](https://whispering.bradenwong.com), and will automatically attempt to create a tab in the background if it does not find one. Most bugs can be attributed to this communication failing, such as rare instances where the tab falls asleep.
+### Desktop App
+After installing the Whispering desktop app, press `Ctrl/Cmd + Shift + ;` (configurable in settings) to start recording from anywhere on your desktop. The transcription will be automatically copied into your clipboard and pasted, though both features can be toggled in the settings.
 
 ### Web App
-
 The web app is accessible via [whispering.bradenwong.com](https://whispering.bradenwong.com). Click the microphone button to record your voice, and then click the square button when you're done. Your transcription will appear in the text box.
 
-### Desktop App
+### Chrome Extension
+When available, access the extension from the Chrome toolbar or use the global shortcut. The extension communicates with [whispering.bradenwong.com](https://whispering.bradenwong.com), automatically creating a background tab if needed.
 
-After installing the Whispering desktop app, press <kbd>Control/Command</kbd> + <kbd>Shift</kbd> + <kbd>;</kbd> (configurable in settings) to start recording from anywhere on your desktop. The transcription will be automatically copied into your clipboard and pasted, though both features can be toggled in the settings.
+## Built With Modern Web Technologies
 
-## Built With
+Whispering showcases the power of modern web development as a comprehensive example application:
 
-#### Web and Desktop
+### Web and Desktop
+- [Svelte 5](https://svelte.dev): The UI reactivity library of choice with cutting-edge runes system
+- [SvelteKit](https://kit.svelte.dev): For routing and static site generation
+- [Tauri](https://tauri.app): The desktop app framework for native performance
+- [Effect-TS](https://github.com/Effect-TS/effect): Type-safe functional programming
+- [Svelte Sonner](https://svelte-sonner.vercel.app): Toast notifications for errors
+- [TanStack Query](https://tanstack.com/query): Powerful data synchronization
+- [TanStack Table](https://tanstack.com/table): Comprehensive data tables
+- [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) & [Dexie.js](https://dexie.org): Local data storage
+- [shadcn-svelte](https://www.shadcn-svelte.com): Beautiful, accessible components
+- [TailwindCSS](https://tailwindcss.com): Utility-first CSS framework
+- [Turborepo](https://turborepo.org): Monorepo management
+- [Rust](https://www.rust-lang.org): Native desktop features
+- [Vercel](https://vercel.com): Hosting platform
+- [Zapsplat.com](https://www.zapsplat.com): Royalty-free sound effects
 
-The Whispering app is built using the following technologies and libraries:
+### Browser Extension
+- [Plasmo](https://docs.plasmo.com): Chrome extension framework
+- [React](https://reactjs.org): UI library (Plasmo requirement)
+- [shadcn/ui](https://ui.shadcn.com): Component library
+- [Chrome API](https://developer.chrome.com/docs/extensions/reference): Extension APIs
 
-- [Svelte 5](https://svelte.dev): The UI reactivity library of choice.
-- [SvelteKit](https://kit.svelte.dev/docs): For routing and static site generation, used for making both the website and the static frontend for the Tauri app.
-- [Tauri](https://tauri.studio/en/docs/intro/): The desktop app framework.
-- [Effect-TS](https://github.com/Effect-TS/effect): To sprinkle some functional programming and write extremely type-safe functions, where errors are included in the return type of the function signature.
-- [Svelte Sonner](https://svelte-sonner.vercel.app/): A simple, customizable toast library for Svelte applications. Used to capture and display errors bubbled up via Effect-TS using the `renderAsToast` function.
-- [TanStack Table](https://tanstack.com/table): To power all data tables.
-- [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API): A low-level API for storing large amounts of structured data in the browser. Synchronized with Tanstack Table.
-- [ShadCN-Svelte](https://github.com/huntabyte/shadcn-svelte): The UI component library of choice.
-- [TailwindCSS](https://tailwindcss.com/docs): A utility-first CSS framework for rapidly building custom user interfaces.
-- [Turborepo](https://turborepo.org/): For monorepo management, so that `apps/app` and `apps/extension` can share the same codebase, drastically reducing code duplication and more importantly, keeping a single source of truth.
-- [Rust](https://www.rust-lang.org): For extending desktop app features, such as using the `enigo` crate for handling automatic pasting.
-- [Vercel](https://vercel.com/): Hosting that's decent for a hobby project and has nice Turborepo integrations.
-- [Zapsplat.com](https://www.zapsplat.com/): A royalty-free sound effects library.
+### Architecture Patterns
+- Service Layer: Platform-agnostic business logic with Result types
+- Query Layer: Reactive data management with caching
+- RPC Pattern: Unified API interface (`rpc.recordings.getAllRecordings`)
+- Dependency Injection: Clean separation of concerns
 
-#### Extension
+## Architecture Deep Dive
 
-The Whispering Chrome extension is built using:
+### Three-Layer Architecture
+```
+┌─────────────┐     ┌─────────────┐     ┌──────────────┐
+│  UI Layer   │ --> │  Query Layer│ --> │ Service Layer│
+│ (Svelte 5)  │     │ (TanStack)  │     │   (Pure)     │
+└─────────────┘     └─────────────┘     └──────────────┘
+      ↑                    │
+      └────────────────────┘
+         Reactive Updates
+```
 
-- [Plasmo](https://docs.plasmo.com/): A framework for building Chrome extensions. We use the [relay flow](https://docs.plasmo.com/framework/messaging#relay-flow) to communicate to the Whispering website.
-- [Effect-TS](https://github.com/Effect-TS/effect): To sprinkle some functional programming and write extremely type-safe functions, where errors are included in the return type of the function signature.
-- [React](https://reactjs.org): The UI reactivity library for the Chrome extension, as Plasmo unfortunately doesn't support Svelte 5.
-- [ShadCN](https://github.com/shadcn): The UI component library for the Chrome extension.
-- [TailwindCSS](https://tailwindcss.com/docs): A utility-first CSS framework for rapidly building custom user interfaces.
-- [Chrome API](https://developer.chrome.com/docs/extensions/reference/): The Chrome extension API.
-- [Zapsplat.com](https://www.zapsplat.com/): A royalty-free sound effects library.
+### Key Patterns
+
+Service Layer (`/lib/services/`):
+- Platform-agnostic business logic
+- Result types for error handling
+- Dependency injection for cross-platform support
+
+Query Layer (`/lib/query/`):
+- TanStack Query integration
+- Reactive state management
+- Caching and optimistic updates
+- Unified RPC interface
+
+RPC Pattern:
+```typescript
+import { rpc } from '$lib/query';
+
+// Reactive usage in components
+const recordings = createQuery(rpc.recordings.getAllRecordings.options);
+
+// Imperative usage in actions
+const { data, error } = await rpc.transcription.transcribe.execute(blob);
+```
 
 ## Run Whispering in Local Development Mode
-
-To set up the project on your local machine, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/braden-w/whispering.git`
 2. Change into the project directory: `cd whispering`
 3. Install the necessary dependencies: `pnpm i`
 
-To run the Whispering desktop app and website in development mode:
+To run the desktop app and website:
+```bash
+cd apps/app
+pnpm tauri dev
+```
 
-4. Change into the app directory: `cd apps/app`
-5. Run the development server: `pnpm tauri dev`
-
-The desktop app should automatically open for local development. To develop the web app, open your browser and navigate to `http://localhost:5173`.
-
-To run the Whispering Chrome extension in development mode:
-
-4. Change into the extension directory: `cd apps/extension`
-5. Run the development server: `pnpm dev --target=chrome-mv3`
-
-To develop the chrome extension, load it into Chrome by navigating to `chrome://extensions`, enabling developer mode, and loading the `apps/extension/build/{platform}-{manifest-version}-dev` folder as an unpacked extension.
+To run the Chrome extension (once it's restored):
+```bash
+cd apps/extension
+pnpm dev --target=chrome-mv3
+```
 
 ## Build The Executable Yourself
 
-If you ever have concerns regarding the trustworthiness of the installers or would like more control, you can always build the executable yourself. This requires more setup, but it ensures that you are running the code you expect. Such is the beauty of open-source software!
-
-### Chrome
-
-1. Change into the extension directory: `cd apps/extension`
-2. Install the necessary dependencies: `pnpm i`
-3. Run Plasmo build: `pnpm plasmo build --target=chrome-mv3`
-4. Output should be found in `apps/extension/build/chrome-mv3-prod`, which can be loaded into Chrome as an unpacked extension.
-5. Alternatively, you can build the extension for the Chrome Web Store: `pnpm plasmo build --target=chrome-mv3 --release`
-
-### Firefox
-
-1. Change into the extension directory: `cd apps/extension`
-2. Install the necessary dependencies: `pnpm i`
-3. Run Plasmo build: `pnpm plasmo build --target=firefox-mv3`
-4. Output should be found in `apps/extension/build/firefox-mv3-prod`, which can be loaded into Chrome as an unpacked extension.
-5. Alternatively, you can build the extension for the Chrome Web Store: `pnpm plasmo build --target=firefox-mv3 --release`
+If you have concerns about the installers or want more control, you can build the executable yourself. This requires more setup, but it ensures that you are running the code you expect. Such is the beauty of open-source software!
 
 ### Desktop
 
-1. Change into the app directory: `cd apps/app`
-2. Install the necessary dependencies: `pnpm i`
-3. Run Tauri Build: `pnpm tauri build`
-4. You can find the executable in the `apps/app/target/release` directory.
+```bash
+cd apps/app
+pnpm i
+pnpm tauri build
+```
+
+Find the executable in `apps/app/target/release`
+
+### Firefox Extension
+```bash
+cd apps/extension
+pnpm i
+pnpm plasmo build --target=firefox-mv3
+```
+Output in `apps/extension/build/firefox-mv3-prod`
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute to Whispering, please follow these steps:
+We welcome contributions! Whispering is built in the open by developers who use it daily.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix: `git checkout -b feature/your-feature-name` or `git checkout -b fix/your-bugfix-name`
-3. Make your changes and commit them with a descriptive message.
-4. Push your branch to your forked repository: `git push origin your-branch-name`
-5. Create a pull request from your forked repository to the original one.
+### Code Style Guidelines
+- Follow existing TypeScript and Svelte patterns
+- Use Result types for error handling throughout
+- Maintain service/query layer separation
+- Add comprehensive JSDoc comments for public APIs
+- Follow the existing architecture patterns (RPC, dependency injection, etc.)
 
-Please ensure your code follows established conventions and is well-documented.
+### Contributing Process
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and commit them
+4. Push to your fork: `git push origin your-branch-name`
+5. Create a pull request
+
+### Good First Issues
+- New transcription service integrations
+- Additional transformation templates and AI integrations
+- UI/UX improvements and accessibility enhancements
+- Performance optimizations
+- Documentation improvements
+- Test coverage expansion
+- Browser extension features (when re-enabled)
+
+
+## Architecture for Learning
+
+Whispering serves as a comprehensive example of modern web development:
+
+### What You'll Learn
+- Svelte 5 Runes: Modern reactivity patterns
+- Tauri Integration: Building desktop apps with web technologies
+- Clean Architecture: Service/query layer separation
+- Type Safety: Result types and comprehensive TypeScript usage
+- State Management: TanStack Query patterns
+- Local-First: IndexedDB integration and offline capabilities
+- Cross-Platform: Platform-specific service implementations
+
+### Code Examples
+The codebase includes detailed README files in key directories:
+- `/lib/query/README.md` - Query layer patterns
+- `/lib/services/README.md` - Service architecture
+- `/lib/constants/README.md` - Constants organization
+- Components follow shadcn-svelte patterns throughout
 
 ## License
 
-Whispering is released under the [MIT License](https://opensource.org/licenses/MIT).
-
-## Sponsors
-
-This project is supported by the following amazing people and organizations:
-
-<!-- sponsors --><a href="https://github.com/DavidGP"><img src="https://github.com/DavidGP.png" width="60px" alt="" /></a><a href="https://github.com/cgbur"><img src="https://github.com/cgbur.png" width="60px" alt="Chris Burgess" /></a><a href="https://github.com/Wstnn"><img src="https://github.com/Wstnn.png" width="60px" alt="" /></a><a href="https://github.com/rkhrkh"><img src="https://github.com/rkhrkh.png" width="60px" alt="" /></a><a href="https://github.com/doxgt"><img src="https://github.com/doxgt.png" width="60px" alt="" /></a><a href="https://github.com/worldoptimizer"><img src="https://github.com/worldoptimizer.png" width="60px" alt="Max Ziebell" /></a><a href="https://github.com/AlpSantoGlobalMomentumLLC"><img src="https://github.com/AlpSantoGlobalMomentumLLC.png" width="60px" alt="" /></a><!-- sponsors -->
+Whispering is released under the [MIT License](LICENSE). Use it, modify it, learn from it, and build upon it freely.
 
 ## Support and Feedback
 
 If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub issues tab](https://github.com/braden-w/whispering/issues) or contact me via [whispering@bradenwong.com](mailto:whispering@bradenwong.com). I really appreciate your feedback!
+
+- Issues and Bug Reports: [GitHub Issues](https://github.com/braden-w/whispering/issues)
+- Feature Discussions: [GitHub Discussions](https://github.com/braden-w/whispering/discussions)
+- Direct Contact: [whispering@bradenwong.com](mailto:whispering@bradenwong.com)
+
+## Sponsors
+
+This project is supported by amazing people and organizations:
+
+<!-- sponsors --><a href="https://github.com/DavidGP"><img src="https://github.com/DavidGP.png" width="60px" alt="" /></a><a href="https://github.com/cgbur"><img src="https://github.com/cgbur.png" width="60px" alt="Chris Burgess" /></a><a href="https://github.com/Wstnn"><img src="https://github.com/Wstnn.png" width="60px" alt="" /></a><a href="https://github.com/rkhrkh"><img src="https://github.com/rkhrkh.png" width="60px" alt="" /></a><a href="https://github.com/doxgt"><img src="https://github.com/doxgt.png" width="60px" alt="" /></a><a href="https://github.com/worldoptimizer"><img src="https://github.com/worldoptimizer.png" width="60px" alt="Max Ziebell" /></a><a href="https://github.com/AlpSantoGlobalMomentumLLC"><img src="https://github.com/AlpSantoGlobalMomentumLLC.png" width="60px" alt="" /></a><!-- sponsors -->
+
+---
+
+Transcription should be free, open, and accessible to everyone. Join us in making it so.
 
 Thank you for using Whispering and happy writing!
