@@ -8,6 +8,7 @@
 		TRANSCRIPTION_SERVICES,
 		type TranscriptionService,
 	} from '$lib/constants';
+	import { isTranscriptionServiceConfigured, getSelectedTranscriptionService } from '$lib/settings/transcription-validation';
 	import { CheckIcon, MicIcon, SettingsIcon } from 'lucide-svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { Badge } from '$lib/components/ui/badge';
@@ -15,28 +16,7 @@
 
 	let { class: className }: { class?: string } = $props();
 
-	const selectedService = $derived(
-		TRANSCRIPTION_SERVICES.find(
-			(s) =>
-				s.id === settings.value['transcription.selectedTranscriptionService'],
-		),
-	);
-
-	const isServiceConfigured = (service: TranscriptionService) => {
-		switch (service.type) {
-			case 'api': {
-				const apiKey = settings.value[service.apiKeyField];
-				return apiKey && apiKey !== '';
-			}
-			case 'server': {
-				const url = settings.value[service.serverUrlField];
-				return url && url !== '';
-			}
-			default: {
-				return true;
-			}
-		}
-	};
+	const selectedService = $derived(getSelectedTranscriptionService());
 
 	const getSelectedModel = (service: TranscriptionService) => {
 		if (service.type !== 'api') return null;
@@ -92,7 +72,7 @@
 					<SelectedIcon
 						class={cn(
 							'size-4',
-							isServiceConfigured(selectedService)
+							isTranscriptionServiceConfigured(selectedService)
 								? 'text-green-500'
 								: 'text-amber-500',
 						)}
@@ -100,7 +80,7 @@
 				{:else}
 					<MicIcon class="size-4 text-muted-foreground" />
 				{/if}
-				{#if selectedService && !isServiceConfigured(selectedService)}
+				{#if selectedService && !isTranscriptionServiceConfigured(selectedService)}
 					<span
 						class="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-amber-500 before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-full before:bg-amber-500/50 before:animate-ping"
 					></span>
@@ -117,7 +97,7 @@
 					{@const isSelected =
 						settings.value['transcription.selectedTranscriptionService'] ===
 						service.id}
-					{@const isConfigured = isServiceConfigured(service)}
+					{@const isConfigured = isTranscriptionServiceConfigured(service)}
 					<Command.Item
 						value="{service.id} - {service.name}"
 						onSelect={() => {
