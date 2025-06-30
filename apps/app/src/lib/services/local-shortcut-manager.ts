@@ -8,7 +8,7 @@ import {
 import { IS_MACOS } from '$lib/constants/platform';
 import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
 import { on } from 'svelte/events';
-import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
+import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
 /**
  * Error type for local shortcut service operations.

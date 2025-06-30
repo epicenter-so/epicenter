@@ -14,9 +14,7 @@ type UpdateStatusMessageFn = (args: {
 }) => void;
 
 type DeviceAcquisitionOutcome =
-	| {
-			outcome: 'success';
-	  }
+	| { outcome: 'success' }
 	| {
 			outcome: 'fallback';
 			reason: 'no-device-selected' | 'preferred-device-unavailable';
