@@ -74,20 +74,16 @@ Configuration for transcription services including model definitions and service
 
 UI-related constants including window behavior options and icon mappings.
 
-## Dependencies on Other Services
+## Dependencies on Services
 
-Some constants have dependencies on other parts of the codebase:
-
-### Platform Constants
-
-The `platform/is-macos.ts` constant depends on the `OsService`:
+Some constants have dependencies on services. For example, the `platform/is-macos.ts` constant depends on the `OsService`:
 
 ```typescript
 import { OsServiceLive } from '$lib/services/OsService';
 export const IS_MACOS = OsServiceLive.type() === 'Darwin';
 ```
 
-This is intentional as platform detection service calls. Because OsServiceLive.type() remains stable after build time (services are injected conditionally based on `window.__TAURI_INTERNALS__`, which is available at build time), the constant caches this value for performance.
+Because OsServiceLive.type() remains stable after build time (services are injected conditionally based on `window.__TAURI_INTERNALS__`, which is available at build time), the constant caches this value for performance.
 
 ## Import and Export Patterns
 
@@ -108,13 +104,6 @@ We avoid wildcard exports:
 export * from './urls';
 ```
 
-Benefits of explicit exports:
-
-- 🚀 Better tree-shaking - bundler only includes what's actually used
-- 🎯 Intentional API surface - we control exactly what's exposed
-- 📦 Smaller bundle sizes - unused constants are automatically excluded
-- 🔍 Easier to track what's available from each barrel
-
 ### How We Import Constants
 
 Always import from the category barrel, not the individual files:
@@ -133,12 +122,6 @@ Don't import from the actual source files:
 import { WHISPERING_URL } from '$lib/constants/app/urls';
 import { DEFAULT_BITRATE_KBPS } from '$lib/constants/audio/bitrate';
 ```
-
-**Why use barrel imports:**
-- 🛡️ Stable import paths - internal file reorganization won't break your imports
-- 🧹 Cleaner code - shorter, more readable import statements
-- 🎯 Single entry point - one place to see all available exports
-- 🔧 Easier refactoring - move files around without updating imports
 
 ## Adding New Constants
 
@@ -167,7 +150,10 @@ export const NEWPROVIDER_MODELS = [
 export type NewProviderModel = (typeof NEWPROVIDER_MODELS)[number];
 
 // In transcription/index.ts - use explicit exports
-export { NEWPROVIDER_MODELS, type NewProviderModel } from './newprovider-models';
+export {
+	NEWPROVIDER_MODELS,
+	type NewProviderModel,
+} from './newprovider-models';
 ```
 
 ## Best Practices
