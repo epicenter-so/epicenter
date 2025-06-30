@@ -8,6 +8,7 @@ import type {
 	TransformationRunCompleted,
 	TransformationRunFailed,
 } from './models';
+import type { Settings } from '$lib/settings';
 
 export type DbService = {
 	// Recording methods
@@ -36,7 +37,10 @@ export type DbService = {
 	 * 2. Before adding new recordings
 	 * 3. When retention settings change
 	 */
-	cleanupExpiredRecordings: () => Promise<Result<void, DbServiceError>>;
+	cleanupExpiredRecordings: (opts: {
+		recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
+		maxRecordingCount: Settings['database.maxRecordingCount'];
+	}) => Promise<Result<void, DbServiceError>>;
 
 	// Transformation methods
 	getAllTransformations: () => Promise<

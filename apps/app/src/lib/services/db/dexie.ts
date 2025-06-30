@@ -20,6 +20,7 @@ import type {
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
 } from './_schemas';
+import type { Settings } from '$lib/settings';
 
 const DB_NAME = 'RecordingDB';
 
@@ -501,10 +502,10 @@ export function createDbServiceDexie({
 			return Ok(undefined);
 		},
 
-		async cleanupExpiredRecordings() {
-			const recordingRetentionStrategy =
-				settings.value['database.recordingRetentionStrategy'];
-			const maxRecordingCount = settings.value['database.maxRecordingCount'];
+		async cleanupExpiredRecordings({
+			recordingRetentionStrategy,
+			maxRecordingCount,
+		}) {
 			switch (recordingRetentionStrategy) {
 				case 'keep-forever': {
 					return Ok(undefined);
