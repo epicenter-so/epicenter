@@ -712,11 +712,13 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async createTransformationRun(transformationRun) {
+		async createTransformationRun({ transformationId, recordingId, input }) {
 			const now = new Date().toISOString();
 			const transformationRunWithTimestamps = {
-				...transformationRun,
 				id: nanoid(),
+				transformationId,
+				recordingId,
+				input,
 				startedAt: now,
 				completedAt: null,
 				status: 'running',
@@ -727,7 +729,7 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding transformation run to Dexie',
-					context: { transformationRun },
+					context: { transformationId, recordingId, input },
 					cause: error,
 				}),
 			});
@@ -736,24 +738,20 @@ export function createDbServiceDexie({
 			return Ok(transformationRunWithTimestamps);
 		},
 
-		async addTransformationStepRunToTransformationRun({
-			transformationRun,
-			input,
-			stepId,
-		}) {
+		async addTransformationStep({ run, step }) {
 			const now = new Date().toISOString();
 			const newTransformationStepRun = {
 				id: nanoid(),
-				stepId,
-				input,
+				stepId: step.id,
+				input: step.input,
 				startedAt: now,
 				completedAt: null,
 				status: 'running',
 			} satisfies TransformationStepRunRunning;
 
 			const updatedRun: TransformationRun = {
-				...transformationRun,
-				stepRuns: [...transformationRun.stepRuns, newTransformationStepRun],
+				...run,
+				stepRuns: [...run.stepRuns, newTransformationStepRun],
 			};
 
 			const { error: addStepRunToTransformationRunError } = await tryAsync({
@@ -761,7 +759,7 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error adding step run to transformation run in Dexie',
-					context: { transformationRun, stepId },
+					context: { run, step },
 					cause: error,
 				}),
 			});
@@ -771,8 +769,8 @@ export function createDbServiceDexie({
 			return Ok(newTransformationStepRun);
 		},
 
-		async markTransformationRunAndRunStepAsFailed({
-			transformationRun,
+		async failTransformationAtStepRun({
+			run,
 			stepRunId,
 			error,
 		}): Promise<Result<TransformationRunFailed, DbServiceError>> {
@@ -780,11 +778,11 @@ export function createDbServiceDexie({
 
 			// Create the failed transformation run
 			const failedRun: TransformationRunFailed = {
-				...transformationRun,
+				...run,
 				status: 'failed',
 				completedAt: now,
 				error,
-				stepRuns: transformationRun.stepRuns.map((stepRun) => {
+				stepRuns: run.stepRuns.map((stepRun) => {
 					if (stepRun.id === stepRunId) {
 						const failedStepRun: TransformationStepRunFailed = {
 							...stepRun,
@@ -803,7 +801,7 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation run as failed in Dexie',
-					context: { transformationRun, stepRunId, error },
+					context: { run, stepId: stepRunId, error },
 					cause: error,
 				}),
 			});
@@ -813,17 +811,13 @@ export function createDbServiceDexie({
 			return Ok(failedRun);
 		},
 
-		async markTransformationRunStepAsCompleted({
-			transformationRun,
-			stepRunId,
-			output,
-		}) {
+		async completeTransformationStepRun({ run, stepRunId, output }) {
 			const now = new Date().toISOString();
 
 			// Create updated transformation run with the new step runs
 			const updatedRun: TransformationRun = {
-				...transformationRun,
-				stepRuns: transformationRun.stepRuns.map((stepRun) => {
+				...run,
+				stepRuns: run.stepRuns.map((stepRun) => {
 					if (stepRun.id === stepRunId) {
 						const completedStepRun: TransformationStepRunCompleted = {
 							...stepRun,
@@ -842,7 +836,7 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation step run status in Dexie',
-					context: { transformationRun, stepRunId, output },
+					context: { run, stepId: stepRunId, output },
 					cause: error,
 				}),
 			});
@@ -852,15 +846,15 @@ export function createDbServiceDexie({
 			return Ok(updatedRun);
 		},
 
-		async markTransformationRunAsCompleted({
-			transformationRun,
+		async completeTransformation({
+			run,
 			output,
 		}): Promise<Result<TransformationRunCompleted, DbServiceError>> {
 			const now = new Date().toISOString();
 
 			// Create the completed transformation run
 			const completedRun: TransformationRunCompleted = {
-				...transformationRun,
+				...run,
 				status: 'completed',
 				completedAt: now,
 				output,
@@ -871,7 +865,7 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error updating transformation run as completed in Dexie',
-					context: { transformationRun, output },
+					context: { run, output },
 					cause: error,
 				}),
 			});

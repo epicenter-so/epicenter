@@ -65,29 +65,30 @@ export type DbService = {
 	getTransformationRunsByRecordingId: (
 		recordingId: string,
 	) => Promise<Result<TransformationRun[], DbServiceError>>;
-	createTransformationRun: (
-		transformationRun: Pick<
-			TransformationRun,
-			'input' | 'transformationId' | 'recordingId'
-		>,
-	) => Promise<Result<TransformationRun, DbServiceError>>;
-	addTransformationStepRunToTransformationRun: (opts: {
-		transformationRun: TransformationRun;
-		stepId: string;
+	createTransformationRun: (opts: {
+		transformationId: string;
+		recordingId: string | null;
 		input: string;
+	}) => Promise<Result<TransformationRun, DbServiceError>>;
+	addTransformationStep: (opts: {
+		run: TransformationRun;
+		step: {
+			id: string;
+			input: string;
+		};
 	}) => Promise<Result<TransformationStepRun, DbServiceError>>;
-	markTransformationRunAndRunStepAsFailed: (opts: {
-		transformationRun: TransformationRun;
+	failTransformationAtStepRun: (opts: {
+		run: TransformationRun;
 		stepRunId: string;
 		error: string;
 	}) => Promise<Result<TransformationRunFailed, DbServiceError>>;
-	markTransformationRunStepAsCompleted: (opts: {
-		transformationRun: TransformationRun;
+	completeTransformationStepRun: (opts: {
+		run: TransformationRun;
 		stepRunId: string;
 		output: string;
 	}) => Promise<Result<TransformationRun, DbServiceError>>;
-	markTransformationRunAsCompleted: (opts: {
-		transformationRun: TransformationRun;
+	completeTransformation: (opts: {
+		run: TransformationRun;
 		output: string;
 	}) => Promise<Result<TransformationRunCompleted, DbServiceError>>;
 };

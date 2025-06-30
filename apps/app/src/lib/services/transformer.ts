@@ -160,8 +160,8 @@ export function createTransformerService({
 		 * 2. **User-Friendly Messages**: Technical errors are converted to readable descriptions
 		 * 3. **Consistent Interface**: All step types return the same Result<string, string> format
 		 *
-		 * The error strings are later saved to the database via `markTransformationRunAndRunStepAsFailed`
-		 * which stores both the transformation run failure and the specific step failure with the error message.
+		 * The error strings are later saved to the database via `failTransformationAtStepRun`
+		 * which stores both the transformation run failure and the specific step run failure with the error message.
 		 *
 		 * @param input - The text input to be transformed by this step
 		 * @param step - The transformation step configuration containing type and parameters
@@ -253,10 +253,12 @@ export function createTransformerService({
 				const {
 					data: newTransformationStepRun,
 					error: addTransformationStepRunError,
-				} = await DbService.addTransformationStepRunToTransformationRun({
-					transformationRun,
-					stepId: step.id,
-					input: currentInput,
+				} = await DbService.addTransformationStep({
+					run: transformationRun,
+					step: {
+						id: step.id,
+						input: currentInput,
+					},
 				});
 
 				if (addTransformationStepRunError)
@@ -281,8 +283,8 @@ export function createTransformerService({
 					const {
 						data: markedFailedTransformationRun,
 						error: markTransformationRunAndRunStepAsFailedError,
-					} = await DbService.markTransformationRunAndRunStepAsFailed({
-						transformationRun,
+					} = await DbService.failTransformationAtStepRun({
+						run: transformationRun,
 						stepRunId: newTransformationStepRun.id,
 						error: handleStepResult.error,
 					});
@@ -293,7 +295,7 @@ export function createTransformerService({
 							cause: markTransformationRunAndRunStepAsFailedError,
 							context: {
 								transformationRun,
-								stepRunId: newTransformationStepRun.id,
+								stepId: newTransformationStepRun.id,
 								error: handleStepResult.error,
 								markTransformationRunAndRunStepAsFailedError,
 							},
@@ -304,8 +306,8 @@ export function createTransformerService({
 				const handleStepOutput = handleStepResult.data;
 
 				const { error: markTransformationRunStepAsCompletedError } =
-					await DbService.markTransformationRunStepAsCompleted({
-						transformationRun,
+					await DbService.completeTransformationStepRun({
+						run: transformationRun,
 						stepRunId: newTransformationStepRun.id,
 						output: handleStepOutput,
 					});
@@ -329,8 +331,8 @@ export function createTransformerService({
 			const {
 				data: markedCompletedTransformationRun,
 				error: markTransformationRunAsCompletedError,
-			} = await DbService.markTransformationRunAsCompleted({
-				transformationRun,
+			} = await DbService.completeTransformation({
+				run: transformationRun,
 				output: currentInput,
 			});
 
