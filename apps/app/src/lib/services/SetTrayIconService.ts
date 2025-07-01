@@ -1,6 +1,5 @@
 import { goto } from '$app/navigation';
 // import { commandCallbacks } from '$lib/commands';
-import { settings } from '$lib/stores/settings.svelte';
 import { type Err, Ok, type TaggedError, tryAsync } from '@epicenterhq/result';
 // import { extension } from '@repo/extension';
 import {
@@ -22,13 +21,21 @@ export type SetTrayIconServiceResult<T> =
 	| Ok<T>
 	| Err<SetTrayIconServiceErrorProperties>;
 
+type TrayIconSettings = {
+	alwaysOnTop: string;
+};
+
 type SetTrayIconService = {
 	setTrayIcon: (
 		icon: WhisperingRecordingState,
 	) => Promise<SetTrayIconServiceResult<void>>;
 };
 
-export function createSetTrayIconWebService(): SetTrayIconService {
+export function createSetTrayIconWebService({
+	settings,
+}: {
+	settings: TrayIconSettings;
+}): SetTrayIconService {
 	return {
 		setTrayIcon: async (icon: WhisperingRecordingState) => {
 			// const { error: setRecorderStateError } = await extension.setRecorderState(
@@ -46,8 +53,12 @@ export function createSetTrayIconWebService(): SetTrayIconService {
 	};
 }
 
-export function createSetTrayIconDesktopService(): SetTrayIconService {
-	const trayPromise = initTray();
+export function createSetTrayIconDesktopService({
+	settings,
+}: {
+	settings: TrayIconSettings;
+}): SetTrayIconService {
+	const trayPromise = initTray(settings);
 	return {
 		setTrayIcon: (recorderState: WhisperingRecordingState) =>
 			tryAsync({
@@ -66,7 +77,7 @@ export function createSetTrayIconDesktopService(): SetTrayIconService {
 	};
 }
 
-async function initTray() {
+async function initTray(settings: TrayIconSettings) {
 	const existingTray = await TrayIcon.getById(TRAY_ID);
 	if (existingTray) return existingTray;
 
@@ -75,11 +86,10 @@ async function initTray() {
 			CheckMenuItem.new({
 				id: `always-on-top-${value}`,
 				text: `Always on Top: ${value}`,
-				checked: settings.value['system.alwaysOnTop'] === value,
+				checked: settings.alwaysOnTop === value,
 				action: async (id) => {
-					settings.value = { ...settings.value, 'system.alwaysOnTop': value };
-
-					// Update all menu items to ensure only the selected one is checked
+					// Note: This action will need to be handled by the query layer
+					// For now, we'll just update the menu items
 					await Promise.all(
 						alwaysOnTopItems.map(async (item) => {
 							await item.setChecked(item.id === id);
@@ -156,6 +166,12 @@ async function getIconPath(recorderState: WhisperingRecordingState) {
 	return await resolveResource(iconPaths[recorderState]);
 }
 
-export const SetTrayIconServiceLive = window.__TAURI_INTERNALS__
-	? createSetTrayIconDesktopService()
-	: createSetTrayIconWebService();
+export function createSetTrayIconService({
+	settings,
+}: {
+	settings: TrayIconSettings;
+}): SetTrayIconService {
+	return window.__TAURI_INTERNALS__
+		? createSetTrayIconDesktopService({ settings })
+		: createSetTrayIconWebService({ settings });
+}

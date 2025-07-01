@@ -1,4 +1,4 @@
-import { SetTrayIconServiceLive } from './SetTrayIconService';
+import { createSetTrayIconService } from './SetTrayIconService';
 import { ClipboardServiceLive } from './clipboard';
 import * as completions from './completion';
 import { CpalRecorderServiceLive } from './cpal-recorder';
@@ -20,6 +20,7 @@ export {
 	ClipboardServiceLive as clipboard,
 	completions,
 	CpalRecorderServiceLive as cpalRecorder,
+	createSetTrayIconService,
 	DbServiceLive as db,
 	DownloadServiceLive as download,
 	GlobalShortcutManagerLive as globalShortcutManager,
@@ -27,7 +28,6 @@ export {
 	NavigatorRecorderServiceLive as manualRecorder,
 	NotificationServiceLive as notification,
 	OsServiceLive as os,
-	SetTrayIconServiceLive as setTrayIcon,
 	PlaySoundServiceLive as sound,
 	transcriptions,
 	VadServiceLive as vad,

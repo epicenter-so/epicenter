@@ -1,5 +1,4 @@
 import { rpc } from '$lib/query';
-import * as services from '$lib/services';
 import { createQuery } from '@tanstack/svelte-query';
 
 export function syncIconWithRecorderState() {
@@ -9,7 +8,9 @@ export function syncIconWithRecorderState() {
 
 	$effect(() => {
 		if (getRecorderStateQuery.data) {
-			services.setTrayIcon.setTrayIcon(getRecorderStateQuery.data);
+			rpc.tray.setTrayIcon.execute({
+				icon: getRecorderStateQuery.data,
+			});
 		}
 	});
 }
