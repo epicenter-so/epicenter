@@ -16,7 +16,7 @@ import { device } from './device';
 import { download } from './download';
 import { manualRecorder } from './manualRecorder';
 import { recordings } from './recordings';
-import { tray } from './setTrayIcon';
+import { tray } from './tray';
 import { shortcuts } from './shortcuts';
 import { transcription } from './transcription';
 import { transformationRuns } from './transformationRuns';

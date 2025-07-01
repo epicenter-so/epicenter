@@ -17,13 +17,7 @@ export const tray = {
 		}: {
 			icon: WhisperingRecordingState;
 		}): Promise<Result<void, WhisperingError>> => {
-			const trayService = services.createSetTrayIconService({
-				settings: {
-					alwaysOnTop: settings.value['system.alwaysOnTop'],
-				},
-			});
-
-			const { data, error } = await trayService.setTrayIcon(icon);
+			const { data, error } = await services.tray.setTrayIcon(icon);
 
 			if (error) {
 				return Err({

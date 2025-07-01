@@ -1,12 +1,9 @@
 import { goto } from '$app/navigation';
+// import { extension } from '@repo/extension';
+import type { WhisperingRecordingState } from '$lib/constants';
 // import { commandCallbacks } from '$lib/commands';
 import { type Err, Ok, type TaggedError, tryAsync } from '@epicenterhq/result';
-// import { extension } from '@repo/extension';
-import {
-	ALWAYS_ON_TOP_VALUES,
-	type WhisperingRecordingState,
-} from '$lib/constants';
-import { CheckMenuItem, Menu, MenuItem } from '@tauri-apps/api/menu';
+import { Menu, MenuItem } from '@tauri-apps/api/menu';
 import { resolveResource } from '@tauri-apps/api/path';
 import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -17,25 +14,13 @@ const TRAY_ID = 'whispering-tray';
 export type SetTrayIconServiceErrorProperties =
 	TaggedError<'SetTrayIconServiceError'>;
 
-export type SetTrayIconServiceResult<T> =
-	| Ok<T>
-	| Err<SetTrayIconServiceErrorProperties>;
-
-type TrayIconSettings = {
-	alwaysOnTop: string;
-};
-
 type SetTrayIconService = {
 	setTrayIcon: (
 		icon: WhisperingRecordingState,
-	) => Promise<SetTrayIconServiceResult<void>>;
+	) => Promise<Ok<void> | Err<SetTrayIconServiceErrorProperties>>;
 };
 
-export function createSetTrayIconWebService({
-	settings,
-}: {
-	settings: TrayIconSettings;
-}): SetTrayIconService {
+export function createTrayIconWebService(): SetTrayIconService {
 	return {
 		setTrayIcon: async (icon: WhisperingRecordingState) => {
 			// const { error: setRecorderStateError } = await extension.setRecorderState(
@@ -53,12 +38,8 @@ export function createSetTrayIconWebService({
 	};
 }
 
-export function createSetTrayIconDesktopService({
-	settings,
-}: {
-	settings: TrayIconSettings;
-}): SetTrayIconService {
-	const trayPromise = initTray(settings);
+export function createTrayIconDesktopService(): SetTrayIconService {
+	const trayPromise = initTray();
 	return {
 		setTrayIcon: (recorderState: WhisperingRecordingState) =>
 			tryAsync({
@@ -77,28 +58,9 @@ export function createSetTrayIconDesktopService({
 	};
 }
 
-async function initTray(settings: TrayIconSettings) {
+async function initTray() {
 	const existingTray = await TrayIcon.getById(TRAY_ID);
 	if (existingTray) return existingTray;
-
-	const alwaysOnTopItems = await Promise.all(
-		ALWAYS_ON_TOP_VALUES.map(async (value) =>
-			CheckMenuItem.new({
-				id: `always-on-top-${value}`,
-				text: `Always on Top: ${value}`,
-				checked: settings.alwaysOnTop === value,
-				action: async (id) => {
-					// Note: This action will need to be handled by the query layer
-					// For now, we'll just update the menu items
-					await Promise.all(
-						alwaysOnTopItems.map(async (item) => {
-							await item.setChecked(item.id === id);
-						}),
-					);
-				},
-			}),
-		),
-	);
 
 	const trayMenu = await Menu.new({
 		items: [
@@ -114,9 +76,6 @@ async function initTray(settings: TrayIconSettings) {
 				text: 'Hide Window',
 				action: () => getCurrentWindow().hide(),
 			}),
-
-			// Always on Top Section
-			...alwaysOnTopItems,
 
 			// Settings Section
 			await MenuItem.new({
@@ -166,12 +125,6 @@ async function getIconPath(recorderState: WhisperingRecordingState) {
 	return await resolveResource(iconPaths[recorderState]);
 }
 
-export function createSetTrayIconService({
-	settings,
-}: {
-	settings: TrayIconSettings;
-}): SetTrayIconService {
-	return window.__TAURI_INTERNALS__
-		? createSetTrayIconDesktopService({ settings })
-		: createSetTrayIconWebService({ settings });
-}
+export const TrayIconServiceLive = window.__TAURI_INTERNALS__
+	? createTrayIconDesktopService()
+	: createTrayIconWebService();
