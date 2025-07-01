@@ -104,7 +104,7 @@ export {
 export { IS_MACOS } from './platform';
 
 // Sound constants
-export { type WhisperingSoundNames } from './sounds';
+export type { WhisperingSoundNames } from './sounds';
 
 // Transcription constants
 export {

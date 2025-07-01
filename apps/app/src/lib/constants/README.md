@@ -87,6 +87,14 @@ Because OsServiceLive.type() remains stable after build time (services are injec
 
 ## Import and Export Patterns
 
+### Why We Use Barrel Files
+
+The barrel file acts as a curated public API, making it clear what's intended for external use.
+
+When we move types or functions between files within a barrel, we only update the barrel export rather than changing imports across the entire codebase.
+
+In other words, internal reorganization doesn't break imports.
+
 ### How We Export Constants
 
 Each category folder has an `index.ts` barrel file that uses **explicit exports**:
@@ -103,6 +111,8 @@ We avoid wildcard exports:
 // ❌ Bad - Don't use wildcards
 export * from './urls';
 ```
+
+We do this to mitigate the potential performance downsides/overhead of barrelling (bundlers would have harder time analyzing wildcard exports).
 
 ### How We Import Constants
 
