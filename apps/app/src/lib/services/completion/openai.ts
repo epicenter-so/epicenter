@@ -2,15 +2,10 @@ import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import type { CompletionService } from './_types';
 import OpenAI from 'openai';
 
-export function createOpenAiCompletionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): CompletionService {
-	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createOpenAiCompletionService(): CompletionService {
 	return {
-		async complete({ model, systemPrompt, userPrompt }) {
+		async complete({ apiKey, model, systemPrompt, userPrompt }) {
+			const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
 			// Call OpenAI API
 			const { data: completion, error: openaiApiError } = await tryAsync({
 				try: () =>
