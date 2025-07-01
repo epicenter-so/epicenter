@@ -149,3 +149,9 @@ export function createOpenAiCompletionService(): CompletionService {
 		},
 	};
 }
+
+export type OpenaiCompletionService = ReturnType<
+	typeof createOpenAiCompletionService
+>;
+
+export const OpenaiCompletionServiceLive = createOpenAiCompletionService();

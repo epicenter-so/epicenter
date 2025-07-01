@@ -252,5 +252,5 @@ export type OpenaiTranscriptionService = ReturnType<
 	typeof createOpenaiTranscriptionService
 >;
 
-export const openaiTranscriptionServiceLive =
+export const OpenaiTranscriptionServiceLive =
 	createOpenaiTranscriptionService();

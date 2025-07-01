@@ -1,13 +1,13 @@
-import { elevenlabsTranscriptionServiceLive } from './elevenlabs';
-import { groqTranscriptionServiceLive } from './groq';
-import { openaiTranscriptionServiceLive } from './openai';
-import { speachesTranscriptionServiceLive } from './speaches';
+import { ElevenlabsTranscriptionServiceLive } from './elevenlabs';
+import { GroqTranscriptionServiceLive } from './groq';
+import { OpenaiTranscriptionServiceLive } from './openai';
+import { SpeachesTranscriptionServiceLive } from './speaches';
 
 export {
-	elevenlabsTranscriptionServiceLive as elevenlabs,
-	groqTranscriptionServiceLive as groq,
-	openaiTranscriptionServiceLive as openai,
-	speachesTranscriptionServiceLive as speaches,
+	ElevenlabsTranscriptionServiceLive as elevenlabs,
+	GroqTranscriptionServiceLive as groq,
+	OpenaiTranscriptionServiceLive as openai,
+	SpeachesTranscriptionServiceLive as speaches,
 };
 
 export type { ElevenLabsTranscriptionService } from './elevenlabs';

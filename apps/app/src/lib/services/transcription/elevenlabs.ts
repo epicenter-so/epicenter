@@ -79,5 +79,5 @@ export type ElevenLabsTranscriptionService = ReturnType<
 	typeof createElevenLabsTranscriptionService
 >;
 
-export const elevenlabsTranscriptionServiceLive =
+export const ElevenlabsTranscriptionServiceLive =
 	createElevenLabsTranscriptionService();

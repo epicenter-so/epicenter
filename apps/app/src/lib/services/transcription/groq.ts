@@ -229,4 +229,4 @@ export type GroqTranscriptionService = ReturnType<
 	typeof createGroqTranscriptionService
 >;
 
-export const groqTranscriptionServiceLive = createGroqTranscriptionService();
+export const GroqTranscriptionServiceLive = createGroqTranscriptionService();

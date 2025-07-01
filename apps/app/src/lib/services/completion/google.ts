@@ -46,3 +46,9 @@ export function createGoogleCompletionService(): CompletionService {
 		},
 	};
 }
+
+export type GoogleCompletionService = ReturnType<
+	typeof createGoogleCompletionService
+>;
+
+export const GoogleCompletionServiceLive = createGoogleCompletionService();

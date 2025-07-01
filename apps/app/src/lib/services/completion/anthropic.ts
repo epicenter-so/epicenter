@@ -156,3 +156,9 @@ export function createAnthropicCompletionService(): CompletionService {
 		},
 	};
 }
+
+export type AnthropicCompletionService = ReturnType<
+	typeof createAnthropicCompletionService
+>;
+
+export const AnthropicCompletionServiceLive = createAnthropicCompletionService();

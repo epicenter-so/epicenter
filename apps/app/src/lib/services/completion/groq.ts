@@ -149,3 +149,9 @@ export function createGroqCompletionService(): CompletionService {
 		},
 	};
 }
+
+export type GroqCompletionService = ReturnType<
+	typeof createGroqCompletionService
+>;
+
+export const GroqCompletionServiceLive = createGroqCompletionService();
