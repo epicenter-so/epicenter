@@ -17,7 +17,7 @@ import type {
 	TransformationRunFailed,
 	TransformationStep,
 } from './db/models';
-import type { DbService } from './db/types';
+import type { DbService } from './db/dexie';
 
 type TransformServiceError = TaggedError<'TransformServiceError'>;
 
