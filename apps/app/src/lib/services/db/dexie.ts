@@ -5,15 +5,12 @@ import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type {
+	Recording,
 	RecordingsDbSchemaV1,
 	RecordingsDbSchemaV2,
 	RecordingsDbSchemaV3,
 	RecordingsDbSchemaV4,
 	RecordingsDbSchemaV5,
-} from './_schemas';
-import type {
-	DbServiceError,
-	Recording,
 	Transformation,
 	TransformationRun,
 	TransformationRunCompleted,
@@ -25,6 +22,9 @@ import type {
 	TransformationRunRunning,
 } from './models';
 import type { Settings } from '$lib/settings';
+import type { TaggedError } from '@epicenterhq/result';
+
+export type DbServiceError = TaggedError<'DbServiceError'>;
 
 const DB_NAME = 'RecordingDB';
 
