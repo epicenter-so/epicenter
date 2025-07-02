@@ -21,12 +21,11 @@ services/
 │
 # Single Implementation Services (single files)
 ├── vad.ts                      # Voice Activity Detection service
-├── transformer.ts              # Text transformation service
 ├── manual-recorder.ts          # Manual recording management
 ├── cpal-recorder.ts            # CPAL audio recording (desktop)
-├── SetTrayIconService.ts       # System tray management
 ├── global-shortcut-manager.ts  # Global keyboard shortcuts
 ├── local-shortcut-manager.ts   # Local keyboard shortcuts
+├── tray.ts                     # System tray management
 │
 # Platform-Specific Services (folders with multiple implementations)
 ├── clipboard/                  # Clipboard operations
@@ -78,6 +77,7 @@ services/
 │   └── speaches.ts           # Speaches.ai transcription
 │
 ├── completion/                # LLM completion services
+│   ├── index.ts              # Exports all completion services
 │   ├── _types.ts             # Shared completion types
 │   ├── openai.ts             # OpenAI GPT models
 │   ├── anthropic.ts          # Claude models
@@ -87,14 +87,15 @@ services/
 # Database Service (special case with dependency injection)
 ├── db/                        # Database operations
 │   ├── index.ts              # Exports DbServiceLive
-│   ├── types.ts              # Database service interface
 │   ├── dexie.ts              # Dexie (IndexedDB) implementation
-│   ├── models.ts             # Database models & types
-│   └── _schemas.ts           # Internal schema definitions
+│   └── models/               # Database model implementations
+│       ├── index.ts
+│       ├── recordings.ts
+│       ├── transformations.ts
+│       └── transformation-runs.ts
 │
 # Utility Services
-└── shortcuts/                 # Keyboard shortcut utilities
-    └── shortcut-trigger-state.ts
+└── _shortcut-trigger-state.ts # Keyboard shortcut utilities
 ```
 
 ## Service Patterns
@@ -106,11 +107,12 @@ There are two distinct patterns for implementing services in this codebase:
 For services with only one implementation, we use factory functions and derive the type from the return value. These are typically stored in a single file:
 
 #### File Structure
+
 ```
 services/
 ├── vad.ts                    # Single file containing both types and implementation
-├── transformer.ts            # Complex service with dependency injection
 ├── manual-recorder.ts        # Service managing recording state
+├── tray.ts                   # System tray management
 └── transcription/           # Multiple similar services
     ├── index.ts             # Re-exports all transcription services
     ├── openai.ts            # OpenAI transcription implementation
@@ -120,6 +122,7 @@ services/
 ```
 
 #### Example Implementation
+
 ```typescript
 // vad.ts - Service that has same implementation on desktop and web
 export function createVadServiceWeb() {
@@ -153,6 +156,7 @@ export type VadService = ReturnType<typeof createVadServiceWeb>;
 For services that require different implementations based on platform, we use dependency injection with explicit type definitions and the `Live` suffix:
 
 #### File Structure
+
 ```
 services/
 ├── clipboard/               # Platform-specific service
@@ -226,10 +230,47 @@ Dependency injection is used only when:
 
 1. **Isomorphic API**: The API surface must be exactly the same across all implementations (one-to-one mapping for every feature and type)
 2. **Platform-Dependent**: Different implementations are needed for desktop (Tauri) vs web environments
+3. **Exactly 1 implementation running**: There should be exactly one implementation running simultaneously across all platforms
+
+Avoid dependency injection when:
+
+4. **"1.5 implementations running simultaneously"**: When you have one service always running (local shortcuts) PLUS another similar service that only runs conditionally on some platforms (global shortcuts only on desktop). This results in desktop running 2 services, web running 1 service = ~1.5 average. Even if APIs are similar, they serve different purposes with different runtime patterns.
+
+5. **"0.5 implementations running simultaneously"**: When you have a service that only runs on one platform with no equivalent on other platforms. This results in desktop running 1 service, web running 0 services = ~0.5 average. Instead of creating empty shell implementations, make it platform-specific and use conditional logic in query/application layer.
 
 The `Live` suffix denotes the production instance used at runtime.
 
 ## Core Concepts
+
+### Purity Requirements
+
+Services must be completely pure with no dependencies on global state:
+
+- No imports of settings stores or reactive state
+- All external configuration passed as explicit parameters
+- No hidden dependencies or side effects beyond the intended operation
+- Stateless operations that can be unit tested in isolation
+
+Configuration that services need (like API keys or settings) should be passed from the query layer:
+
+```typescript
+// CORRECT - Pure service accepts configuration as parameters
+export function createCompletionService(): CompletionService {
+	return {
+		async complete({ apiKey, prompt }) {
+			// apiKey injected from query layer
+			const client = new OpenAI({ apiKey });
+			// ... implementation
+		},
+	};
+}
+
+// Query layer handles settings injection
+const result = await services.completions.openai.complete({
+	apiKey: settings.value['apiKeys.openai'], // Handled at query boundary
+	prompt,
+});
+```
 
 ### Result Types
 
@@ -241,12 +282,14 @@ import { Ok, Err, type Result, tryAsync, trySync } from '@epicenterhq/result';
 // Using tryAsync for async operations
 async function transcribe(
 	blob: Blob,
+	options: { apiKey: string; model: string },
 ): Promise<Result<string, TranscriptionError>> {
 	return tryAsync({
-		try: () => apiCall(blob),
+		try: () => apiCall(blob, options),
 		mapError: (error): TranscriptionError => ({
 			name: 'TranscriptionError',
 			message: 'Failed to transcribe audio',
+			context: { model: options.model },
 			cause: error,
 		}),
 	});
@@ -275,258 +318,6 @@ export const ClipboardServiceLive = window.__TAURI_INTERNALS__
 	? createClipboardServiceDesktop() // Tauri APIs
 	: createClipboardServiceWeb(); // Web APIs
 ```
-
-## Detailed Examples
-
-### Example 1: Single File Service (VAD Service)
-
-**File:** `services/vad.ts`
-
-Complete implementation in a single file with derived types:
-
-```typescript
-import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
-import type { VadState } from '$lib/constants';
-import { WhisperingError } from '$lib/result';
-import { MicVAD, utils } from '@ricky0123/vad-web';
-
-export function createVadServiceWeb() {
-	let maybeVad: MicVAD | null = null;
-	let vadState: VadState = 'IDLE';
-
-	return {
-		getVadState(): VadState {
-			return vadState;
-		},
-
-		async startActiveListening({
-			onSpeechStart,
-			onSpeechEnd,
-			deviceId,
-		}: {
-			onSpeechStart: () => void;
-			onSpeechEnd: (blob: Blob) => void;
-			deviceId: string | null;
-		}) {
-			if (!maybeVad) {
-				const { data: newVad, error: initializeVadError } = await tryAsync({
-					try: () => MicVAD.new({
-						additionalAudioConstraints: deviceId ? { deviceId } : undefined,
-						submitUserSpeechOnPause: true,
-						onSpeechStart: () => {
-							vadState = 'SPEECH_DETECTED';
-							onSpeechStart();
-						},
-						onSpeechEnd: (audio) => {
-							vadState = 'LISTENING';
-							const wavBuffer = utils.encodeWAV(audio);
-							const blob = new Blob([wavBuffer], { type: 'audio/wav' });
-							onSpeechEnd(blob);
-						},
-						model: 'v5',
-					}),
-					mapError: (error) => WhisperingError({
-						title: 'Failed to start voice activated capture',
-						description: 'Your voice activated capture could not be started.',
-						context: {},
-						cause: error,
-					}),
-				});
-				if (initializeVadError) return Err(initializeVadError);
-				maybeVad = newVad;
-			}
-
-			vadState = 'LISTENING';
-			return Ok(undefined);
-		},
-
-		async stopActiveListening() {
-			if (!maybeVad) return Ok(undefined);
-			
-			const vad = maybeVad;
-			const { error } = trySync({
-				try: () => vad.destroy(),
-				mapError: (error) => WhisperingError({
-					title: 'Failed to stop Voice Activity Detector',
-					description: error instanceof Error ? error.message : 'Failed to stop VAD',
-					context: {},
-					cause: error,
-				}),
-			});
-			
-			if (error) return Err(error);
-			maybeVad = null;
-			vadState = 'IDLE';
-			return Ok(undefined);
-		},
-	};
-}
-
-// Export the live instance directly
-export const VadServiceLive = createVadServiceWeb();
-
-// Type is derived from the factory function
-export type VadService = ReturnType<typeof createVadServiceWeb>;
-```
-
-### Example 2: Multiple Transcription Services (Single Implementation Pattern)
-
-When you have multiple services with similar purposes but different implementations:
-
-```typescript
-// openai.ts
-export function createOpenaiTranscriptionService({ apiKey }: { apiKey: string }) {
-	return {
-		async transcribe(
-			blob: Blob,
-			options: { model: string; language?: string },
-		): Promise<Result<string, TranscriptionError>> {
-			// OpenAI-specific implementation
-		},
-	};
-}
-
-export const openaiTranscriptionServiceLive = createOpenaiTranscriptionService({
-	apiKey: settings.value['apiKeys.openai'],
-});
-
-export type OpenaiTranscriptionService = ReturnType<typeof createOpenaiTranscriptionService>;
-
-// groq.ts
-export function createGroqTranscriptionService({ apiKey }: { apiKey: string }) {
-	return {
-		async transcribe(
-			blob: Blob,
-			options: { model: string; language?: string },
-		): Promise<Result<string, TranscriptionError>> {
-			// Groq-specific implementation
-		},
-	};
-}
-
-export const groqTranscriptionServiceLive = createGroqTranscriptionService({
-	apiKey: settings.value['apiKeys.groq'],
-});
-
-export type GroqTranscriptionService = ReturnType<typeof createGroqTranscriptionService>;
-
-// index.ts - Export all transcription services
-export {
-	openaiTranscriptionServiceLive as openai,
-	groqTranscriptionServiceLive as groq,
-	elevenlabsTranscriptionServiceLive as elevenlabs,
-};
-```
-
-### Example 3: Platform-Specific Service (Dependency Injection Pattern)
-
-Services that need different implementations for desktop vs web:
-
-```typescript
-// types.ts
-export type NotificationService = {
-	showNotification(options: NotificationOptions): Promise<Result<void, NotificationError>>;
-	requestPermission(): Promise<Result<NotificationPermission, NotificationError>>;
-};
-
-// desktop.ts
-export function createNotificationServiceDesktop(): NotificationService {
-	return {
-		async showNotification(options) {
-			return tryAsync({
-				try: () => sendNotification(options), // Tauri API
-				mapError: (error): NotificationError => ({
-					name: 'NotificationError',
-					message: 'Failed to show desktop notification',
-					cause: error,
-				}),
-			});
-		},
-		
-		async requestPermission() {
-			// Desktop always has permission
-			return Ok('granted' as NotificationPermission);
-		},
-	};
-}
-
-// web.ts
-export function createNotificationServiceWeb(): NotificationService {
-	return {
-		async showNotification(options) {
-			return tryAsync({
-				try: () => new Notification(options.title, options),
-				mapError: (error): NotificationError => ({
-					name: 'NotificationError',
-					message: 'Failed to show web notification',
-					cause: error,
-				}),
-			});
-		},
-		
-		async requestPermission() {
-			return tryAsync({
-				try: () => Notification.requestPermission(),
-				mapError: (error): NotificationError => ({
-					name: 'NotificationError',
-					message: 'Failed to request notification permission',
-					cause: error,
-				}),
-			});
-		},
-	};
-}
-
-// index.ts
-export const NotificationServiceLive = window.__TAURI_INTERNALS__
-	? createNotificationServiceDesktop()
-	: createNotificationServiceWeb();
-```
-
-### Example 4: Database Service with Dependency Injection
-
-```typescript
-// dexie.ts
-export function createDbServiceDexie({
-	DownloadService,
-}: {
-	DownloadService: DownloadService;
-}) {
-	return {
-		async downloadRecording(recordingId: string): Promise<Result<void, DbServiceError>> {
-			const { data: recording, error } = await this.getRecordingById(recordingId);
-			if (error) return Err(error);
-			
-			// Uses injected DownloadService
-			const downloadResult = await DownloadService.downloadFile({
-				url: recording.audioUrl,
-				filename: `${recording.title}.webm`,
-			});
-			
-			return downloadResult.mapError((error): DbServiceError => ({
-				name: 'DbServiceError',
-				message: 'Failed to download recording',
-				cause: error,
-			}));
-		},
-		
-		// Other database methods...
-	};
-}
-
-// index.ts
-export const DbServiceLive = createDbServiceDexie({
-	DownloadService: DownloadServiceLive,
-});
-```
-
-## Best Practices
-
-1. **Pure Functions** - No side effects except the intended operation
-2. **Error Handling** - Always return Result types, never throw
-3. **Platform Agnostic APIs** - Same interface for all platforms
-4. **Testability** - Services should be easily unit testable
-5. **Single Responsibility** - Each service handles one concern
 
 ## Adding New Services
 
@@ -566,12 +357,12 @@ export { MyServiceLive as myService } from './my-service';
 
 ## Key Differences from Query Layer
 
-| Aspect         | Services     | Query Layer              |
-| -------------- | ------------ | ------------------------ |
-| State          | Stateless    | Stateful (cache)         |
-| Dependencies   | None         | Settings, other queries  |
-| Error Handling | Result types | Result types + UI toasts |
-| Usage          | Direct calls | Through TanStack Query   |
-| Reactivity     | None         | Reactive subscriptions   |
+| Aspect         | Services                 | Query Layer              |
+| -------------- | ------------------------ | ------------------------ |
+| State          | Stateless                | Stateful (cache)         |
+| Dependencies   | Explicit parameters only | Settings, other queries  |
+| Error Handling | Result types             | Result types + UI toasts |
+| Usage          | Direct calls             | Through TanStack Query   |
+| Reactivity     | None                     | Reactive subscriptions   |
 
-Services provide the foundation that the query layer builds upon to create a reactive, user-friendly application.
+Services provide the pure foundation that the query layer builds upon to create a reactive, user-friendly application. The query layer is responsible for handling settings reactivity and passing configuration to pure services.
