@@ -126,14 +126,7 @@ That's it. We don't charge you (only your API provider does). No credit card. No
 
 On macOS, global shortcuts may occasionally stop responding when the app runs in the background due to macOS's App Nap feature, which reduces background app performance to save battery.
 
-**Symptoms:**
-- Global shortcut (`Cmd + Shift + ;`) doesn't trigger recording
-- App works normally when brought to foreground
-
-**Solutions:**
-1. Bring Whispering to foreground briefly to restore shortcut functionality
-2. Run Whispering in minimized mode by pressing the minimize button
-3. Disable App Nap globally: `defaults write NSGlobalDomain NSAppSleepDisabled -bool YES`
+**Solution:** Bring Whispering to the foreground briefly to restore shortcut functionality. You can also run Whispering in the foreground using our custom minimize mode by clicking the minimize button (not the OS minimize button).
 
 ### Optional: Advanced Features
 
