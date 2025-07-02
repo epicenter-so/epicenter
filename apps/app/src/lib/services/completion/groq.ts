@@ -2,15 +2,10 @@ import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import type { CompletionService } from './_types';
 import Groq from 'groq-sdk';
 
-export function createGroqCompletionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): CompletionService {
-	const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createGroqCompletionService(): CompletionService {
 	return {
-		async complete({ model, systemPrompt, userPrompt }) {
+		async complete({ apiKey, model, systemPrompt, userPrompt }) {
+			const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 			// Call Groq API
 			const { data: completion, error: groqApiError } = await tryAsync({
 				try: () =>
@@ -154,3 +149,9 @@ export function createGroqCompletionService({
 		},
 	};
 }
+
+export type GroqCompletionService = ReturnType<
+	typeof createGroqCompletionService
+>;
+
+export const GroqCompletionServiceLive = createGroqCompletionService();

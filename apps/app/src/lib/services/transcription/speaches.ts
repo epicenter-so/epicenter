@@ -176,7 +176,7 @@ export type SpeachesTranscriptionService = ReturnType<
 
 import { HttpServiceLive } from '$lib/services/http';
 
-export const speachesTranscriptionServiceLive =
+export const SpeachesTranscriptionServiceLive =
 	createSpeachesTranscriptionService({
 		HttpService: HttpServiceLive,
 	});

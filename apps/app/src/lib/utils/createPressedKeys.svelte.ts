@@ -1,8 +1,9 @@
-import { IS_MACOS } from '$lib/constants/is-macos';
-import type { KeyboardEventPossibleKey } from '$lib/constants/keyboard-event-possible-keys';
-import { isSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
-import { normalizeOptionKeyCharacter } from '$lib/constants/macos-option-key-map';
-import * as services from '$lib/services';
+import { IS_MACOS } from '$lib/constants/platform';
+import {
+	type KeyboardEventPossibleKey,
+	isSupportedKey,
+	normalizeOptionKeyCharacter,
+} from '$lib/constants/keyboard';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
 

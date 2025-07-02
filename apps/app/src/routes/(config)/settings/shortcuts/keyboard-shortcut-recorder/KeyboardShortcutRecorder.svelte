@@ -4,8 +4,8 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Alert from '$lib/components/ui/alert/index.js';
-	import { IS_MACOS } from '$lib/constants/is-macos';
-	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	import { IS_MACOS } from '$lib/constants/platform';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { cn } from '$lib/utils';
 	import { Keyboard, Pencil, XIcon, AlertTriangle } from 'lucide-svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';

@@ -19,7 +19,7 @@ export type {
 	TransformationStep,
 	TransformationStepRun,
 } from './models';
-export type { DbService } from './types';
+export type { DbService } from './dexie';
 
 export const DbServiceLive = createDbServiceDexie({
 	DownloadService: DownloadServiceLive,

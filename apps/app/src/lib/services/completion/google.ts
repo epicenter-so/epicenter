@@ -2,13 +2,14 @@ import { Err, Ok, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { CompletionService, CompletionServiceError } from './_types';
 
-export function createGoogleCompletionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): CompletionService {
+export function createGoogleCompletionService(): CompletionService {
 	return {
-		complete: async ({ model: modelName, systemPrompt, userPrompt }) => {
+		complete: async ({
+			apiKey,
+			model: modelName,
+			systemPrompt,
+			userPrompt,
+		}) => {
 			const combinedPrompt = `${systemPrompt}\n${userPrompt}`;
 			const { data: completion, error: completionError } = await tryAsync({
 				try: async () => {
@@ -45,3 +46,9 @@ export function createGoogleCompletionService({
 		},
 	};
 }
+
+export type GoogleCompletionService = ReturnType<
+	typeof createGoogleCompletionService
+>;
+
+export const GoogleCompletionServiceLive = createGoogleCompletionService();

@@ -11,7 +11,7 @@
 	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
-	import RenderTransformation from './-components/RenderTransformation.svelte';
+	import { Editor } from './editor';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import { toast } from '$lib/toast';
 
@@ -78,7 +78,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<RenderTransformation
+		<Editor
 			{transformation}
 			setTransformation={(newTransformation) => {
 				updateTransformation.mutate($state.snapshot(newTransformation), {

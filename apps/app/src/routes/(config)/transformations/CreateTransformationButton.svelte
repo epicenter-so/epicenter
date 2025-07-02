@@ -8,7 +8,7 @@
 	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
-	import RenderTransformation from './-components/RenderTransformation.svelte';
+	import { Editor } from './editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,
@@ -59,7 +59,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<RenderTransformation
+		<Editor
 			{transformation}
 			setTransformation={(newTransformation) => {
 				transformation = newTransformation;

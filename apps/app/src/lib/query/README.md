@@ -1,6 +1,19 @@
 # Query Layer
 
-The query layer is the **reactive bridge** between your UI components and the isolated service layer. It adds caching, reactivity, and state management on top of pure service functions.
+The query layer is the reactive bridge between your UI components and the isolated service layer. It adds caching, reactivity, and state management on top of pure service functions.
+
+## Static Site Generation Advantage
+
+This application is fully static site generated and client-side only, which gives us a unique architectural advantage: direct access to the TanStack Query client.
+
+Unlike server-side rendered applications where the query client lifecycle is managed by frameworks, our static approach means:
+
+- Direct Query Client Access: We can call `queryClient.fetchQuery()` and `queryClient.getMutationCache().build()` directly
+- Imperative Control: No need to go through reactive hooks for one-time operations
+- Performance Benefits\*\*: We can build mutations using direct execution rather than creating unnecessary subscribers
+- Flexible Interfaces: Both reactive (`.options()`) and imperative (`.execute()`, `.fetchCached()`) patterns work seamlessly
+
+This enables our unique dual interface pattern where every query and mutation provides both reactive and imperative APIs.
 
 ## What is RPC?
 
@@ -21,6 +34,54 @@ The name "RPC" is inspired by Remote Procedure Calls, but adapted for our needs:
 - **R**esult: Every operation returns a `Result<T, E>` type for consistent error handling
 - **P**rocedure: Each operation is a well-defined procedure (query or mutation)
 - **C**all: You can call these procedures reactively or imperatively
+
+> **Author's Note**: I know, I know... "RPC" traditionally stands for "Remote Procedure Call," but I've reused the acronym to mean because it's fun and technically this builds off the Result type. People are already familiar with the RPC mental model, and honestly it just feels good to write `rpc`. Plus, it sounds way cooler than "query namespace" or whatever. 🤷‍♂️
+
+## The .execute() Performance Advantage
+
+When you call `createMutation()`, you're creating a _mutation observer_ that subscribes to reactive state changes. If you don't need the reactive state (like `isPending`, `isError`, etc.), you're paying a performance cost for functionality you're not using.
+
+### Performance Comparison
+
+```typescript
+// ❌ createMutation() approach - Creates subscriber
+const mutation = createMutation(rpc.recordings.createRecording.options());
+// This creates a mutation observer that:
+// - Subscribes to state changes
+// - Triggers component re-renders
+// - Manages reactive state (isPending, isError, etc.)
+// - Adds memory overhead
+
+// Then you call it:
+mutation.mutate(recording);
+```
+
+```typescript
+// ✅ .execute() approach - Direct execution
+const { data, error } = await rpc.recordings.createRecording.execute(recording);
+// This directly:
+// - Executes the mutation immediately
+// - Returns a simple Result<T, E>
+// - No reactive state management
+// - No component subscriptions
+// - No memory overhead from observers
+```
+
+### When to Use Each Approach
+
+**Use `.execute()` when:**
+
+- Event handlers that just need the result
+- Sequential operations in commands/workflows
+- You don't need reactive state (isPending, etc.)
+- Performance is critical
+- Non-component code (services, utilities)
+
+**Use `createMutation()` when:**
+
+- You need reactive state for UI feedback
+- Loading spinners, disable states, error displays
+- The component needs to react to mutation state changes
 
 ## Why RPC?
 
@@ -44,6 +105,13 @@ rpc.recordings.getAllRecordings;
 rpc.transcription.transcribeRecording;
 rpc.clipboard.copyToClipboard;
 ```
+
+RPC provides:
+
+- Unified Import: One import gives you access to everything
+- Better DX: IntelliSense shows all available operations organized by domain
+- Consistent Interface: Every operation follows the same dual-interface pattern
+- Discoverability: Easy to explore what operations are available
 
 ## Architecture Philosophy
 
@@ -96,6 +164,7 @@ rpc.clipboard.copyToClipboard;
 
 ```typescript
 // From: /lib/deliverTextToUser.ts
+// ✅ Direct execution - no reactive overhead
 async function copyToClipboard(text: string) {
 	const { error } = await rpc.clipboard.copyToClipboard.execute({ text });
 
@@ -107,12 +176,17 @@ async function copyToClipboard(text: string) {
 		});
 	}
 }
+
+// ❌ Alternative with createMutation (unnecessary overhead)
+// const copyMutation = createMutation(rpc.clipboard.copyToClipboard.options());
+// copyMutation.mutate({ text }); // Creates observer, manages state we don't need
 ```
 
-### 3. Sequential Operations with Multiple RPC Calls
+### 3. Sequential Operations - The .execute() Sweet Spot
 
 ```typescript
 // From: /lib/commands.ts
+// ✅ Perfect use case for .execute() - sequential workflow without UI reactivity
 async function stopAndTranscribe() {
 	// Step 1: Stop recording
 	const { data: blob, error } = await rpc.manualRecorder.stopRecording.execute({
@@ -124,19 +198,27 @@ async function stopAndTranscribe() {
 		return;
 	}
 
-	// Step 2: Play sound effect
+	// Step 2: Play sound effect (fire-and-forget)
 	rpc.sound.playSoundIfEnabled.execute('manual-stop');
 
 	// Step 3: Create recording in database
-	const recording = await rpc.recordings.createRecording.execute({
-		blob,
-		timestamp: new Date(),
-		transcriptionStatus: 'PENDING',
-	});
+	const { data: recording, error: createError } =
+		await rpc.recordings.createRecording.execute({
+			blob,
+			timestamp: new Date(),
+			transcriptionStatus: 'PENDING',
+		});
+
+	if (createError) return;
 
 	// Step 4: Transcribe the recording
 	await rpc.transcription.transcribeRecording.execute(recording);
 }
+
+// ❌ With createMutation (overkill for workflows)
+// const stopMutation = createMutation(rpc.manualRecorder.stopRecording.options());
+// const createMutation = createMutation(rpc.recordings.createRecording.options());
+// Multiple observers created, state managed unnecessarily
 ```
 
 ### 4. Dynamic Queries with Parameters
@@ -230,9 +312,9 @@ That's it! The query automatically:
 
 ## Core Utilities
 
-### `defineQuery` and `defineMutation`
+### `defineQuery` and `defineMutation` - Enabled by Direct Client Access
 
-Our factory functions in `_utils.ts` provide a consistent pattern for all operations:
+Our factory functions in `_utils.ts` provide a consistent dual interface pattern that's only possible because we have direct access to the query client:
 
 ```typescript
 // Define a query with automatic error handling via Result types
@@ -241,12 +323,24 @@ const userQuery = defineQuery({
 	resultQueryFn: () => services.getUser(userId), // Returns Result<User, Error>
 });
 
-// Use reactively in components
+// ✅ Reactive interface - creates query observer
 const query = createQuery(userQuery.options());
+// - Subscribes to state changes
+// - Manages loading, error, success states
+// - Triggers component re-renders
 
-// Or use imperatively when needed
+// ✅ Imperative interface - direct query client usage
 const { data, error } = await userQuery.fetchCached();
+// - Calls queryClient.fetchQuery() directly
+// - Returns cached data if fresh
+// - No reactive overhead
 ```
+
+**This dual interface is powered by direct query client access:**
+
+- `.options()` returns standard TanStack Query configuration
+- `.fetchCached()` calls `queryClient.fetchQuery()` under the hood
+- `.execute()` uses `queryClient.getMutationCache().build()` for direct execution
 
 ### Why Result Types?
 
@@ -392,11 +486,14 @@ Each feature file typically exports an object with:
 
 ## Best Practices
 
-1. **Always use Result types** - Never throw errors in query/mutation functions
-2. **Keep queries simple** - Complex logic belongs in services or orchestration mutations
-3. **Update cache optimistically** - Better UX for mutations
-4. **Use proper query keys** - Hierarchical and consistent
-5. **Leverage the dual interface** - `.options()` for reactive UI, `.execute()` for imperative actions
+1. Always use Result types - Never throw errors in query/mutation functions
+2. Choose the right interface for the job:
+   - Use `.execute()` for event handlers, workflows, and performance-critical operations
+   - Use `createMutation()` when you need reactive state for UI feedback
+3. Keep queries simple - Complex logic belongs in services or orchestration mutations
+4. Update cache optimistically - Better UX for mutations
+5. Use proper query keys - Hierarchical and consistent
+6. Leverage direct client access - Our static architecture enables powerful patterns unavailable in SSR apps
 
 ## Quick Reference: Common RPC Patterns
 
@@ -432,14 +529,20 @@ const deleteRecordingMutation = createMutation(
 deleteRecordingMutation.mutate(recordingId);
 ```
 
-### Imperative Execute
+### Imperative Execute - Performance Optimized
 
 ```typescript
-// For queries
+// ✅ Queries - uses queryClient.fetchQuery() directly
 const { data, error } = await rpc.recordings.getAllRecordings.fetchCached();
+// - Returns cached data if fresh
+// - No reactive subscription
+// - Perfect for prefetching or one-time fetches
 
-// For mutations
+// ✅ Mutations - uses queryClient.getMutationCache().build() directly
 const { data, error } = await rpc.recordings.createRecording.execute(recording);
+// - Direct execution without mutation observer
+// - No reactive state management overhead
+// - Ideal for event handlers and workflows
 ```
 
 ### Error Handling Pattern

@@ -1,6 +1,6 @@
 import { type Command, commandCallbacks } from '$lib/commands';
-import { IS_MACOS } from '$lib/constants/is-macos';
-import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+import { IS_MACOS } from '$lib/constants/platform';
+import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/global-shortcut-manager';
 import type { CommandId } from '$lib/services/local-shortcut-manager';
