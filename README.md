@@ -67,7 +67,7 @@ https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
 **Transcription Service**: Whispering converts your speech to text using transcription services. You have two options:
 
-- **Cloud services** (OpenAI, Groq, ElevenLabs) - Require an API key but offer the best accuracy
+- **Cloud services** (OpenAI, Groq, ElevenLabs) - Require an API key but often offers better accuracy, performance, and convenience
 - **Local transcription** (Speaches) - Runs on your device, no API key needed, completely private
 
 **API Key**: If using cloud services, you'll need an API key (think of it as a secure password that lets Whispering access the service on your behalf). You pay the service directly (usually cents per hour), not us.
@@ -98,14 +98,15 @@ Choose your platform and download:
 ### Set Up Transcription
 
 1. Open Whispering and navigate to **Settings** (⚙️) → **Transcription**
-2. **Choose your service:**
-   - **Groq** (Recommended): Fastest and cheapest with great accuracy
+2. **Choose your service.** Here are my personal recommendations:
+   - **Groq** (Recommended): Fastest, cheapest, with great accuracy
    - **OpenAI**: Industry standard, slightly more expensive
+   - **ElevenLabs**: High accuracy, most expensive
    - **Speaches**: Local transcription, completely private, no API key needed
-3. **Add your API key** (skip if using Speaches):
-   - Get a Groq API key at [console.groq.com/keys](https://console.groq.com/keys)
-   - Paste it into the API key field
-   - Select the "distil-whisper-large-v3-en" model for best speed/cost balance
+3. **Configure your service:**
+   - **For cloud services (Groq, OpenAI, ElevenLabs)**: Get an API key from your chosen provider and paste it into the API key field
+   - **For Speaches**: Configure the base URL (typically `http://localhost:8000`) and model ID after setting up your local server
+   - **Groq example**: Get a key at [console.groq.com/keys](https://console.groq.com/keys) and select "distil-whisper-large-v3-en" model for best speed/cost balance
 
 ### Start Using Whispering
 
@@ -118,6 +119,21 @@ Choose your platform and download:
 Your transcription will be automatically copied to your clipboard and ready to paste anywhere!
 
 That's it. We don't charge you (only your API provider does). No credit card. No subscription. No tracking.
+
+### Known Issues
+
+#### macOS Global Shortcut Limitations
+
+On macOS, global shortcuts may occasionally stop responding when the app runs in the background due to macOS's App Nap feature, which reduces background app performance to save battery.
+
+**Symptoms:**
+- Global shortcut (`Cmd + Shift + ;`) doesn't trigger recording
+- App works normally when brought to foreground
+
+**Solutions:**
+1. Bring Whispering to foreground briefly to restore shortcut functionality
+2. Run Whispering in minimized mode by pressing the minimize button
+3. Disable App Nap globally: `defaults write NSGlobalDomain NSAppSleepDisabled -bool YES`
 
 ### Optional: Advanced Features
 
