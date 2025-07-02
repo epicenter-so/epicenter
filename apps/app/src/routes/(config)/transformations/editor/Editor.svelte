@@ -3,9 +3,9 @@
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createQuery } from '@tanstack/svelte-query';
-	import RenderTransformationConfigurationAndSteps from './RenderTransformationConfigurationAndSteps.svelte';
-	import RenderTransformationRuns from './RenderTransformationRuns.svelte';
-	import RenderTransformationTest from './RenderTransformationTest.svelte';
+	import Configuration from './Configuration.svelte';
+	import Runs from './Runs.svelte';
+	import Test from './Test.svelte';
 
 	let {
 		transformation,
@@ -26,7 +26,7 @@
 
 <Resizable.PaneGroup direction="horizontal">
 	<Resizable.Pane>
-		<RenderTransformationConfigurationAndSteps
+		<Configuration
 			{transformation}
 			{setTransformation}
 			{setTransformationDebounced}
@@ -36,7 +36,7 @@
 	<Resizable.Pane>
 		<Resizable.PaneGroup direction="vertical">
 			<Resizable.Pane>
-				<RenderTransformationTest {transformation} />
+				<Test {transformation} />
 			</Resizable.Pane>
 			<Resizable.Handle withHandle />
 			<Resizable.Pane>
@@ -48,7 +48,7 @@
 							.error.message}
 					</div>
 				{:else if transformationRunsByTransformationIdQuery.data}
-					<RenderTransformationRuns
+					<Runs
 						runs={transformationRunsByTransformationIdQuery.data}
 					/>
 				{/if}

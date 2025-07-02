@@ -5,7 +5,7 @@
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from 'lucide-svelte';
-	import RenderTransformationRuns from '../transformations/-components/RenderTransformationRuns.svelte';
+	import { Runs } from '../transformations/editor';
 
 	let { recordingId }: { recordingId: string } = $props();
 
@@ -45,9 +45,7 @@
 					{transformationRunsByRecordingIdQuery.error.message}
 				</div>
 			{:else if transformationRunsByRecordingIdQuery.data}
-				<RenderTransformationRuns
-					runs={transformationRunsByRecordingIdQuery.data}
-				/>
+				<Runs runs={transformationRunsByRecordingIdQuery.data} />
 			{/if}
 		</div>
 		<Dialog.Footer>
