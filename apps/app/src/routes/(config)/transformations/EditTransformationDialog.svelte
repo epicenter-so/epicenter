@@ -11,7 +11,7 @@
 	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
-	import { Editor } from './editor';
+	import { Editor } from '$lib/components/transformations-editor';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import { toast } from '$lib/toast';
 

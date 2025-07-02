@@ -6,7 +6,7 @@
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { Editor } from '../editor';
+	import { Editor } from '$lib/components/transformations-editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,
