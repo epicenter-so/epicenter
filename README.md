@@ -61,46 +61,77 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
 https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
-## Quick Start
+## Getting Started
 
-1. **Download** the app for your platform
-2. **Add your API key** (OpenAI, Groq, or others) or **configure your local transcription server**
-3. **Press** `Ctrl/Cmd + Shift + ;` to transcribe anywhere (and configure more in settings)
+### What You'll Need
+
+**Transcription Service**: Whispering converts your speech to text using transcription services. You have two options:
+
+- **Cloud services** (OpenAI, Groq, ElevenLabs) - Require an API key but offer the best accuracy
+- **Local transcription** (Speaches) - Runs on your device, no API key needed, completely private
+
+**API Key**: If using cloud services, you'll need an API key (think of it as a secure password that lets Whispering access the service on your behalf). You pay the service directly (usually cents per hour), not us.
+
+**Recommended for beginners**: Start with [Groq](https://console.groq.com/keys)'s `distil-whisper-large-v3-en` or `whisper-large-v3-turbo`—they're the fastest and cheapest options at $0.02/hour and $0.04/hour with great accuracy.
+
+### Download & Install
+
+Choose your platform and download:
+
+**macOS**: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
+- Download the `.dmg` file, drag to Applications
+- If you see "unverified developer", right-click and select "Open"
+- Apple Silicon users: If you get a "damaged" error, run: `xattr -cr /Applications/Whispering.app`
+
+**Windows**: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
+- Download the `.msi` installer and run it
+- Click "More Info" → "Run Anyway" if prompted
+
+**Linux**: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
+- AppImage: `chmod +x whispering_x.x.x_amd64.AppImage && ./whispering_x.x.x_amd64.AppImage`
+- DEB: `sudo dpkg -i whispering_x.x.x_amd64.deb`
+
+**Web App**: Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) for the browser version.
+
+**Chrome Extension**: Currently temporarily disabled while we stabilize recent changes.
+
+### Set Up Transcription
+
+1. Open Whispering and navigate to **Settings** (⚙️) → **Transcription**
+2. **Choose your service:**
+   - **Groq** (Recommended): Fastest and cheapest with great accuracy
+   - **OpenAI**: Industry standard, slightly more expensive
+   - **Speaches**: Local transcription, completely private, no API key needed
+3. **Add your API key** (skip if using Speaches):
+   - Get a Groq API key at [console.groq.com/keys](https://console.groq.com/keys)
+   - Paste it into the API key field
+   - Select the "distil-whisper-large-v3-en" model for best speed/cost balance
+
+### Start Using Whispering
+
+**Global shortcut**: Press `Ctrl/Cmd + Shift + ;` anywhere on your desktop to start recording
+
+**In-app**: Click the large microphone button in the main interface
+
+**Hands-free**: Enable Voice Activity Detection (VAD) in settings for automatic recording
+
+Your transcription will be automatically copied to your clipboard and ready to paste anywhere!
 
 That's it. We don't charge you (only your API provider does). No credit card. No subscription. No tracking.
 
-### The Complete Setup Guide
+### Optional: Advanced Features
 
-Need more details? Here's everything you need to know:
+Once you're comfortable with basic transcription, explore these powerful features:
 
-#### Step 1: Install Whispering
-Choose your platform and [download the app](#installation). The desktop app is recommended for global transcription support.
-
-#### Step 2: Configure Your Transcription Service & API Key
-
-1. Open Whispering
-2. Navigate to **Settings** (⚙️) → **Transcription**
-3. Select your transcription service from the dropdown
-4. Add your API key for the chosen service
-   - **Recommended**: Start with [Groq](https://console.groq.com/keys) for fastest & cheapest transcription (`distil-whisper-large-v3-en` is lightning fast and $0.02 / hour as of 06-30-2025)
-   - **Alternative**: Use Speaches for local transcription and complete privacy (no API key needed)
-
-#### Step 3: Start Transcribing!
-- **Quick access**: Press `Ctrl/Cmd + Shift + ;` anywhere on your desktop
-- **In-app**: Click the large microphone button
-- **Hands-free**: Enable Voice Activity Detection (VAD) mode
-
-Your transcription will be automatically copied to clipboard and ready to paste!
-
-#### Optional: Step 4: Configure Transformations
-Enhance your transcriptions with AI-powered post-processing by creating custom workflows:
+#### AI-Powered Transformations
+Enhance your transcriptions with custom workflows by creating transformation pipelines:
 
 **Creating a Transformation Workflow:**
-1. Navigate to **Transformations** (📚) in the main navigation
+1. Navigate to **Transformations** (📚) in the top bar main navigation
 2. Click "Create Transformation" 
 3. Give your workflow a title (e.g., "Format")
 
-**Configuring Step 1: Prompt Transform**
+**Configuring Prompt Transform:**
 1. Add a new step and select **"Prompt Transform"**
 2. Choose your AI model profile (e.g., **"Google Gemini 2.5 Flash"**)
 3. Configure your prompts using dynamic injection:
@@ -120,11 +151,10 @@ Enhance your transcriptions with AI-powered post-processing by creating custom w
    - Maintain original meaning
    ```
 
-**How Prompt Injection Works:**
-- The `{{input}}` placeholder dynamically receives your transcribed text
+**How It Works:**
+- The `{{input}}` placeholder receives your transcribed text
 - When the workflow runs, `{{input}}` is replaced with the actual transcription
-- The complete prompt (with injected content) is sent to Google Gemini 2.5 Flash
-- The AI processes your text according to the instructions and returns the formatted result
+- The AI processes your text and returns the formatted result
 
 **Chaining Multiple Steps:**
 Create complex workflows by adding more transformation steps:
@@ -134,7 +164,7 @@ Create complex workflows by adding more transformation steps:
 
 Each step receives the output from the previous step as its `{{input}}`.
 
-**Note:** Additional AI provider API keys may be needed ([see providers](#api-key-providers))
+**Note:** Additional AI provider API keys may be needed ([see API Key Providers](#api-key-providers))
 
 ## Key Features
 
@@ -163,69 +193,7 @@ Each step receives the output from the previous step as its `{{input}}`.
 
 > Important Note: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, we recommend using a dedicated recording app that utilizes native recording APIs for optimal audio quality and stability.
 
-## Installation
 
-### Desktop App (Recommended)
-Download the latest release for your platform:
-- **macOS**: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
-- **Windows**: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
-- **Linux**: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
-
-#### macOS Installation
-Download: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
-
-1. Download the appropriate `.dmg` file for your processor
-2. Open the `.dmg` file and drag to Applications
-3. If you see "unverified developer" warning, right-click and select "Open"
-4. Apple Silicon troubleshooting: If you get a "damaged" error, run:
-   ```bash
-   xattr -cr /Applications/Whispering.app
-   ```
-
-#### Windows Installation
-Download: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
-
-1. Download the `.msi` installer
-2. Run the installer (click "More Info" → "Run Anyway" if prompted)
-3. Follow the installation wizard
-
-#### Linux Installation
-Download: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
-
-Choose your preferred package format:
-
-AppImage (Universal):
-```bash
-chmod +x whispering_x.x.x_amd64.AppImage
-./whispering_x.x.x_amd64.AppImage
-```
-
-DEB Package (Debian/Ubuntu):
-```bash
-sudo dpkg -i whispering_x.x.x_amd64.deb
-sudo apt-get install -f  # Fix dependencies if needed
-```
-
-### Web App
-Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) for the browser version.
-
-### Chrome Extension (Temporarily Disabled)
-The Chrome Extension is currently temporarily disabled while we stabilize recent changes. When available, it provides:
-- A Whispering icon on the Chrome extensions bar for quick access
-- Recording buttons directly integrated into ChatGPT and Claude websites
-- Global shortcut support (`Ctrl/Cmd + Shift + X`) from any website
-- Automatic transcription copying and pasting
-
-## Usage
-
-### Desktop App
-After installing the Whispering desktop app, press `Ctrl/Cmd + Shift + ;` (configurable in settings) to start recording from anywhere on your desktop. The transcription will be automatically copied into your clipboard and pasted, though both features can be toggled in the settings.
-
-### Web App
-The web app is accessible via [whispering.bradenwong.com](https://whispering.bradenwong.com). Click the microphone button to record your voice, and then click the square button when you're done. Your transcription will appear in the text box.
-
-### Chrome Extension
-When available, access the extension from the Chrome toolbar or use the global shortcut. The extension communicates with [whispering.bradenwong.com](https://whispering.bradenwong.com), automatically creating a background tab if needed.
 
 ## Configuration
 
