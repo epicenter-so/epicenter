@@ -83,26 +83,14 @@
 						<Table.Row>
 							<Table.Cell class="space-y-4 p-4" colspan={4}>
 								<Label class="text-sm font-medium">Input</Label>
-								<CopyablePre
-									variant="text"
-									copyableText={run.input}
-									label="Input"
-								/>
+								<CopyablePre variant="text" copyableText={run.input} />
 
 								{#if run.status === 'completed'}
 									<Label class="text-sm font-medium">Output</Label>
-									<CopyablePre
-										variant="text"
-										copyableText={run.output}
-										label="Output"
-									/>
+									<CopyablePre variant="text" copyableText={run.output} />
 								{:else if run.status === 'failed'}
 									<Label class="text-sm font-medium">Error</Label>
-									<CopyablePre
-										variant="error"
-										copyableText={run.error}
-										label="Error"
-									/>
+									<CopyablePre variant="error" copyableText={run.error} />
 								{/if}
 								{#if run.stepRuns.length > 0}
 									<div class="flex flex-col gap-2">
