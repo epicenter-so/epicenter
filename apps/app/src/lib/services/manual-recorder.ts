@@ -1,9 +1,9 @@
 // import { extension } from '@repo/extension';
-import type {
-	CancelRecordingResult,
+import {
 	TIMESLICE_MS,
 	WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
-	WhisperingRecordingState,
+	type CancelRecordingResult,
+	type WhisperingRecordingState,
 } from '$lib/constants/audio';
 import type { TaggedError } from '@epicenterhq/result';
 import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
