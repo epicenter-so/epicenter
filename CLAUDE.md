@@ -89,3 +89,33 @@ import { Input } from '$lib/components/ui/input';
 - Add JSDoc comments for complex component props
 - Ensure custom components follow the same organizational patterns
 - Consider semantic appropriateness (e.g., use section headers instead of cards for page sections)
+
+# Documentation & README Writing Guidelines
+
+## Authentic Communication Style
+- Avoid emojis in headings and formal content unless explicitly requested
+- Use direct, factual language over marketing speak or hyperbole
+- Lead with genuine value propositions, not sales tactics
+- Mirror the straightforward tone of established sections when editing
+- Prefer "We built this because..." over "Revolutionary new..."
+
+## Open Source Mindset
+- Emphasize user control and data ownership
+- Highlight transparency benefits (audit the code, no tracking)
+- Focus on direct relationships (user → provider) over middleman models
+- Present honest cost comparisons with specific, real numbers
+- Acknowledge limitations and trade-offs openly
+
+## Avoiding AI-Generated Feel
+- Remove promotional language patterns ("game-changing", "revolutionary")
+- Use specific examples and concrete numbers instead of vague estimates
+- Structure content logically (features → benefits → costs) not sales-first
+- Maintain consistent voice that matches existing authentic sections
+- Avoid excessive enthusiasm or overselling
+
+## README Structure Principles
+- Start with what the tool actually does, not why it's amazing
+- Use honest comparative language ("We believe X should be Y")
+- Present facts and let users draw conclusions
+- Include real limitations and use cases
+- Make pricing transparent with actual provider costs
