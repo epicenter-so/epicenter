@@ -56,7 +56,7 @@
 		<LabeledSelect
 			id="groq-model"
 			label="Groq Model"
-			items={GROQ_MODELS.map((model) => ({ value: model, label: model }))}
+			items={GROQ_MODELS.map(({ name }) => ({ value: name, label: name }))}
 			selected={settings.value['transcription.groq.model']}
 			onSelectedChange={(selected) => {
 				settings.value = {

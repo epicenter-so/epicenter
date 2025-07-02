@@ -7,6 +7,7 @@ import {
 	OPENAI_TRANSCRIPTION_MODELS,
 	GROQ_MODELS,
 	ELEVENLABS_TRANSCRIPTION_MODELS,
+	type TranscriptionModel,
 } from './models';
 
 export const TRANSCRIPTION_SERVICE_IDS = [
@@ -26,8 +27,8 @@ type BaseTranscriptionService = {
 
 type ApiTranscriptionService = BaseTranscriptionService & {
 	type: 'api';
-	models: readonly string[];
-	defaultModel: string;
+	models: readonly TranscriptionModel[];
+	defaultModel: TranscriptionModel;
 	modelSettingKey: string;
 	apiKeyField: keyof Settings;
 };
@@ -47,7 +48,7 @@ export const TRANSCRIPTION_SERVICES = [
 		name: 'OpenAI Whisper',
 		icon: HexagonIcon,
 		models: OPENAI_TRANSCRIPTION_MODELS,
-		defaultModel: 'whisper-1',
+		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.openai.model',
 		apiKeyField: 'apiKeys.openai',
 		type: 'api',
@@ -57,7 +58,7 @@ export const TRANSCRIPTION_SERVICES = [
 		name: 'Groq Whisper',
 		icon: CloudIcon,
 		models: GROQ_MODELS,
-		defaultModel: 'whisper-large-v3',
+		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
 		type: 'api',
@@ -67,7 +68,7 @@ export const TRANSCRIPTION_SERVICES = [
 		name: 'ElevenLabs',
 		icon: PauseIcon,
 		models: ELEVENLABS_TRANSCRIPTION_MODELS,
-		defaultModel: 'scribe_v1',
+		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.elevenlabs.model',
 		apiKeyField: 'apiKeys.elevenlabs',
 		type: 'api',

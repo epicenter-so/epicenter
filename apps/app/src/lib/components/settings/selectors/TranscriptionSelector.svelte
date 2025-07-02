@@ -38,9 +38,9 @@
 		}
 	};
 
-	const getSelectedModel = (service: TranscriptionService) => {
+	const getSelectedModelName = (service: TranscriptionService) => {
 		if (service.type !== 'api') return null;
-		return settings.value[service.modelSettingKey] ?? service.defaultModel;
+		return settings.value[service.modelSettingKey] ?? service.defaultModel.name;
 	};
 
 	// Generic model name formatter
@@ -63,7 +63,7 @@
 			{service.name}
 		</span>
 		{#if selectedService?.id === service.id}
-			{@const selectedModel = getSelectedModel(service)}
+			{@const selectedModel = getSelectedModelName(service)}
 			{#if selectedModel}
 				<Badge variant="outline" class="shrink-0 text-xs">
 					{formatModelName(selectedModel)}
@@ -158,15 +158,15 @@
 					{#if service.type === 'api' && isSelected}
 						<Command.Group class="ml-8 border-l-2 border-muted">
 							{#each service.models as model}
-								{@const currentSelectedModel = getSelectedModel(service)}
-								{@const isModelSelected = currentSelectedModel === model}
+								{@const currentSelectedModelName = getSelectedModelName(service)}
+								{@const isModelSelected = currentSelectedModelName === model.name}
 								<Command.Item
-									value="{service.id}-model-{model}"
+									value="{service.id}-model-{model.name}"
 									onSelect={() => {
 										if (service.modelSettingKey) {
 											settings.value = {
 												...settings.value,
-												[service.modelSettingKey]: model,
+												[service.modelSettingKey]: model.name,
 											};
 										}
 									}}
@@ -178,7 +178,7 @@
 										})}
 									/>
 									<span class="text-sm">
-										{formatModelName(model)}
+										{formatModelName(model.name)}
 									</span>
 								</Command.Item>
 							{/each}
