@@ -38,20 +38,22 @@ Whispering is a free and open source transcription app. Bring your own API key f
 
 ## Why Whispering Wins
 
-### 💰 Actual Cost Comparison
-| Your Usage | Whispering | Competitors |
-|------------|------------|-------------|
-| Light (10 min/day) | ~$0.30/month | $5-15/month |
-| Regular (30 min/day) | ~$0.90/month | $12-24/month |
-| Heavy (2 hrs/day) | ~$3.60/month | $24-30/month |
-
-*Based on typical API pricing. You pay your provider directly.*
-
-### 🔒 Your Data, Your Control
+### Your Data, Your Control
 - **Direct API connections** - Your audio never touches our servers
 - **Local storage** - All recordings stay on your device
 - **Open source** - Audit the code yourself
 - **No telemetry** - We don't even know you're using it
+- **Multiple providers** - Choose from OpenAI, Groq, ElevenLabs, or local transcription
+- **Pay your provider directly** - No subscription middleman, no markup
+
+### Actual Cost Comparison
+| Model | Cost per Hour | Monthly (1 hr/day) | Competitors |
+|-------|---------------|-------------------|-------------|
+| Distil Whispering (Groq) | $0.02 | $0.60 | $5-30/month |
+| Whisper Large V3 Turbo | $0.04 | $1.20 | $5-30/month |
+| Whisper Large V3 | $0.111 | $3.33 | $5-30/month |
+
+*You pay your chosen provider directly. No subscriptions, no markup.*
 
 ## Demo Videos
 
