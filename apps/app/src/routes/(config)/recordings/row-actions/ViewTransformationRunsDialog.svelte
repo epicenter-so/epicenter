@@ -5,7 +5,7 @@
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from 'lucide-svelte';
-	import { Runs } from '$lib/routes/(config)/transformations/editor';
+	import { Runs } from '../../transformations/editor';
 
 	let { recordingId }: { recordingId: string } = $props();
 
