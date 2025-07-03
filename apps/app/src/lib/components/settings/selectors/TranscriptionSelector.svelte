@@ -22,7 +22,7 @@
 		),
 	);
 
-	const isServiceConfigured = (service: TranscriptionService) => {
+	function isServiceConfigured(service: TranscriptionService) {
 		switch (service.type) {
 			case 'api': {
 				const apiKey = settings.value[service.apiKeyField];
@@ -36,12 +36,12 @@
 				return true;
 			}
 		}
-	};
+	}
 
-	const getSelectedModelName = (service: TranscriptionService) => {
+	function getSelectedModelName(service: TranscriptionService) {
 		if (service.type !== 'api') return null;
-		return settings.value[service.modelSettingKey] ?? service.defaultModel.name;
-	};
+		return settings.value[service.modelSettingKey];
+	}
 
 	const combobox = useCombobox();
 </script>
