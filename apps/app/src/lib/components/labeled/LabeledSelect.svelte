@@ -1,8 +1,13 @@
-<script lang="ts" generics="T extends string ">
+<script
+	lang="ts"
+	generics="TItem extends { value: string; label: string; disabled?: boolean }"
+>
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { cn } from '$lib/utils';
 	import type { Snippet } from 'svelte';
+
+	type T = TItem['value'];
 
 	let {
 		id,
@@ -15,14 +20,11 @@
 		disabled = false,
 		hideLabel = false,
 		description,
+		renderOption = defaultRenderOption,
 	}: {
 		id: string;
 		label: string;
-		items: {
-			value: T;
-			label: string;
-			disabled?: boolean;
-		}[];
+		items: TItem[];
 		selected: T;
 		onSelectedChange: (selected: T) => void;
 		placeholder?: string;
@@ -30,12 +32,22 @@
 		disabled?: boolean;
 		hideLabel?: boolean;
 		description?: string | Snippet;
+		/**
+		 * Custom snippet for rendering select option content.
+		 * Receives an item object and should return the desired display.
+		 * If not provided, defaults to showing the item's label.
+		 */
+		renderOption?: Snippet<[{ item: TItem }]>;
 	} = $props();
 
 	const selectedLabel = $derived(
 		items.find((item) => item.value === selected)?.label,
 	);
 </script>
+
+{#snippet defaultRenderOption({ item }: { item: TItem })}
+	{item.label}
+{/snippet}
 
 <div class="flex flex-col gap-2">
 	<Label class={cn('text-sm', hideLabel && 'sr-only')} for={id}>
@@ -56,8 +68,12 @@
 		</Select.Trigger>
 		<Select.Content>
 			{#each items as item}
-				<Select.Item value={item.value} label={item.label}>
-					{item.label}
+				<Select.Item
+					value={item.value}
+					label={item.label}
+					disabled={item.disabled}
+				>
+					{@render renderOption({ item })}
 				</Select.Item>
 			{/each}
 		</Select.Content>

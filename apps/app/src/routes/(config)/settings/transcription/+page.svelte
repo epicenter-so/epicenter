@@ -14,6 +14,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import {
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
@@ -56,9 +57,10 @@
 		<LabeledSelect
 			id="openai-model"
 			label="OpenAI Model"
-			items={OPENAI_TRANSCRIPTION_MODELS.map(({ name }) => ({
-				value: name,
-				label: name,
+			items={OPENAI_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
 			}))}
 			selected={settings.value['transcription.openai.model']}
 			onSelectedChange={(selected) => {
@@ -67,6 +69,7 @@
 					'transcription.openai.model': selected,
 				};
 			}}
+			renderOption={renderModelOption}
 		>
 			{#snippet description()}
 				You can find more details about the models in the <Button
@@ -85,7 +88,11 @@
 		<LabeledSelect
 			id="groq-model"
 			label="Groq Model"
-			items={GROQ_MODELS.map(({ name }) => ({ value: name, label: name }))}
+			items={GROQ_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
 			selected={settings.value['transcription.groq.model']}
 			onSelectedChange={(selected) => {
 				settings.value = {
@@ -93,6 +100,7 @@
 					'transcription.groq.model': selected,
 				};
 			}}
+			renderOption={renderModelOption}
 		>
 			{#snippet description()}
 				You can find more details about the models in the <Button
@@ -111,9 +119,10 @@
 		<LabeledSelect
 			id="elevenlabs-model"
 			label="ElevenLabs Model"
-			items={ELEVENLABS_TRANSCRIPTION_MODELS.map(({ name }) => ({
-				value: name,
-				label: name,
+			items={ELEVENLABS_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
 			}))}
 			selected={settings.value['transcription.elevenlabs.model']}
 			onSelectedChange={(selected) => {
@@ -122,6 +131,7 @@
 					'transcription.elevenlabs.model': selected,
 				};
 			}}
+			renderOption={renderModelOption}
 		>
 			{#snippet description()}
 				You can find more details about the models in the <Button
@@ -361,3 +371,21 @@
 		description="Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules."
 	/>
 </div>
+
+{#snippet renderModelOption({
+	item,
+}: {
+	item: {
+		name: string;
+		description: string;
+		cost: string;
+	};
+})}
+	<div class="flex flex-col gap-1 py-1">
+		<div class="font-medium">{item.name}</div>
+		<div class="text-sm text-muted-foreground">
+			{item.description}
+		</div>
+		<Badge variant="outline" class="text-xs">{item.cost}</Badge>
+	</div>
+{/snippet}
