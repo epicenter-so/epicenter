@@ -59,15 +59,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<Editor
-			{transformation}
-			setTransformation={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-		/>
+		<Editor {transformation} />
 
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>

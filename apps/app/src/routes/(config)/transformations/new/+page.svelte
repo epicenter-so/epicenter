@@ -23,15 +23,7 @@
 		</Card.Description>
 	</Card.Header>
 	<Card.Content class="space-y-6">
-		<Editor
-			{transformation}
-			setTransformation={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-		/>
+		<Editor {transformation} />
 		<Card.Footer class="flex justify-end gap-2">
 			<Button
 				onclick={() =>
