@@ -1,4 +1,4 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './_types';
 import Anthropic from '@anthropic-ai/sdk';
 

@@ -2,7 +2,7 @@ import type { OpenAIModel } from '$lib/constants/transcription/models';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, trySync, type Result } from 'wellcrafted/result';
 import OpenAI from 'openai';
 
 const MAX_FILE_SIZE_MB = 25 as const;

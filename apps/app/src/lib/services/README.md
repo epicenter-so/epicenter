@@ -29,7 +29,7 @@ export const ClipboardServiceLive = window.__TAURI_INTERNALS__
 All services use `Result<T, E>` for error handling:
 
 ```typescript
-import { tryAsync, type Result } from '@epicenterhq/result';
+import { tryAsync, type Result } from 'wellcrafted/result';
 
 // Services return Results, not thrown errors
 async function transcribe(

@@ -1,4 +1,4 @@
-import { tryAsync, trySync } from '@epicenterhq/result';
+import { tryAsync, trySync } from 'wellcrafted/result';
 import type { ClipboardService, ClipboardServiceError } from '.';
 
 export function createClipboardServiceExtension(): ClipboardService {

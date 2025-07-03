@@ -1,4 +1,5 @@
-import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
+import { Err, tryAsync } from 'wellcrafted/result';
+import { extractErrorMessage } from 'wellcrafted/error';
 import { fetch } from '@tauri-apps/plugin-http';
 import type { HttpService, ConnectionError, ParseError } from '.';
 

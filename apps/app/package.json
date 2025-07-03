@@ -52,7 +52,6 @@
 	"type": "module",
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.55.0",
-		"@epicenterhq/result": "^0.15.0",
 		"@google/generative-ai": "^0.24.1",
 		"@plasmohq/messaging": "^0.7.2",
 		"@ricky0123/vad-web": "^0.0.24",
@@ -86,6 +85,7 @@
 		"nanoid": "^5.1.5",
 		"openai": "^5.7.0",
 		"vaul-svelte": "1.0.0-next.7",
+		"wellcrafted": "^0.16.1",
 		"zod": "^3.25.67"
 	}
 }

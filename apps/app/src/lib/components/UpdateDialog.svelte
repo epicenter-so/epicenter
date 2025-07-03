@@ -62,7 +62,7 @@
 	import { toast } from 'svelte-sonner';
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { AlertTriangle } from 'lucide-svelte';
-	import { extractErrorMessage } from '@epicenterhq/result';
+	import { extractErrorMessage } from 'wellcrafted/error';
 
 	async function handleDownloadAndInstall() {
 		if (!updateDialog.update) return;

@@ -1,6 +1,6 @@
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from '@epicenterhq/result';
+import { Ok } from 'wellcrafted/result';
 import type { VadState } from '$lib/constants';
 import { defineMutation, defineQuery } from './_utils';
 import { queryClient } from './index';

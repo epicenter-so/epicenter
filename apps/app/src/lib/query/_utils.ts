@@ -1,4 +1,4 @@
-import { Err, Ok, type Result, resolve } from '@epicenterhq/result';
+import { Err, Ok, resolve, type Result } from 'wellcrafted/result';
 import type {
 	CreateQueryOptions,
 	MutationFunction,

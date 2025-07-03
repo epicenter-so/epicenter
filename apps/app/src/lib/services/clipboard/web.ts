@@ -1,4 +1,4 @@
-import { Ok, tryAsync } from '@epicenterhq/result';
+import { Ok, tryAsync } from 'wellcrafted/result';
 // import { extension } from '@repo/extension';
 import type { ClipboardService, ClipboardServiceError } from '.';
 

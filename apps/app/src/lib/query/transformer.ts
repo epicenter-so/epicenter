@@ -8,12 +8,12 @@ import type {
 import { settings } from '$lib/stores/settings.svelte';
 import {
 	Err,
-	extractErrorMessage,
 	isErr,
 	Ok,
 	type Result,
-	type TaggedError,
-} from '@epicenterhq/result';
+} from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
+import { extractErrorMessage } from 'wellcrafted/error';
 import type { WhisperingError, WhisperingResult } from '$lib/result';
 import { defineMutation } from './_utils';
 import { queryClient } from './index';

@@ -1,7 +1,7 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import type { DownloadService } from '$lib/services/download';
 import { toast } from '$lib/toast';
-import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import type {
@@ -22,7 +22,7 @@ import type {
 	TransformationRunRunning,
 } from './models';
 import type { Settings } from '$lib/settings';
-import type { TaggedError } from '@epicenterhq/result';
+import type { TaggedError } from 'wellcrafted/error';
 
 export type DbServiceError = TaggedError<'DbServiceError'>;
 
