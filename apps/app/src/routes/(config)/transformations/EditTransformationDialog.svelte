@@ -31,28 +31,60 @@
 	/**
 	 * A working copy of the transformation that we can safely edit.
 	 *
-	 * Think of this like making a photocopy of an important document before
-	 * making edits - you don't want to accidentally mess up the original.
+	 * It's like a photocopy of an important document—you don't want to
+	 * accidentally mess up the original. You edit the photocopy, submit it,
+	 * and the original is updated. Then you get a new photocopy.
 	 *
 	 * Here's how it works:
 	 * 1. We get the original transformation data
 	 * 2. We make a copy of it (this variable)
 	 * 3. User makes changes to the copy
-	 * 4. When they save, we send the copy to the server
-	 * 5. The server updates the original data
-	 * 6. We get the fresh original data back and make a new copy
-	 *
-	 * This prevents bugs where editing in one place accidentally breaks
-	 * something else that's using the same data.
+	 * 4. When they save, we send the copy via mutation
+	 * 5. The mutation updates the original transformation
+	 * 6. We get the fresh original data back and make a new copy (via $derived)
 	 */
-	let workingCopy = $derived(transformation);
+	let workingCopy = $derived(
+		// Reset the working copy when new transformation data comes in.
+		transformation,
+	);
+
+	/**
+	 * Tracks whether the user has made changes to the working copy.
+	 *
+	 * Think of this like a "dirty" flag on a document - it tells us if
+	 * the user has made edits that haven't been saved yet.
+	 *
+	 * How it works:
+	 * - Starts as false when we get fresh data from the upstream transformation
+	 * - Becomes true as soon as the user edits anything
+	 * - Goes back to false when they save or when fresh data comes in
+	 *
+	 * We use this to:
+	 * - Show confirmation dialogs before closing unsaved work
+	 * - Disable the save button when there's nothing to save
+	 * - Reset the working copy when new data arrives
+	 */
+	let isWorkingCopyDirty = $derived.by(() => {
+		// Reset dirty flag when new transformation data comes in
+		transformation;
+		return false;
+	});
 
 	function promptUserConfirmLeave() {
+		if (!isWorkingCopyDirty) {
+			isDialogOpen = false;
+			return;
+		}
+
 		confirmationDialog.open({
 			title: 'Unsaved changes',
 			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
 			confirmText: 'Leave',
 			onConfirm: () => {
+				// Reset working copy and dirty flag
+				workingCopy = transformation;
+				isWorkingCopyDirty = false;
+
 				isDialogOpen = false;
 			},
 		});
@@ -95,7 +127,15 @@
 			<Separator />
 		</Dialog.Header>
 
-		<Editor bind:transformation={workingCopy} />
+		<Editor
+			bind:transformation={
+				() => workingCopy,
+				(v) => {
+					workingCopy = v;
+					isWorkingCopyDirty = true;
+				}
+			}
+		/>
 
 		<Dialog.Footer>
 			<Button
@@ -160,7 +200,7 @@
 							},
 						});
 					}}
-					disabled={updateTransformation.isPending}
+					disabled={updateTransformation.isPending || !isWorkingCopyDirty}
 				>
 					{#if updateTransformation.isPending}
 						<Loader2Icon class="mr-2 size-4 animate-spin" />
