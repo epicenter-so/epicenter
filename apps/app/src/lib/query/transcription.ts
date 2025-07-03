@@ -125,7 +125,7 @@ async function transcribeBlob(
 				prompt: settings.value['transcription.prompt'],
 				temperature: settings.value['transcription.temperature'],
 				apiKey: settings.value['apiKeys.openai'],
-				model: settings.value['transcription.openai.model'],
+				modelName: settings.value['transcription.openai.model'],
 			});
 		case 'Groq':
 			return services.transcriptions.groq.transcribe(blob, {
@@ -133,7 +133,7 @@ async function transcribeBlob(
 				prompt: settings.value['transcription.prompt'],
 				temperature: settings.value['transcription.temperature'],
 				apiKey: settings.value['apiKeys.groq'],
-				model: settings.value['transcription.groq.model'],
+				modelName: settings.value['transcription.groq.model'],
 			});
 		case 'speaches':
 			return services.transcriptions.speaches.transcribe(blob, {
@@ -149,7 +149,7 @@ async function transcribeBlob(
 				prompt: settings.value['transcription.prompt'],
 				temperature: settings.value['transcription.temperature'],
 				apiKey: settings.value['apiKeys.elevenlabs'],
-				model: settings.value['transcription.elevenlabs.model'],
+				modelName: settings.value['transcription.elevenlabs.model'],
 			});
 	}
 }

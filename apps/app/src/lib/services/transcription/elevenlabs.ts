@@ -13,7 +13,7 @@ export function createElevenLabsTranscriptionService() {
 				temperature: string;
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
-				model: (string & {}) | ElevenLabsModel;
+				modelName: (string & {}) | ElevenLabsModel['name'];
 			},
 		): Promise<Result<string, WhisperingError>> => {
 			if (!options.apiKey) {
@@ -50,7 +50,7 @@ export function createElevenLabsTranscriptionService() {
 				// Use the client's speechToText functionality
 				const transcription = await client.speechToText.convert({
 					file: audioBlob,
-					model_id: options.model,
+					model_id: options.modelName,
 					// Map outputLanguage if not set to 'auto'
 					language_code:
 						options.outputLanguage !== 'auto'

@@ -17,7 +17,7 @@ export function createGroqTranscriptionService() {
 				temperature: string;
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
-				model: (string & {}) | GroqModel;
+				modelName: (string & {}) | GroqModel['name'];
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validate API key
@@ -86,7 +86,7 @@ export function createGroqTranscriptionService() {
 						dangerouslyAllowBrowser: true,
 					}).audio.transcriptions.create({
 						file,
-						model: options.model,
+						model: options.modelName,
 						language:
 							options.outputLanguage === 'auto'
 								? undefined
@@ -171,7 +171,11 @@ export function createGroqTranscriptionService() {
 						description:
 							message ??
 							'The request was valid but the server cannot process it. Please check your audio file and parameters.',
-						action: { type: 'more-details', error: groqApiError },
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 
@@ -182,7 +186,11 @@ export function createGroqTranscriptionService() {
 						title: '⏱️ Rate Limit Reached',
 						description:
 							message ?? 'Too many requests. Please try again later.',
-						action: { type: 'more-details', error: groqApiError },
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 

@@ -116,7 +116,11 @@ export function createSpeachesTranscriptionService({
 								name: 'WhisperingError',
 								title: '⏱️ Rate Limit Reached',
 								description: message,
-								action: { type: 'more-details', error: postError.cause },
+								action: {
+									type: 'link',
+									label: 'Update API key',
+									goto: '/settings/transcription',
+								},
 							} satisfies WhisperingError);
 						}
 

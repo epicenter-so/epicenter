@@ -1,3 +1,5 @@
+import type OpenAI from 'openai';
+
 /**
  * Transcription model constants for all providers
  */
@@ -21,7 +23,11 @@ export const OPENAI_TRANSCRIPTION_MODELS = [
 			'Cost-effective GPT-4o mini transcription model. Good balance of performance and cost for standard transcription needs.',
 		cost: '$0.18/hour',
 	},
-] as const;
+] as const satisfies {
+	name: OpenAI.Audio.AudioModel;
+	description: string;
+	cost: string;
+}[];
 
 export type OpenAIModel = (typeof OPENAI_TRANSCRIPTION_MODELS)[number];
 
