@@ -23,7 +23,7 @@
 		</Card.Description>
 	</Card.Header>
 	<Card.Content class="space-y-6">
-		<Editor {transformation} />
+		<Editor bind:transformation />
 		<Card.Footer class="flex justify-end gap-2">
 			<Button
 				onclick={() =>

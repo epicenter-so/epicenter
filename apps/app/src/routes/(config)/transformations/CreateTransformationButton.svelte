@@ -59,7 +59,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<Editor {transformation} />
+		<Editor bind:transformation />
 
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>

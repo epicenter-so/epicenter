@@ -19,7 +19,7 @@
 
 <Resizable.PaneGroup direction="horizontal">
 	<Resizable.Pane>
-		<Configuration {transformation} />
+		<Configuration bind:transformation />
 	</Resizable.Pane>
 	<Resizable.Handle withHandle />
 	<Resizable.Pane>
