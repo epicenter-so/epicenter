@@ -7,7 +7,6 @@
 	import type { Transformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { Loader2Icon, PlayIcon } from 'lucide-svelte';
-	import { nanoid } from 'nanoid/non-secure';
 
 	const transformInput = createMutation(rpc.transformer.transformInput.options);
 
@@ -49,7 +48,7 @@
 	<Button
 		onclick={() =>
 			transformInput.mutate(
-				{ input, transformationId: transformation.id, toastId: nanoid() },
+				{ input, transformation },
 				{
 					onSuccess: (o) => {
 						if (o) {

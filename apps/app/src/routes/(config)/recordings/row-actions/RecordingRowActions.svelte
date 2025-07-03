@@ -156,10 +156,7 @@
 						'Applying your selected transformation to the transcribed text...',
 				});
 				transformRecording.mutate(
-					{
-						recordingId: recording.id,
-						transformationId: transformation.id,
-					},
+					{ recordingId: recording.id, transformation },
 					{
 						onError: (error) => toast.error(error),
 						onSuccess: (transformationRun) => {

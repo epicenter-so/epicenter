@@ -1,5 +1,6 @@
 import * as services from '$lib/services';
 import type {
+	Transformation,
 	TransformationRunCompleted,
 	TransformationRunFailed,
 	TransformationStep,
@@ -31,10 +32,10 @@ export const transformer = {
 		mutationKey: transformerKeys.transformInput,
 		resultMutationFn: async ({
 			input,
-			transformationId,
+			transformation,
 		}: {
 			input: string;
-			transformationId: string;
+			transformation: Transformation;
 		}): Promise<WhisperingResult<string>> => {
 			const getTransformationOutput = async (): Promise<
 				Result<string, WhisperingError>
@@ -42,7 +43,7 @@ export const transformer = {
 				const { data: transformationRun, error: transformationRunError } =
 					await runTransformation({
 						input,
-						transformationId,
+						transformation,
 						recordingId: null,
 					});
 
@@ -77,11 +78,12 @@ export const transformer = {
 			const transformationOutputResult = await getTransformationOutput();
 
 			queryClient.invalidateQueries({
-				queryKey:
-					transformationRunKeys.runsByTransformationId(transformationId),
+				queryKey: transformationRunKeys.runsByTransformationId(
+					transformation.id,
+				),
 			});
 			queryClient.invalidateQueries({
-				queryKey: transformationsKeys.byId(transformationId),
+				queryKey: transformationsKeys.byId(transformation.id),
 			});
 
 			return transformationOutputResult;
@@ -92,10 +94,10 @@ export const transformer = {
 		mutationKey: transformerKeys.transformRecording,
 		resultMutationFn: async ({
 			recordingId,
-			transformationId,
+			transformation,
 		}: {
 			recordingId: string;
-			transformationId: string;
+			transformation: Transformation;
 		}): Promise<
 			Result<
 				TransformationRunCompleted | TransformationRunFailed,
@@ -115,7 +117,7 @@ export const transformer = {
 			const { data: transformationRun, error: transformationRunError } =
 				await runTransformation({
 					input: recording.transcribedText,
-					transformationId,
+					transformation,
 					recordingId,
 				});
 
@@ -131,11 +133,12 @@ export const transformer = {
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
 			});
 			queryClient.invalidateQueries({
-				queryKey:
-					transformationRunKeys.runsByTransformationId(transformationId),
+				queryKey: transformationRunKeys.runsByTransformationId(
+					transformation.id,
+				),
 			});
 			queryClient.invalidateQueries({
-				queryKey: transformationsKeys.byId(transformationId),
+				queryKey: transformationsKeys.byId(transformation.id),
 			});
 
 			return Ok(transformationRun);
@@ -257,11 +260,11 @@ async function handleStep({
 
 async function runTransformation({
 	input,
-	transformationId,
+	transformation,
 	recordingId,
 }: {
 	input: string;
-	transformationId: string;
+	transformation: Transformation;
 	recordingId: string | null;
 }): Promise<
 	Result<
@@ -274,17 +277,7 @@ async function runTransformation({
 			name: 'TransformServiceError',
 			message: 'Empty input. Please enter some text to transform',
 			cause: undefined,
-			context: { input, transformationId },
-		});
-	}
-	const { data: transformation, error: getTransformationError } =
-		await services.db.getTransformationById(transformationId);
-	if (getTransformationError || !transformation) {
-		return Err({
-			name: 'TransformServiceError',
-			message: 'Could not find the selected transformation.',
-			cause: getTransformationError ?? undefined,
-			context: { transformationId, getTransformationError },
+			context: { input, transformationId: transformation.id },
 		});
 	}
 
@@ -294,7 +287,7 @@ async function runTransformation({
 			message:
 				'No steps configured. Please add at least one transformation step',
 			cause: undefined,
-			context: { transformationId, transformation },
+			context: { transformation },
 		});
 	}
 
@@ -311,7 +304,7 @@ async function runTransformation({
 			message: 'Unable to start transformation run',
 			cause: createTransformationRunError,
 			context: {
-				transformationId,
+				transformationId: transformation.id,
 				recordingId,
 				input,
 				createTransformationRunError,
