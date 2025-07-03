@@ -1,5 +1,5 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
-import type { Result, TaggedError } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import type {
 	WhisperingRecordingState,
 	CancelRecordingResult,

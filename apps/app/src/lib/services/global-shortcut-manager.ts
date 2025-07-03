@@ -10,10 +10,10 @@ import {
 	Err,
 	Ok,
 	type Result,
-	type TaggedError,
-	extractErrorMessage,
 	tryAsync,
-} from '@epicenterhq/result';
+} from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
+import { extractErrorMessage } from 'wellcrafted/error';
 import {
 	isRegistered as tauriIsRegistered,
 	register as tauriRegister,

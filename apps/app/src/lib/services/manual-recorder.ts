@@ -5,8 +5,8 @@ import {
 	type CancelRecordingResult,
 	type WhisperingRecordingState,
 } from '$lib/constants/audio';
-import type { TaggedError } from '@epicenterhq/result';
-import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
+import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 
 type RecordingServiceError = TaggedError<'RecordingServiceError'>;
 

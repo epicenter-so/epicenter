@@ -26,9 +26,6 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.55.0
         version: 0.55.0
-      '@epicenterhq/result':
-        specifier: ^0.15.0
-        version: 0.15.0
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -128,6 +125,9 @@ importers:
       vaul-svelte:
         specifier: 1.0.0-next.7
         version: 1.0.0-next.7(svelte@5.34.7)
+      wellcrafted:
+        specifier: ^0.16.1
+        version: 0.16.1
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -225,15 +225,15 @@ importers:
 
   packages/shared:
     dependencies:
-      '@epicenterhq/result':
-        specifier: ^0.15.0
-        version: 0.15.0
       arktype:
         specifier: ^2.1.20
         version: 2.1.20
       lucide-svelte:
         specifier: ^0.468.0
         version: 0.468.0(svelte@5.34.7)
+      wellcrafted:
+        specifier: ^0.16.1
+        version: 0.16.1
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -320,10 +320,6 @@ packages:
 
   '@epicenterhq/result@0.13.1':
     resolution: {integrity: sha512-Mu5XSISnaZQT6+qhiaMG6fCdyzNvQmxPgbP0cAzEO+J7TmeVXPQKwuopMKxP6kPLQ7WejYoi5Yclxxp1XMLO3Q==}
-    deprecated: This package has been renamed to 'wellcrafted'
-
-  '@epicenterhq/result@0.15.0':
-    resolution: {integrity: sha512-sJVlKZOZwaazliauq+DUNYBSml/3l5AlOEwuc6nSK3WyLILUa/QOlUHYhDjlB2J/ZVMMbs3eHPyhfR3J81ZMeQ==}
     deprecated: This package has been renamed to 'wellcrafted'
 
   '@esbuild/aix-ppc64@0.25.5':
@@ -2649,6 +2645,9 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
+  wellcrafted@0.16.1:
+    resolution: {integrity: sha512-cxpmVy6qTToZKUAr78m6tQJAdKWyF4SW9LOYrQG3rFOtcOId/GG3j/R/yLg2SrchhfdK40VSSSLMGtGRWrkl4A==}
+
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
@@ -2762,8 +2761,6 @@ snapshots:
     optional: true
 
   '@epicenterhq/result@0.13.1': {}
-
-  '@epicenterhq/result@0.15.0': {}
 
   '@esbuild/aix-ppc64@0.25.5':
     optional: true
@@ -4950,6 +4947,8 @@ snapshots:
   web-streams-polyfill@4.0.0-beta.3: {}
 
   webidl-conversions@3.0.1: {}
+
+  wellcrafted@0.16.1: {}
 
   whatwg-url@5.0.0:
     dependencies:

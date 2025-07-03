@@ -1,4 +1,5 @@
-import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
+import { Err, tryAsync } from 'wellcrafted/result';
+import { extractErrorMessage } from 'wellcrafted/error';
 import type { HttpService, ConnectionError, ParseError } from '.';
 
 export function createHttpServiceWeb(): HttpService {

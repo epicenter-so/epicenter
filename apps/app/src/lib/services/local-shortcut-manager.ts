@@ -6,7 +6,8 @@ import {
 	normalizeOptionKeyCharacter,
 } from '$lib/constants/keyboard';
 import { IS_MACOS } from '$lib/constants/platform';
-import { Ok, type Result, type TaggedError } from '@epicenterhq/result';
+import { Ok, type Result } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import { on } from 'svelte/events';
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 

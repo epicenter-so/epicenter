@@ -1,5 +1,5 @@
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
 import type { DownloadService, DownloadServiceError } from '.';
