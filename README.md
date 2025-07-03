@@ -30,30 +30,57 @@
   <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
 
-## About
+## What is Whispering?
 
-Whispering is a free and open source transcription app. Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything on-device. Your audio goes directly to your chosen service—no middleman, no tracking, no data collection.
+Press a shortcut anywhere on your desktop → speak → get text (or AI-transformed text) in your clipboard. That's it.
+
+Whispering is the transcription app I built because I got tired of paying monthly subscriptions for something that should cost pennies. It's completely open source, works across platforms, and you control everything—your data, your API keys, your privacy.
+
+Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything on-device. Your audio goes directly to your chosen service—no middleman, no tracking, no data collection.
+
 
 > We believe transcription should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
 
-## Why Whispering Wins
+## Why Choose Whispering?
 
-### Your Data, Your Control
-- **Direct API connections** - Your audio never touches our servers
-- **Local storage** - All recordings stay on your device
-- **Open source** - Audit the code yourself
-- **No telemetry** - We don't even know you're using it
-- **Multiple providers** - Choose from OpenAI, Groq, ElevenLabs, or local transcription
-- **Pay your provider directly** - No subscription middleman, no markup
+### Cost Comparison
 
-### Actual Cost Comparison
-| Model | Cost per Hour | Monthly (1 hr/day) | Competitors |
-|-------|---------------|-------------------|-------------|
-| Distil Whispering (Groq) | $0.02 | $0.60 | $5-30/month |
-| Whisper Large V3 Turbo | $0.04 | $1.20 | $5-30/month |
-| Whisper Large V3 | $0.111 | $3.33 | $5-30/month |
+| Service | Cost per Hour | Monthly (1 hr/day) | Traditional Tools |
+|---------|---------------|-------------------|------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.60 | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $1.20 | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $5.40 | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00 | $15-30/month |
 
-*You pay your chosen provider directly. No subscriptions, no markup.*
+*Instead of paying $15-30/month for transcription subscriptions, you pay providers directly. No subscriptions, no markup, no middleman.*
+
+### Because You're Tired of the Usual SaaS Problems
+
+**The pricing is nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're not paying for the transcription—you're paying for their profit margin.
+
+**Nobody knows where your voice recordings go.** Your voice recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy. You have no idea what happens to your data.
+
+**You're stuck with whatever they give you.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
+
+**Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
+
+With Whispering, you actually control what matters:
+- **Your API keys** - Switch providers in 30 seconds, compare costs, use multiple services
+- **Your data** - Audio never touches our servers, transcriptions stored locally on your device
+- **Your privacy** - Go completely local with Speaches, or use cloud services directly
+- **Your workflow** - Open source means it works as long as you want it to work
+- **Your costs** - Pay providers directly at actual cost, not marked-up subscription prices
+
+## Key Concepts
+
+Before diving in, here are the essential terms that will make everything clearer:
+
+**📋 Transcription**: Converting speech (audio) into written text  
+**🔌 API Key**: A secure password that lets Whispering access transcription services  
+**🏢 Provider**: Companies offering transcription services (like OpenAI, Groq, ElevenLabs)  
+**🤖 Model**: Different AI versions with speed/accuracy trade-offs (like "fast but good" vs "slow but perfect")  
+**🔄 Transformation**: Automatic improvements to your transcription (fixing grammar, formatting, etc.)  
+**🌐 Global Shortcut**: Keyboard combination that works anywhere on your computer  
 
 ## Demo Videos
 
