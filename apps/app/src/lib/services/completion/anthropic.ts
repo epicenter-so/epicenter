@@ -1,5 +1,5 @@
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
-import type { CompletionService } from './_types';
+import type { CompletionService } from './types';
 import Anthropic from '@anthropic-ai/sdk';
 
 export function createAnthropicCompletionService(): CompletionService {
@@ -161,4 +161,5 @@ export type AnthropicCompletionService = ReturnType<
 	typeof createAnthropicCompletionService
 >;
 
-export const AnthropicCompletionServiceLive = createAnthropicCompletionService();
+export const AnthropicCompletionServiceLive =
+	createAnthropicCompletionService();
