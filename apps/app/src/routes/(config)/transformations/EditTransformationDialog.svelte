@@ -2,18 +2,16 @@
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { PencilIcon as EditIcon } from '$lib/components/icons';
+	import { Editor } from '$lib/components/transformations-editor';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
 	import { rpc } from '$lib/query';
-	import { createMutation } from '@tanstack/svelte-query';
 	import type { Transformation } from '$lib/services/db';
-	import { DEBOUNCE_TIME_MS } from '$lib/constants';
-	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
-	import { onDestroy } from 'svelte';
-	import { Editor } from '$lib/components/transformations-editor';
-	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import { toast } from '$lib/toast';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
+	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 
 	const updateTransformation = createMutation(
 		rpc.transformations.mutations.updateTransformation.options,
@@ -29,32 +27,27 @@
 	}: { transformation: Transformation; class?: string } = $props();
 
 	let isDialogOpen = $state(false);
+	let editedTransformation = $derived(transformation);
 
-	let saveTimeout: NodeJS.Timeout;
-	function debouncedSetTransformation(newTransformation: Transformation) {
-		clearTimeout(saveTimeout);
-		saveTimeout = setTimeout(() => {
-			updateTransformation.mutate($state.snapshot(newTransformation), {
-				onSuccess: () => {
-					toast.success({
-						title: 'Updated transformation!',
-						description: 'Your transformation has been updated successfully.',
-					});
-				},
-				onError: (error) => {
-					toast.error({
-						title: 'Failed to update transformation!',
-						description: 'Your transformation could not be updated.',
-						action: { type: 'more-details', error },
-					});
-				},
-			});
-		}, DEBOUNCE_TIME_MS);
+	const hasUnsavedChanges = $derived(
+		JSON.stringify(editedTransformation) !== JSON.stringify(transformation),
+	);
+
+	function promptUserConfirmLeave() {
+		if (!hasUnsavedChanges) {
+			isDialogOpen = false;
+			return;
+		}
+
+		confirmationDialog.open({
+			title: 'Unsaved changes',
+			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
+			confirmText: 'Leave',
+			onConfirm: () => {
+				isDialogOpen = false;
+			},
+		});
 	}
-
-	onDestroy(() => {
-		clearTimeout(saveTimeout);
-	});
 </script>
 
 <Dialog.Root bind:open={isDialogOpen}>
@@ -72,35 +65,28 @@
 			</WhisperingButton>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="max-h-[80vh] sm:max-w-7xl flex flex-col">
+
+	<Dialog.Content
+		class="max-h-[80vh] sm:max-w-7xl"
+		onEscapeKeydown={(e) => {
+			e.preventDefault();
+			if (isDialogOpen) {
+				promptUserConfirmLeave();
+			}
+		}}
+		onInteractOutside={(e) => {
+			e.preventDefault();
+			if (isDialogOpen) {
+				promptUserConfirmLeave();
+			}
+		}}
+	>
 		<Dialog.Header>
 			<Dialog.Title>Transformation Settings</Dialog.Title>
 			<Separator />
 		</Dialog.Header>
 
-		<Editor
-			{transformation}
-			setTransformation={(newTransformation) => {
-				updateTransformation.mutate($state.snapshot(newTransformation), {
-					onSuccess: () => {
-						toast.success({
-							title: 'Updated transformation!',
-							description: 'Your transformation has been updated successfully.',
-						});
-					},
-					onError: (error) => {
-						toast.error({
-							title: 'Failed to update transformation!',
-							description: 'Your transformation could not be updated.',
-							action: { type: 'more-details', error },
-						});
-					},
-				});
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				debouncedSetTransformation(newTransformation);
-			}}
-		/>
+		<Editor transformation={editedTransformation} />
 
 		<Dialog.Footer>
 			<Button
@@ -142,8 +128,34 @@
 			</Button>
 			<div class="flex items-center gap-2">
 				<MarkTransformationActiveButton {transformation} />
-				<Button variant="outline" onclick={() => (isDialogOpen = false)}>
+				<Button variant="outline" onclick={() => promptUserConfirmLeave()}>
 					Close
+				</Button>
+				<Button
+					onclick={() => {
+						updateTransformation.mutate($state.snapshot(editedTransformation), {
+							onSuccess: () => {
+								toast.success({
+									title: 'Updated transformation!',
+									description:
+										'Your transformation has been updated successfully.',
+								});
+							},
+							onError: (error) => {
+								toast.error({
+									title: 'Failed to update transformation!',
+									description: 'Your transformation could not be updated.',
+									action: { type: 'more-details', error },
+								});
+							},
+						});
+					}}
+					disabled={updateTransformation.isPending || !hasUnsavedChanges}
+				>
+					{#if updateTransformation.isPending}
+						<Loader2Icon class="mr-2 size-4 animate-spin" />
+					{/if}
+					Save
 				</Button>
 			</div>
 		</Dialog.Footer>
