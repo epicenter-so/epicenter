@@ -27,18 +27,27 @@
 	}: { transformation: Transformation; class?: string } = $props();
 
 	let isDialogOpen = $state(false);
-	let editedTransformation = $derived(transformation);
 
-	const hasUnsavedChanges = $derived(
-		JSON.stringify(editedTransformation) !== JSON.stringify(transformation),
-	);
+	/**
+	 * A working copy of the transformation that we can safely edit.
+	 *
+	 * Think of this like making a photocopy of an important document before
+	 * making edits - you don't want to accidentally mess up the original.
+	 *
+	 * Here's how it works:
+	 * 1. We get the original transformation data
+	 * 2. We make a copy of it (this variable)
+	 * 3. User makes changes to the copy
+	 * 4. When they save, we send the copy to the server
+	 * 5. The server updates the original data
+	 * 6. We get the fresh original data back and make a new copy
+	 *
+	 * This prevents bugs where editing in one place accidentally breaks
+	 * something else that's using the same data.
+	 */
+	let workingCopy = $derived(transformation);
 
 	function promptUserConfirmLeave() {
-		if (!hasUnsavedChanges) {
-			isDialogOpen = false;
-			return;
-		}
-
 		confirmationDialog.open({
 			title: 'Unsaved changes',
 			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
@@ -86,7 +95,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<Editor transformation={editedTransformation} />
+		<Editor bind:transformation={workingCopy} />
 
 		<Dialog.Footer>
 			<Button
@@ -133,13 +142,14 @@
 				</Button>
 				<Button
 					onclick={() => {
-						updateTransformation.mutate($state.snapshot(editedTransformation), {
+						updateTransformation.mutate($state.snapshot(workingCopy), {
 							onSuccess: () => {
 								toast.success({
 									title: 'Updated transformation!',
 									description:
 										'Your transformation has been updated successfully.',
 								});
+								isDialogOpen = false;
 							},
 							onError: (error) => {
 								toast.error({
@@ -150,7 +160,7 @@
 							},
 						});
 					}}
-					disabled={updateTransformation.isPending || !hasUnsavedChanges}
+					disabled={updateTransformation.isPending}
 				>
 					{#if updateTransformation.isPending}
 						<Loader2Icon class="mr-2 size-4 animate-spin" />
