@@ -26,6 +26,7 @@
 		syncLocalShortcutsWithSettings,
 	} from './registerCommands.svelte';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -76,7 +77,11 @@
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
-		services.db.cleanupExpiredRecordings();
+		services.db.cleanupExpiredRecordings({
+			recordingRetentionStrategy:
+				settings.value['database.recordingRetentionStrategy'],
+			maxRecordingCount: settings.value['database.maxRecordingCount'],
+		});
 	});
 
 	const TOASTER_SETTINGS = {

@@ -4,8 +4,8 @@ import {
 	ACCELERATOR_MODIFIER_KEYS,
 	type AcceleratorKeyCode,
 	type AcceleratorModifier,
-} from '$lib/constants/accelerator-supported-keys';
-import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	type KeyboardEventSupportedKey,
+} from '$lib/constants/keyboard';
 import {
 	Err,
 	Ok,
@@ -21,7 +21,7 @@ import {
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
-import type { ShortcutTriggerState } from './shortcuts/shortcut-trigger-state';
+import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
 type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
@@ -298,7 +298,6 @@ function convertToModifier(
 			// "super" as a key value (different from Meta) maps to Super modifier
 			return 'Super';
 
-		case 'hyper':
 		case 'fn':
 			// These are not supported as Electron accelerator modifiers
 			return null;

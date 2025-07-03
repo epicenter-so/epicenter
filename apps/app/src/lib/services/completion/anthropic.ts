@@ -2,19 +2,14 @@ import { Err, Ok, tryAsync } from '@epicenterhq/result';
 import type { CompletionService } from './_types';
 import Anthropic from '@anthropic-ai/sdk';
 
-export function createAnthropicCompletionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): CompletionService {
-	const client = new Anthropic({
-		apiKey,
-		// Enable browser usage
-		dangerouslyAllowBrowser: true,
-	});
-
+export function createAnthropicCompletionService(): CompletionService {
 	return {
-		async complete({ model, systemPrompt, userPrompt }) {
+		async complete({ apiKey, model, systemPrompt, userPrompt }) {
+			const client = new Anthropic({
+				apiKey,
+				// Enable browser usage
+				dangerouslyAllowBrowser: true,
+			});
 			// Call Anthropic API
 			const { data: completion, error: anthropicApiError } = await tryAsync({
 				try: () =>
@@ -161,3 +156,9 @@ export function createAnthropicCompletionService({
 		},
 	};
 }
+
+export type AnthropicCompletionService = ReturnType<
+	typeof createAnthropicCompletionService
+>;
+
+export const AnthropicCompletionServiceLive = createAnthropicCompletionService();

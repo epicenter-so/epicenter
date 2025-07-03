@@ -1,22 +1,26 @@
-import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
+import type { OpenAIModel } from '$lib/constants/transcription/models';
 import type { WhisperingError } from '$lib/result';
-import type { TranscriptionService } from '.';
+import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
+import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
 import OpenAI from 'openai';
 
 const MAX_FILE_SIZE_MB = 25 as const;
 
-export function createOpenaiTranscriptionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): TranscriptionService {
-	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createOpenaiTranscriptionService() {
 	return {
-		async transcribe(audioBlob, options) {
+		async transcribe(
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				apiKey: string;
+				modelName: (string & {}) | OpenAIModel['name'];
+			},
+		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
-			if (!apiKey) {
+			if (!options.apiKey) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 API Key Required',
@@ -27,12 +31,10 @@ export function createOpenaiTranscriptionService({
 						label: 'Add API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
-			if (!apiKey.startsWith('sk-')) {
+			if (!options.apiKey.startsWith('sk-')) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 Invalid API Key Format',
@@ -43,8 +45,6 @@ export function createOpenaiTranscriptionService({
 						label: 'Update API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
@@ -55,8 +55,6 @@ export function createOpenaiTranscriptionService({
 					name: 'WhisperingError',
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-					context: {},
-					cause: undefined,
 				});
 			}
 
@@ -74,8 +72,6 @@ export function createOpenaiTranscriptionService({
 						title: '📁 File Creation Failed',
 						description:
 							'Failed to create audio file for transcription. Please try again.',
-						context: {},
-						cause: error,
 					}) satisfies WhisperingError,
 			});
 
@@ -84,9 +80,12 @@ export function createOpenaiTranscriptionService({
 			// Call OpenAI API
 			const { data: transcription, error: openaiApiError } = await tryAsync({
 				try: () =>
-					client.audio.transcriptions.create({
+					new OpenAI({
+						apiKey: options.apiKey,
+						dangerouslyAllowBrowser: true,
+					}).audio.transcriptions.create({
 						file,
-						model: 'whisper-1',
+						model: options.modelName,
 						language:
 							options.outputLanguage !== 'auto'
 								? options.outputLanguage
@@ -120,8 +119,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							`Invalid request to OpenAI API. ${error?.message ?? ''}`.trim(),
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -138,8 +135,6 @@ export function createOpenaiTranscriptionService({
 							label: 'Update API key',
 							goto: '/settings/transcription',
 						},
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -152,8 +147,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions.",
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -166,8 +159,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							'The requested resource was not found. This might indicate an issue with the model or API endpoint.',
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -180,8 +171,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							'Your audio file exceeds the maximum size limit (25MB). Try splitting it into smaller segments or reducing the audio quality.',
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -194,8 +183,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							"This audio format isn't supported. Please convert your file to MP3, WAV, M4A, or another common audio format.",
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -208,8 +195,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							'The request was valid but the server cannot process it. Please check your audio file and parameters.',
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -220,9 +205,11 @@ export function createOpenaiTranscriptionService({
 						title: '⏱️ Rate Limit Reached',
 						description:
 							message ?? 'Too many requests. Please try again later.',
-						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 
@@ -235,8 +222,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							`The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -249,8 +234,6 @@ export function createOpenaiTranscriptionService({
 							message ??
 							'Unable to connect to the OpenAI service. This could be a network issue or temporary service interruption.',
 						action: { type: 'more-details', error: openaiApiError },
-						context: {},
-						cause: openaiApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -261,8 +244,6 @@ export function createOpenaiTranscriptionService({
 					description:
 						message ?? 'An unexpected error occurred. Please try again.',
 					action: { type: 'more-details', error: openaiApiError },
-					context: {},
-					cause: openaiApiError,
 				} satisfies WhisperingError);
 			}
 
@@ -271,3 +252,10 @@ export function createOpenaiTranscriptionService({
 		},
 	};
 }
+
+export type OpenaiTranscriptionService = ReturnType<
+	typeof createOpenaiTranscriptionService
+>;
+
+export const OpenaiTranscriptionServiceLive =
+	createOpenaiTranscriptionService();

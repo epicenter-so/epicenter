@@ -8,7 +8,7 @@
 	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
-	import RenderTransformation from './-components/RenderTransformation.svelte';
+	import { Editor } from '$lib/components/transformations-editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,
@@ -40,7 +40,7 @@
 	</Dialog.Trigger>
 
 	<Dialog.Content
-		class="max-h-[80vh] sm:max-w-7xl h-[80vh]"
+		class="max-h-[80vh] sm:max-w-7xl"
 		onEscapeKeydown={(e) => {
 			e.preventDefault();
 			if (isDialogOpen) {
@@ -59,15 +59,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<RenderTransformation
-			{transformation}
-			setTransformation={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-		/>
+		<Editor bind:transformation />
 
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>

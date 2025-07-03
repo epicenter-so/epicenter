@@ -14,8 +14,11 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import {
 		GROQ_MODELS,
+		OPENAI_TRANSCRIPTION_MODELS,
+		ELEVENLABS_TRANSCRIPTION_MODELS,
 		SUPPORTED_LANGUAGES_OPTIONS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants';
@@ -51,12 +54,45 @@
 	/>
 
 	{#if settings.value['transcription.selectedTranscriptionService'] === 'OpenAI'}
+		<LabeledSelect
+			id="openai-model"
+			label="OpenAI Model"
+			items={OPENAI_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
+			selected={settings.value['transcription.openai.model']}
+			onSelectedChange={(selected) => {
+				settings.value = {
+					...settings.value,
+					'transcription.openai.model': selected,
+				};
+			}}
+			renderOption={renderModelOption}
+		>
+			{#snippet description()}
+				You can find more details about the models in the <Button
+					variant="link"
+					class="px-0.3 py-0.2 h-fit"
+					href="https://platform.openai.com/docs/guides/speech-to-text"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					OpenAI docs
+				</Button>.
+			{/snippet}
+		</LabeledSelect>
 		<OpenAiApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'Groq'}
 		<LabeledSelect
 			id="groq-model"
 			label="Groq Model"
-			items={GROQ_MODELS.map((model) => ({ value: model, label: model }))}
+			items={GROQ_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
 			selected={settings.value['transcription.groq.model']}
 			onSelectedChange={(selected) => {
 				settings.value = {
@@ -64,6 +100,7 @@
 					'transcription.groq.model': selected,
 				};
 			}}
+			renderOption={renderModelOption}
 		>
 			{#snippet description()}
 				You can find more details about the models in the <Button
@@ -79,6 +116,35 @@
 		</LabeledSelect>
 		<GroqApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
+		<LabeledSelect
+			id="elevenlabs-model"
+			label="ElevenLabs Model"
+			items={ELEVENLABS_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
+			selected={settings.value['transcription.elevenlabs.model']}
+			onSelectedChange={(selected) => {
+				settings.value = {
+					...settings.value,
+					'transcription.elevenlabs.model': selected,
+				};
+			}}
+			renderOption={renderModelOption}
+		>
+			{#snippet description()}
+				You can find more details about the models in the <Button
+					variant="link"
+					class="px-0.3 py-0.2 h-fit"
+					href="https://elevenlabs.io/docs/capabilities/speech-to-text"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					ElevenLabs docs
+				</Button>.
+			{/snippet}
+		</LabeledSelect>
 		<ElevenLabsApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'speaches'}
 		<div class="space-y-4">
@@ -305,3 +371,21 @@
 		description="Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules."
 	/>
 </div>
+
+{#snippet renderModelOption({
+	item,
+}: {
+	item: {
+		name: string;
+		description: string;
+		cost: string;
+	};
+})}
+	<div class="flex flex-col gap-1 py-1">
+		<div class="font-medium">{item.name}</div>
+		<div class="text-sm text-muted-foreground">
+			{item.description}
+		</div>
+		<Badge variant="outline" class="text-xs">{item.cost}</Badge>
+	</div>
+{/snippet}

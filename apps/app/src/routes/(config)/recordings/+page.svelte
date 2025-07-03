@@ -47,7 +47,7 @@
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
-	import RecordingRowActions from './RecordingRowActions.svelte';
+	import { RecordingRowActions } from './row-actions';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 	import { nanoid } from 'nanoid/non-secure';

@@ -5,7 +5,7 @@
 		arrayToShortcutString,
 		type CommandId,
 	} from '$lib/services/local-shortcut-manager';
-	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard-event-supported-keys';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';

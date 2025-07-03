@@ -1,16 +1,16 @@
-import { SetTrayIconServiceLive } from './SetTrayIconService';
+import { TrayIconServiceLive } from './tray';
 import { ClipboardServiceLive } from './clipboard';
-import { CpalRecorderServiceLive } from './cpalRecorder';
+import * as completions from './completion';
+import { CpalRecorderServiceLive } from './cpal-recorder';
 import { DbServiceLive } from './db';
 import { DownloadServiceLive } from './download';
 import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
-import { NavigatorRecorderServiceLive } from './manualRecorder';
+import { NavigatorRecorderServiceLive } from './manual-recorder';
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';
-import { TranscriptionServiceLive } from './transcription';
-import { TransformerServiceLive } from './transformer';
+import * as transcriptions from './transcription';
 import { VadServiceLive } from './vad';
 
 /**
@@ -18,7 +18,9 @@ import { VadServiceLive } from './vad';
  */
 export {
 	ClipboardServiceLive as clipboard,
+	completions,
 	CpalRecorderServiceLive as cpalRecorder,
+	TrayIconServiceLive as tray,
 	DbServiceLive as db,
 	DownloadServiceLive as download,
 	GlobalShortcutManagerLive as globalShortcutManager,
@@ -26,9 +28,7 @@ export {
 	NavigatorRecorderServiceLive as manualRecorder,
 	NotificationServiceLive as notification,
 	OsServiceLive as os,
-	SetTrayIconServiceLive as setTrayIcon,
 	PlaySoundServiceLive as sound,
-	TranscriptionServiceLive as transcription,
-	TransformerServiceLive as transformer,
+	transcriptions,
 	VadServiceLive as vad,
 };

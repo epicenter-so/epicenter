@@ -1,48 +1,27 @@
+import type { GroqModel } from '$lib/constants/transcription';
 import type { WhisperingError } from '$lib/result';
+import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync, trySync, type Result } from '@epicenterhq/result';
-import type { TranscriptionService, TranscriptionServiceError } from '.';
+import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
 
 import Groq from 'groq-sdk';
 
-type ModelName =
-	/**
-	 * Best accuracy (10.3% WER) and full multilingual support, including translation.
-	 * Recommended for error-sensitive applications requiring multilingual support.
-	 * Cost: $0.111/hour
-	 */
-	| 'whisper-large-v3'
-	/**
-	 * Fast multilingual model with good accuracy (12% WER).
-	 * Best price-to-performance ratio for multilingual applications.
-	 * Cost: $0.04/hour, 216x real-time processing
-	 */
-	| 'whisper-large-v3-turbo'
-	/**
-	 * Fastest and most cost-effective model, but English-only.
-	 * Recommended for English transcription where speed and cost are priorities.
-	 * Cost: $0.02/hour, 250x real-time processing, 13% WER
-	 */
-	| 'distil-whisper-large-v3-en';
-
 const MAX_FILE_SIZE_MB = 25 as const;
 
-export function createGroqTranscriptionService({
-	apiKey,
-	modelName,
-}: {
-	apiKey: string;
-	modelName: ModelName;
-}): TranscriptionService {
-	const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
-
+export function createGroqTranscriptionService() {
 	return {
 		async transcribe(
-			audioBlob,
-			options,
-		): Promise<Result<string, TranscriptionServiceError | WhisperingError>> {
+			audioBlob: Blob,
+			options: {
+				prompt: string;
+				temperature: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
+				apiKey: string;
+				modelName: (string & {}) | GroqModel['name'];
+			},
+		): Promise<Result<string, WhisperingError>> {
 			// Pre-validate API key
-			if (!apiKey) {
+			if (!options.apiKey) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 API Key Required',
@@ -52,12 +31,10 @@ export function createGroqTranscriptionService({
 						label: 'Add API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
-			if (!apiKey.startsWith('gsk_')) {
+			if (!options.apiKey.startsWith('gsk_')) {
 				return Err({
 					name: 'WhisperingError',
 					title: '🔑 Invalid API Key Format',
@@ -68,8 +45,6 @@ export function createGroqTranscriptionService({
 						label: 'Update API key',
 						goto: '/settings/transcription',
 					},
-					context: {},
-					cause: undefined,
 				} satisfies WhisperingError);
 			}
 
@@ -80,8 +55,6 @@ export function createGroqTranscriptionService({
 					name: 'WhisperingError',
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
-					context: {},
-					cause: undefined,
 				});
 			}
 
@@ -100,8 +73,6 @@ export function createGroqTranscriptionService({
 						description:
 							'Failed to create audio file for transcription. Please try again.',
 						action: { type: 'more-details', error },
-						context: {},
-						cause: error,
 					}) satisfies WhisperingError,
 			});
 
@@ -110,9 +81,12 @@ export function createGroqTranscriptionService({
 			// Make the transcription request
 			const { data: transcription, error: groqApiError } = await tryAsync({
 				try: () =>
-					client.audio.transcriptions.create({
+					new Groq({
+						apiKey: options.apiKey,
+						dangerouslyAllowBrowser: true,
+					}).audio.transcriptions.create({
 						file,
-						model: modelName,
+						model: options.modelName,
 						language:
 							options.outputLanguage === 'auto'
 								? undefined
@@ -146,8 +120,6 @@ export function createGroqTranscriptionService({
 							message ??
 							`Invalid request to Groq API. ${error?.message ?? ''}`.trim(),
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -164,8 +136,6 @@ export function createGroqTranscriptionService({
 							label: 'Update API key',
 							goto: '/settings/transcription',
 						},
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -178,8 +148,6 @@ export function createGroqTranscriptionService({
 							message ??
 							"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions.",
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -192,8 +160,6 @@ export function createGroqTranscriptionService({
 							message ??
 							'The requested resource was not found. This might indicate an issue with the model or API endpoint.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -205,9 +171,11 @@ export function createGroqTranscriptionService({
 						description:
 							message ??
 							'The request was valid but the server cannot process it. Please check your audio file and parameters.',
-						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 
@@ -218,9 +186,11 @@ export function createGroqTranscriptionService({
 						title: '⏱️ Rate Limit Reached',
 						description:
 							message ?? 'Too many requests. Please try again later.',
-						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 
@@ -233,8 +203,6 @@ export function createGroqTranscriptionService({
 							message ??
 							`The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -247,8 +215,6 @@ export function createGroqTranscriptionService({
 							message ??
 							'Unable to connect to the Groq service. This could be a network issue or temporary service interruption.',
 						action: { type: 'more-details', error: groqApiError },
-						context: {},
-						cause: groqApiError,
 					} satisfies WhisperingError);
 				}
 
@@ -259,8 +225,6 @@ export function createGroqTranscriptionService({
 					description:
 						message ?? 'An unexpected error occurred. Please try again.',
 					action: { type: 'more-details', error: groqApiError },
-					context: {},
-					cause: groqApiError,
 				} satisfies WhisperingError);
 			}
 
@@ -268,3 +232,9 @@ export function createGroqTranscriptionService({
 		},
 	};
 }
+
+export type GroqTranscriptionService = ReturnType<
+	typeof createGroqTranscriptionService
+>;
+
+export const GroqTranscriptionServiceLive = createGroqTranscriptionService();
