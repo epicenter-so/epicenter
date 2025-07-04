@@ -1,7 +1,8 @@
+import type { OpenAIModel } from '$lib/constants/transcription/models';
 import type { WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, type Result, tryAsync, trySync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, trySync, type Result } from 'wellcrafted/result';
 import OpenAI from 'openai';
 
 const MAX_FILE_SIZE_MB = 25 as const;
@@ -15,7 +16,7 @@ export function createOpenaiTranscriptionService() {
 				temperature: string;
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
-				model: (string & {}) | OpenAI.Audio.AudioModel;
+				modelName: (string & {}) | OpenAIModel['name'];
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
@@ -84,7 +85,7 @@ export function createOpenaiTranscriptionService() {
 						dangerouslyAllowBrowser: true,
 					}).audio.transcriptions.create({
 						file,
-						model: options.model,
+						model: options.modelName,
 						language:
 							options.outputLanguage !== 'auto'
 								? options.outputLanguage
@@ -204,7 +205,11 @@ export function createOpenaiTranscriptionService() {
 						title: '⏱️ Rate Limit Reached',
 						description:
 							message ?? 'Too many requests. Please try again later.',
-						action: { type: 'more-details', error: openaiApiError },
+						action: {
+							type: 'link',
+							label: 'Update API key',
+							goto: '/settings/transcription',
+						},
 					} satisfies WhisperingError);
 				}
 

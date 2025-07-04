@@ -7,15 +7,8 @@
 	import Runs from './Runs.svelte';
 	import Test from './Test.svelte';
 
-	let {
-		transformation,
-		setTransformation,
-		setTransformationDebounced,
-	}: {
-		transformation: Transformation;
-		setTransformation: (transformation: Transformation) => void;
-		setTransformationDebounced: (transformation: Transformation) => void;
-	} = $props();
+	let { transformation = $bindable() }: { transformation: Transformation } =
+		$props();
 
 	const transformationRunsByTransformationIdQuery = createQuery(
 		rpc.transformationRuns.getTransformationRunsByTransformationId(
@@ -26,11 +19,7 @@
 
 <Resizable.PaneGroup direction="horizontal">
 	<Resizable.Pane>
-		<Configuration
-			{transformation}
-			{setTransformation}
-			{setTransformationDebounced}
-		/>
+		<Configuration bind:transformation />
 	</Resizable.Pane>
 	<Resizable.Handle withHandle />
 	<Resizable.Pane>
@@ -48,9 +37,7 @@
 							.error.message}
 					</div>
 				{:else if transformationRunsByTransformationIdQuery.data}
-					<Runs
-						runs={transformationRunsByTransformationIdQuery.data}
-					/>
+					<Runs runs={transformationRunsByTransformationIdQuery.data} />
 				{/if}
 			</Resizable.Pane>
 		</Resizable.PaneGroup>

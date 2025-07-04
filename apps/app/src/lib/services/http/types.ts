@@ -1,4 +1,5 @@
-import type { Result, TaggedError } from '@epicenterhq/result';
+import type { Result } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import type { z } from 'zod';
 
 /**

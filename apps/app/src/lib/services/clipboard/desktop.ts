@@ -1,5 +1,5 @@
 import type { WhisperingWarning } from '$lib/result';
-import { Err, Ok, type Result, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';

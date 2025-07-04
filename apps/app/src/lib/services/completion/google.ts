@@ -1,6 +1,7 @@
-import { Err, Ok, extractErrorMessage, tryAsync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import { extractErrorMessage } from 'wellcrafted/error';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { CompletionService, CompletionServiceError } from './_types';
+import type { CompletionService, CompletionServiceError } from './types';
 
 export function createGoogleCompletionService(): CompletionService {
 	return {

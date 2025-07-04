@@ -1,4 +1,3 @@
-import type { Brand } from '$lib/brand';
 import {
 	ACCELERATOR_KEY_CODES,
 	ACCELERATOR_MODIFIER_KEYS,
@@ -7,20 +6,16 @@ import {
 	type KeyboardEventSupportedKey,
 } from '$lib/constants/keyboard';
 import {
-	Err,
-	Ok,
-	type Result,
-	type TaggedError,
-	extractErrorMessage,
-	tryAsync,
-} from '@epicenterhq/result';
-import {
 	isRegistered as tauriIsRegistered,
 	register as tauriRegister,
 	unregister as tauriUnregister,
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
+import type { Brand } from 'wellcrafted/brand';
+import type { TaggedError } from 'wellcrafted/error';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
 type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;

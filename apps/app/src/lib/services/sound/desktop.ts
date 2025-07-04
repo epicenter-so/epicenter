@@ -1,6 +1,6 @@
-import { tryAsync } from '@epicenterhq/result';
+import { tryAsync } from 'wellcrafted/result';
 import type { PlaySoundService, PlaySoundServiceError } from '.';
-import { audioElements } from './_audioElements';
+import { audioElements } from './assets';
 
 export function createPlaySoundServiceDesktop(): PlaySoundService {
 	return {

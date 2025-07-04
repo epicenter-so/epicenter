@@ -1,4 +1,4 @@
-import { Err, Ok } from '@epicenterhq/result';
+import { Err, Ok } from 'wellcrafted/result';
 // import { extension } from '@repo/extension';
 import type { NotificationService } from '.';
 

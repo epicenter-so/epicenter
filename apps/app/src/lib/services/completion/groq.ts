@@ -1,5 +1,5 @@
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
-import type { CompletionService } from './_types';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import type { CompletionService } from './types';
 import Groq from 'groq-sdk';
 
 export function createGroqCompletionService(): CompletionService {

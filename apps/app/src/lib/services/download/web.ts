@@ -1,4 +1,4 @@
-import { tryAsync } from '@epicenterhq/result';
+import { tryAsync } from 'wellcrafted/result';
 import type { DownloadService, DownloadServiceError } from '.';
 
 export function createDownloadServiceWeb(): DownloadService {

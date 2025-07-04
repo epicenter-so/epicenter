@@ -2,7 +2,7 @@ import type { WhisperingError } from '$lib/result';
 import type { HttpService } from '$lib/services/http';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, type Result, type TaggedError } from '@epicenterhq/result';
+import { Err, Ok, type Result } from 'wellcrafted/result';
 import { z } from 'zod';
 
 const whisperApiResponseSchema = z.union([
@@ -116,7 +116,11 @@ export function createSpeachesTranscriptionService({
 								name: 'WhisperingError',
 								title: '⏱️ Rate Limit Reached',
 								description: message,
-								action: { type: 'more-details', error: postError.cause },
+								action: {
+									type: 'link',
+									label: 'Update API key',
+									goto: '/settings/transcription',
+								},
 							} satisfies WhisperingError);
 						}
 

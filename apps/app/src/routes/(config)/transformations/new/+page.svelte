@@ -6,7 +6,7 @@
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { Editor } from '../editor';
+	import { Editor } from '$lib/components/transformations-editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,
@@ -23,15 +23,7 @@
 		</Card.Description>
 	</Card.Header>
 	<Card.Content class="space-y-6">
-		<Editor
-			{transformation}
-			setTransformation={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-		/>
+		<Editor bind:transformation />
 		<Card.Footer class="flex justify-end gap-2">
 			<Button
 				onclick={() =>

@@ -34,36 +34,27 @@
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
 
-	let {
-		transformation,
-		setTransformation,
-		setTransformationDebounced,
-	}: {
-		transformation: Transformation;
-		setTransformation: (transformation: Transformation) => void;
-		setTransformationDebounced: (transformation: Transformation) => void;
-	} = $props();
+	let { transformation = $bindable() }: { transformation: Transformation } =
+		$props();
 
 	function addStep() {
-		const updatedTransformation = {
+		transformation = {
 			...transformation,
 			steps: [...transformation.steps, generateDefaultTransformationStep()],
 		};
-		setTransformation(updatedTransformation);
 	}
 
 	function removeStep(index: number) {
-		const updatedTransformation = {
+		transformation = {
 			...transformation,
 			steps: transformation.steps.filter((_, i) => i !== index),
 		};
-		setTransformation(updatedTransformation);
 	}
 
 	function duplicateStep(index: number) {
 		const stepToDuplicate = transformation.steps[index];
 		const duplicatedStep = { ...stepToDuplicate, id: crypto.randomUUID() };
-		const updatedTransformation = {
+		transformation = {
 			...transformation,
 			steps: [
 				...transformation.steps.slice(0, index + 1),
@@ -71,7 +62,6 @@
 				...transformation.steps.slice(index + 1),
 			],
 		};
-		setTransformation(updatedTransformation);
 	}
 </script>
 
@@ -92,10 +82,10 @@
 			label="Title"
 			value={transformation.title}
 			oninput={(e) => {
-				setTransformationDebounced({
+				transformation = {
 					...transformation,
 					title: e.currentTarget.value,
-				});
+				};
 			}}
 			placeholder="e.g., Format Meeting Notes"
 			description="A clear, concise name that describes what this transformation does"
@@ -105,10 +95,10 @@
 			label="Description"
 			value={transformation.description}
 			oninput={(e) => {
-				setTransformationDebounced({
+				transformation = {
 					...transformation,
 					description: e.currentTarget.value,
-				});
+				};
 			}}
 			placeholder="e.g., Converts meeting transcripts into bullet points and highlights action items"
 			description="Describe what this transformation does, its purpose, and how it will be used"
@@ -153,12 +143,12 @@
 											}) as const,
 									)}
 									onSelectedChange={(value) => {
-										setTransformation({
+										transformation = {
 											...transformation,
 											steps: transformation.steps.map((s, i) =>
 												i === index ? { ...s, type: value } : s,
 											),
-										});
+										};
 									}}
 									hideLabel
 									class="h-8"
@@ -203,7 +193,7 @@
 										label="Find Text"
 										value={step['find_replace.findText']}
 										oninput={(e) => {
-											setTransformationDebounced({
+											transformation = {
 												...transformation,
 												steps: transformation.steps.map((s, i) =>
 													i === index
@@ -213,7 +203,7 @@
 															}
 														: s,
 												),
-											});
+											};
 										}}
 										placeholder="Text or pattern to search for in the transcript"
 									/>
@@ -222,7 +212,7 @@
 										label="Replace Text"
 										value={step['find_replace.replaceText']}
 										oninput={(e) => {
-											setTransformationDebounced({
+											transformation = {
 												...transformation,
 												steps: transformation.steps.map((s, i) =>
 													i === index
@@ -233,7 +223,7 @@
 															}
 														: s,
 												),
-											});
+											};
 										}}
 										placeholder="Text to use as the replacement"
 									/>
@@ -249,7 +239,7 @@
 												label="Use Regex"
 												checked={step['find_replace.useRegex']}
 												onCheckedChange={(v) => {
-													setTransformation({
+													transformation = {
 														...transformation,
 														steps: transformation.steps.map((s, i) =>
 															i === index
@@ -259,7 +249,7 @@
 																	}
 																: s,
 														),
-													});
+													};
 												}}
 												description="Enable advanced pattern matching using regular expressions (for power users)"
 											/>
@@ -277,7 +267,7 @@
 										selected={step['prompt_transform.inference.provider']}
 										placeholder="Select a provider"
 										onSelectedChange={(value) => {
-											setTransformation({
+											transformation = {
 												...transformation,
 												steps: transformation.steps.map((s, i) =>
 													i === index
@@ -287,7 +277,7 @@
 															}
 														: s,
 												),
-											});
+											};
 										}}
 									/>
 
@@ -301,7 +291,7 @@
 											]}
 											placeholder="Select a model"
 											onSelectedChange={(value) => {
-												setTransformation({
+												transformation = {
 													...transformation,
 													steps: transformation.steps.map((s, i) =>
 														i === index
@@ -312,7 +302,7 @@
 																}
 															: s,
 													),
-												});
+												};
 											}}
 										/>
 									{:else if step['prompt_transform.inference.provider'] === 'Groq'}
@@ -325,7 +315,7 @@
 											]}
 											placeholder="Select a model"
 											onSelectedChange={(value) => {
-												setTransformation({
+												transformation = {
 													...transformation,
 													steps: transformation.steps.map((s, i) =>
 														i === index
@@ -336,7 +326,7 @@
 																}
 															: s,
 													),
-												});
+												};
 											}}
 										/>
 									{:else if step['prompt_transform.inference.provider'] === 'Anthropic'}
@@ -349,7 +339,7 @@
 											]}
 											placeholder="Select a model"
 											onSelectedChange={(value) => {
-												setTransformation({
+												transformation = {
 													...transformation,
 													steps: transformation.steps.map((s, i) =>
 														i === index
@@ -360,7 +350,7 @@
 																}
 															: s,
 													),
-												});
+												};
 											}}
 										/>
 									{:else if step['prompt_transform.inference.provider'] === 'Google'}
@@ -373,7 +363,7 @@
 											]}
 											placeholder="Select a model"
 											onSelectedChange={(value) => {
-												setTransformation({
+												transformation = {
 													...transformation,
 													steps: transformation.steps.map((s, i) =>
 														i === index
@@ -384,7 +374,7 @@
 																}
 															: s,
 													),
-												});
+												};
 											}}
 										/>
 									{/if}
@@ -395,7 +385,7 @@
 									label="System Prompt Template"
 									value={step['prompt_transform.systemPromptTemplate']}
 									oninput={(e) => {
-										setTransformationDebounced({
+										transformation = {
 											...transformation,
 											steps: transformation.steps.map((s, i) =>
 												i === index
@@ -406,7 +396,7 @@
 														}
 													: s,
 											),
-										});
+										};
 									}}
 									placeholder="Define the AI's role and expertise, e.g., 'You are an expert at formatting meeting notes. Structure the text into clear sections with bullet points.'"
 								/>
@@ -415,7 +405,7 @@
 									label="User Prompt Template"
 									value={step['prompt_transform.userPromptTemplate']}
 									oninput={(e) => {
-										setTransformationDebounced({
+										transformation = {
 											...transformation,
 											steps: transformation.steps.map((s, i) =>
 												i === index
@@ -426,7 +416,7 @@
 														}
 													: s,
 											),
-										});
+										};
 									}}
 									placeholder="Tell the AI what to do with your text. Use {'{{input}}'} where you want your text to appear, e.g., 'Format this transcript into clear sections: {'{{input}}'}'"
 								>

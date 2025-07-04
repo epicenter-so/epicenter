@@ -9,7 +9,7 @@
 	} from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
-	import { extractErrorMessage } from '@epicenterhq/result';
+	import { extractErrorMessage } from 'wellcrafted/error';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { check } from '@tauri-apps/plugin-updater';

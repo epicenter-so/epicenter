@@ -1,4 +1,5 @@
-import { trySync, type TaggedError } from '@epicenterhq/result';
+import { trySync } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';

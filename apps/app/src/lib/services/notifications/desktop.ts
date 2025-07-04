@@ -1,4 +1,4 @@
-import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
 import {
 	active,
 	isPermissionGranted,

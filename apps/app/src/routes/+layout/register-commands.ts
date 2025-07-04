@@ -7,7 +7,7 @@ import {
 } from '$lib/services/local-shortcut-manager';
 import { settings } from '$lib/stores/settings.svelte';
 import { toast } from '$lib/toast';
-import { partitionResults } from '@epicenterhq/result';
+import { partitionResults } from 'wellcrafted/result';
 import type { Settings } from '$lib/settings';
 import { resetShortcutsToDefaults } from '../(config)/settings/shortcuts/reset-shortcuts-to-defaults';
 

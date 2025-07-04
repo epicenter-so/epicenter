@@ -22,28 +22,24 @@
 
 	const navItems = [
 		{
-			id: 'recordings',
 			label: 'Recordings',
 			icon: ListIcon,
 			type: 'anchor',
 			href: '/recordings',
 		},
 		{
-			id: 'transformations',
 			label: 'Transformations',
 			icon: LayersIcon,
 			type: 'anchor',
 			href: '/transformations',
 		},
 		{
-			id: 'settings',
 			label: 'Settings',
 			icon: SettingsIcon,
 			type: 'anchor',
 			href: '/settings',
 		},
 		{
-			id: 'github',
 			label: 'View project on GitHub',
 			icon: GithubIcon,
 			href: 'https://github.com/braden-w/whispering',
@@ -51,7 +47,6 @@
 			external: true,
 		},
 		{
-			id: 'theme',
 			label: 'Toggle dark mode',
 			icon: SunIcon,
 			type: 'theme',
@@ -60,7 +55,6 @@
 		...(window.__TAURI_INTERNALS__
 			? ([
 					{
-						id: 'minimize',
 						label: 'Minimize',
 						icon: Minimize2Icon,
 						type: 'button',
@@ -68,16 +62,30 @@
 					},
 				] as const)
 			: []),
-	] satisfies ({
-		id: string;
+	] satisfies NavItem[];
+
+	type BaseNavItem = {
 		label: string;
 		icon: unknown;
-		type: 'button' | 'anchor' | 'theme';
-	} & (
-		| { type: 'button'; action: () => void }
-		| { type: 'anchor'; href: string; external?: boolean }
-		| { type: 'theme'; action: () => void }
-	))[];
+	};
+
+	type AnchorItem = BaseNavItem & {
+		type: 'anchor';
+		href: string;
+		external?: boolean;
+	};
+
+	type ButtonItem = BaseNavItem & {
+		type: 'button';
+		action: () => void;
+	};
+
+	type ThemeItem = BaseNavItem & {
+		type: 'theme';
+		action: () => void;
+	};
+
+	type NavItem = AnchorItem | ButtonItem | ThemeItem;
 </script>
 
 {#if collapsed}
@@ -165,16 +173,21 @@
 					variant="ghost"
 					size="icon"
 				>
-					{#if item.id === 'theme'}
-						<SunIcon
-							class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-						/>
-						<MoonIcon
-							class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-						/>
-					{:else}
-						<Icon class="size-4" aria-hidden="true" />
-					{/if}
+					<Icon class="size-4" aria-hidden="true" />
+				</WhisperingButton>
+			{:else if item.type === 'theme'}
+				<WhisperingButton
+					tooltipContent={item.label}
+					onclick={item.action}
+					variant="ghost"
+					size="icon"
+				>
+					<SunIcon
+						class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+					/>
+					<MoonIcon
+						class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+					/>
 				</WhisperingButton>
 			{/if}
 		{/each}

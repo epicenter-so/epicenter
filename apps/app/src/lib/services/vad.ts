@@ -1,9 +1,9 @@
-import { Err, Ok, tryAsync, trySync } from '@epicenterhq/result';
+import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
 import type { VadState } from '$lib/constants/audio';
 import { WhisperingError } from '$lib/result';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 
-export function createVadServiceWeb() {
+export function createVadService() {
 	let maybeVad: MicVAD | null = null;
 	let vadState: VadState = 'IDLE';
 
@@ -93,4 +93,6 @@ export function createVadServiceWeb() {
 	};
 }
 
-export const VadServiceLive = createVadServiceWeb();
+export type VadService = ReturnType<typeof createVadService>;
+
+export const VadServiceLive = createVadService();

@@ -1,4 +1,5 @@
-import type { Err, Ok, TaggedError } from '@epicenterhq/result';
+import type { Err, Ok } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import type { ToastAndNotifyOptions } from '$lib/toasts.js';
 
 export type WhisperingWarning = Omit<

@@ -2,7 +2,7 @@ import * as services from '$lib/services';
 import type { WhisperingRecordingState } from '$lib/constants';
 import { settings } from '$lib/stores/settings.svelte';
 import type { WhisperingError } from '$lib/result';
-import { Err, Ok, type Result } from '@epicenterhq/result';
+import { Err, Ok, type Result } from 'wellcrafted/result';
 import { defineMutation } from './_utils';
 
 const setTrayIconKeys = {

@@ -14,7 +14,6 @@
 	import type { Recording } from '$lib/services/db';
 	import { toast } from '$lib/toast';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { DEBOUNCE_TIME_MS } from '$lib/constants';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		AlertCircleIcon,
@@ -41,10 +40,6 @@
 		rpc.recordings.deleteRecording.options,
 	);
 
-	const updateRecording = createMutation(
-		rpc.recordings.updateRecording.options,
-	);
-
 	const downloadRecording = createMutation(
 		rpc.download.downloadRecording.options,
 	);
@@ -62,31 +57,6 @@
 	);
 
 	const recording = $derived(recordingQuery.data);
-
-	let saveTimeout: NodeJS.Timeout;
-	function debouncedSetRecording(newRecording: Recording) {
-		clearTimeout(saveTimeout);
-		saveTimeout = setTimeout(() => {
-			updateRecording.mutate($state.snapshot(newRecording), {
-				onSuccess: () => {
-					toast.success({
-						title: 'Recording updated!',
-						description: 'Your recording has been updated.',
-					});
-				},
-				onError: (error) => {
-					toast.error({
-						title: 'Failed to update recording!',
-						description: 'Your recording could not be updated.',
-						action: { type: 'more-details', error },
-					});
-				},
-			});
-		}, DEBOUNCE_TIME_MS);
-	}
-	$effect(() => {
-		return () => clearTimeout(saveTimeout);
-	});
 </script>
 
 <div class="flex items-center gap-1">
@@ -156,10 +126,7 @@
 						'Applying your selected transformation to the transcribed text...',
 				});
 				transformRecording.mutate(
-					{
-						recordingId: recording.id,
-						transformationId: transformation.id,
-					},
+					{ recordingId: recording.id, transformation },
 					{
 						onError: (error) => toast.error(error),
 						onSuccess: (transformationRun) => {
@@ -187,12 +154,7 @@
 			}}
 		/>
 
-		<EditRecordingDialog
-			{recording}
-			onChange={(newRecording) => {
-				debouncedSetRecording(newRecording);
-			}}
-		/>
+		<EditRecordingDialog {recording} />
 
 		<CopyToClipboardButton
 			contentDescription="transcribed text"
