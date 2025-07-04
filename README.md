@@ -461,14 +461,18 @@ Find the executable in `apps/app/target/release`
 
 ### Contributing
 
-We welcome contributions! Whispering is built in the open by developers who use it daily.
+We welcome contributions! Whispering is built with care and attention to clean, maintainable code.
 
 #### Code Style Guidelines
-- Follow existing TypeScript and Svelte patterns
-- Use Result types for error handling throughout
-- Maintain service/query layer separation
-- Add comprehensive JSDoc comments for public APIs
-- Follow the existing architecture patterns (RPC, dependency injection, etc.)
+- Follow existing TypeScript and Svelte patterns throughout
+- Use Result types from the [WellCrafted library](https://github.com/wellcrafted-dev/wellcrafted) for all error handling
+- Follow WellCrafted best practices: explicit errors with `Result<T, E>`, structured `TaggedError` objects, and comprehensive error context
+- Study the existing patterns in these key directories:
+  - [Services Architecture](./apps/app/src/lib/services/README.md) - Platform-agnostic business logic
+  - [Query Layer Patterns](./apps/app/src/lib/query/README.md) - RPC pattern and reactive state
+  - [Constants Organization](./apps/app/src/lib/constants/README.md) - Type-safe configuration
+
+Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspired error handling to JavaScript. It makes errors explicit in function signatures and ensures robust error handling throughout the codebase.
 
 #### Contributing Process
 1. Fork the repository
@@ -478,32 +482,11 @@ We welcome contributions! Whispering is built in the open by developers who use 
 5. Create a pull request
 
 #### Good First Issues
-- New transcription service integrations
-- Additional transformation templates and AI integrations
 - UI/UX improvements and accessibility enhancements
 - Performance optimizations
-- Documentation improvements
-- Test coverage expansion
+- New transcription or transformation service integrations
 
-### Architecture for Learning
-
-Whispering serves as a comprehensive example of modern web development:
-
-#### What You'll Learn
-- Svelte 5 Runes: Modern reactivity patterns
-- Tauri Integration: Building desktop apps with web technologies
-- Clean Architecture: Service/query layer separation
-- Type Safety: Result types and comprehensive TypeScript usage
-- State Management: TanStack Query patterns
-- Local-First: IndexedDB integration and offline capabilities
-- Cross-Platform: Platform-specific service implementations
-
-#### Code Examples
-The codebase includes detailed README files in key directories:
-- `/lib/query/README.md` - Query layer patterns
-- `/lib/services/README.md` - Service architecture
-- `/lib/constants/README.md` - Constants organization
-- Components follow shadcn-svelte patterns throughout
+Feel free to suggest and implement any features that improve usability—I'll do my best to integrate contributions that make Whispering better for everyone.
 
 ## Support and Community
 
