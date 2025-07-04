@@ -140,7 +140,7 @@ export function createGroqCompletionService(): CompletionService {
 				return Err({
 					name: 'CompletionServiceError',
 					message: 'Groq API returned an empty response',
-					context: {},
+					context: { model, completion },
 					cause: undefined,
 				});
 			}

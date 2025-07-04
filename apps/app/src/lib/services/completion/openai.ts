@@ -140,7 +140,7 @@ export function createOpenAiCompletionService(): CompletionService {
 				return Err({
 					name: 'CompletionServiceError',
 					message: 'OpenAI API returned an empty response',
-					context: {},
+					context: { model, completion },
 					cause: undefined,
 				});
 			}

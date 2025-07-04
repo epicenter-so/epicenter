@@ -34,7 +34,6 @@ export function createCpalRecorderService() {
 				name: 'RecordingServiceError',
 				message:
 					'We need permission to see your microphones. Check your browser settings and try again!',
-				context: {},
 				cause: enumerateRecordingDevicesError,
 			});
 		}
@@ -53,7 +52,6 @@ export function createCpalRecorderService() {
 					message:
 						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					action: { type: 'more-details', error: getRecorderStateError },
-					context: {},
 					cause: getRecorderStateError,
 				});
 			return Ok(recorderState);
@@ -80,7 +78,7 @@ export function createCpalRecorderService() {
 						message: selectedDeviceId
 							? "We couldn't find the selected microphone. Make sure it's connected and try again!"
 							: "We couldn't find any microphones. Make sure they're connected and try again!",
-						context: {},
+						context: { selectedDeviceId, devices },
 						cause: undefined,
 					});
 
@@ -168,7 +166,7 @@ export function createCpalRecorderService() {
 					name: 'RecordingServiceError',
 					message:
 						'Unable to start recording. Please check your microphone and try again.',
-					context: {},
+					context: { deviceName, deviceOutcome },
 					cause: startRecordingError,
 				});
 
@@ -190,7 +188,7 @@ export function createCpalRecorderService() {
 				return Err({
 					name: 'RecordingServiceError',
 					message: 'Unable to save your recording. Please try again.',
-					context: {},
+					context: { operation: 'stopRecording' },
 					cause: stopRecordingError,
 				});
 			}
@@ -231,7 +229,7 @@ export function createCpalRecorderService() {
 					name: 'RecordingServiceError',
 					message:
 						'Unable to check recording state. Please try closing the app and starting again.',
-					context: {},
+					context: { operation: 'cancelRecording' },
 					cause: getStateError,
 				});
 			}
@@ -251,7 +249,7 @@ export function createCpalRecorderService() {
 					name: 'RecordingServiceError',
 					message:
 						'Unable to cancel the recording. Please try closing the app and starting again.',
-					context: {},
+					context: { recorderState },
 					cause: cancelRecordingError,
 				});
 

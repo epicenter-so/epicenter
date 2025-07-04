@@ -365,7 +365,6 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting all recordings from Dexie',
-					context: {},
 					cause: error,
 				}),
 			});
@@ -386,7 +385,6 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting latest recording from Dexie',
-					context: {},
 					cause: error,
 				}),
 			});
@@ -404,7 +402,6 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting transcribing recording ids from Dexie',
-					context: {},
 					cause: error,
 				}),
 			});
@@ -545,7 +542,7 @@ export function createDbServiceDexie({
 							name: 'DbServiceError',
 							message:
 								'Unable to get recording count while cleaning up old recordings',
-							context: {},
+							context: { maxRecordingCount, recordingRetentionStrategy },
 							cause: error,
 						}),
 					});
@@ -567,7 +564,7 @@ export function createDbServiceDexie({
 						mapError: (error): DbServiceError => ({
 							name: 'DbServiceError',
 							message: 'Unable to clean up old recordings',
-							context: {},
+							context: { count, maxCount, recordingRetentionStrategy },
 							cause: error,
 						}),
 					});
@@ -582,7 +579,6 @@ export function createDbServiceDexie({
 				mapError: (error): DbServiceError => ({
 					name: 'DbServiceError',
 					message: 'Error getting all transformations from Dexie',
-					context: {},
 					cause: error,
 				}),
 			});

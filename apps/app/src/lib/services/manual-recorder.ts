@@ -139,7 +139,7 @@ export function createManualRecorderService() {
 					name: 'RecordingServiceError',
 					message:
 						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
-					context: {},
+					context: { activeRecording },
 					cause: undefined,
 				});
 			}
@@ -275,7 +275,6 @@ async function getRecordingStream(
 				name: 'RecordingServiceError',
 				message:
 					'Error enumerating recording devices and acquiring first available stream. Please make sure you have given permission to access your audio devices',
-				context: {},
 				cause: enumerateDevicesError,
 			});
 
@@ -291,7 +290,7 @@ async function getRecordingStream(
 		return Err({
 			name: 'RecordingServiceError',
 			message: 'Unable to connect to any available microphone',
-			context: {},
+			context: { recordingDevices },
 			cause: undefined,
 		});
 	};
@@ -381,7 +380,7 @@ async function enumerateRecordingDevices(): Promise<
 			name: 'RecordingServiceError',
 			message:
 				'We need permission to see your microphones. Check your browser settings and try again.',
-			context: {},
+			context: { permissionRequired: 'microphone' },
 			cause: error,
 		}),
 	});

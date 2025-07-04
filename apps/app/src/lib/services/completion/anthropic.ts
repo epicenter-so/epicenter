@@ -147,7 +147,7 @@ export function createAnthropicCompletionService(): CompletionService {
 				return Err({
 					name: 'CompletionServiceError',
 					message: 'Anthropic API returned an empty response',
-					context: {},
+					context: { model, completion },
 					cause: undefined,
 				});
 			}
