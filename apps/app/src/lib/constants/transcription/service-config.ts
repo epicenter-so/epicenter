@@ -48,7 +48,7 @@ export const TRANSCRIPTION_SERVICES = [
 		name: 'Groq Whisper',
 		icon: CloudIcon,
 		models: GROQ_MODELS,
-		defaultModel: 'whisper-large-v3',
+		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
 		type: 'api',
@@ -61,16 +61,6 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.openai.model',
 		apiKeyField: 'apiKeys.openai',
-		type: 'api',
-	},
-	{
-		id: 'Groq',
-		name: 'Groq Whisper',
-		icon: CloudIcon,
-		models: GROQ_MODELS,
-		defaultModel: GROQ_MODELS[2],
-		modelSettingKey: 'transcription.groq.model',
-		apiKeyField: 'apiKeys.groq',
 		type: 'api',
 	},
 	{
@@ -100,4 +90,3 @@ export const TRANSCRIPTION_SERVICE_OPTIONS = TRANSCRIPTION_SERVICES.map(
 );
 
 export type TranscriptionService = (typeof TRANSCRIPTION_SERVICES)[number];
-
