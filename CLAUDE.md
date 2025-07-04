@@ -1,4 +1,3 @@
-- Always prefix files and folders that are only consumed/imported from files in the immediate containing parent folder with an underscore _ . This includes if they are consumed and then reexported by an `index.ts` file—in this case, they should be underscored since index.ts is now the ultimate export path.  You can satisfy this rule either by prefixing individual files with _ OR by placing them in a folder prefixed with _.
 - Always use `type` instead of `interface` in Typescript.
 - When moving components to new locations, always update relative imports to absolute imports (e.g., change `import Component from '../Component.svelte'` to `import Component from '$lib/components/Component.svelte'`)
 - When functions are only used in the return statement of a factory/creator function, use object method shorthand syntax instead of defining them separately. For example, instead of:
@@ -39,9 +38,15 @@ When refactoring complex control flow, mirror natural human reasoning patterns:
 Transform this: nested conditionals with duplicated logic
 Into this: linear flow that mirrors human decision-making
 
+# Honesty
+Be brutally honest, don't be a yes man. 
+If I am wrong, point it out bluntly. 
+I need honest feedback on my code.
+
 # Shadcn-svelte Best Practices
 
 ## Component Organization
+- When using $state, $derived, or functions in Svelte component files that are only referenced once in the component markup, inline them directly in the markup for better code locality
 - Use the CLI for adding/managing shadcn-svelte components: `bunx shadcn-svelte@latest add [component]`
 - Each component should be in its own folder under `$lib/components/ui/` with an `index.ts` export file
 - Follow kebab-case for component folder names (e.g., `dialog/`, `toggle-group/`)
