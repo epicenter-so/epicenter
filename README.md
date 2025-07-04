@@ -48,28 +48,24 @@ Open source. No tracking. No paywalls.
 
 https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
-https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
+## Why I Built This
 
-## Because You're Tired of the Usual SaaS Problems
+I was tired of the usual SaaS problems:
 
-**The pricing is nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're not paying for the transcription—you're paying for their profit margin.
+- **The pricing was nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're paying for their profit margin.
+- **You have no idea what happens to your recordings.** Your recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy.
+- **Limited options.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
+- **Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
 
-**Nobody knows where your voice recordings go.** Your voice recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy. You have no idea what happens to your data.
+So I built Whispering the way transcription should work:
 
-**You're stuck with whatever they give you.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
-
-**Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
-
-With Whispering, you actually control what matters:
-- **Your API keys** - Switch providers in 30 seconds, compare costs, use multiple services
-- **Your data** - Audio never touches our servers, transcriptions stored locally on your device
-- **Your privacy** - Go completely local with Speaches, or use cloud services directly
-- **Your workflow** - Open source means it works as long as you want it to work
-- **Your costs** - Pay providers directly at actual cost, not marked-up subscription prices
+- **No middleman** - Your audio goes straight to the provider you choose (or stays fully local)
+- **Your keys, your costs** - Pay OpenAI/Groq/whoever directly at actual rates: $0.02-$0.18/hour instead of $20/month
+- **Actually yours** - Open source means no one can take it away, change the pricing, or sunset the service
 
 ### Cost Comparison
 
-Here's what typical usage ranges for transcription could cost with Whispering:
+With Whispering, you pay providers directly instead of marked-up subscription prices:
 
 | Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
 |---------|---------------|------------------------|-------------------------|----------------------|-------------------|
@@ -78,160 +74,265 @@ Here's what typical usage ranges for transcription could cost with Whispering:
 | `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
 | Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
 
-## Key Concepts
+## Quick Start
 
-Before diving in, here are the essential terms that will make everything clearer:
+**Get transcribing in 2 minutes** → Press shortcut, speak, get text
 
-**📋 Transcription**: Converting speech (audio) into written text  
-**🔌 API Key**: A secure password that lets Whispering access transcription services  
-**🏢 Provider**: Companies offering transcription services (like OpenAI, Groq, ElevenLabs)  
-**🤖 Model**: Different AI versions with speed/accuracy trade-offs (like "fast but good" vs "slow but perfect")  
-**🔄 Transformation**: Automatic improvements to your transcription (fixing grammar, formatting, etc.)  
-**🌐 Global Shortcut**: Keyboard combination that works anywhere on your computer
+### 1️⃣ Install Whispering
 
-## Key Features
+Visit the [GitHub Releases page](https://github.com/braden-w/whispering/releases/latest) and download the right version for your system:
 
-1. Global Transcription: Access speech-to-text functionality anywhere with a global keyboard shortcut or within two button clicks. Works across all applications on desktop.
+<details>
+<summary><strong>🍎 macOS</strong></summary>
 
-2. Cross-Platform Experience:
-   - Desktop App: Enables global transcription across all applications with customizable shortcuts
-   - Web App: Full-featured transcription interface accessible from any browser
-   - Browser Extension: Provides global transcription in Chrome by communicating with the web app (temporarily disabled)
+**Choose your version:**
+- **Apple Silicon** (M1/M2/M3): `Whispering_x.x.x_aarch64.dmg`
+- **Intel**: `Whispering_x.x.x_x64.dmg`
 
-3. Multiple Recording Modes:
-   - Manual: Click to start/stop recording with full control
-   - Voice Activity Detection (VAD): Hands-free recording with automatic speech detection and silence trimming
+<details>
+<summary>Not sure which Mac you have?</summary>
 
-4. Multi-Provider Transcription:
-   - OpenAI Whisper: Industry-standard accuracy with multiple model options (`whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`)
-   - Groq: Lightning-fast transcription with cost efficiency (`whisper-large-v3`, `whisper-large-v3-turbo`, `distil-whisper-large-v3-en`)
-   - ElevenLabs: High-quality transcription service (`scribe_v1`, `scribe_v1_experimental`)
-   - Speaches: Local transcription for complete privacy and offline functionality
+Click the Apple menu → About This Mac:
+- If you see "Apple M1/M2/M3", download `aarch64.dmg`
+- If you see "Intel", download `x64.dmg`
 
-5. Transformation Pipeline: Post-process transcriptions with AI-powered transformations including grammar correction, formatting, translation, and custom templates. Chain multiple transformations together.
+</details>
 
-6. Transcription Management: Review, edit, and organize all transcriptions within the app. Export to multiple formats with comprehensive search and filtering.
+**Installation:**
+1. Download the `.dmg` file
+2. Double-click to open
+3. Drag Whispering to your Applications folder
+4. Open Whispering from your Applications folder
 
-7. Automatic Clipboard Integration: Transcribed text is automatically copied to clipboard with optional automatic pasting (configurable in settings).
+<details>
+<summary><strong>Troubleshooting</strong></summary>
 
-> Important Note: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, we recommend using a dedicated recording app that utilizes native recording APIs for optimal audio quality and stability.
+**If you see "Unverified developer" warning:**
+- Right-click the app → select "Open"
 
-## Quick Start Guide
+**Apple Silicon users - If you see "app is damaged":**
+- Run this command in Terminal: `xattr -cr /Applications/Whispering.app`
 
-### Step 1: Choose Your Path
+</details>
 
-**🚀 Fast Track (Cloud)**: Best for most users
-- Get instant, high-quality transcription
-- Requires API key setup (2 minutes)
-- Pay per use (typically $0.02-0.10/hour)
-- **Recommended**: Start with [Groq](https://console.groq.com/keys) - fastest and cheapest
+</details>
 
-**🔒 Privacy Track (Local)**: For maximum privacy
-- Everything stays on your device
-- Requires local server setup (15 minutes)
-- Completely free after setup
-- Uses Speaches for transcription
+<details>
+<summary><strong>🪟 Windows</strong></summary>
 
-### Step 2: Install Whispering
+**Download:**
+- Installer: `Whispering_x.x.x_x64_en-US.msi` (recommended)
+- Alternative: `Whispering_x.x.x_x64-setup.exe`
 
-Choose your platform and download:
+**Installation:**
+1. Download the `.msi` installer
+2. Double-click to run
+3. If Windows Defender appears: Click "More Info" → "Run Anyway"
+4. Follow the installation wizard
 
-**macOS**: [Apple Silicon](https://github.com/braden-w/whispering/releases/latest) | [Intel](https://github.com/braden-w/whispering/releases/latest)
-- Download the `.dmg` file, drag to Applications
-- If you see "unverified developer", right-click and select "Open"
-- Apple Silicon users: If you get a "damaged" error, run: `xattr -cr /Applications/Whispering.app`
+</details>
 
-**Windows**: [64-bit Installer](https://github.com/braden-w/whispering/releases/latest)
-- Download the `.msi` installer and run it
-- Click "More Info" → "Run Anyway" if prompted
+<details>
+<summary><strong>🐧 Linux</strong></summary>
 
-**Linux**: [AppImage](https://github.com/braden-w/whispering/releases/latest) | [DEB](https://github.com/braden-w/whispering/releases/latest)
-- AppImage: `chmod +x whispering_x.x.x_amd64.AppImage && ./whispering_x.x.x_amd64.AppImage`
-- DEB: `sudo dpkg -i whispering_x.x.x_amd64.deb`
+**Choose your format:**
+- **AppImage** (universal): `Whispering_x.x.x_amd64.AppImage`
+- **Debian/Ubuntu**: `Whispering_x.x.x_amd64.deb`
+- **Fedora/RHEL**: `Whispering-x.x.x-1.x86_64.rpm`
 
-**Web App**: Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) for the browser version.
+**Installation:**
 
-**Chrome Extension**: Currently disabled while we stabilize recent changes.
+<details>
+<summary>AppImage</summary>
 
-### Set Up Transcription
+```bash
+chmod +x Whispering_x.x.x_amd64.AppImage
+./Whispering_x.x.x_amd64.AppImage
+```
 
-1. Open Whispering and navigate to **Settings** (⚙️) → **Transcription**
-2. **Choose your service.** Here are my personal recommendations:
-   - **Groq** (Recommended): Fastest, cheapest, with great accuracy
-   - **OpenAI**: Industry standard, slightly more expensive
-   - **ElevenLabs**: High accuracy, most expensive
-   - **Speaches**: Local transcription, completely private, no API key needed
-3. **Configure your service:**
-   - **For cloud services (Groq, OpenAI, ElevenLabs)**: Get an API key from your chosen provider and paste it into the API key field
-   - **For Speaches**: Configure the base URL (typically `http://localhost:8000`) and model ID after setting up your local server
-   - **Groq example**: Get a key at [console.groq.com/keys](https://console.groq.com/keys) and select "distil-whisper-large-v3-en" model for best speed/cost balance
+</details>
 
-### Start Using Whispering
+<details>
+<summary>DEB (Debian/Ubuntu)</summary>
 
-**Global shortcut**: Press `Ctrl/Cmd + Shift + ;` anywhere on your desktop to start recording
+```bash
+sudo dpkg -i Whispering_x.x.x_amd64.deb
+```
 
-**In-app**: Click the large microphone button in the main interface
+</details>
 
-**Hands-free**: Enable Voice Activity Detection (VAD) in settings for automatic recording
+<details>
+<summary>RPM (Fedora/RHEL)</summary>
 
-Your transcription will be automatically copied to your clipboard and ready to paste anywhere!
+```bash
+sudo rpm -i Whispering-x.x.x-1.x86_64.rpm
+```
 
-That's it. We don't charge you (only your API provider does). No credit card. No paywalls. No tracking.
+</details>
 
-### Known Issues
+</details>
 
-#### macOS Global Shortcut Limitations
+<details>
+<summary><strong>🌐 Web App</strong></summary>
 
-On macOS, global shortcuts may occasionally stop responding when the app runs in the background due to macOS's App Nap feature, which reduces background app performance to save battery.
+No installation needed! Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) in your browser. The web version has most but not all features of the desktop app (no global shortcuts).
 
-**Solution:** Bring Whispering to the foreground briefly to restore shortcut functionality. You can also run Whispering in the foreground using our custom minimize mode by clicking the minimize button (not the OS minimize button).
+</details>
 
-### Optional: Advanced Features
+### 2️⃣ Get Your API Key (30 seconds)
 
-Once you're comfortable with basic transcription, explore these powerful features:
+Right now, I personally use **Groq** for almost all my transcriptions.
 
-#### AI-Powered Transformations
-Enhance your transcriptions with custom workflows by creating transformation pipelines:
+> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour)
 
-**Creating a Transformation Workflow:**
-1. Navigate to **Transformations** (📚) in the top bar main navigation
-2. Click "Create Transformation" 
-3. Give your workflow a title (e.g., "Format")
+1. Visit [console.groq.com/keys](https://console.groq.com/keys)
+2. Sign up → Create API key → Copy it
 
-**Configuring Prompt Transform:**
-1. Add a new step and select **"Prompt Transform"**
-2. Choose your AI model profile (e.g., **"Google Gemini 2.5 Flash"**)
-3. Configure your prompts using dynamic injection:
+**🙌 That's it!** No credit card required for the free tier. You can start transcribing immediately.
 
-   **System Prompt Example:**
-   ```
-   You are a professional text formatter. Format the following transcribed text for clarity and readability.
-   ```
+### 3️⃣ Connect & Test
 
-   **User Prompt Example:**
-   ```
-   Please format this transcription: {{input}}
-   
-   Requirements:
-   - Fix capitalization and punctuation
-   - Break into logical paragraphs
-   - Maintain original meaning
-   ```
+1. Open Whispering
+2. Click **Settings** (⚙️) → **Transcription**
+3. Select **Groq** → Paste your API key where it says `Groq API Key`
+4. Click the recording button (or press `Cmd+Shift+;` anywhere) and say "Testing Whispering"
 
-**How It Works:**
-- The `{{input}}` placeholder receives your transcribed text
-- When the workflow runs, `{{input}}` is replaced with the actual transcription
-- The AI processes your text and returns the formatted result
+**🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
-**Chaining Multiple Steps:**
-Create complex workflows by adding more transformation steps:
-- **Step 1:** Prompt Transform (Format with Gemini 2.5 Flash)
-- **Step 2:** Find & Replace (Remove filler words like "um", "uh")  
-- **Step 3:** Prompt Transform (Translate to Spanish with GPT-4)
+---
 
-Each step receives the output from the previous step as its `{{input}}`.
+### Common Issues
 
-**Note:** Additional AI provider API keys may be needed ([see API Key Providers](#api-key-providers))
+- **No transcription?** → Double-check API key in Settings
+- **Shortcut not working?** → Bring Whispering to foreground (see macOS section below)
+- **Wrong provider selected?** → Check Settings → Transcription
+
+<details>
+<summary><strong>macOS: Global shortcut stops working?</strong></summary>
+
+This happens due to macOS App Nap, which suspends background apps to save battery.
+
+**Quick fixes:**
+1. Bring Whispering to the foreground briefly to restore shortcuts
+2. Keep the app window open (even behind other windows)
+3. Use our custom minimize mode (click the app's minimize button, not the OS one)
+
+**Best practice:** Keep Whispering's window open behind other apps rather than minimizing it.
+
+</details>
+
+### 4️⃣ Next Steps: Power User Features
+
+<details>
+<summary><strong>🤖 AI-Powered Transformations</strong></summary>
+
+Transform your transcriptions automatically with custom AI workflows:
+
+**Quick Example - Auto-formatting:**
+1. Go to **Transformations** (📚) in the top bar
+2. Click "Create Transformation" → Name it "Format"
+3. Add a **Prompt Transform** step:
+   - Model: `Google Gemini 2.5 Flash` (or your preferred AI)
+   - System prompt: `You are a professional text formatter.`
+   - User prompt: `Format this transcription: {{input}}`
+4. Save and select it in your recording settings
+
+**What can transformations do?**
+- Fix grammar and punctuation automatically
+- Translate to other languages
+- Convert casual speech to professional writing
+- Create summaries or bullet points
+- Remove filler words ("um", "uh")
+- Chain multiple steps together
+
+**Example workflow:** Speech → Transcribe → Fix Grammar → Translate to Spanish → Copy to clipboard
+
+<details>
+<summary>Setting up AI providers for transformations</summary>
+
+You'll need additional API keys for AI transformations:
+- **[Google Gemini](https://aistudio.google.com/app/apikey)** - Free tier available, fast
+- **[OpenAI](https://platform.openai.com/api-keys)** - GPT-4 for complex tasks
+- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude for nuanced writing
+- **[Groq](https://console.groq.com/keys)** - Fast Llama models
+
+</details>
+
+</details>
+
+<details>
+<summary><strong>🎙️ Voice Activity Detection (VAD)</strong></summary>
+
+Hands-free recording that starts when you speak and stops when you're done.
+
+**Two ways to enable VAD:**
+
+**Option 1: Quick toggle on homepage**
+- On the homepage, click the **Voice Activated** tab (next to Manual)
+
+**Option 2: Through settings**
+1. Go to **Settings** → **Recording**
+2. Find the **Recording Mode** dropdown
+3. Select **Voice Activated** instead of Manual
+
+**How it works:**
+- Press shortcut once → VAD starts listening
+- Speak → Recording begins automatically
+- Stop speaking → Recording stops after a brief pause
+- Your transcription appears instantly
+
+Perfect for dictation without holding keys!
+
+</details>
+
+<details>
+<summary><strong>⌨️ Custom Shortcuts</strong></summary>
+
+Change the recording shortcut to whatever feels natural:
+
+1. Go to **Settings** → **Recording**
+2. Click on the shortcut field
+3. Press your desired key combination
+4. Popular choices: `F1`, `Cmd+Space+R`, `Ctrl+Shift+V`
+
+</details>
+
+## Technical Details
+
+<details>
+<summary><strong>Available Providers & Models</strong></summary>
+
+**🚀 Groq (Recommended for most users)**
+- `distil-whisper-large-v3-en` - Fastest, English only, $0.02/hour
+- `whisper-large-v3-turbo` - Fast, multilingual, $0.04/hour  
+- `whisper-large-v3` - Most accurate, multilingual, $0.06/hour
+
+**🎯 OpenAI**
+- `whisper-1` - Original Whisper model, $0.36/hour
+- `gpt-4o-transcribe` - Advanced with better punctuation, $0.60/hour
+- `gpt-4o-mini-transcribe` - Balanced performance, $0.18/hour
+
+**🎙️ ElevenLabs**
+- `scribe_v1` - Production voice AI model
+- `scribe_v1_experimental` - Latest experimental features
+
+**🏠 Speaches (Local)**
+- Runs entirely on your device
+- No internet required
+- Complete privacy
+- Free forever
+
+**Key Features:**
+- Global keyboard shortcut works anywhere on desktop
+- Voice Activity Detection for hands-free recording
+- AI-powered transformations for post-processing
+- Export transcriptions in multiple formats
+- All data stored locally on your device
+
+</details>
+
+> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
 
 ## Configuration
 
@@ -294,10 +395,11 @@ Whispering showcases the power of modern web development as a comprehensive exam
 - [Zapsplat.com](https://www.zapsplat.com): Royalty-free sound effects
 
 #### Browser Extension
-- [Plasmo](https://docs.plasmo.com): Chrome extension framework
-- [React](https://reactjs.org): UI library (Plasmo requirement)
+- [React](https://reactjs.org): UI library
 - [shadcn/ui](https://ui.shadcn.com): Component library
 - [Chrome API](https://developer.chrome.com/docs/extensions/reference): Extension APIs
+
+**Note:** The browser extension is temporarily disabled while we stabilize the desktop app.
 
 #### Architecture Patterns
 - Service Layer: Platform-agnostic business logic with Result types
@@ -354,11 +456,6 @@ cd apps/app
 pnpm tauri dev
 ```
 
-To run the Chrome extension (once it's restored):
-```bash
-cd apps/extension
-pnpm dev --target=chrome-mv3
-```
 
 ### Build The Executable Yourself
 
@@ -374,13 +471,6 @@ pnpm tauri build
 
 Find the executable in `apps/app/target/release`
 
-#### Firefox Extension
-```bash
-cd apps/extension
-pnpm i
-pnpm plasmo build --target=firefox-mv3
-```
-Output in `apps/extension/build/firefox-mv3-prod`
 
 ### Contributing
 
@@ -407,7 +497,6 @@ We welcome contributions! Whispering is built in the open by developers who use 
 - Performance optimizations
 - Documentation improvements
 - Test coverage expansion
-- Browser extension features (when re-enabled)
 
 ### Architecture for Learning
 

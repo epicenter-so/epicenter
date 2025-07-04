@@ -23,9 +23,9 @@
 	<Dialog.Content class="sm:max-w-xl">
 		<Dialog.Header>
 			<Dialog.Title>About macOS App Behavior</Dialog.Title>
-			<Dialog.Description
-				>Why we don't recommend closing to tray on macOS</Dialog.Description
-			>
+			<Dialog.Description>
+				Why we don't recommend closing to tray on macOS
+			</Dialog.Description>
 		</Dialog.Header>
 		<p class="text-sm leading-7">
 			Due to macOS's App Nap feature, minimizing or hiding the app window can
