@@ -44,16 +44,6 @@ type SatisfiedTranscriptionService =
 
 export const TRANSCRIPTION_SERVICES = [
 	{
-		id: 'OpenAI',
-		name: 'OpenAI Whisper',
-		icon: HexagonIcon,
-		models: OPENAI_TRANSCRIPTION_MODELS,
-		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
-		modelSettingKey: 'transcription.openai.model',
-		apiKeyField: 'apiKeys.openai',
-		type: 'api',
-	},
-	{
 		id: 'Groq',
 		name: 'Groq Whisper',
 		icon: CloudIcon,
@@ -61,6 +51,16 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
+		type: 'api',
+	},
+	{
+		id: 'OpenAI',
+		name: 'OpenAI Whisper',
+		icon: HexagonIcon,
+		models: OPENAI_TRANSCRIPTION_MODELS,
+		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
+		modelSettingKey: 'transcription.openai.model',
+		apiKeyField: 'apiKeys.openai',
 		type: 'api',
 	},
 	{
