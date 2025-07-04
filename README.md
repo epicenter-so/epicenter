@@ -54,12 +54,12 @@ https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
 Here's what an hour of daily transcription could cost:
 
-| Service | Cost per Hour | Monthly (1 hr/day) | Traditional Tools |
-|---------|---------------|-------------------|------------------|
-| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.60 | $15-30/month |
-| `whisper-large-v3-turbo` (Groq) | $0.04 | $1.20 | $15-30/month |
-| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $5.40 | $15-30/month |
-| Local (Speaches) | $0.00 | $0.00 | $15-30/month |
+| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
+|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
 
 ### Because You're Tired of the Usual SaaS Problems
 
