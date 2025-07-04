@@ -50,18 +50,7 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
 https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
-### Cost Comparison
-
-Here's what an hour of daily transcription could cost:
-
-| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
-|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
-| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
-| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
-| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
-| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
-
-### Because You're Tired of the Usual SaaS Problems
+## Because You're Tired of the Usual SaaS Problems
 
 **The pricing is nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're not paying for the transcription—you're paying for their profit margin.
 
@@ -78,6 +67,17 @@ With Whispering, you actually control what matters:
 - **Your workflow** - Open source means it works as long as you want it to work
 - **Your costs** - Pay providers directly at actual cost, not marked-up subscription prices
 
+### Cost Comparison
+
+Here's what typical usage ranges for transcription could cost with Whispering:
+
+| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
+|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
+
 ## Key Concepts
 
 Before diving in, here are the essential terms that will make everything clearer:
@@ -87,13 +87,34 @@ Before diving in, here are the essential terms that will make everything clearer
 **🏢 Provider**: Companies offering transcription services (like OpenAI, Groq, ElevenLabs)  
 **🤖 Model**: Different AI versions with speed/accuracy trade-offs (like "fast but good" vs "slow but perfect")  
 **🔄 Transformation**: Automatic improvements to your transcription (fixing grammar, formatting, etc.)  
-**🌐 Global Shortcut**: Keyboard combination that works anywhere on your computer  
+**🌐 Global Shortcut**: Keyboard combination that works anywhere on your computer
 
-## Demo Videos
+## Key Features
 
-https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
+1. Global Transcription: Access speech-to-text functionality anywhere with a global keyboard shortcut or within two button clicks. Works across all applications on desktop.
 
-https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
+2. Cross-Platform Experience:
+   - Desktop App: Enables global transcription across all applications with customizable shortcuts
+   - Web App: Full-featured transcription interface accessible from any browser
+   - Browser Extension: Provides global transcription in Chrome by communicating with the web app (temporarily disabled)
+
+3. Multiple Recording Modes:
+   - Manual: Click to start/stop recording with full control
+   - Voice Activity Detection (VAD): Hands-free recording with automatic speech detection and silence trimming
+
+4. Multi-Provider Transcription:
+   - OpenAI Whisper: Industry-standard accuracy with multiple model options (`whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`)
+   - Groq: Lightning-fast transcription with cost efficiency (`whisper-large-v3`, `whisper-large-v3-turbo`, `distil-whisper-large-v3-en`)
+   - ElevenLabs: High-quality transcription service (`scribe_v1`, `scribe_v1_experimental`)
+   - Speaches: Local transcription for complete privacy and offline functionality
+
+5. Transformation Pipeline: Post-process transcriptions with AI-powered transformations including grammar correction, formatting, translation, and custom templates. Chain multiple transformations together.
+
+6. Transcription Management: Review, edit, and organize all transcriptions within the app. Export to multiple formats with comprehensive search and filtering.
+
+7. Automatic Clipboard Integration: Transcribed text is automatically copied to clipboard with optional automatic pasting (configurable in settings).
+
+> Important Note: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, we recommend using a dedicated recording app that utilizes native recording APIs for optimal audio quality and stability.
 
 ## Quick Start Guide
 
@@ -211,35 +232,6 @@ Create complex workflows by adding more transformation steps:
 Each step receives the output from the previous step as its `{{input}}`.
 
 **Note:** Additional AI provider API keys may be needed ([see API Key Providers](#api-key-providers))
-
-## Key Features
-
-1. Global Transcription: Access speech-to-text functionality anywhere with a global keyboard shortcut or within two button clicks. Works across all applications on desktop.
-
-2. Cross-Platform Experience:
-   - Desktop App: Enables global transcription across all applications with customizable shortcuts
-   - Web App: Full-featured transcription interface accessible from any browser
-   - Browser Extension: Provides global transcription in Chrome by communicating with the web app (temporarily disabled)
-
-3. Multiple Recording Modes:
-   - Manual: Click to start/stop recording with full control
-   - Voice Activity Detection (VAD): Hands-free recording with automatic speech detection and silence trimming
-
-4. Multi-Provider Transcription:
-   - OpenAI Whisper: Industry-standard accuracy with multiple model options (`whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`)
-   - Groq: Lightning-fast transcription with cost efficiency (`whisper-large-v3`, `whisper-large-v3-turbo`, `distil-whisper-large-v3-en`)
-   - ElevenLabs: High-quality transcription service (`scribe_v1`, `scribe_v1_experimental`)
-   - Speaches: Local transcription for complete privacy and offline functionality
-
-5. Transformation Pipeline: Post-process transcriptions with AI-powered transformations including grammar correction, formatting, translation, and custom templates. Chain multiple transformations together.
-
-6. Transcription Management: Review, edit, and organize all transcriptions within the app. Export to multiple formats with comprehensive search and filtering.
-
-7. Automatic Clipboard Integration: Transcribed text is automatically copied to clipboard with optional automatic pasting (configurable in settings).
-
-> Important Note: Whispering is designed primarily as a transcription tool, not a recording tool. For longer recordings where reliability is crucial, we recommend using a dedicated recording app that utilizes native recording APIs for optimal audio quality and stability.
-
-
 
 ## Configuration
 
