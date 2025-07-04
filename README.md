@@ -216,14 +216,40 @@ This happens due to macOS App Nap, which suspends background apps to save batter
 
 **Quick fixes:**
 1. Bring Whispering to the foreground briefly to restore shortcuts
-2. Keep the app window open (even behind other windows)
-3. Use our custom minimize mode (click the app's minimize button, not the OS one)
+2. Keep the app window in the foreground (even as a smaller window)
+3. Use Voice Activated mode for hands-free operation
 
-**Best practice:** Keep Whispering's window open behind other apps rather than minimizing it.
+**Best practice:** Keep Whispering in the foreground in front of other apps. You can resize it to a smaller window or use Voice Activated mode for minimal disruption.
 
 </details>
 
 ### 4️⃣ Next Steps: Power User Features
+
+<details>
+<summary><strong>🎯 Custom Transcription Services</strong></summary>
+
+Choose from multiple transcription providers based on your needs for speed, accuracy, and privacy:
+
+#### 🚀 Groq (Recommended)
+- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
+- **Models:** `distil-whisper-large-v3-en` ($0.02/hr), `whisper-large-v3-turbo` ($0.04/hr), `whisper-large-v3` ($0.06/hr)
+- **Why:** Fastest, cheapest, generous free tier
+
+#### 🎯 OpenAI
+- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
+- **Models:** `whisper-1` ($0.36/hr), `gpt-4o-transcribe` ($0.60/hr), `gpt-4o-mini-transcribe` ($0.18/hr)
+- **Why:** Industry standard
+
+#### 🎙️ ElevenLabs
+- **API Key:** [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)
+- **Models:** `scribe_v1`, `scribe_v1_experimental`
+- **Why:** High-quality voice AI
+
+#### 🏠 Speaches (Local)
+- **API Key:** None needed!
+- **Why:** Complete privacy, offline use, free forever
+
+</details>
 
 <details>
 <summary><strong>🤖 AI-Powered Transformations</strong></summary>
@@ -252,11 +278,27 @@ Transform your transcriptions automatically with custom AI workflows:
 <details>
 <summary>Setting up AI providers for transformations</summary>
 
-You'll need additional API keys for AI transformations:
-- **[Google Gemini](https://aistudio.google.com/app/apikey)** - Free tier available, fast
-- **[OpenAI](https://platform.openai.com/api-keys)** - GPT-4 for complex tasks
-- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude for nuanced writing
-- **[Groq](https://console.groq.com/keys)** - Fast Llama models
+You'll need additional API keys for AI transformations. Choose from these providers based on your needs:
+
+#### 🧠 OpenAI
+- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Models:** `gpt-4o`, `gpt-4o-mini`, `o3-mini` and more
+- **Why:** Most capable, best for complex text transformations
+
+#### 🤖 Anthropic
+- **API Key:** [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+- **Models:** `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`
+- **Why:** Excellent writing quality, nuanced understanding
+
+#### ✨ Google Gemini
+- **API Key:** [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+- **Models:** `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
+- **Why:** Free tier available, fast response times
+
+#### ⚡ Groq
+- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
+- **Models:** `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `gemma2-9b-it`, and more
+- **Why:** Lightning fast inference, great for real-time transformations
 
 </details>
 
@@ -299,56 +341,7 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
-## Configuration
-
-### Transcription Services
-
-Choose from these providers based on your needs:
-
-#### 🚀 Groq (Recommended)
-- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
-- **Models:** `distil-whisper-large-v3-en` ($0.02/hr), `whisper-large-v3-turbo` ($0.04/hr), `whisper-large-v3` ($0.06/hr)
-- **Why:** Fastest, cheapest, generous free tier
-
-#### 🎯 OpenAI
-- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
-- **Models:** `whisper-1` ($0.36/hr), `gpt-4o-transcribe` ($0.60/hr), `gpt-4o-mini-transcribe` ($0.18/hr)
-- **Why:** Industry standard
-
-#### 🎙️ ElevenLabs
-- **API Key:** [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)
-- **Models:** `scribe_v1`, `scribe_v1_experimental`
-- **Why:** High-quality voice AI
-
-#### 🏠 Speaches (Local)
-- **API Key:** None needed!
-- **Why:** Complete privacy, offline use, free forever
-
-### Transformation Services (Optional)
-
-For AI-powered post-processing of your transcriptions:
-
-#### 🧠 OpenAI
-- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- **Models:** `gpt-4o`, `gpt-4o-mini`, `o3-mini` and more
-- **Why:** Most capable, best for complex text transformations
-
-#### 🤖 Anthropic
-- **API Key:** [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
-- **Models:** `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`
-- **Why:** Excellent writing quality, nuanced understanding
-
-#### ✨ Google Gemini
-- **API Key:** [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
-- **Models:** `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
-- **Why:** Free tier available, fast response times
-
-#### ⚡ Groq
-- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
-- **Models:** `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `gemma2-9b-it`, and more
-- **Why:** Lightning fast inference, great for real-time transformations
-
-### How is my data stored?
+## How is my data stored?
 
 Whispering stores as much data as possible locally on your device, including recordings and text transcriptions. This approach ensures maximum privacy and data security. Here's an overview of how data is handled:
 
@@ -404,7 +397,8 @@ Whispering showcases the power of modern web development as a comprehensive exam
 
 ### Architecture Deep Dive
 
-#### Three-Layer Architecture
+Whispering uses a clean three-layer architecture that separates concerns and makes the codebase easy to understand and extend:
+
 ```
 ┌─────────────┐     ┌─────────────┐     ┌──────────────┐
 │  UI Layer   │ --> │  Query Layer│ --> │ Service Layer│
@@ -415,20 +409,16 @@ Whispering showcases the power of modern web development as a comprehensive exam
          Reactive Updates
 ```
 
-#### Key Patterns
+#### Service Layer - Pure Business Logic
 
-Service Layer (`/lib/services/`):
-- Platform-agnostic business logic
-- Result types for error handling
-- Dependency injection for cross-platform support
+The service layer is where all business logic lives—pure functions that handle everything from audio transcription to clipboard operations. What makes it special is its complete isolation from UI concerns: services don't know about Svelte stores, user settings, or reactive state. Instead, they accept explicit parameters and return consistent `Result<T, E>` types for robust error handling.
 
-Query Layer (`/lib/query/`):
-- TanStack Query integration
-- Reactive state management
-- Caching and optimistic updates
-- Unified RPC interface
+Services transparently handle platform differences between desktop (Tauri) and web environments. When you import a service like `clipboard`, it automatically selects the right implementation at build time. This design keeps business logic testable, reusable, and platform-agnostic. [→ Learn more in the Services README](./apps/app/src/lib/services/README.md)
 
-RPC Pattern:
+#### Query Layer - The RPC Pattern
+
+The query layer acts as a reactive bridge between UI components and the service layer, implementing what we call the **RPC pattern**. Think of `rpc` as your app's unified API—every operation is available through a single import:
+
 ```typescript
 import { rpc } from '$lib/query';
 
@@ -438,6 +428,8 @@ const recordings = createQuery(rpc.recordings.getAllRecordings.options);
 // Imperative usage in actions
 const { data, error } = await rpc.transcription.transcribe.execute(blob);
 ```
+
+This dual interface design provides both reactive state management for UI components and direct execution for workflows. Under the hood, it wraps service functions with TanStack Query for caching, optimistic updates, and error handling. [→ Deep dive into the Query Layer README](./apps/app/src/lib/query/README.md)
 
 ### Run Whispering in Local Development Mode
 
