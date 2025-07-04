@@ -44,6 +44,8 @@ Bring your own API key from providers like `OpenAI`, `Groq`, or `ElevenLabs`, an
 
 Open source. No tracking. No paywalls.
 
+> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
 ## Demo
 
 https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
@@ -297,61 +299,54 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
-## Technical Details
-
-<details>
-<summary><strong>Available Providers & Models</strong></summary>
-
-**🚀 Groq (Recommended for most users)**
-- `distil-whisper-large-v3-en` - Fastest, English only, $0.02/hour
-- `whisper-large-v3-turbo` - Fast, multilingual, $0.04/hour  
-- `whisper-large-v3` - Most accurate, multilingual, $0.06/hour
-
-**🎯 OpenAI**
-- `whisper-1` - Original Whisper model, $0.36/hour
-- `gpt-4o-transcribe` - Advanced with better punctuation, $0.60/hour
-- `gpt-4o-mini-transcribe` - Balanced performance, $0.18/hour
-
-**🎙️ ElevenLabs**
-- `scribe_v1` - Production voice AI model
-- `scribe_v1_experimental` - Latest experimental features
-
-**🏠 Speaches (Local)**
-- Runs entirely on your device
-- No internet required
-- Complete privacy
-- Free forever
-
-**Key Features:**
-- Global keyboard shortcut works anywhere on desktop
-- Voice Activity Detection for hands-free recording
-- AI-powered transformations for post-processing
-- Export transcriptions in multiple formats
-- All data stored locally on your device
-
-</details>
-
-> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
-
-
 ## Configuration
 
-### API Key Providers
+### Transcription Services
 
-Get an API key from any of these supported services:
+Choose from these providers based on your needs:
 
-#### Transcription Services
-- **[Groq](https://console.groq.com/keys)** - Fastest & cheapest transcription
-- **[OpenAI](https://platform.openai.com/api-keys)** - Industry-standard Whisper models ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
-- **[ElevenLabs](https://elevenlabs.io/app/settings/api-keys)** - High-quality voice AI transcription
-- **Local** - Use Speaches for complete privacy (no API key needed)
+#### 🚀 Groq (Recommended)
+- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
+- **Models:** `distil-whisper-large-v3-en` ($0.02/hr), `whisper-large-v3-turbo` ($0.04/hr), `whisper-large-v3` ($0.06/hr)
+- **Why:** Fastest, cheapest, generous free tier
 
-#### Transformation Services (Optional)
+#### 🎯 OpenAI
+- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
+- **Models:** `whisper-1` ($0.36/hr), `gpt-4o-transcribe` ($0.60/hr), `gpt-4o-mini-transcribe` ($0.18/hr)
+- **Why:** Industry standard
+
+#### 🎙️ ElevenLabs
+- **API Key:** [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)
+- **Models:** `scribe_v1`, `scribe_v1_experimental`
+- **Why:** High-quality voice AI
+
+#### 🏠 Speaches (Local)
+- **API Key:** None needed!
+- **Why:** Complete privacy, offline use, free forever
+
+### Transformation Services (Optional)
+
 For AI-powered post-processing of your transcriptions:
-- **[OpenAI](https://platform.openai.com/api-keys)** - GPT-4 and GPT-3.5 for advanced text processing
-- **[Anthropic](https://console.anthropic.com/settings/keys)** - Claude models for intelligent transformations
-- **[Google](https://aistudio.google.com/app/apikey)** - Gemini models for creative text enhancement
-- **[Groq](https://console.groq.com/keys)** - Fast Llama models for quick transformations
+
+#### 🧠 OpenAI
+- **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Models:** `gpt-4o`, `gpt-4o-mini`, `o3-mini` and more
+- **Why:** Most capable, best for complex text transformations
+
+#### 🤖 Anthropic
+- **API Key:** [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+- **Models:** `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`
+- **Why:** Excellent writing quality, nuanced understanding
+
+#### ✨ Google Gemini
+- **API Key:** [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+- **Models:** `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
+- **Why:** Free tier available, fast response times
+
+#### ⚡ Groq
+- **API Key:** [console.groq.com/keys](https://console.groq.com/keys)
+- **Models:** `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `gemma2-9b-it`, and more
+- **Why:** Lightning fast inference, great for real-time transformations
 
 ### How is my data stored?
 
