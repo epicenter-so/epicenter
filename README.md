@@ -3,7 +3,7 @@
     <img width="180" src="./apps/app/src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
   <h1 align="center">Whispering</h1>
-  <p align="center">Fully open source transcription</p>
+  <p align="center">Press shortcut → speak → get text. Free and open source.</p>
 </p>
 
 <p align="center">
@@ -32,18 +32,27 @@
 
 ## What is Whispering?
 
-Press a shortcut anywhere on your desktop → speak → get text (or AI-transformed text) in your clipboard. That's it.
+Press a shortcut anywhere on your desktop → speak → get text in your clipboard. That's it.
 
-Whispering is the transcription app I built because I got tired of paying monthly subscriptions for something that should cost pennies. It's completely open source, works across platforms, and you control everything—your data, your API keys, your privacy.
+**Try it in 2 minutes:** [Quick Start](#quick-start) | [Watch Demo (30s)](#demo)
 
-Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything on-device. Your audio goes directly to your chosen service—no middleman, no tracking, no data collection.
+Whispering is the transcription app I built because I believe productivity tools should be free and accessible to everyone.
 
+Whispering is free and open source—you own your data, you audit the code, and you control your privacy.
 
-> We believe transcription should be accessible to everyone. Essential productivity tools shouldn't be locked behind paywalls or closed source code. With Whispering, you own your data, you audit the code, and you control your privacy.
+Bring your own API key from providers like `OpenAI`, `Groq`, or `ElevenLabs`, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything free and on-device. Your audio goes directly to your chosen service.
 
-## Why Choose Whispering?
+Open source. No tracking. No paywalls.
+
+## Demo
+
+https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
+
+https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
 ### Cost Comparison
+
+Here's what an hour of daily transcription could cost:
 
 | Service | Cost per Hour | Monthly (1 hr/day) | Traditional Tools |
 |---------|---------------|-------------------|------------------|
@@ -51,8 +60,6 @@ Bring your own API key from providers like OpenAI, Groq, or ElevenLabs, and pay 
 | `whisper-large-v3-turbo` (Groq) | $0.04 | $1.20 | $15-30/month |
 | `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $5.40 | $15-30/month |
 | Local (Speaches) | $0.00 | $0.00 | $15-30/month |
-
-*Instead of paying $15-30/month for transcription subscriptions, you pay providers directly. No subscriptions, no markup, no middleman.*
 
 ### Because You're Tired of the Usual SaaS Problems
 
@@ -88,20 +95,23 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
 https://github.com/user-attachments/assets/a7934f1f-d08b-4037-9bbc-aadd1b13501e
 
-## Getting Started
+## Quick Start Guide
 
-### What You'll Need
+### Step 1: Choose Your Path
 
-**Transcription Service**: Whispering converts your speech to text using transcription services. You have two options:
+**🚀 Fast Track (Cloud)**: Best for most users
+- Get instant, high-quality transcription
+- Requires API key setup (2 minutes)
+- Pay per use (typically $0.02-0.10/hour)
+- **Recommended**: Start with [Groq](https://console.groq.com/keys) - fastest and cheapest
 
-- **Cloud services** (OpenAI, Groq, ElevenLabs) - Require an API key but often offers better accuracy, performance, and convenience
-- **Local transcription** (Speaches) - Runs on your device, no API key needed, completely private
+**🔒 Privacy Track (Local)**: For maximum privacy
+- Everything stays on your device
+- Requires local server setup (15 minutes)
+- Completely free after setup
+- Uses Speaches for transcription
 
-**API Key**: If using cloud services, you'll need an API key (think of it as a secure password that lets Whispering access the service on your behalf). You pay the service directly (usually cents per hour), not us.
-
-**Recommended for beginners**: Start with [Groq](https://console.groq.com/keys)'s `distil-whisper-large-v3-en` or `whisper-large-v3-turbo`—they're the fastest and cheapest options at $0.02/hour and $0.04/hour with great accuracy.
-
-### Download & Install
+### Step 2: Install Whispering
 
 Choose your platform and download:
 
@@ -120,7 +130,7 @@ Choose your platform and download:
 
 **Web App**: Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) for the browser version.
 
-**Chrome Extension**: Currently temporarily disabled while we stabilize recent changes.
+**Chrome Extension**: Currently disabled while we stabilize recent changes.
 
 ### Set Up Transcription
 
@@ -145,7 +155,7 @@ Choose your platform and download:
 
 Your transcription will be automatically copied to your clipboard and ready to paste anywhere!
 
-That's it. We don't charge you (only your API provider does). No credit card. No subscription. No tracking.
+That's it. We don't charge you (only your API provider does). No credit card. No paywalls. No tracking.
 
 ### Known Issues
 
