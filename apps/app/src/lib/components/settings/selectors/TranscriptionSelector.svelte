@@ -21,10 +21,22 @@
 
 	const selectedService = $derived(getSelectedTranscriptionService());
 
-	function getSelectedModelName(service: TranscriptionService) {
-		if (service.type !== 'api') return null;
-		return settings.value[service.modelSettingKey];
+	function getSelectedModelNameOrUrl(service: TranscriptionService) {
+		switch (service.type) {
+			case 'api':
+				return settings.value[service.modelSettingKey];
+			case 'server':
+				return settings.value[service.serverUrlField];
+		}
 	}
+
+	const apiServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'api'),
+	);
+
+	const serverServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'server'),
+	);
 
 	const combobox = useCombobox();
 </script>
@@ -36,14 +48,6 @@
 		<span class="font-medium truncate">
 			{service.name}
 		</span>
-		{#if selectedService?.id === service.id}
-			{@const selectedModel = getSelectedModelName(service)}
-			{#if selectedModel}
-				<Badge variant="outline" class="shrink-0 text-xs">
-					{selectedModel}
-				</Badge>
-			{/if}
-		{/if}
 	</div>
 {/snippet}
 
@@ -54,7 +58,9 @@
 				{...props}
 				class={cn('relative', className)}
 				tooltipContent={selectedService
-					? `Current transcription service: ${selectedService.name}`
+					? `Current transcription service: ${selectedService.name}(${getSelectedModelNameOrUrl(
+							selectedService,
+						)})`
 					: 'Select a transcription service'}
 				role="combobox"
 				aria-expanded={combobox.open}
@@ -85,83 +91,89 @@
 	<Popover.Content class="w-80 max-w-xl p-0">
 		<Command.Root loop>
 			<Command.Input placeholder="Select transcription service..." />
-			<Command.Empty>No service found.</Command.Empty>
-			<Command.Group class="overflow-y-auto max-h-[400px]">
-				{#each TRANSCRIPTION_SERVICES as service (service.id)}
+			<Command.List class="overflow-y-auto max-h-[400px]">
+				<Command.Empty>No service found.</Command.Empty>
+
+				{#each apiServices as service (service.id)}
 					{@const isSelected =
 						settings.value['transcription.selectedTranscriptionService'] ===
 						service.id}
 					{@const isConfigured = isTranscriptionServiceConfigured(service)}
-					<Command.Item
-						value="{service.id} - {service.name}"
-						onSelect={() => {
-							settings.value = {
-								...settings.value,
-								'transcription.selectedTranscriptionService': service.id,
-							};
-							combobox.closeAndFocusTrigger();
-						}}
-						class="flex items-center gap-2 p-2"
-					>
-						<CheckIcon
-							class={cn('size-4 shrink-0 mx-2', {
-								'text-transparent': !isSelected,
-							})}
-						/>
-						<div class="flex flex-col min-w-0">
-							{@render renderServiceDisplay(service)}
-							<div
-								class="flex items-center gap-2 text-sm text-muted-foreground"
+					{@const currentSelectedModelName = getSelectedModelNameOrUrl(service)}
+
+					<Command.Group heading={service.name}>
+						{#each service.models as model}
+							{@const isModelSelected =
+								isSelected && currentSelectedModelName === model.name}
+							{@const Icon = service.icon}
+							<Command.Item
+								value="{service.id}-{model.name}"
+								onSelect={() => {
+									settings.value = {
+										...settings.value,
+										'transcription.selectedTranscriptionService': service.id,
+										[service.modelSettingKey]: model.name,
+									};
+									combobox.closeAndFocusTrigger();
+								}}
+								class="flex items-center gap-2 p-2"
 							>
-								{#if service.type === 'api'}
-									{#if isConfigured}
-										<span class="text-green-600">API key configured</span>
-									{:else}
-										<span class="text-amber-600">API key required</span>
+								<CheckIcon
+									class={cn('size-4 shrink-0 ml-2', {
+										'text-transparent': !isModelSelected,
+									})}
+								/>
+								<div class="flex flex-col min-w-0">
+									<div class="flex items-center gap-2">
+										<Icon class="size-4 shrink-0" />
+										<span class="font-medium">{model.name}</span>
+									</div>
+									{#if !isConfigured}
+										<span class="text-sm text-amber-600 ml-6"
+											>API key required</span
+										>
 									{/if}
-								{:else if service.type === 'server'}
-									{#if isConfigured}
-										<span class="text-green-600">Server URL configured</span>
-									{:else}
-										<span class="text-amber-600">Server URL required</span>
-									{/if}
+								</div>
+							</Command.Item>
+						{/each}
+					</Command.Group>
+				{/each}
+
+				{#each serverServices as service (service.id)}
+					{@const isSelected =
+						settings.value['transcription.selectedTranscriptionService'] ===
+						service.id}
+					{@const isConfigured = isTranscriptionServiceConfigured(service)}
+
+					<Command.Group heading={service.name}>
+						<Command.Item
+							value={service.id}
+							onSelect={() => {
+								settings.value = {
+									...settings.value,
+									'transcription.selectedTranscriptionService': service.id,
+								};
+								combobox.closeAndFocusTrigger();
+							}}
+							class="flex items-center gap-2 p-2"
+						>
+							<CheckIcon
+								class={cn('size-4 shrink-0 ml-2', {
+									'text-transparent': !isSelected,
+								})}
+							/>
+							<div class="flex flex-col min-w-0">
+								{@render renderServiceDisplay(service)}
+								{#if !isConfigured}
+									<span class="text-sm text-amber-600 ml-6">
+										Server URL required
+									</span>
 								{/if}
 							</div>
-						</div>
-					</Command.Item>
-					{#if service.type === 'api' && isSelected}
-						<Command.Group class="ml-8 border-l-2 border-muted">
-							{#each service.models as model}
-								{@const currentSelectedModelName =
-									getSelectedModelName(service)}
-								{@const isModelSelected =
-									currentSelectedModelName === model.name}
-								<Command.Item
-									value="{service.id}-model-{model.name}"
-									onSelect={() => {
-										if (service.modelSettingKey) {
-											settings.value = {
-												...settings.value,
-												[service.modelSettingKey]: model.name,
-											};
-										}
-									}}
-									class="flex items-center gap-2 p-2 pl-4"
-								>
-									<CheckIcon
-										class={cn('size-3 shrink-0', {
-											'text-transparent': !isModelSelected,
-										})}
-									/>
-									<span class="text-sm">
-										{model.name}
-									</span>
-								</Command.Item>
-							{/each}
-						</Command.Group>
-					{/if}
+						</Command.Item>
+					</Command.Group>
 				{/each}
-			</Command.Group>
+			</Command.List>
 			<Command.Item
 				value="Configure transcription"
 				onSelect={() => {
