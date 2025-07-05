@@ -1,27 +1,27 @@
 /**
  * @fileoverview Migration-free settings management system
- * 
+ *
  * This module implements a robust settings system that eliminates the need for
  * version migrations. Instead of maintaining multiple schema versions and migration
  * functions, we use a progressive validation approach that:
- * 
+ *
  * 1. Preserves valid settings from any previous version
  * 2. Silently discards invalid or unknown keys
  * 3. Applies defaults for missing required fields
- * 
+ *
  * ## Design Decisions
- * 
+ *
  * - **Flat key structure**: All settings use dot-notation keys (e.g., 'sound.playOn.manual-start')
  *   stored as a single-level object. This simplifies validation and merging.
- * 
+ *
  * - **Schema with defaults**: Every field in the schema has a `.default()` value,
  *   ensuring we can always produce a valid settings object.
- * 
+ *
  * - **Progressive validation**: When full validation fails, we attempt partial validation
  *   and finally key-by-key validation to recover as much valid data as possible.
- * 
+ *
  * ## Benefits over versioned schemas
- * 
+ *
  * - No migration code to maintain
  * - Automatic forward compatibility
  * - Graceful handling of corrupted settings
@@ -30,7 +30,11 @@
  */
 
 import type { Command } from '$lib/commands';
-import { BITRATE_VALUES_KBPS, DEFAULT_BITRATE_KBPS, RECORDING_MODES } from '$lib/constants/audio';
+import {
+	BITRATE_VALUES_KBPS,
+	DEFAULT_BITRATE_KBPS,
+	RECORDING_MODES,
+} from '$lib/constants/audio';
 import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
 import { SUPPORTED_LANGUAGES } from '$lib/constants/languages';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
@@ -44,10 +48,10 @@ import { type ZodBoolean, type ZodString, z } from 'zod';
 
 /**
  * The main settings schema that defines all application settings.
- * 
+ *
  * All settings are stored as a flat object with dot-notation keys for logical grouping.
  * Every field has a default value to ensure the application can always start with valid settings.
- * 
+ *
  * ## Key naming conventions:
  * - `sound.playOn.*` - Sound effect toggles for various events
  * - `transcription.*` - Transcription service configuration
@@ -57,11 +61,11 @@ import { type ZodBoolean, type ZodString, z } from 'zod';
  * - `apiKeys.*` - Service API keys
  * - `system.*` - System-level preferences
  * - `database.*` - Data retention policies
- * 
+ *
  * @example
  * // Access a setting
  * const shouldPlaySound = settings.value['sound.playOn.manual-start'];
- * 
+ *
  * // Update a setting
  * settings.value = {
  *   ...settings.value,
@@ -86,9 +90,9 @@ export const settingsSchema = z.object({
 		z.ZodDefault<ZodBoolean>
 	>),
 
-	'transcription.clipboard.copyOnSuccess': z.boolean().default(false),
+	'transcription.clipboard.copyOnSuccess': z.boolean().default(true),
 	'transcription.clipboard.pasteOnSuccess': z.boolean().default(false),
-	'transformation.clipboard.copyOnSuccess': z.boolean().default(false),
+	'transformation.clipboard.copyOnSuccess': z.boolean().default(true),
 	'transformation.clipboard.pasteOnSuccess': z.boolean().default(false),
 
 	'system.closeToTray': z.boolean().default(false),
@@ -192,7 +196,7 @@ export const settingsSchema = z.object({
 /**
  * The TypeScript type for validated settings, inferred from the Zod schema.
  * This is the source of truth for all settings throughout the application.
- * 
+ *
  * @see settingsSchema - The Zod schema that defines this type
  */
 export type Settings = z.infer<typeof settingsSchema>;
@@ -200,15 +204,15 @@ export type Settings = z.infer<typeof settingsSchema>;
 /**
  * Get default settings by parsing an empty object, which will use all the .default() values
  * defined in the schema.
- * 
+ *
  * @returns A complete settings object with all default values
- * 
+ *
  * @example
  * // Get fresh default settings
  * const defaults = getDefaultSettings();
  * console.log(defaults['transcription.outputLanguage']); // 'auto'
  * console.log(defaults['sound.playOn.manual-start']); // true
- * 
+ *
  * @example
  * // Reset a specific setting to default
  * const defaults = getDefaultSettings();
@@ -226,24 +230,24 @@ export function getDefaultSettings(): Settings {
  * Parses and validates stored settings using a three-tier progressive validation strategy.
  * This function ensures we always return valid settings, preserving as much user data as possible
  * while gracefully handling corrupted, outdated, or partial settings.
- * 
+ *
  * ## Validation Strategy:
- * 
+ *
  * 1. **Full validation** - Try to parse the entire stored value as-is
  * 2. **Partial validation** - If full validation fails, validate against a partial schema
  *    and merge valid keys with defaults
  * 3. **Key-by-key validation** - As a last resort, validate each key individually,
  *    keeping only valid key-value pairs
- * 
+ *
  * @param storedValue - The raw value from storage (usually from localStorage)
  * @returns A valid Settings object, guaranteed to match the current schema
- * 
+ *
  * @example
  * // Case 1: Valid settings pass through unchanged
  * const stored = { 'sound.playOn.manual-start': false, ...otherValidSettings };
  * const result = parseStoredSettings(stored);
  * console.log(result['sound.playOn.manual-start']); // false
- * 
+ *
  * @example
  * // Case 2: Partially valid settings merge with defaults
  * const stored = {
@@ -254,7 +258,7 @@ export function getDefaultSettings(): Settings {
  * const result = parseStoredSettings(stored);
  * console.log(result['sound.playOn.manual-start']); // false (preserved)
  * console.log(result['transcription.outputLanguage']); // 'auto' (default)
- * 
+ *
  * @example
  * // Case 3: Individual values that fail validation use defaults
  * const stored = {
@@ -264,7 +268,7 @@ export function getDefaultSettings(): Settings {
  * const result = parseStoredSettings(stored);
  * console.log(result['transcription.temperature']); // '0.0' (default)
  * console.log(result['sound.playOn.manual-start']); // false (preserved)
- * 
+ *
  * @example
  * // Case 4: Non-object input returns complete defaults
  * const result1 = parseStoredSettings(null);
