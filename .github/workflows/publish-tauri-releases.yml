@@ -59,7 +59,7 @@ jobs:
       - name: install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9  # Specify version for consistency across builds
+          version: 10.11.0  # Match package.json packageManager version
 
       # Setup Node.js with caching for faster builds
       - name: setup node
