@@ -89,7 +89,7 @@
 	<ToggleGroup.Root
 		type="single"
 		value={settings.value['recording.mode']}
-		class="max-w-xs w-full"
+		class="max-w-sm sm:max-w-md lg:max-w-lg w-full"
 		onValueChange={(mode) => {
 			if (!mode) return;
 			settings.value = {
@@ -109,7 +109,9 @@
 		{/each}
 	</ToggleGroup.Root>
 
-	<div class="max-w-md flex items-end justify-between w-full gap-2 pt-1">
+	<div
+		class="max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl flex items-end justify-between w-full gap-2 pt-1"
+	>
 		<div class="flex-1"></div>
 		{#if settings.value['recording.mode'] === 'manual'}
 			<WhisperingButton
@@ -118,11 +120,11 @@
 					: 'Stop recording'}
 				onclick={commandCallbacks.toggleManualRecording}
 				variant="ghost"
-				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-					class="text-[100px] leading-none"
+					class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
 				>
 					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
@@ -154,11 +156,11 @@
 					: 'Stop CPAL recording'}
 				onclick={commandCallbacks.toggleCpalRecording}
 				variant="ghost"
-				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-					class="text-[100px] leading-none"
+					class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
 				>
 					{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
 				</span>
@@ -190,11 +192,11 @@
 					: 'Stop voice activated session'}
 				onclick={commandCallbacks.toggleVadRecording}
 				variant="ghost"
-				class="shrink-0 size-32 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
+				class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 			>
 				<span
 					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-					class="text-[100px] leading-none"
+					class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
 				>
 					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
@@ -212,7 +214,9 @@
 		{/if}
 	</div>
 
-	<div class="xxs:flex hidden w-full max-w-xs flex-col items-center gap-2">
+	<div
+		class="xxs:flex hidden w-full max-w-sm sm:max-w-md lg:max-w-lg flex-col items-center gap-2"
+	>
 		<div class="flex w-full items-center gap-2">
 			<TranscribedTextDialog
 				recordingId={latestRecording.id}
