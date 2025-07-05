@@ -20,6 +20,7 @@
 		cpalStateToIcons,
 		RECORDING_MODE_OPTIONS,
 		vadStateToIcons,
+		type RecordingMode,
 	} from '$lib/constants';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
@@ -93,7 +94,7 @@
 			if (!mode) return;
 			settings.value = {
 				...settings.value,
-				'recording.mode': mode as 'manual' | 'cpal' | 'vad' | 'live',
+				'recording.mode': mode as RecordingMode,
 			};
 		}}
 	>

@@ -2,7 +2,7 @@ import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
 import type { VadState } from '$lib/constants';
-import { defineMutation, defineQuery } from './_utils';
+import { defineMutation, defineQuery, stopAllRecordingModesExcept } from './_utils';
 import { queryClient } from './index';
 
 const vadRecorderKeys = {
@@ -32,6 +32,9 @@ export const vadRecorder = {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
+			// Stop any other recording modes before starting VAD
+			await stopAllRecordingModesExcept('vad');
+			
 			if (settings.value['recording.mode'] !== 'vad') {
 				settings.value = { ...settings.value, 'recording.mode': 'vad' };
 			}

@@ -9,6 +9,7 @@ import type {
 	QueryKey,
 } from '@tanstack/svelte-query';
 import { queryClient } from './index';
+import type { RecordingMode } from '$lib/constants/audio';
 
 /**
  * Creates a query definition that bridges the gap between pure service functions and reactive UI components.
@@ -273,4 +274,55 @@ function executeMutation<TData, TError, TVariables, TContext>(
 ) {
 	const mutation = queryClient.getMutationCache().build(queryClient, options);
 	return mutation.execute(variables);
+}
+
+/**
+ * Ensures only one recording mode is active at a time by stopping all other modes.
+ * This prevents conflicts between different recording methods and ensures clean transitions.
+ *
+ * @param modeToKeep - The recording mode that should remain active (all others will be stopped)
+ * @returns Promise that resolves when all other recording modes have been stopped
+ *
+ * @example
+ * // Before starting manual recording, stop any other active recording modes
+ * await stopAllRecordingModesExcept('manual');
+ *
+ * // Before starting VAD, ensure manual recording is stopped
+ * await stopAllRecordingModesExcept('vad');
+ */
+export async function stopAllRecordingModesExcept(
+	modeToKeep: RecordingMode,
+): Promise<void> {
+	const services = await import('$lib/services');
+
+	// Each recording mode with its check and stop logic
+	const recordingModes = [
+		{
+			mode: 'vad' as const,
+			isActive: () => services.vad.getVadState() !== 'IDLE',
+			stop: () => services.vad.stopActiveListening(),
+		},
+		{
+			mode: 'manual' as const,
+			isActive: () =>
+				services.manualRecorder.getRecorderState().data === 'RECORDING',
+			stop: () =>
+				services.manualRecorder.stopRecording({
+					sendStatus: () => {}, // Silent cancel - no UI notifications
+				}),
+		},
+	] satisfies {
+		mode: RecordingMode;
+		isActive: () => boolean;
+		stop: () => Promise<unknown>;
+	}[];
+
+	// Stop all modes except the one to keep
+	for (const recordingMode of recordingModes) {
+		if (recordingMode.mode === modeToKeep) continue;
+
+		if (recordingMode.isActive()) {
+			await recordingMode.stop();
+		}
+	}
 }

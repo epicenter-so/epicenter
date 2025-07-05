@@ -2,7 +2,12 @@
  * Recording mode constants and options
  */
 
-export const RECORDING_MODES = ['manual', 'cpal', 'vad', 'live'] as const;
+export const RECORDING_MODES = [
+	'manual',
+	'vad',
+	// 'live',
+	// 'cpal'
+] as const;
 export type RecordingMode = (typeof RECORDING_MODES)[number];
 
 export const RECORDING_MODE_OPTIONS = [
