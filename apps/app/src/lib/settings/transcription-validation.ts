@@ -1,4 +1,4 @@
-import { TRANSCRIPTION_SERVICES, type TranscriptionService } from '$lib/constants';
+import { TRANSCRIPTION_SERVICES, type TranscriptionService } from '$lib/constants/transcription';
 import { settings } from '$lib/stores/settings.svelte';
 
 /**

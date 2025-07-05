@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 // import { extension } from '@repo/extension';
-import type { WhisperingRecordingState } from '$lib/constants';
+import type { WhisperingRecordingState } from '$lib/constants/audio';
 // import { commandCallbacks } from '$lib/commands';
 import { type Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { TaggedError } from 'wellcrafted/error';

@@ -7,7 +7,7 @@
 	import {
 		TRANSCRIPTION_SERVICES,
 		type TranscriptionService,
-	} from '$lib/constants';
+	} from '$lib/constants/transcription';
 	import {
 		isTranscriptionServiceConfigured,
 		getSelectedTranscriptionService,

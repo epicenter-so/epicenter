@@ -1,7 +1,7 @@
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
-import type { VadState } from '$lib/constants';
+import type { VadState } from '$lib/constants/audio';
 import { defineMutation, defineQuery, stopAllRecordingModesExcept } from './_utils';
 import { queryClient } from './index';
 
@@ -40,7 +40,7 @@ export const vadRecorder = {
 			}
 
 			const result = await services.vad.startActiveListening({
-				deviceId: settings.value['recording.vad.selectedDeviceId'],
+				deviceId: settings.value['recording.navigator.selectedDeviceId'],
 				onSpeechStart: () => {
 					invalidateVadState();
 					onSpeechStart();

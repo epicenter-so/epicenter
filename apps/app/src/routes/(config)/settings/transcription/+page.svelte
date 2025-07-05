@@ -19,9 +19,9 @@
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
 		ELEVENLABS_TRANSCRIPTION_MODELS,
-		SUPPORTED_LANGUAGES_OPTIONS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
-	} from '$lib/constants';
+	} from '$lib/constants/transcription';
+	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon } from 'lucide-svelte';
 </script>

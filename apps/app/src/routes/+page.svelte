@@ -21,7 +21,7 @@
 		RECORDING_MODE_OPTIONS,
 		vadStateToIcons,
 		type RecordingMode,
-	} from '$lib/constants';
+	} from '$lib/constants/audio';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';

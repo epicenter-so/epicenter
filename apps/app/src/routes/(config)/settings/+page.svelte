@@ -8,7 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { ALWAYS_ON_TOP_OPTIONS } from '$lib/constants';
+	import { ALWAYS_ON_TOP_OPTIONS } from '$lib/constants/ui';
 	import { type } from '@tauri-apps/plugin-os';
 </script>
 

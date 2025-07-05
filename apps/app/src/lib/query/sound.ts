@@ -2,7 +2,7 @@ import * as services from '$lib/services';
 import type { PlaySoundServiceError } from '$lib/services/sound';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, type Result } from 'wellcrafted/result';
-import type { WhisperingSoundNames } from '$lib/constants';
+import type { WhisperingSoundNames } from '$lib/constants/sounds';
 import { defineMutation } from './_utils';
 
 const soundKeys = {

@@ -14,7 +14,7 @@
 		recorderStateToIcons,
 		cpalStateToIcons,
 		vadStateToIcons,
-	} from '$lib/constants';
+	} from '$lib/constants/audio';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { MediaQuery } from 'svelte/reactivity';
 
