@@ -94,6 +94,7 @@ jobs:
       # Read and process release notes from the release-notes directory
       - name: Process release notes
         id: release_notes
+        shell: bash
         run: |
           # Look for release notes file matching the tag name (e.g., v7.0.0 -> release-notes/v7.0.0.md)
           RELEASE_FILE="release-notes/${{ github.ref_name }}.md"
