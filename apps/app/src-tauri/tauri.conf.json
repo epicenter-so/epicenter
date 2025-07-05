@@ -18,7 +18,10 @@
 		],
 		"longDescription": "Seamlessly integrate speech-to-text transcriptions anywhere on your desktop. Powered by OpenAI's Whisper API.",
 		"shortDescription": "",
-		"createUpdaterArtifacts": true
+		"createUpdaterArtifacts": true,
+		"macOS": {
+			"entitlements": "entitlements.plist"
+		}
 	},
 	"productName": "Whispering",
 	"version": "7.0.0",
