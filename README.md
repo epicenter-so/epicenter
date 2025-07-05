@@ -223,6 +223,42 @@ This happens due to macOS App Nap, which suspends background apps to save batter
 
 </details>
 
+<details>
+<summary><strong>Accidentally rejected microphone permissions?</strong></summary>
+
+If you accidentally clicked "Don't Allow" when Whispering asked for microphone access, here's how to fix it:
+
+#### 🍎 macOS
+1. Open **System Settings** → **Privacy & Security** → **Privacy** → **Microphone**
+2. Find **Whispering** in the list
+3. Toggle the switch to enable microphone access
+4. If Whispering isn't in the list, reinstall the app to trigger the permission prompt again
+
+#### 🪟 Windows
+If you accidentally blocked microphone permissions, use the Registry solution:
+
+**Registry Cleanup (Recommended)**
+1. Close Whispering
+2. Open Registry Editor (Win+R, type `regedit`)
+3. Use Find (Ctrl+F) to search for "Whispering"
+4. Delete all registry folders containing "Whispering"
+5. Press F3 to find next, repeat until all instances are removed
+6. Uninstall and reinstall Whispering
+7. Accept permissions when prompted
+
+<details>
+<summary>Alternative solutions</summary>
+
+**Delete App Data:** Navigate to `%APPDATA%\..\Local\com.bradenwong.whispering` and delete this folder, then reinstall.
+
+**Windows Settings:** Settings → Privacy & security → Microphone → Enable "Let desktop apps access your microphone"
+
+</details>
+
+See [Issue #526](https://github.com/braden-w/whispering/issues/526) for more details.
+
+</details>
+
 ### 4️⃣ Next Steps: Power User Features
 
 <details>
