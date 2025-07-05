@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
-	import type { DeviceEnumerationStrategy } from '$lib/query/_queries/device';
+	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import { toast } from '$lib/toast';
 	import { createQuery } from '@tanstack/svelte-query';
 

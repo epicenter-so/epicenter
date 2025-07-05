@@ -4,7 +4,7 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import { rpc } from '$lib/query';
-	import type { DeviceEnumerationStrategy } from '$lib/query/_queries/device';
+	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import type { Settings } from '$lib/settings';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
