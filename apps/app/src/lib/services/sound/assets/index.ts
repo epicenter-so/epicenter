@@ -1,4 +1,4 @@
-import type { WhisperingSoundNames } from '$lib/constants';
+import type { WhisperingSoundNames } from '$lib/constants/sounds';
 import {
 	default as captureVadSoundSrc,
 	default as stopManualSoundSrc,

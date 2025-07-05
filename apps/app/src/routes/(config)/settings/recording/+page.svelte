@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { BITRATE_OPTIONS, RECORDING_MODE_OPTIONS } from '$lib/constants';
+	import { BITRATE_OPTIONS, RECORDING_MODE_OPTIONS } from '$lib/constants/audio';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 </script>
 

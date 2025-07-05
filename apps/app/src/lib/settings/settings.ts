@@ -30,15 +30,11 @@
  */
 
 import type { Command } from '$lib/commands';
-import {
-	ALWAYS_ON_TOP_VALUES,
-	BITRATE_VALUES_KBPS,
-	DEFAULT_BITRATE_KBPS,
-	RECORDING_MODES,
-	SUPPORTED_LANGUAGES,
-	TRANSCRIPTION_SERVICE_IDS,
-	type WhisperingSoundNames,
-} from '$lib/constants';
+import { BITRATE_VALUES_KBPS, DEFAULT_BITRATE_KBPS, RECORDING_MODES } from '$lib/constants/audio';
+import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
+import { SUPPORTED_LANGUAGES } from '$lib/constants/languages';
+import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
+import type { WhisperingSoundNames } from '$lib/constants/sounds';
 import type {
 	ElevenLabsModel,
 	GroqModel,
@@ -109,9 +105,9 @@ export const settingsSchema = z.object({
 	// Recording mode settings
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
 
-	// Manual mode settings (navigator only)
-	'recording.manual.selectedDeviceId': z.string().nullable().default(null),
-	'recording.manual.bitrateKbps': z
+	// Navigator settings (shared by manual, VAD, and live modes)
+	'recording.navigator.selectedDeviceId': z.string().nullable().default(null),
+	'recording.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
@@ -119,10 +115,13 @@ export const settingsSchema = z.object({
 	// CPAL mode settings (native only)
 	'recording.cpal.selectedDeviceId': z.string().nullable().default(null),
 
-	// VAD mode settings (navigator only)
+	// Legacy settings (kept for backwards compatibility)
+	'recording.manual.selectedDeviceId': z.string().nullable().default(null),
+	'recording.manual.bitrateKbps': z
+		.enum(BITRATE_VALUES_KBPS)
+		.optional()
+		.default(DEFAULT_BITRATE_KBPS),
 	'recording.vad.selectedDeviceId': z.string().nullable().default(null),
-
-	// Live mode settings (navigator only)
 	'recording.live.selectedDeviceId': z.string().nullable().default(null),
 	'recording.live.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)

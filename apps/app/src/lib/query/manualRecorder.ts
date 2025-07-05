@@ -1,6 +1,6 @@
 import * as services from '$lib/services';
 import { toast } from '$lib/toast';
-import type { WhisperingRecordingState } from '$lib/constants';
+import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { defineMutation, defineQuery, stopAllRecordingModesExcept } from './_utils';
 import { queryClient } from './index';
 import { settings } from '$lib/stores/settings.svelte';
@@ -24,16 +24,11 @@ export const manualRecorder = {
 
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
-		resultMutationFn: async ({
-			toastId,
-			recordingSettings,
-		}: {
-			toastId: string;
-			recordingSettings: {
-				selectedDeviceId: string | null;
-				bitrateKbps: string;
+		resultMutationFn: async ({ toastId }: { toastId: string }) => {
+			const recordingSettings = {
+				selectedDeviceId: settings.value['recording.navigator.selectedDeviceId'],
+				bitrateKbps: settings.value['recording.navigator.bitrateKbps'] ?? '128',
 			};
-		}) => {
 			// Stop any other recording modes before starting manual recording
 			await stopAllRecordingModesExcept('manual');
 			
