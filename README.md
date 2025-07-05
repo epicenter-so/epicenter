@@ -433,7 +433,7 @@ Whispering showcases the power of modern web development as a comprehensive exam
 
 ### Architecture Deep Dive
 
-Whispering uses a clean three-layer architecture that separates concerns and makes the codebase easy to understand and extend:
+Whispering uses a clean three-layer architecture that achieves **extensive code sharing** between the desktop app (Tauri) and web app. This is possible because of how we handle platform differences and separate business logic from UI concerns.
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌──────────────┐
@@ -445,31 +445,79 @@ Whispering uses a clean three-layer architecture that separates concerns and mak
          Reactive Updates
 ```
 
-#### Service Layer - Pure Business Logic
+#### Service Layer - Pure Business Logic + Platform Abstraction
 
-The service layer is where all business logic lives—pure functions that handle everything from audio transcription to clipboard operations. What makes it special is its complete isolation from UI concerns: services don't know about Svelte stores, user settings, or reactive state. Instead, they accept explicit parameters and return consistent `Result<T, E>` types for robust error handling.
+The service layer contains all business logic as **pure functions** with zero UI dependencies. Services don't know about reactive Svelte variables, user settings, or UI state—they only accept explicit parameters and return `Result<T, E>` types for consistent error handling.
 
-Services transparently handle platform differences between desktop (Tauri) and web environments. When you import a service like `clipboard`, it automatically selects the right implementation at build time. This design keeps business logic testable, reusable, and platform-agnostic. [→ Learn more in the Services README](./apps/app/src/lib/services/README.md)
-
-#### Query Layer - The RPC Pattern
-
-The query layer acts as a reactive bridge between UI components and the service layer, implementing what we call the **RPC pattern**. Think of `rpc` as your app's unified API—every operation is available through a single import:
+The key innovation is **build-time platform detection**. Services automatically choose the right implementation based on the target platform:
 
 ```typescript
-import { rpc } from '$lib/query';
+// Platform abstraction happens at build time
+export const ClipboardServiceLive = window.__TAURI_INTERNALS__
+  ? createClipboardServiceDesktop() // Uses Tauri clipboard APIs
+  : createClipboardServiceWeb();     // Uses browser clipboard APIs
 
-// Reactive usage in components
-const recordings = createQuery(rpc.recordings.getAllRecordings.options);
-
-// Imperative usage in actions
-const { data, error } = await rpc.transcription.transcribe.execute(blob);
+// Same interface, different implementations
+export const NotificationServiceLive = window.__TAURI_INTERNALS__
+  ? createNotificationServiceDesktop() // Native OS notifications
+  : createNotificationServiceWeb();     // Browser notifications
 ```
 
-This dual interface design provides both reactive state management for UI components and direct execution for workflows. Under the hood, it wraps service functions with TanStack Query for caching, optimistic updates, and error handling. [→ Deep dive into the Query Layer README](./apps/app/src/lib/query/README.md)
+This design enables **extensive code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies). [→ Learn more in Services README](./apps/app/src/lib/services/README.md)
+
+#### Query Layer - Adding Reactivity and State Management
+
+The query layer is where reactivity gets injected on top of pure services. It wraps service functions with TanStack Query and handles two key responsibilities:
+
+**Runtime Dependency Injection** - Dynamically switching service implementations based on user settings:
+
+```typescript
+// From transcription query layer
+async function transcribeBlob(blob: Blob) {
+  const selectedService = settings.value['transcription.selectedTranscriptionService'];
+
+  switch (selectedService) {
+    case 'OpenAI':
+      return services.transcriptions.openai.transcribe(blob, {
+        apiKey: settings.value['apiKeys.openai'],
+        model: settings.value['transcription.openai.model'],
+      });
+    case 'Groq':
+      return services.transcriptions.groq.transcribe(blob, {
+        apiKey: settings.value['apiKeys.groq'], 
+        model: settings.value['transcription.groq.model'],
+      });
+  }
+}
+```
+
+**Optimistic Updates** - Using the TanStack Query client to manipulate the cache for optimistic UI. By updating the cache, reactivity automatically kicks in and the UI reflects these changes, giving you instant optimistic updates.
+
+Generally speaking, it's often unclear where exactly you should mutate the cache with the query client—sometimes at the component level, sometimes elsewhere. By having this dedicated query layer, it becomes very clear: we co-locate three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way. It also cleans up our components significantly because we have a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder, making it clear where to find and add this type of functionality:
+
+```typescript
+// From recordings mutations
+createRecording: defineMutation({
+  resultMutationFn: async (recording: Recording) => {
+    const { data, error } = await services.db.createRecording(recording);
+    if (error) return Err(error);
+
+    // Optimistically update cache - UI updates instantly
+    queryClient.setQueryData(['recordings'], (oldData) => {
+      if (!oldData) return [recording];
+      return [...oldData, recording];
+    });
+
+    return Ok(data);
+  },
+})
+```
+
+This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. [→ Learn more in Query README](./apps/app/src/lib/query/README.md)
 
 #### Error Handling with WellCrafted
 
-Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted specifically to solve the error handling challenges in Whispering, and now use it throughout the codebase. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
+Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted after using the [effect-ts library](https://github.com/Effect-TS/effect) when it first came out in 2023—I was very excited about the concepts but found it too verbose. WellCrafted distills my takeaways from effect-ts and makes them better by leaning into more native JavaScript syntax, making it perfect for this use case. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
 
 **Key benefits in Whispering:**
 - **Explicit errors**: Every function that can fail returns `Result<T, E>`, making errors impossible to ignore
