@@ -2,6 +2,65 @@
 
 The services layer provides pure, isolated business logic with no UI dependencies. Services handle platform differences (Desktop/Web) transparently and return consistent `Result<T, E>` types for error handling.
 
+## How Services Are Consumed
+
+Services are consumed through the query layer, which wraps them with caching, reactivity, and state management. Here's a real example showing how isolated, testable services are used:
+
+```typescript
+// From: /lib/query/transcription.ts
+async function transcribeBlob(blob: Blob): Promise<Result<string, WhisperingError>> {
+  const selectedService = settings.value['transcription.selectedTranscriptionService'];
+
+  switch (selectedService) {
+    case 'OpenAI':
+      // Pure service call with explicit parameters
+      return services.transcriptions.openai.transcribe(blob, {
+        outputLanguage: settings.value['transcription.outputLanguage'],
+        prompt: settings.value['transcription.prompt'],
+        temperature: settings.value['transcription.temperature'],
+        apiKey: settings.value['apiKeys.openai'],
+        modelName: settings.value['transcription.openai.model'],
+      });
+    case 'Groq':
+      // Same interface, different implementation
+      return services.transcriptions.groq.transcribe(blob, {
+        outputLanguage: settings.value['transcription.outputLanguage'],
+        prompt: settings.value['transcription.prompt'],
+        temperature: settings.value['transcription.temperature'],
+        apiKey: settings.value['apiKeys.groq'],
+        modelName: settings.value['transcription.groq.model'],
+      });
+  }
+}
+```
+
+**Notice how services are:**
+- **Pure**: Accept explicit parameters, no hidden dependencies
+- **Isolated**: No knowledge of UI state, settings, or reactive stores
+- **Testable**: Easy to unit test with mock parameters
+- **Consistent**: All return `Result<T, E>` types for uniform error handling
+- **Platform-agnostic**: Same interface works on desktop and web
+
+The query layer injects configuration (like `settings.value`) and handles caching/reactivity, while services focus purely on business logic.
+
+### Build-Time Platform Injection
+
+Services also handle **build-time dependency injection** for platform differences. The application detects whether it's running on desktop (Tauri) or web at build time and injects the appropriate service implementations:
+
+```typescript
+// Platform detection happens at build time
+export const ClipboardServiceLive = window.__TAURI_INTERNALS__
+  ? createClipboardServiceDesktop() // Tauri APIs
+  : createClipboardServiceWeb(); // Browser APIs
+```
+
+> **💡 Dependency Injection Strategy**
+>
+> Services only use dependency injection for **build-time platform differences** (desktop vs web). When we need to switch implementations based on **reactive variables** like user settings, that logic lives in the query layer instead.
+> 
+> - **Services**: Static platform detection (`ClipboardServiceLive` chooses Tauri vs Browser APIs)
+> - **Query Layer**: Dynamic implementation switching based on `settings.value['transcription.selectedTranscriptionService']`
+
 ## Core Concepts
 
 ### What Are Services?

@@ -2,6 +2,56 @@
 
 The query layer is the reactive bridge between your UI components and the isolated service layer. It adds caching, reactivity, and state management on top of pure service functions.
 
+Every operation in the query layer provides **two interfaces** to match how you want to use it:
+
+### Reactive Interface (`.options()`) - Automatic State Management
+
+```svelte
+<script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query';
+  import { rpc } from '$lib/query';
+
+  // Reactive in components - automatic state management
+  const recordings = createQuery(rpc.recordings.getAllRecordings.options());
+  // Syncs: recordings.isPending, recordings.data, recordings.error, recordings.isStale automatically
+</script>
+
+{#if recordings.isPending}
+  <div class="spinner">Loading recordings...</div>
+{:else if recordings.error}
+  <div class="error">Error: {recordings.error.message}</div>
+{:else if recordings.data}
+  {#each recordings.data as recording}
+    <RecordingCard {recording} />
+  {/each}
+{/if}
+```
+
+**Perfect for** when you want the UI to track and synchronize with the query/mutation lifecycle. This provides automatic state management where your components react to loading states, data changes, and errors without manual intervention.
+
+Examples:
+- Component data display
+- Loading states and spinners  
+- Automatic re-renders when data changes
+- Cache synchronization across components
+
+### Imperative Interface (`.execute()`) - Direct Execution
+
+```typescript
+// Imperative in actions - lightweight and fast
+const { data, error } = await rpc.recordings.deleteRecording.execute(recordingId);
+// No observers, no subscriptions, just the result
+```
+
+**Perfect for** when you don't need the overhead of observers or subscriptions, and when you want to call operations outside of component lifecycle. This avoids having to create mutations first or prop-drill mutation functions down to child components. You can call `.execute()` directly from anywhere without being constrained by component boundaries.
+
+Examples:
+- Event handlers (button clicks, form submissions)
+- Sequential operations and workflows
+- One-time data fetches
+- Performance-critical operations
+- Utility functions outside components
+
 ## Static Site Generation Advantage
 
 This application is fully static site generated and client-side only, which gives us a unique architectural advantage: direct access to the TanStack Query client.
