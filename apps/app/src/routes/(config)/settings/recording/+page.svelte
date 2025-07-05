@@ -36,22 +36,22 @@
 		).join(', ')}`}
 	/>
 
-	{#if settings.value['recording.mode'] === 'manual'}
+	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
 		<div class="pl-4 border-l-2 border-muted space-y-6">
 			<div>
-				<h4 class="text-md font-medium">Manual Recording Settings</h4>
+				<h4 class="text-md font-medium">Navigator Settings</h4>
 				<p class="text-muted-foreground text-sm">
-					Configure browser-based recording options for manual mode.
+					These settings apply to browser-based recording modes (Manual and Voice Activated).
 				</p>
 			</div>
 
 			<SelectRecordingDevice
 				deviceEnumerationStrategy="navigator"
-				selected={settings.value['recording.manual.selectedDeviceId'] ?? ''}
+				selected={settings.value['recording.navigator.selectedDeviceId'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.manual.selectedDeviceId': selected,
+						'recording.navigator.selectedDeviceId': selected,
 					};
 				}}
 			></SelectRecordingDevice>
@@ -63,11 +63,11 @@
 					value: option.value,
 					label: option.label,
 				}))}
-				selected={settings.value['recording.manual.bitrateKbps'] ?? ''}
+				selected={settings.value['recording.navigator.bitrateKbps'] ?? ''}
 				onSelectedChange={(selected) => {
 					settings.value = {
 						...settings.value,
-						'recording.manual.bitrateKbps': selected,
+						'recording.navigator.bitrateKbps': selected,
 					};
 				}}
 				placeholder="Select a bitrate"
@@ -106,63 +106,5 @@
 				</div>
 			</div>
 		{/if}
-	{:else if settings.value['recording.mode'] === 'vad'}
-		<div class="pl-4 border-l-2 border-muted space-y-6">
-			<div>
-				<h4 class="text-md font-medium">Voice Activated Recording Settings</h4>
-				<p class="text-muted-foreground text-sm">
-					Configure voice activated recording options for vad mode.
-				</p>
-			</div>
-
-			<SelectRecordingDevice
-				deviceEnumerationStrategy="navigator"
-				selected={settings.value['recording.vad.selectedDeviceId'] ?? ''}
-				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.vad.selectedDeviceId': selected,
-					};
-				}}
-			></SelectRecordingDevice>
-		</div>
-	{:else if settings.value['recording.mode'] === 'live'}
-		<div class="pl-4 border-l-2 border-muted space-y-6">
-			<div>
-				<h4 class="text-md font-medium">Live Recording Settings</h4>
-				<p class="text-muted-foreground text-sm">
-					Configure live recording options for live mode.
-				</p>
-			</div>
-
-			<SelectRecordingDevice
-				deviceEnumerationStrategy="navigator"
-				selected={settings.value['recording.live.selectedDeviceId'] ?? ''}
-				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.live.selectedDeviceId': selected,
-					};
-				}}
-			></SelectRecordingDevice>
-
-			<LabeledSelect
-				id="bit-rate"
-				label="Bitrate"
-				items={BITRATE_OPTIONS.map((option) => ({
-					value: option.value,
-					label: option.label,
-				}))}
-				selected={settings.value['recording.live.bitrateKbps'] ?? ''}
-				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.live.bitrateKbps': selected,
-					};
-				}}
-				placeholder="Select a bitrate"
-				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
-			/>
-		</div>
 	{/if}
 </div>

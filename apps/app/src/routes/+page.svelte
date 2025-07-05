@@ -141,7 +141,7 @@
 				{:else}
 					<DeviceSelector
 						deviceEnumerationStrategy="navigator"
-						settingsKey="recording.manual.selectedDeviceId"
+						settingsKey="recording.navigator.selectedDeviceId"
 					/>
 					<TranscriptionSelector />
 					<TransformationSelector />
@@ -203,18 +203,11 @@
 				{#if getVadStateQuery.data === 'IDLE'}
 					<DeviceSelector
 						deviceEnumerationStrategy="navigator"
-						settingsKey="recording.vad.selectedDeviceId"
+						settingsKey="recording.navigator.selectedDeviceId"
 					/>
 					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
-			</div>
-		{:else if settings.value['recording.mode'] === 'live'}
-			<div class="flex flex-col items-center justify-center gap-4">
-				<span class="text-[100px] leading-none">🎬</span>
-				<p class="text-muted-foreground text-center">
-					Live mode is not yet implemented
-				</p>
 			</div>
 		{/if}
 	</div>

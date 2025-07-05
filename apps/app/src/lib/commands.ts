@@ -54,10 +54,6 @@ const startManualRecording = async () => {
 	const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 		await rpc.manualRecorder.startRecording.execute({
 			toastId,
-			recordingSettings: {
-				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
-				bitrateKbps: settings.value['recording.manual.bitrateKbps'],
-			},
 		});
 
 	if (startRecordingError) {
@@ -82,7 +78,7 @@ const startManualRecording = async () => {
 		case 'fallback': {
 			settings.value = {
 				...settings.value,
-				'recording.manual.selectedDeviceId':
+				'recording.navigator.selectedDeviceId':
 					deviceAcquisitionOutcome.fallbackDeviceId,
 			};
 			switch (deviceAcquisitionOutcome.reason) {
@@ -334,38 +330,40 @@ export const commands = [
 				title: '🎙️ Starting voice activated capture',
 				description: 'Your voice activated capture is starting...',
 			});
-			const { data: deviceAcquisitionOutcome, error: startActiveListeningError } =
-				await rpc.vadRecorder.startActiveListening.execute({
-					onSpeechStart: () => {
-						toast.success({
-							title: '🎙️ Speech started',
-							description: 'Recording started. Speak clearly and loudly.',
-						});
-					},
-					onSpeechEnd: async (blob) => {
-						const toastId = nanoid();
-						toast.success({
-							id: toastId,
-							title: '🎙️ Voice activated speech captured',
-							description: 'Your voice activated speech has been captured.',
-						});
-						console.info('Voice activated speech captured');
-						rpc.sound.playSoundIfEnabled.execute('vad-capture');
+			const {
+				data: deviceAcquisitionOutcome,
+				error: startActiveListeningError,
+			} = await rpc.vadRecorder.startActiveListening.execute({
+				onSpeechStart: () => {
+					toast.success({
+						title: '🎙️ Speech started',
+						description: 'Recording started. Speak clearly and loudly.',
+					});
+				},
+				onSpeechEnd: async (blob) => {
+					const toastId = nanoid();
+					toast.success({
+						id: toastId,
+						title: '🎙️ Voice activated speech captured',
+						description: 'Your voice activated speech has been captured.',
+					});
+					console.info('Voice activated speech captured');
+					rpc.sound.playSoundIfEnabled.execute('vad-capture');
 
-						await saveRecordingAndTranscribeTransform({
-							blob,
-							toastId,
-							completionTitle: '✨ Voice activated capture complete!',
-							completionDescription:
-								'Voice activated capture complete! Ready for another take',
-						});
-					},
-				});
+					await saveRecordingAndTranscribeTransform({
+						blob,
+						toastId,
+						completionTitle: '✨ Voice activated capture complete!',
+						completionDescription:
+							'Voice activated capture complete! Ready for another take',
+					});
+				},
+			});
 			if (startActiveListeningError) {
 				toast.error({ id: toastId, ...startActiveListeningError });
 				return;
 			}
-			
+
 			// Handle device acquisition outcome
 			switch (deviceAcquisitionOutcome.outcome) {
 				case 'success': {
@@ -414,7 +412,7 @@ export const commands = [
 					}
 				}
 			}
-			
+
 			rpc.sound.playSoundIfEnabled.execute('vad-start');
 		},
 	},
