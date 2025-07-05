@@ -11,7 +11,7 @@ import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';
 import * as transcriptions from './transcription';
-import { VadServiceLive } from './vad';
+import { VadServiceLive } from './vad-recorder';
 
 /**
  * Unified services object providing consistent access to all services.

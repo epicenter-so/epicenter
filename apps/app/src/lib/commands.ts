@@ -334,7 +334,7 @@ export const commands = [
 				title: '🎙️ Starting voice activated capture',
 				description: 'Your voice activated capture is starting...',
 			});
-			const { error: startActiveListeningError } =
+			const { data: deviceAcquisitionOutcome, error: startActiveListeningError } =
 				await rpc.vadRecorder.startActiveListening.execute({
 					onSpeechStart: () => {
 						toast.success({
@@ -365,11 +365,56 @@ export const commands = [
 				toast.error({ id: toastId, ...startActiveListeningError });
 				return;
 			}
-			toast.success({
-				id: toastId,
-				title: '🎙️ Voice activated capture started',
-				description: 'Your voice activated capture has been started.',
-			});
+			
+			// Handle device acquisition outcome
+			switch (deviceAcquisitionOutcome.outcome) {
+				case 'success': {
+					toast.success({
+						id: toastId,
+						title: '🎙️ Voice activated capture started',
+						description: 'Your voice activated capture has been started.',
+					});
+					break;
+				}
+				case 'fallback': {
+					settings.value = {
+						...settings.value,
+						'recording.vad.selectedDeviceId':
+							deviceAcquisitionOutcome.fallbackDeviceId,
+					};
+					switch (deviceAcquisitionOutcome.reason) {
+						case 'no-device-selected': {
+							toast.info({
+								id: toastId,
+								title: '🎙️ VAD started with available microphone',
+								description:
+									'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
+								action: {
+									type: 'link',
+									label: 'Open Settings',
+									goto: '/settings/recording',
+								},
+							});
+							break;
+						}
+						case 'preferred-device-unavailable': {
+							toast.info({
+								id: toastId,
+								title: '🎙️ VAD switched to different microphone',
+								description:
+									"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
+								action: {
+									type: 'link',
+									label: 'Open Settings',
+									goto: '/settings/recording',
+								},
+							});
+							break;
+						}
+					}
+				}
+			}
+			
 			rpc.sound.playSoundIfEnabled.execute('vad-start');
 		},
 	},
