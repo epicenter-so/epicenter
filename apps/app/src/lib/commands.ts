@@ -6,7 +6,6 @@ import {
 	deliverTranscribedText,
 	deliverTransformedText,
 } from './deliverTextToUser';
-import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import type { ShortcutTriggerState } from './services/_shortcut-trigger-state';
 
 const stopManualRecording = async () => {
@@ -187,8 +186,6 @@ const startCpalRecording = async () => {
 type SatisfiedCommand = {
 	id: string;
 	title: string;
-	defaultLocalShortcut: string | null;
-	defaultGlobalShortcut: string | null;
 	on: ShortcutTriggerState;
 	callback: () => void;
 };
@@ -197,8 +194,6 @@ export const commands = [
 	{
 		id: 'pushToTalk',
 		title: 'Push to talk',
-		defaultLocalShortcut: 'p',
-		defaultGlobalShortcut: `${CommandOrAlt}+Shift+D`,
 		on: 'Both',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
@@ -222,8 +217,6 @@ export const commands = [
 	{
 		id: 'toggleManualRecording',
 		title: 'Toggle recording',
-		defaultLocalShortcut: ' ',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+;`,
 		on: 'Pressed',
 		callback: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
@@ -247,8 +240,6 @@ export const commands = [
 	{
 		id: 'cancelManualRecording',
 		title: 'Cancel recording',
-		defaultLocalShortcut: 'c',
-		defaultGlobalShortcut: `${CommandOrControl}+Shift+'`,
 		on: 'Pressed',
 		callback: async () => {
 			const toastId = nanoid();
@@ -295,8 +286,6 @@ export const commands = [
 	{
 		id: 'toggleVadRecording',
 		title: 'Toggle voice activated recording',
-		defaultLocalShortcut: 'v',
-		defaultGlobalShortcut: null,
 		on: 'Pressed',
 		callback: async () => {
 			const { data: vadState } =
@@ -421,8 +410,6 @@ export const commands = [
 				{
 					id: 'toggleCpalRecording',
 					title: 'Toggle CPAL recording',
-					defaultLocalShortcut: null,
-					defaultGlobalShortcut: null,
 					on: 'Pressed',
 					callback: async () => {
 						const { data: recorderState, error: getRecorderStateError } =
@@ -447,8 +434,6 @@ export const commands = [
 				{
 					id: 'cancelCpalRecording',
 					title: 'Cancel CPAL recording',
-					defaultLocalShortcut: null,
-					defaultGlobalShortcut: null,
 					on: 'Pressed',
 					callback: async () => {
 						const toastId = nanoid();

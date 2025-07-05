@@ -7,10 +7,13 @@
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
 	import { toast } from '$lib/toast';
+	import { getDefaultSettings } from '$lib/settings';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 
 	let searchQuery = $state('');
+
+	const defaultSettings = getDefaultSettings();
 
 	const filteredCommands = $derived(
 		commands.filter((command) =>
@@ -54,9 +57,7 @@
 			<Table.Body>
 				{#each filteredCommands as command}
 					{@const defaultShortcut =
-						type === 'local'
-							? command.defaultLocalShortcut
-							: command.defaultGlobalShortcut}
+						defaultSettings[`shortcuts.${type}.${command.id}`]}
 					<Table.Row>
 						<Table.Cell class="font-medium">
 							<span class="block truncate pr-2">{command.title}</span>

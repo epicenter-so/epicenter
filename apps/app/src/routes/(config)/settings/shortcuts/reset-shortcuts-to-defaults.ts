@@ -1,5 +1,6 @@
 import { commands } from '$lib/commands';
 import type { Settings } from '$lib/settings';
+import { getDefaultSettings } from '$lib/settings';
 import { settings } from '$lib/stores/settings.svelte';
 import {
 	syncGlobalShortcutsWithSettings,
@@ -7,16 +8,12 @@ import {
 } from '../../../+layout/register-commands';
 
 export function resetShortcutsToDefaults(type: 'local' | 'global') {
-	const updates = commands.reduce(
-		(acc, command) => {
-			acc[`shortcuts.${type}.${command.id}`] =
-				type === 'local'
-					? command.defaultLocalShortcut
-					: command.defaultGlobalShortcut;
-			return acc;
-		},
-		{} as Partial<Settings>,
-	);
+	const defaultSettings = getDefaultSettings();
+	const updates = commands.reduce<Partial<Settings>>((acc, command) => {
+		const shortcutKey = `shortcuts.${type}.${command.id}` as const;
+		acc[shortcutKey] = defaultSettings[shortcutKey];
+		return acc;
+	}, {});
 
 	settings.value = {
 		...settings.value,

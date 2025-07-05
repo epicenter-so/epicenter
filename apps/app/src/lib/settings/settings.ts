@@ -44,6 +44,7 @@ import type {
 	GroqModel,
 	OpenAIModel,
 } from '$lib/constants/transcription/models';
+import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 
 /**
@@ -160,15 +161,15 @@ export const settingsSchema = z.object({
 		'shortcuts.local.toggleManualRecording': z
 			.string()
 			.nullable()
-			.default(null),
+			.default(' '),
 		'shortcuts.local.cancelManualRecording': z
 			.string()
 			.nullable()
-			.default(null),
+			.default('c'),
 		'shortcuts.local.toggleCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelCpalRecording': z.string().nullable().default(null),
-		'shortcuts.local.toggleVadRecording': z.string().nullable().default(null),
-		'shortcuts.local.pushToTalk': z.string().nullable().default(null),
+		'shortcuts.local.toggleVadRecording': z.string().nullable().default('v'),
+		'shortcuts.local.pushToTalk': z.string().nullable().default('p'),
 	} satisfies Record<
 		`shortcuts.local.${Command['id']}`,
 		z.ZodDefault<z.ZodNullable<ZodString>>
@@ -178,15 +179,15 @@ export const settingsSchema = z.object({
 		'shortcuts.global.toggleManualRecording': z
 			.string()
 			.nullable()
-			.default(null),
+			.default(`${CommandOrControl}+Shift+;`),
 		'shortcuts.global.cancelManualRecording': z
 			.string()
 			.nullable()
-			.default(null),
+			.default(`${CommandOrControl}+Shift+'`),
 		'shortcuts.global.toggleCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.toggleVadRecording': z.string().nullable().default(null),
-		'shortcuts.global.pushToTalk': z.string().nullable().default(null),
+		'shortcuts.global.pushToTalk': z.string().nullable().default(`${CommandOrAlt}+Shift+D`),
 	} satisfies Record<
 		`shortcuts.global.${Command['id']}`,
 		z.ZodDefault<z.ZodNullable<ZodString>>
