@@ -17,10 +17,20 @@
 			"icons/icon.ico"
 		],
 		"longDescription": "Seamlessly integrate speech-to-text transcriptions anywhere on your desktop. Powered by OpenAI's Whisper API.",
-		"shortDescription": "",
+		"shortDescription": "Press shortcut → speak → get text. Free and open source ❤️",
 		"createUpdaterArtifacts": true,
 		"macOS": {
 			"entitlements": "entitlements.plist"
+		},
+		"linux": {
+			"appimage": {
+				"bundleMediaFramework": true
+			}
+		},
+		"windows": {
+			"webviewInstallMode": {
+				"type": "downloadBootstrapper"
+			}
 		}
 	},
 	"productName": "Whispering",
