@@ -19,7 +19,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 				mapError: (error): NotificationServiceError => ({
 					name: 'NotificationServiceError',
 					message: 'Unable to retrieve active desktop notifications.',
-					context: { id, title, body },
+					context: { id },
 					cause: error,
 				}),
 			});
