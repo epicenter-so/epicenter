@@ -62,7 +62,7 @@
 		{:else}
 			<DeviceSelector
 				deviceEnumerationStrategy="navigator"
-				settingsKey="recording.manual.selectedDeviceId"
+				settingsKey="recording.navigator.selectedDeviceId"
 			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
@@ -112,7 +112,7 @@
 		{#if getVadStateQuery.data === 'IDLE'}
 			<DeviceSelector
 				deviceEnumerationStrategy="navigator"
-				settingsKey="recording.vad.selectedDeviceId"
+				settingsKey="recording.navigator.selectedDeviceId"
 			/>
 			<TranscriptionSelector />
 			<TransformationSelector />
@@ -130,7 +130,7 @@
 		{#if true}
 			<DeviceSelector
 				deviceEnumerationStrategy="navigator"
-				settingsKey="recording.live.selectedDeviceId"
+				settingsKey="recording.navigator.selectedDeviceId"
 			/>
 			<TranscriptionSelector />
 			<TransformationSelector />

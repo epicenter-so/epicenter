@@ -377,7 +377,7 @@ export const commands = [
 				case 'fallback': {
 					settings.value = {
 						...settings.value,
-						'recording.vad.selectedDeviceId':
+						'recording.navigator.selectedDeviceId':
 							deviceAcquisitionOutcome.fallbackDeviceId,
 					};
 					switch (deviceAcquisitionOutcome.reason) {
