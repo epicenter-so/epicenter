@@ -4,21 +4,17 @@
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import UpdateDialog, {
-		updateDialog,
-	} from '$lib/components/UpdateDialog.svelte';
+	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
-	import { extractErrorMessage } from 'wellcrafted/error';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { check } from '@tauri-apps/plugin-updater';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
-	import { Toaster, type ToasterProps, toast } from 'svelte-sonner';
+	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
-	import { mockCheck, shouldUseMockUpdates } from './mock-check';
+	import { checkForUpdates } from './check-for-updates';
 	import {
 		resetGlobalShortcutsToDefaultIfDuplicates,
 		resetLocalShortcutsToDefaultIfDuplicates,
@@ -50,24 +46,6 @@
 		}
 	});
 
-	async function checkForUpdates() {
-		try {
-			// Use mock or real check based on configuration
-			const update = await (shouldUseMockUpdates() ? mockCheck() : check());
-			if (update) {
-				toast.info(`Update ${update.version} available`, {
-					action: {
-						label: 'View Update',
-						onClick: () => updateDialog.open(update),
-					},
-				});
-			}
-		} catch (error) {
-			toast.error('Failed to check for updates', {
-				description: extractErrorMessage(error),
-			});
-		}
-	}
 
 	closeToTrayIfEnabled();
 

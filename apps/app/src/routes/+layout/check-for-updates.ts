@@ -1,5 +1,26 @@
-import type { UpdateInfo } from '$lib/components/UpdateDialog.svelte';
-import type { DownloadEvent } from '@tauri-apps/plugin-updater';
+import { updateDialog, type UpdateInfo } from '$lib/components/UpdateDialog.svelte';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { check, type DownloadEvent } from '@tauri-apps/plugin-updater';
+import { toast } from 'svelte-sonner';
+
+export async function checkForUpdates() {
+	try {
+		// Use mock or real check based on configuration
+		const update = await (shouldUseMockUpdates() ? mockCheck() : check());
+		if (update) {
+			toast.info(`Update ${update.version} available`, {
+				action: {
+					label: 'View Update',
+					onClick: () => updateDialog.open(update),
+				},
+			});
+		}
+	} catch (error) {
+		toast.error('Failed to check for updates', {
+			description: extractErrorMessage(error),
+		});
+	}
+}
 
 /**
  * Mock update check for testing the auto-update functionality.
@@ -21,7 +42,7 @@ import type { DownloadEvent } from '@tauri-apps/plugin-updater';
  * - Realistic download progress simulation (50MB over 5 seconds)
  * - Sample release notes in markdown format
  */
-export async function mockCheck(): Promise<UpdateInfo> {
+async function mockCheck(): Promise<UpdateInfo> {
 	// Simulate network delay for realism
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -99,6 +120,6 @@ process would download and install real application files.`,
  *
  * @returns true if mock updates should be used, false otherwise
  */
-export function shouldUseMockUpdates(): boolean {
+function shouldUseMockUpdates(): boolean {
 	return import.meta.env.DEV;
 }
