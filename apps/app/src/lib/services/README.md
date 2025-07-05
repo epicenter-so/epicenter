@@ -54,6 +54,8 @@ export const ClipboardServiceLive = window.__TAURI_INTERNALS__
   : createClipboardServiceWeb(); // Browser APIs
 ```
 
+This platform abstraction enables **extensive code sharing** between Whispering's desktop and web versions. The vast majority of application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Instead of maintaining separate codebases, we write business logic once and let services handle platform differences automatically.
+
 > **💡 Dependency Injection Strategy**
 >
 > Services only use dependency injection for **build-time platform differences** (desktop vs web). When we need to switch implementations based on **reactive variables** like user settings, that logic lives in the query layer instead.

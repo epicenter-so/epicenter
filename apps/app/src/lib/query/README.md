@@ -52,6 +52,54 @@ Examples:
 - Performance-critical operations
 - Utility functions outside components
 
+## Runtime Dependency Injection
+
+The query layer handles **runtime dependency injection**—dynamically switching service implementations based on user settings. Unlike services which use build-time platform detection, the query layer makes decisions based on reactive variables:
+
+```typescript
+// Simplified example inspired by the actual transcription implementation
+async function transcribeBlob(blob: Blob) {
+  const selectedService = settings.value['transcription.selectedTranscriptionService'];
+
+  switch (selectedService) {
+    case 'OpenAI':
+      return services.transcriptions.openai.transcribe(blob, {
+        apiKey: settings.value['apiKeys.openai'],
+        model: settings.value['transcription.openai.model'],
+      });
+    case 'Groq':
+      return services.transcriptions.groq.transcribe(blob, {
+        apiKey: settings.value['apiKeys.groq'], 
+        model: settings.value['transcription.groq.model'],
+      });
+  }
+}
+```
+
+## Optimistic Updates
+
+The query layer uses the TanStack Query client to manipulate the cache for optimistic UI. By updating the cache, reactivity automatically kicks in and the UI reflects these changes, giving you instant optimistic updates:
+
+```typescript
+// From recordings mutations
+createRecording: defineMutation({
+  resultMutationFn: async (recording: Recording) => {
+    const { data, error } = await services.db.createRecording(recording);
+    if (error) return Err(error);
+
+    // Optimistically update cache - UI updates instantly
+    queryClient.setQueryData(['recordings'], (oldData) => {
+      if (!oldData) return [recording];
+      return [...oldData, recording];
+    });
+
+    return Ok(data);
+  },
+})
+```
+
+The query layer co-locates three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way, and gives developers a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder.
+
 ## Static Site Generation Advantage
 
 This application is fully static site generated and client-side only, which gives us a unique architectural advantage: direct access to the TanStack Query client.
