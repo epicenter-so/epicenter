@@ -102,27 +102,18 @@ jobs:
           if [ -f "$RELEASE_FILE" ]; then
             echo "Found release notes file: $RELEASE_FILE"
             
-            # Extract summary section between markers for the update dialog
-            # This is what users see when the app checks for updates
-            SUMMARY=$(sed -n '/<!-- SUMMARY:START -->/,/<!-- SUMMARY:END -->/p' "$RELEASE_FILE" | sed '1d;$d')
-            
-            # Get full content for potential future use (e.g., GitHub release page)
-            FULL_NOTES=$(cat "$RELEASE_FILE")
+            # Get full content for GitHub release page
+            RELEASE_NOTES=$(cat "$RELEASE_FILE")
           else
             echo "No release notes file found at $RELEASE_FILE, using fallback"
-            # Fallback messages if no release file exists
-            SUMMARY="Whispering ${{ github.ref_name }} is now available. Check GitHub for the full changelog."
-            FULL_NOTES="No release notes file found for ${{ github.ref_name }}. Please check the commit history for changes."
+            # Fallback message if no release file exists
+            RELEASE_NOTES="Whispering ${{ github.ref_name }} is now available. Check GitHub for the full changelog."
           fi
           
-          # Save outputs for use in later steps
+          # Save output for use in later steps
           # Using EOF delimiter to handle multi-line content
-          echo "SUMMARY<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          
-          echo "FULL_NOTES<<EOF" >> $GITHUB_OUTPUT
-          echo "$FULL_NOTES" >> $GITHUB_OUTPUT
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       # Main Tauri build and release action
@@ -156,8 +147,8 @@ jobs:
           releaseName: 'Whispering ${{ github.ref_name }}'
           
           # Release description from our processed release notes
-          # This goes into latest.json and appears in the update dialog
-          releaseBody: ${{ steps.release_notes.outputs.SUMMARY }}
+          # Full release notes for GitHub release page
+          releaseBody: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
           
           # Create as draft so you can review before publishing
           releaseDraft: true
