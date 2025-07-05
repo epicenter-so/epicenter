@@ -14,8 +14,18 @@ jobs:
   publish-tauri:
     # Required permissions to create releases and upload assets
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write          # Read/write repository contents, create releases
+      actions: read            # Read workflow files
+      checks: write            # Write check runs
+      deployments: write       # Create deployments
+      discussions: write       # Create/update discussions
+      issues: write            # Create/update issues
+      packages: write          # Upload packages
+      pages: write             # Deploy to GitHub Pages
+      pull-requests: write     # Create/update pull requests
+      repository-projects: write # Update project boards
+      security-events: write   # Write security events
+      statuses: write          # Create commit statuses
     
     # Build strategy: create separate jobs for each platform
     strategy:
