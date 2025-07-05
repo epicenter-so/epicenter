@@ -126,6 +126,88 @@ jobs:
           echo "$FULL_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      # Test GITHUB_TOKEN permissions before attempting release
+      - name: Test GITHUB_TOKEN permissions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "🔍 Testing GITHUB_TOKEN permissions..."
+          
+          # Test 1: Basic repository access
+          echo "📊 Test 1: Repository access"
+          REPO_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}")
+          HTTP_CODE=${REPO_RESPONSE: -3}
+          echo "Repository access HTTP code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Repository access: SUCCESS"
+          else
+            echo "❌ Repository access: FAILED"
+            echo "Response: ${REPO_RESPONSE%???}"
+            exit 1
+          fi
+          
+          # Test 2: Check token scopes
+          echo "📋 Test 2: Token scopes"
+          SCOPES=$(curl -s -I -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/user" | grep -i "x-oauth-scopes" || echo "No scopes header found")
+          echo "Token scopes: $SCOPES"
+          
+          # Test 3: Try creating a test draft release
+          echo "🎯 Test 3: Release creation test"
+          TEST_TAG="permission-test-$(date +%s)"
+          RELEASE_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" \
+            -d "{\"tag_name\":\"$TEST_TAG\",\"name\":\"Permission Test Release\",\"draft\":true,\"body\":\"Test release for permission debugging\"}")
+          
+          RELEASE_HTTP_CODE=${RELEASE_RESPONSE: -3}
+          RELEASE_DATA=${RELEASE_RESPONSE%???}
+          
+          echo "Release creation HTTP code: $RELEASE_HTTP_CODE"
+          
+          if [ "$RELEASE_HTTP_CODE" = "201" ]; then
+            echo "✅ Release creation: SUCCESS"
+            
+            # Extract release ID and clean up the test release
+            RELEASE_ID=$(echo "$RELEASE_DATA" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
+            if [ -n "$RELEASE_ID" ]; then
+              echo "🧹 Cleaning up test release (ID: $RELEASE_ID)"
+              DELETE_RESPONSE=$(curl -s -w "%{http_code}" -X DELETE \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID")
+              DELETE_HTTP_CODE=${DELETE_RESPONSE: -3}
+              if [ "$DELETE_HTTP_CODE" = "204" ]; then
+                echo "✅ Test release cleanup: SUCCESS"
+              else
+                echo "⚠️ Test release cleanup: FAILED (HTTP $DELETE_HTTP_CODE)"
+              fi
+            fi
+          else
+            echo "❌ Release creation: FAILED"
+            echo "Response: $RELEASE_DATA"
+            
+            # Check for specific error messages
+            if echo "$RELEASE_DATA" | grep -q "Resource not accessible by integration"; then
+              echo "🚨 FOUND THE ISSUE: 'Resource not accessible by integration'"
+              echo "This indicates insufficient permissions for the GITHUB_TOKEN"
+              echo "Check repository Settings > Actions > General > Workflow permissions"
+            fi
+            
+            if echo "$RELEASE_DATA" | grep -q "Bad credentials"; then
+              echo "🚨 FOUND THE ISSUE: 'Bad credentials'"
+              echo "The GITHUB_TOKEN is invalid or expired"
+            fi
+            
+            # Don't fail the workflow - let's see what happens with tauri-action
+            echo "⚠️ Continuing with tauri-action to see if it provides more details..."
+          fi
+          
+          echo "🏁 Permission tests completed"
+
       # Main Tauri build and release action
       - uses: tauri-apps/tauri-action@v0
         env:
