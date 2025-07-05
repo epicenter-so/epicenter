@@ -370,7 +370,7 @@ Whispering showcases the power of modern web development as a comprehensive exam
 - [Svelte 5](https://svelte.dev): The UI reactivity library of choice with cutting-edge runes system
 - [SvelteKit](https://kit.svelte.dev): For routing and static site generation
 - [Tauri](https://tauri.app): The desktop app framework for native performance
-- [Effect-TS](https://github.com/Effect-TS/effect): Type-safe functional programming
+- [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted): Lightweight type-safe error handling
 - [Svelte Sonner](https://svelte-sonner.vercel.app): Toast notifications for errors
 - [TanStack Query](https://tanstack.com/query): Powerful data synchronization
 - [TanStack Table](https://tanstack.com/table): Comprehensive data tables
@@ -430,6 +430,19 @@ const { data, error } = await rpc.transcription.transcribe.execute(blob);
 ```
 
 This dual interface design provides both reactive state management for UI components and direct execution for workflows. Under the hood, it wraps service functions with TanStack Query for caching, optimistic updates, and error handling. [→ Deep dive into the Query Layer README](./apps/app/src/lib/query/README.md)
+
+#### Error Handling with WellCrafted
+
+Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted specifically to solve the error handling challenges in Whispering, and now use it throughout the codebase. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
+
+**Key benefits in Whispering:**
+- **Explicit errors**: Every function that can fail returns `Result<T, E>`, making errors impossible to ignore
+- **Type safety**: TypeScript knows exactly what errors each function can produce
+- **Serialization-safe**: Errors are plain objects that survive JSON serialization (critical for Tauri IPC)
+- **Rich context**: Structured `TaggedError` objects include error names, messages, context, and causes
+- **Zero overhead**: ~50 lines of code, < 2KB minified, no dependencies
+
+This approach ensures robust error handling across the entire codebase, from service layer functions to UI components, while maintaining excellent developer experience with TypeScript's control flow analysis.
 
 ### Run Whispering in Local Development Mode
 
