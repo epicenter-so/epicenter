@@ -5,7 +5,6 @@
 	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import { rpc } from '$lib/query';
 	import type { DeviceEnumerationStrategy } from '$lib/query/device';
-	import type { Settings } from '$lib/settings';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { toast } from '$lib/toast';
 	import { cn } from '$lib/utils';
@@ -15,13 +14,17 @@
 	const combobox = useCombobox();
 
 	let {
-		deviceEnumerationStrategy,
-		settingsKey,
+		strategy,
 	}: {
-		deviceEnumerationStrategy: DeviceEnumerationStrategy;
-		settingsKey: keyof Settings;
+		strategy: 'navigator' | 'cpal';
 	} = $props();
 
+	const settingsKey = $derived(
+		strategy === 'navigator'
+			? 'recording.navigator.selectedDeviceId'
+			: 'recording.cpal.selectedDeviceId',
+	);
+	const deviceEnumerationStrategy = $derived(strategy);
 	const selectedDeviceId = $derived(settings.value[settingsKey]);
 	function setSelectedDeviceId(deviceId: string | null) {
 		settings.value = {

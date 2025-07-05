@@ -141,10 +141,7 @@
 						🚫
 					</WhisperingButton>
 				{:else}
-					<DeviceSelector
-						deviceEnumerationStrategy="navigator"
-						settingsKey="recording.navigator.selectedDeviceId"
-					/>
+					<DeviceSelector strategy="navigator" />
 					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
@@ -177,10 +174,7 @@
 						🚫
 					</WhisperingButton>
 				{:else}
-					<DeviceSelector
-						deviceEnumerationStrategy="cpal"
-						settingsKey="recording.cpal.selectedDeviceId"
-					/>
+					<DeviceSelector strategy="cpal" />
 					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
@@ -203,10 +197,7 @@
 			</WhisperingButton>
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				{#if getVadStateQuery.data === 'IDLE'}
-					<DeviceSelector
-						deviceEnumerationStrategy="navigator"
-						settingsKey="recording.navigator.selectedDeviceId"
-					/>
+					<DeviceSelector strategy="navigator" />
 					<TranscriptionSelector />
 					<TransformationSelector />
 				{/if}
