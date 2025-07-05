@@ -12,9 +12,10 @@ on:
 
 jobs:
   publish-tauri:
-    # Required permission to create releases and upload assets
+    # Required permissions to create releases and upload assets
     permissions:
       contents: write
+      pull-requests: write
     
     # Build strategy: create separate jobs for each platform
     strategy:
