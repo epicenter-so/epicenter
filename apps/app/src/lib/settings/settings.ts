@@ -115,19 +115,6 @@ export const settingsSchema = z.object({
 	// CPAL mode settings (native only)
 	'recording.cpal.selectedDeviceId': z.string().nullable().default(null),
 
-	// Legacy settings (kept for backwards compatibility)
-	'recording.manual.selectedDeviceId': z.string().nullable().default(null),
-	'recording.manual.bitrateKbps': z
-		.enum(BITRATE_VALUES_KBPS)
-		.optional()
-		.default(DEFAULT_BITRATE_KBPS),
-	'recording.vad.selectedDeviceId': z.string().nullable().default(null),
-	'recording.live.selectedDeviceId': z.string().nullable().default(null),
-	'recording.live.bitrateKbps': z
-		.enum(BITRATE_VALUES_KBPS)
-		.optional()
-		.default(DEFAULT_BITRATE_KBPS),
-
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
 		.default('Groq'),
