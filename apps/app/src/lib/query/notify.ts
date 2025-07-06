@@ -9,15 +9,6 @@ import { goto } from '$app/navigation';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { notificationLog } from '$lib/components/NotificationLog.svelte';
 
-// Helper to check if app is focused
-const isFocused = async () => {
-	const isDocumentFocused = document.hasFocus();
-	if (!window.__TAURI_INTERNALS__) return isDocumentFocused;
-	const { getCurrentWindow } = await import('@tauri-apps/api/window');
-	const isWindowFocused = await getCurrentWindow().isFocused();
-	return isWindowFocused && isDocumentFocused;
-};
-
 // Helper to determine toast duration
 function getDuration(options: UnifiedNotificationOptions) {
 	if (options.variant === 'loading') return 5000;
@@ -103,8 +94,12 @@ const createNotifyMutation = (
 				action: convertUnifiedActionToSonner(fullOptions.action),
 			});
 
-			// Also show OS notification if not focused (except for loading)
-			if (variant !== 'loading' && !(await isFocused())) {
+			// Also show OS notification (system notifications or browser/extension notifications)
+			// We exclude 'loading' notifications because:
+			// 1. OS notifications don't support updating/replacing notifications with the same ID
+			//    (unlike Sonner toasts which can update in-place)
+			// 2. Loading states are temporary and would create notification spam
+			if (variant !== 'loading') {
 				const { error: notifyError } =
 					await services.notification.notify(fullOptions);
 				if (notifyError) {
