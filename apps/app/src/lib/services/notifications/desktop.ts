@@ -12,6 +12,7 @@ import type {
 	NotificationServiceError,
 	UnifiedNotificationOptions,
 } from './types';
+import { toTauriNotification } from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (
@@ -61,14 +62,10 @@ export function createNotificationServiceDesktop(): NotificationService {
 						permissionGranted = permission === 'granted';
 					}
 					if (permissionGranted) {
+						const tauriOptions = toTauriNotification(options);
 						sendNotification({
-							id: id,
-							title: options.title,
-							body: options.description,
-							// Map UnifiedNotificationOptions to Tauri Options
-							icon: options.icon,
-							silent: options.silent,
-							autoCancel: !options.requireInteraction,
+							...tauriOptions,
+							id, // Override with our numeric id
 						});
 					}
 				},
@@ -95,6 +92,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 	};
 }
 
+// Note: stringToNumber is now imported from types.ts via toTauriNotification
 function stringToNumber(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {

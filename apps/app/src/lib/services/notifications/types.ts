@@ -1,5 +1,19 @@
 import type { Result } from 'wellcrafted/result';
 import type { TaggedError } from 'wellcrafted/error';
+import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
+
+/**
+ * Platform-Specific Notification Transformations
+ *
+ * This file centralizes all transformations from UnifiedNotificationOptions
+ * to platform-specific notification formats. This makes it easy to see how
+ * our unified API maps to each platform's requirements.
+ *
+ * Supported platforms:
+ * - Tauri (Desktop): Uses numeric IDs, supports basic notifications
+ * - Browser: Standard Notification API, limited action support
+ * - Extension (Future): Chrome extension API, full action support
+ */
 
 export type NotificationServiceError = TaggedError<'NotificationServiceError'>;
 
@@ -30,7 +44,7 @@ type MoreDetailsAction = {
 	error: unknown; // Can be Error object or any error data
 };
 
-export type NotificationAction = LinkAction | ButtonAction | MoreDetailsAction;
+type NotificationAction = LinkAction | ButtonAction | MoreDetailsAction;
 
 export type UnifiedNotificationOptions = {
 	/**
@@ -94,6 +108,17 @@ export type UnifiedNotificationOptions = {
 	action?: NotificationAction;
 
 	/**
+	 * Cancel button (toast-only)
+	 * @toast Maps to ExternalToast.cancel with label and onClick
+	 * @browser Ignored
+	 * @extension Ignored
+	 * @tauri Ignored
+	 */
+	cancel?: {
+		label: string;
+	};
+
+	/**
 	 * Toast-specific variant
 	 * @toast Maps to type via toast[variant]() methods
 	 * @others Ignored
@@ -106,4 +131,108 @@ export type NotificationService = {
 		options: UnifiedNotificationOptions,
 	) => Promise<Result<string, NotificationServiceError>>;
 	clear: (id: string) => Promise<Result<void, NotificationServiceError>>;
+};
+
+/**
+ * Transform UnifiedNotificationOptions to Tauri notification options
+ *
+ * Mappings:
+ * - id: String → Number (via hash function)
+ * - description → body
+ * - requireInteraction → autoCancel (inverted)
+ * - actions: Not supported on desktop
+ * - cancel: Ignored (toast-only)
+ * - variant: Ignored (only for toasts)
+ */
+export function toTauriNotification(
+	options: UnifiedNotificationOptions,
+): TauriNotificationOptions {
+	return {
+		id: options.id ? stringToNumber(options.id) : undefined,
+		title: options.title,
+		body: options.description,
+		icon: options.icon,
+		silent: options.silent,
+		autoCancel: !options.requireInteraction,
+	};
+}
+
+/**
+ * Transform UnifiedNotificationOptions to browser Notification API options
+ *
+ * Mappings:
+ * - id → tag
+ * - description → body
+ * - Direct mappings: icon, requireInteraction, silent
+ * - actions: Only work in Service Workers (limited support)
+ * - cancel: Ignored (toast-only)
+ * - variant: Ignored (only for toasts)
+ */
+export function toBrowserNotification(
+	options: UnifiedNotificationOptions,
+): NotificationOptions {
+	return {
+		body: options.description,
+		icon: options.icon,
+		tag: options.id,
+		requireInteraction: options.requireInteraction,
+		silent: options.silent,
+	};
+}
+
+/**
+ * Transform UnifiedNotificationOptions to Chrome extension notification options
+ *
+ * Mappings:
+ * - description → message
+ * - icon → iconUrl (with fallback)
+ * - silent → priority (-2 for silent, 0 for normal)
+ * - action → buttons[0] (single button, excludes 'more-details')
+ * - cancel: Ignored (toast-only)
+ * - variant: Ignored (only for toasts)
+ *
+ * @future This will be implemented when extension support is added
+ */
+export function toExtensionNotification(
+	options: UnifiedNotificationOptions,
+): ChromeNotificationOptions {
+	return {
+		type: 'basic',
+		title: options.title,
+		message: options.description,
+		iconUrl: options.icon || '/icon-192.png',
+		requireInteraction: options.requireInteraction,
+		priority: options.silent ? -2 : 0,
+		buttons:
+			options.action && options.action.type !== 'more-details'
+				? [{ title: options.action.label }]
+				: undefined,
+	};
+}
+
+/**
+ * Convert string ID to number for Tauri (which requires numeric IDs)
+ */
+function stringToNumber(str: string): number {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash;
+	}
+	return Math.abs(hash);
+}
+
+/**
+ * Chrome extension notification options type
+ * @future This type will be properly imported when extension support is added
+ */
+type ChromeNotificationOptions = {
+	type: 'basic' | 'image' | 'list' | 'progress';
+	title: string;
+	message: string;
+	iconUrl: string;
+	requireInteraction?: boolean;
+	priority?: -2 | -1 | 0 | 1 | 2;
+	buttons?: Array<{ title: string }>;
 };

@@ -1,5 +1,6 @@
 import { Ok, Err, tryAsync } from 'wellcrafted/result';
 import type { NotificationService, UnifiedNotificationOptions } from './types';
+import { toBrowserNotification, toExtensionNotification } from './types';
 import { nanoid } from 'nanoid/non-secure';
 
 export function createNotificationServiceWeb(): NotificationService {
@@ -26,17 +27,12 @@ export function createNotificationServiceWeb(): NotificationService {
 			// Try extension first if available
 			if (await detectExtension()) {
 				// Extension notification path (for future implementation)
+				// const extensionOptions = toExtensionNotification(options);
 				// const { error } = await tryAsync({
 				//   try: async () => {
 				//     await extension.createNotification({
-				//       type: 'basic',
+				//       ...extensionOptions,
 				//       notificationId,
-				//       title: options.title,
-				//       message: options.description,
-				//       iconUrl: options.icon || '/icon-192.png',
-				//       requireInteraction: options.requireInteraction,
-				//       priority: options.silent ? -2 : 0,
-				//       buttons: options.action ? [{ title: options.action.title }] : undefined
 				//     });
 				//   },
 				//   mapError: (error) => ({
@@ -68,15 +64,8 @@ export function createNotificationServiceWeb(): NotificationService {
 					}
 
 					// Create notification
-					const notification = new Notification(options.title, {
-						body: options.description,
-						icon: options.icon,
-						tag: notificationId,
-						requireInteraction: options.requireInteraction,
-						silent: options.silent,
-						// Note: actions only work in Service Workers
-						// For now, we'll just create basic notifications
-					});
+					const browserOptions = toBrowserNotification(options);
+					const notification = new Notification(options.title, browserOptions);
 
 					// Handle notification click if there's a link action
 					if (options.action?.type === 'link') {
