@@ -8,6 +8,7 @@ import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
 import { NavigatorRecorderServiceLive } from './manual-recorder';
 import { NotificationServiceLive } from './notifications';
+import { ToastServiceLive } from './toast';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';
 import * as transcriptions from './transcription';
@@ -27,6 +28,7 @@ export {
 	LocalShortcutManagerLive as localShortcutManager,
 	NavigatorRecorderServiceLive as manualRecorder,
 	NotificationServiceLive as notification,
+	ToastServiceLive as toast,
 	OsServiceLive as os,
 	PlaySoundServiceLive as sound,
 	transcriptions,
