@@ -108,17 +108,6 @@ export type UnifiedNotificationOptions = {
 	action?: NotificationAction;
 
 	/**
-	 * Cancel button (toast-only)
-	 * @toast Maps to ExternalToast.cancel with label and onClick
-	 * @browser Ignored
-	 * @extension Ignored
-	 * @tauri Ignored
-	 */
-	cancel?: {
-		label: string;
-	};
-
-	/**
 	 * Toast-specific variant
 	 * @toast Maps to type via toast[variant]() methods
 	 * @others Ignored
@@ -141,7 +130,6 @@ export type NotificationService = {
  * - description → body
  * - requireInteraction → autoCancel (inverted)
  * - actions: Not supported on desktop
- * - cancel: Ignored (toast-only)
  * - variant: Ignored (only for toasts)
  */
 export function toTauriNotification(
@@ -165,7 +153,6 @@ export function toTauriNotification(
  * - description → body
  * - Direct mappings: icon, requireInteraction, silent
  * - actions: Only work in Service Workers (limited support)
- * - cancel: Ignored (toast-only)
  * - variant: Ignored (only for toasts)
  */
 export function toBrowserNotification(
@@ -188,7 +175,6 @@ export function toBrowserNotification(
  * - icon → iconUrl (with fallback)
  * - silent → priority (-2 for silent, 0 for normal)
  * - action → buttons[0] (single button, excludes 'more-details')
- * - cancel: Ignored (toast-only)
  * - variant: Ignored (only for toasts)
  *
  * @future This will be implemented when extension support is added
