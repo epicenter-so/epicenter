@@ -1,10 +1,9 @@
 import { queryClient } from '$lib/query';
 import * as services from '$lib/services';
 import type { Transformation } from '$lib/services/db/models';
-import { notify } from './notify';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok } from 'wellcrafted/result';
 import type { Accessor } from '@tanstack/svelte-query';
+import { Err, Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery } from './_utils';
 
 // Define the query key as a constant array
@@ -79,39 +78,6 @@ export const transformations = {
 				return Ok(data);
 			},
 		}),
-		updateTransformationWithToast: () =>
-			defineMutation({
-				mutationKey: [
-					'transformations',
-					'updateTransformationWithToast',
-				] as const,
-				resultMutationFn: async (transformation: Transformation) => {
-					const { data, error } =
-						await services.db.updateTransformation(transformation);
-					if (error) return Err(error);
-
-					queryClient.setQueryData<Transformation[]>(
-						transformationsKeys.all,
-						(oldData) => {
-							if (!oldData) return [transformation];
-							return oldData.map((item) =>
-								item.id === transformation.id ? transformation : item,
-							);
-						},
-					);
-					queryClient.setQueryData<Transformation>(
-						transformationsKeys.byId(transformation.id),
-						transformation,
-					);
-
-					notify.success.execute({
-						title: 'Updated transformation!',
-						message: 'Your transformation has been updated successfully.',
-					});
-
-					return Ok(data);
-				},
-			}),
 		deleteTransformation: defineMutation({
 			mutationKey: ['transformations', 'deleteTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
