@@ -4,11 +4,10 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { rpc } from '$lib/query';
+	import { notify, rpc } from '$lib/query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { toast } from '$lib/toast';
 
 	/**
 	 * Props for the CopyableTextDialog component.
@@ -93,13 +92,13 @@
 						{
 							onSuccess: () => {
 								isDialogOpen = false;
-								toast.success({
+								notify.success.execute({
 									title: `Copied ${title.toLowerCase()} to clipboard!`,
 									description: text,
 								});
 							},
 							onError: (error) => {
-								toast.error({
+								notify.error.execute({
 									title: `Error copying ${title.toLowerCase()} to clipboard`,
 									description: error.message,
 									action: { type: 'more-details', error },

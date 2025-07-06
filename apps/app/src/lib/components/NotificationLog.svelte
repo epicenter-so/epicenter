@@ -1,7 +1,7 @@
 <script module lang="ts">
 	const notificationLog = (() => {
 		let isOpen = $state(false);
-		let logs = $state<ToastAndNotifyOptions[]>([]);
+		let logs = $state<UnifiedNotificationOptions[]>([]);
 		return {
 			get isOpen() {
 				return isOpen;
@@ -12,7 +12,7 @@
 			get logs() {
 				return logs;
 			},
-			addLog: (log: ToastAndNotifyOptions) => {
+			addLog: (log: UnifiedNotificationOptions) => {
 				logs.push(log);
 			},
 			clearLogs: () => {
@@ -27,7 +27,7 @@
 <script lang="ts">
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import type { ToastAndNotifyOptions } from '$lib/toasts';
+	import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import {
 		AlertCircle,

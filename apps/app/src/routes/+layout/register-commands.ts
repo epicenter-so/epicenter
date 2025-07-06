@@ -6,7 +6,7 @@ import {
 	shortcutStringToArray,
 } from '$lib/services/local-shortcut-manager';
 import { settings } from '$lib/stores/settings.svelte';
-import { toast } from '$lib/toast';
+import { notify } from '$lib/query';
 import { partitionResults } from 'wellcrafted/result';
 import type { Settings } from '$lib/settings';
 import { resetShortcutsToDefaults } from '../(config)/settings/shortcuts/reset-shortcuts-to-defaults';
@@ -36,7 +36,7 @@ export async function syncLocalShortcutsWithSettings() {
 	);
 	const { errs } = partitionResults(results);
 	if (errs.length > 0) {
-		toast.error({
+		notify.error.execute({
 			title: 'Error registering local commands',
 			description: errs.map((err) => err.error.message).join('\n'),
 			action: { type: 'more-details', error: errs },
@@ -67,7 +67,7 @@ export async function syncGlobalShortcutsWithSettings() {
 	);
 	const { errs } = partitionResults(results);
 	if (errs.length > 0) {
-		toast.error({
+		notify.error.execute({
 			title: 'Error registering global commands',
 			description: errs.map((err) => err.error.message).join('\n'),
 			action: { type: 'more-details', error: errs },
@@ -89,14 +89,14 @@ export function resetLocalShortcutsToDefaultIfDuplicates(): boolean {
 			if (localShortcuts.has(shortcut)) {
 				// If duplicates found, reset all local shortcuts to defaults
 				resetShortcutsToDefaults('local');
-				toast.success({
+				notify.success.execute({
 					title: 'Shortcuts reset',
 					description:
 						'Duplicate local shortcuts detected. All local shortcuts have been reset to defaults.',
 					action: {
 						type: 'link',
 						label: 'Configure shortcuts',
-						goto: '/settings/shortcuts/local',
+						href: '/settings/shortcuts/local',
 					},
 				});
 
@@ -122,14 +122,14 @@ export function resetGlobalShortcutsToDefaultIfDuplicates(): boolean {
 			if (globalShortcuts.has(shortcut)) {
 				// If duplicates found, reset all global shortcuts to defaults
 				resetShortcutsToDefaults('global');
-				toast.success({
+				notify.success.execute({
 					title: 'Shortcuts reset',
 					description:
 						'Duplicate global shortcuts detected. All global shortcuts have been reset to defaults.',
 					action: {
 						type: 'link',
 						label: 'Configure shortcuts',
-						goto: '/settings/shortcuts/global',
+						href: '/settings/shortcuts/global',
 					},
 				});
 

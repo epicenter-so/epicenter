@@ -1,5 +1,5 @@
 import * as services from '$lib/services';
-import { toast } from '$lib/toast';
+import { notify } from './notify';
 import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { defineMutation, defineQuery } from './_utils';
 import { queryClient } from './index';
@@ -37,7 +37,7 @@ export const cpalRecorder = {
 			return services.cpalRecorder.startRecording(
 				{ selectedDeviceId },
 				{
-					sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+					sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 				},
 			);
 		},
@@ -48,7 +48,7 @@ export const cpalRecorder = {
 		mutationKey: recorderKeys.stopRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
 			services.cpalRecorder.stopRecording({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,
 	}),
@@ -57,7 +57,7 @@ export const cpalRecorder = {
 		mutationKey: recorderKeys.cancelRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
 			services.cpalRecorder.cancelRecording({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,
 	}),

@@ -25,7 +25,10 @@
 				return update;
 			},
 			get isDownloading() {
-				return downloadTotal > 0 && !error;
+				return downloadTotal > 0 && downloadProgress < downloadTotal && !error;
+			},
+			get isDownloadComplete() {
+				return downloadTotal > 0 && downloadProgress >= downloadTotal && !error;
 			},
 			get progressPercentage() {
 				return downloadTotal > 0 ? (downloadProgress / downloadTotal) * 100 : 0;
@@ -59,7 +62,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { relaunch } from '@tauri-apps/plugin-process';
-	import { toast } from 'svelte-sonner';
+	import { notify } from '$lib/query';
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { AlertTriangle } from 'lucide-svelte';
 	import { extractErrorMessage } from 'wellcrafted/error';
@@ -84,14 +87,13 @@
 						updateDialog.updateProgress(downloaded, contentLength);
 						break;
 					case 'Finished':
-						toast.success('Update installed successfully!', {
+						notify.success.execute({
+							title: 'Update installed successfully!',
+							description: 'Restart Whispering to apply the update.',
 							action: {
+								type: 'button',
 								label: 'Restart Whispering',
 								onClick: () => relaunch(),
-							},
-							cancel: {
-								label: 'Later',
-								onClick: () => updateDialog.close(),
 							},
 						});
 						break;
@@ -99,7 +101,8 @@
 			});
 		} catch (err) {
 			updateDialog.setError(extractErrorMessage(err));
-			toast.error('Failed to install update', {
+			notify.error.execute({
+				title: 'Failed to install update',
 				description: extractErrorMessage(err),
 			});
 		}
@@ -127,10 +130,14 @@
 			</div>
 		{/if}
 
-		{#if updateDialog.isDownloading}
+		{#if updateDialog.isDownloading || updateDialog.isDownloadComplete}
 			<div class="space-y-2">
 				<div class="text-sm text-muted-foreground">
-					Downloading update... {Math.round(updateDialog.progressPercentage)}%
+					{#if updateDialog.isDownloadComplete}
+						Download complete! Ready to restart.
+					{:else}
+						Downloading update... {Math.round(updateDialog.progressPercentage)}%
+					{/if}
 				</div>
 				<div class="w-full bg-secondary rounded-full h-2">
 					<div
@@ -159,12 +166,16 @@
 			>
 				Later
 			</Button>
-			<Button
-				onclick={handleDownloadAndInstall}
-				disabled={updateDialog.isDownloading}
-			>
-				{updateDialog.isDownloading ? 'Downloading...' : 'Download & Install'}
-			</Button>
+			{#if updateDialog.isDownloadComplete}
+				<Button onclick={() => relaunch()}>Restart Now</Button>
+			{:else}
+				<Button
+					onclick={handleDownloadAndInstall}
+					disabled={updateDialog.isDownloading}
+				>
+					{updateDialog.isDownloading ? 'Downloading...' : 'Download & Install'}
+				</Button>
+			{/if}
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

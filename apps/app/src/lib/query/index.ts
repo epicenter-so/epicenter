@@ -45,3 +45,6 @@ export const rpc = {
 	transformationRuns,
 	transformer,
 };
+
+// Export notify separately as it's not part of the rpc namespace
+export { notify } from './notify';

@@ -1,4 +1,4 @@
-import { toast } from '$lib/toast';
+import { notify } from '$lib/query';
 import { isTranscriptionServiceConfigured, getSelectedTranscriptionService } from '$lib/settings/transcription-validation';
 
 /**
@@ -9,13 +9,13 @@ export function registerOnboarding() {
 	const selectedService = getSelectedTranscriptionService();
 	
 	if (!selectedService) {
-		toast.info({
+		notify.info.execute({
 			title: 'Welcome to Whispering!',
 			description: 'Please select a transcription service to get started.',
 			action: {
 				type: 'link',
 				label: 'Configure',
-				goto: '/settings/transcription'
+				href: '/settings/transcription'
 			}
 		});
 		return;
@@ -24,13 +24,13 @@ export function registerOnboarding() {
 	if (!isTranscriptionServiceConfigured(selectedService)) {
 		const missingConfig = selectedService.type === 'api' ? `${selectedService.name} API key` : `${selectedService.name} server URL`;
 		
-		toast.info({
+		notify.info.execute({
 			title: 'Welcome to Whispering!',
 			description: `Please configure your ${missingConfig} to get started.`,
 			action: {
 				type: 'link',
 				label: 'Configure',
-				goto: '/settings/transcription'
+				href: '/settings/transcription'
 			}
 		});
 	}

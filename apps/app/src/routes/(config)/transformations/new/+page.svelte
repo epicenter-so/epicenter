@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { Editor } from '$lib/components/transformations-editor';
 
@@ -30,14 +30,14 @@
 					createTransformation.mutate($state.snapshot(transformation), {
 						onSuccess: () => {
 							goto('/transformations'),
-								toast.success({
+								notify.success.execute({
 									title: 'Created transformation!',
 									description:
 										'Your transformation has been created successfully.',
 								});
 						},
 						onError: (error) => {
-							toast.error({
+							notify.error.execute({
 								title: 'Failed to create transformation!',
 								description: 'Your transformation could not be created.',
 								action: { type: 'more-details', error },

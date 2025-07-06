@@ -1,18 +1,18 @@
 import type { Err, Ok } from 'wellcrafted/result';
 import type { TaggedError } from 'wellcrafted/error';
-import type { ToastAndNotifyOptions } from '$lib/toasts.js';
+import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
 
 export type WhisperingWarning = Omit<
 	TaggedError<'WhisperingWarning'>,
 	'message'
 > &
-	Omit<ToastAndNotifyOptions, 'variant'>;
+	Omit<UnifiedNotificationOptions, 'variant'>;
 
 export type WhisperingError = Omit<
 	TaggedError<'WhisperingError'>,
 	'message' | 'cause' | 'context'
 > &
-	Omit<ToastAndNotifyOptions, 'variant'>;
+	Omit<UnifiedNotificationOptions, 'variant'>;
 
 export type WhisperingResult<T> = Ok<T> | Err<WhisperingError>;
 

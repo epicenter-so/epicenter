@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { Layers2Icon, RotateCcw } from 'lucide-svelte';
 	import ShortcutFormatHelp from '../keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import ShortcutTable from '../keyboard-shortcut-recorder/ShortcutTable.svelte';
@@ -35,7 +35,7 @@
 				size="sm"
 				onclick={() => {
 					resetShortcutsToDefaults('global');
-					toast.success({
+					notify.success.execute({
 						title: 'Shortcuts reset',
 						description: 'All global shortcuts have been reset to defaults.',
 					});

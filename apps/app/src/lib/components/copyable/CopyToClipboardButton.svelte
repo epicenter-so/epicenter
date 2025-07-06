@@ -2,7 +2,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import type { Props } from '$lib/components/ui/button';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
@@ -57,13 +57,13 @@
 					setTimeout(() => {
 						hasCopied = false;
 					}, 2000);
-					toast.success({
+					notify.success.execute({
 						title: `Copied ${contentDescription} to clipboard!`,
 						description: textToCopy,
 					});
 				},
 				onError: (error) => {
-					toast.error({
+					notify.error.execute({
 						title: `Error copying ${contentDescription} to clipboard`,
 						description: error.message,
 						action: { type: 'more-details', error },

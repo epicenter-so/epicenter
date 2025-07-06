@@ -1,4 +1,4 @@
-import { toast } from '$lib/toast';
+import { notify } from '$lib/query';
 import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
 import { rpc } from './query';
 import { settings } from '$lib/stores/settings.svelte';
@@ -41,7 +41,7 @@ export async function deliverTranscribedText({
 		}
 	};
 	const showBasicToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText(null),
 			description: text,
@@ -53,13 +53,13 @@ export async function deliverTranscribedText({
 						text,
 					});
 					if (error) {
-						toast.error({
+						notify.error.execute({
 							title: 'Error copying transcribed text to clipboard',
 							description: error.message,
 							action: { type: 'more-details', error },
 						});
 					}
-					toast.success({
+					notify.success.execute({
 						id: toastId,
 						title: 'Copied transcribed text to clipboard!',
 						description: text,
@@ -69,26 +69,26 @@ export async function deliverTranscribedText({
 		});
 
 	const showCopiedToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED'),
 			description: text,
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
-				goto: WHISPERING_RECORDINGS_PATHNAME,
+				href: WHISPERING_RECORDINGS_PATHNAME,
 			},
 		});
 
 	const showCopiedAndPastedToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
 			description: text,
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
-				goto: WHISPERING_RECORDINGS_PATHNAME,
+				href: WHISPERING_RECORDINGS_PATHNAME,
 			},
 		});
 
@@ -104,7 +104,7 @@ export async function deliverTranscribedText({
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
-		toast.warning({
+		notify.warning.execute({
 			title: '⚠️ Copy Operation Failed',
 			description: 'Text could not be copied to clipboard automatically.',
 			action: { type: 'more-details', error: copyError },
@@ -124,7 +124,7 @@ export async function deliverTranscribedText({
 	});
 
 	if (pasteError) {
-		toast.warning({
+		notify.warning.execute({
 			title: '⚠️ Paste Operation Failed',
 			description:
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
@@ -177,7 +177,7 @@ export async function deliverTransformedText({
 	};
 
 	const showBasicToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText(null),
 			description: text,
@@ -189,13 +189,13 @@ export async function deliverTransformedText({
 						text,
 					});
 					if (error) {
-						toast.error({
+						notify.error.execute({
 							title: 'Error copying transformed text to clipboard',
 							description: error.message,
 							action: { type: 'more-details', error },
 						});
 					}
-					toast.success({
+					notify.success.execute({
 						id: toastId,
 						title: 'Copied transformed text to clipboard!',
 						description: text,
@@ -205,26 +205,26 @@ export async function deliverTransformedText({
 		});
 
 	const showCopiedToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED'),
 			description: text,
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
-				goto: WHISPERING_RECORDINGS_PATHNAME,
+				href: WHISPERING_RECORDINGS_PATHNAME,
 			},
 		});
 
 	const showCopiedAndPastedToast = () =>
-		toast.success({
+		notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
 			description: text,
 			action: {
 				type: 'link',
 				label: 'Go to recordings',
-				goto: WHISPERING_RECORDINGS_PATHNAME,
+				href: WHISPERING_RECORDINGS_PATHNAME,
 			},
 		});
 
@@ -240,7 +240,7 @@ export async function deliverTransformedText({
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
-		toast.warning({
+		notify.warning.execute({
 			title: '⚠️ Copy Operation Failed',
 			description: 'Text could not be copied to clipboard automatically.',
 			action: { type: 'more-details', error: copyError },
@@ -260,7 +260,7 @@ export async function deliverTransformedText({
 	});
 
 	if (pasteError) {
-		toast.warning({
+		notify.warning.execute({
 			title: '⚠️ Paste Operation Failed',
 			description:
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',

@@ -4,7 +4,7 @@
 	import { TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { rpc } from '$lib/query';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';
 
@@ -38,14 +38,14 @@
 					onConfirm: () =>
 						deleteTransformation.mutate(transformation, {
 							onSuccess: () => {
-								toast.success({
+								notify.success.execute({
 									title: 'Deleted transformation!',
 									description:
 										'Your transformation has been deleted successfully.',
 								});
 							},
 							onError: (error) => {
-								toast.error({
+								notify.error.execute({
 									title: 'Failed to delete transformation!',
 									description: 'Your transformation could not be deleted.',
 									action: { type: 'more-details', error },

@@ -4,7 +4,7 @@ import {
 	getDefaultSettings,
 	parseStoredSettings,
 } from '$lib/settings/settings';
-import { toast } from '$lib/toast';
+import { notify } from '$lib/query';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 
 export const settings = createPersistedState({
@@ -37,10 +37,10 @@ export const settings = createPersistedState({
 		return getDefaultSettings();
 	},
 	onUpdateSuccess: () => {
-		toast.success({ title: 'Settings updated!', description: '' });
+		notify.success.execute({ title: 'Settings updated!', description: '' });
 	},
 	onUpdateError: (err) => {
-		toast.error({
+		notify.error.execute({
 			title: 'Error updating settings',
 			description: err instanceof Error ? err.message : 'Unknown error',
 		});

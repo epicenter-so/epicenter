@@ -36,7 +36,7 @@
 	import CreateTransformationButton from './CreateTransformationButton.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import TransformationRowActions from './TransformationRowActions.svelte';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,
@@ -225,17 +225,18 @@
 								selectedTransformationRows.map(({ original }) => original),
 								{
 									onSuccess: () => {
-										toast.success({
+										notify.success.execute({
 											title: 'Deleted transformations!',
 											description:
 												'Your transformations have been deleted successfully.',
 										});
 									},
 									onError: (error) => {
-										toast.error({
+										notify.error.execute({
 											title: 'Failed to delete transformations!',
-											description: 'Your transformations could not be deleted.',
-											action: { type: 'more-details', error },
+											description:
+												'Your transformations could not be deleted.',
+											action: { type: 'more-details', error: error },
 										});
 									},
 								},

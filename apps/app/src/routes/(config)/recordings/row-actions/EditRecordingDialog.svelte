@@ -12,7 +12,7 @@
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 
 	const updateRecording = createMutation(
 		rpc.recordings.updateRecording.options,
@@ -203,17 +203,17 @@
 							deleteRecording.mutate($state.snapshot(recording), {
 								onSuccess: () => {
 									isDialogOpen = false;
-									toast.success({
+									notify.success.execute({
 										title: 'Deleted recording!',
 										description:
 											'Your recording has been deleted successfully.',
 									});
 								},
 								onError: (error) => {
-									toast.error({
+									notify.error.execute({
 										title: 'Failed to delete recording!',
 										description: 'Your recording could not be deleted.',
-										action: { type: 'more-details', error },
+										action: { type: 'more-details', error: error },
 									});
 								},
 							});
@@ -235,17 +235,17 @@
 				onclick={() => {
 					updateRecording.mutate($state.snapshot(workingCopy), {
 						onSuccess: () => {
-							toast.success({
+							notify.success.execute({
 								title: 'Updated recording!',
 								description: 'Your recording has been updated successfully.',
 							});
 							isDialogOpen = false;
 						},
 						onError: (error) => {
-							toast.error({
+							notify.error.execute({
 								title: 'Failed to update recording!',
 								description: 'Your recording could not be updated.',
-								action: { type: 'more-details', error },
+								action: { type: 'more-details', error: error },
 							});
 						},
 					});

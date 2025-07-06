@@ -7,7 +7,11 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
-import type { NotificationService, NotificationServiceError } from '.';
+import type {
+	NotificationService,
+	NotificationServiceError,
+	UnifiedNotificationOptions,
+} from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (
@@ -43,7 +47,8 @@ export function createNotificationServiceDesktop(): NotificationService {
 	};
 
 	return {
-		async notify({ id: idStringified = nanoid(), title, description }) {
+		async notify(options: UnifiedNotificationOptions) {
+			const idStringified = options.id ?? nanoid();
 			const id = stringToNumber(idStringified);
 
 			await removeNotificationById(id);
@@ -56,13 +61,25 @@ export function createNotificationServiceDesktop(): NotificationService {
 						permissionGranted = permission === 'granted';
 					}
 					if (permissionGranted) {
-						sendNotification({ id: id, title, body: description });
+						sendNotification({
+							id: id,
+							title: options.title,
+							body: options.description,
+							// Map UnifiedNotificationOptions to Tauri Options
+							icon: options.icon,
+							silent: options.silent,
+							autoCancel: !options.requireInteraction,
+						});
 					}
 				},
 				mapError: (error): NotificationServiceError => ({
 					name: 'NotificationServiceError',
 					message: 'Could not send notification',
-					context: { idStringified, title, description },
+					context: {
+						idStringified,
+						title: options.title,
+						description: options.description,
+					},
 					cause: error,
 				}),
 			});

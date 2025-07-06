@@ -1,6 +1,6 @@
 import type { Recording } from '$lib/services/db';
 import * as services from '$lib/services';
-import { toast } from '$lib/toast';
+import { notify } from './notify';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
 import type { WhisperingError } from '$lib/result';
@@ -38,7 +38,7 @@ export const transcription = {
 					transcriptionStatus: 'TRANSCRIBING',
 				});
 			if (setRecordingTranscribingError) {
-				toast.warning({
+				notify.warning.execute({
 					title:
 						'⚠️ Unable to set recording transcription status to transcribing',
 					description: 'Continuing with the transcription process...',
@@ -57,7 +57,7 @@ export const transcription = {
 						transcriptionStatus: 'FAILED',
 					});
 				if (setRecordingTranscribingError) {
-					toast.warning({
+					notify.warning.execute({
 						title: '⚠️ Unable to update recording after transcription',
 						description:
 							"Transcription failed but unable to update recording's transcription status in database",
@@ -77,7 +77,7 @@ export const transcription = {
 					transcriptionStatus: 'DONE',
 				});
 			if (setRecordingTranscribedTextError) {
-				toast.warning({
+				notify.warning.execute({
 					title: '⚠️ Unable to update recording after transcription',
 					description:
 						"Transcription completed but unable to update recording's transcribed text and status in database",

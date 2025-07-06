@@ -1,7 +1,7 @@
 import { queryClient } from '$lib/query';
 import * as services from '$lib/services';
 import type { Transformation } from '$lib/services/db/models';
-import { toast } from '$lib/toast';
+import { notify } from './notify';
 import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from 'wellcrafted/result';
 import type { Accessor } from '@tanstack/svelte-query';
@@ -104,9 +104,9 @@ export const transformations = {
 						transformation,
 					);
 
-					toast.success({
+					notify.success.execute({
 						title: 'Updated transformation!',
-						description: 'Your transformation has been updated successfully.',
+						message: 'Your transformation has been updated successfully.',
 					});
 
 					return Ok(data);

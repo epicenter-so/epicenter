@@ -22,7 +22,7 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
@@ -363,7 +363,7 @@
 						disabled={transcribeRecordings.isPending}
 						onclick={() => {
 							const toastId = nanoid();
-							toast.loading({
+							notify.loading.execute({
 								id: toastId,
 								title: 'Transcribing queries.recordings...',
 								description: 'This may take a while.',
@@ -375,7 +375,7 @@
 										const isAllSuccessful = errs.length === 0;
 										if (isAllSuccessful) {
 											const n = oks.length;
-											toast.success({
+											notify.success.execute({
 												id: toastId,
 												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
 												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
@@ -385,7 +385,7 @@
 										const isAllFailed = oks.length === 0;
 										if (isAllFailed) {
 											const n = errs.length;
-											toast.error({
+											notify.error.execute({
 												id: toastId,
 												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
 												description:
@@ -397,7 +397,7 @@
 											return;
 										}
 										// Mixed results
-										toast.warning({
+										notify.warning.execute({
 											id: toastId,
 											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
 											description: `${oks.length} succeeded, ${errs.length} failed.`,
@@ -479,17 +479,17 @@
 											{
 												onSuccess: () => {
 													isDialogOpen = false;
-													toast.success({
+													notify.success.execute({
 														title: 'Copied transcribed texts to clipboard!',
 														description: joinedTranscriptionsText,
 													});
 												},
 												onError: (error) => {
-													toast.error({
+													notify.error.execute({
 														title:
 															'Error copying transcribed texts to clipboard',
 														description: error.message,
-														action: { type: 'more-details', error },
+														action: { type: 'more-details', error: error },
 													});
 												},
 											},
@@ -517,17 +517,17 @@
 										selectedRecordingRows.map(({ original }) => original),
 										{
 											onSuccess: () => {
-												toast.success({
+												notify.success.execute({
 													title: 'Deleted recordings!',
 													description:
 														'Your recordings have been deleted successfully.',
 												});
 											},
 											onError: (error) => {
-												toast.error({
+												notify.error.execute({
 													title: 'Failed to delete recordings!',
 													description: 'Your recordings could not be deleted.',
-													action: { type: 'more-details', error },
+													action: { type: 'more-details', error: error },
 												});
 											},
 										},

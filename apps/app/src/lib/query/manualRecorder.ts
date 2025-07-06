@@ -1,5 +1,5 @@
 import * as services from '$lib/services';
-import { toast } from '$lib/toast';
+import { notify } from './notify';
 import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { defineMutation, defineQuery, stopAllRecordingModesExcept } from './_utils';
 import { queryClient } from './index';
@@ -36,7 +36,7 @@ export const manualRecorder = {
 				settings.value = { ...settings.value, 'recording.mode': 'manual' };
 			}
 			return services.manualRecorder.startRecording(recordingSettings, {
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			});
 		},
 		onSettled: invalidateRecorderState,
@@ -46,7 +46,7 @@ export const manualRecorder = {
 		mutationKey: recorderKeys.stopRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
 			services.manualRecorder.stopRecording({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,
 	}),
@@ -55,7 +55,7 @@ export const manualRecorder = {
 		mutationKey: recorderKeys.cancelRecording,
 		resultMutationFn: ({ toastId }: { toastId: string }) =>
 			services.manualRecorder.cancelRecording({
-				sendStatus: (options) => toast.loading({ id: toastId, ...options }),
+				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			}),
 		onSettled: invalidateRecorderState,
 	}),

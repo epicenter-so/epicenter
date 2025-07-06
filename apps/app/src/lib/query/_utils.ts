@@ -181,9 +181,9 @@ export function defineQuery<
  * async function saveRecording(data: Recording) {
  *   const { error } = await createRecording.execute(data);
  *   if (error) {
- *     toast.error({ title: 'Failed to save', description: error.message });
+ *     notify.error.execute({ title: 'Failed to save', description: error.message });
  *   } else {
- *     toast.success({ title: 'Recording saved!' });
+ *     notify.success.execute({ title: 'Recording saved!' });
  *   }
  * }
  * ```
@@ -236,7 +236,7 @@ export function defineMutation<TData, TError, TVariables, TContext>(
 		 * async function handleSubmit(formData: FormData) {
 		 *   const { data, error } = await createUser.execute(formData);
 		 *   if (error) {
-		 *     toast.error({ title: 'Failed to create user', description: error.message });
+		 *     notify.error.execute({ title: 'Failed to create user', description: error.message });
 		 *     return;
 		 *   }
 		 *   goto(`/users/${data.id}`);

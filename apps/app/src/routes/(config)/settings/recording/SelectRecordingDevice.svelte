@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
 	import type { DeviceEnumerationStrategy } from '$lib/query/device';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
@@ -21,7 +21,7 @@
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			toast.warning({
+			notify.warning.execute({
 				title: 'Error loading devices',
 				description: getDevicesQuery.error.message,
 			});

@@ -5,7 +5,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
-	import { toast } from '$lib/toast';
+	import { notify } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
 	import { Editor } from '$lib/components/transformations-editor';
@@ -72,14 +72,14 @@
 						onSuccess: () => {
 							isDialogOpen = false;
 							transformation = generateDefaultTransformation();
-							toast.success({
+							notify.success.execute({
 								title: 'Created transformation!',
 								description:
 									'Your transformation has been created successfully.',
 							});
 						},
 						onError: (error) => {
-							toast.error({
+							notify.error.execute({
 								title: 'Failed to create transformation!',
 								description: 'Your transformation could not be created.',
 								action: { type: 'more-details', error },

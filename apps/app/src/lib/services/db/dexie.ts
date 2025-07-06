@@ -1,6 +1,6 @@
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import type { DownloadService } from '$lib/services/download';
-import { toast } from '$lib/toast';
+import { notify } from '$lib/query';
 import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
@@ -100,13 +100,13 @@ class WhisperingDatabase extends Dexie {
 										blob,
 									});
 								if (downloadError) {
-									toast.error({
+									notify.error.execute({
 										title: 'Failed to download IndexedDB dump!',
 										description: 'Your IndexedDB dump could not be downloaded.',
 										action: { type: 'more-details', error: downloadError },
 									});
 								} else {
-									toast.success({
+									notify.success.execute({
 										title: 'IndexedDB dump downloaded!',
 										description: 'Your IndexedDB dump is being downloaded.',
 									});
@@ -120,7 +120,7 @@ class WhisperingDatabase extends Dexie {
 								try {
 									// Delete the database
 									await this.delete();
-									toast.success({
+									notify.success.execute({
 										title: 'Database Deleted',
 										description:
 											'The database has been successfully deleted. Please refresh the page.',
@@ -135,7 +135,7 @@ class WhisperingDatabase extends Dexie {
 								} catch (err) {
 									const error =
 										err instanceof Error ? err : new Error(String(err));
-									toast.error({
+									notify.error.execute({
 										title: 'Failed to Delete Database',
 										description:
 											'There was an error deleting the database. Please try again.',
