@@ -50,7 +50,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 	return {
 		async notify(options: UnifiedNotificationOptions) {
 			const idStringified = options.id ?? nanoid();
-			const id = stringToNumber(idStringified);
+			const id = hashNanoidToNumber(idStringified);
 
 			await removeNotificationById(id);
 
@@ -85,15 +85,26 @@ export function createNotificationServiceDesktop(): NotificationService {
 		},
 		clear: async (idStringified) => {
 			const removeNotificationResult = await removeNotificationById(
-				stringToNumber(idStringified),
+				hashNanoidToNumber(idStringified),
 			);
 			return removeNotificationResult;
 		},
 	};
 }
 
-// Note: stringToNumber is now imported from types.ts via toTauriNotification
-function stringToNumber(str: string): number {
+/**
+ * Converts a nanoid string to a numeric ID for Tauri notifications.
+ * 
+ * This function takes a nanoid (alphanumeric random string like "V1StGXR8_Z5jdHi6B-myT")
+ * and converts it to a numeric hash. This is necessary because Tauri's notification
+ * API requires numeric IDs, while we use nanoid strings for consistency with web APIs.
+ * 
+ * Note: This is NOT parsing a stringified number - it's hashing an alphanumeric string.
+ * 
+ * @param str - A nanoid string (e.g., "V1StGXR8_Z5jdHi6B-myT")
+ * @returns A positive integer hash of the string
+ */
+function hashNanoidToNumber(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
 		const char = str.charCodeAt(i);
