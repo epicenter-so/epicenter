@@ -30,14 +30,8 @@ const DB_NAME = 'RecordingDB';
 
 class WhisperingDatabase extends Dexie {
 	recordings!: Dexie.Table<RecordingsDbSchemaV5['recordings'], string>;
-	transformations!: Dexie.Table<
-		RecordingsDbSchemaV5['transformations'],
-		string
-	>;
-	transformationRuns!: Dexie.Table<
-		RecordingsDbSchemaV5['transformationRuns'],
-		string
-	>;
+	transformations!: Dexie.Table<Transformation, string>;
+	transformationRuns!: Dexie.Table<TransformationRun, string>;
 
 	constructor({ DownloadService }: { DownloadService: DownloadService }) {
 		super(DB_NAME);
