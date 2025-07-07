@@ -163,7 +163,7 @@ No installation needed! Works in any modern browser.
 
 Right now, I personally use **Groq** for almost all my transcriptions.
 
-> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour)
+> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
 2. Sign up → Create API key → Copy it
