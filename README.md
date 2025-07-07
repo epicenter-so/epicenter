@@ -202,9 +202,9 @@ Right now, I personally use **Groq** for almost all my transcriptions.
 This happens due to macOS App Nap, which suspends background apps to save battery.
 
 **Quick fixes:**
-1. Bring Whispering to the foreground briefly to restore shortcuts
-2. Keep the app window in the foreground (even as a smaller window)
-3. Use Voice Activated mode for hands-free operation
+1. Use Voice Activated mode for hands-free operation (recommended)
+2. Bring Whispering to the foreground briefly to restore shortcuts
+3. Keep the app window in the foreground (even as a smaller window)
 
 **Best practice:** Keep Whispering in the foreground in front of other apps. You can resize it to a smaller window or use Voice Activated mode for minimal disruption.
 
@@ -264,7 +264,7 @@ Choose from multiple transcription providers based on your needs for speed, accu
 
 #### 🎯 OpenAI
 - **API Key:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) ([Enable billing](https://platform.openai.com/settings/organization/billing/overview))
-- **Models:** `whisper-1` ($0.36/hr), `gpt-4o-transcribe` ($0.60/hr), `gpt-4o-mini-transcribe` ($0.18/hr)
+- **Models:** `whisper-1` ($0.36/hr), `gpt-4o-transcribe` ($0.36/hr), `gpt-4o-mini-transcribe` ($0.18/hr)
 - **Why:** Industry standard
 
 #### 🎙️ ElevenLabs
@@ -475,7 +475,7 @@ No catch. I built this for myself and use it daily. I believe essential tools sh
 
 ### What's the technical stack?
 
-Built with Svelte 5 (using new runes) + Tauri for native performance. ~50MB download, instant startup, low memory usage. The codebase showcases modern patterns and is great for learning. For a deep dive into the architecture, see the [Architecture section](#architecture-deep-dive).
+Built with Svelte 5 (using new runes) + Tauri for native performance. Lightweight bundle (~22MB on macOS), instant startup, low memory usage. The codebase showcases modern patterns and is great for learning. For a deep dive into the architecture, see the [Architecture section](#architecture-deep-dive).
 
 ### Can I use this offline?
 
@@ -714,6 +714,25 @@ Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspir
 3. Make your changes and commit them
 4. Push to your fork: `git push origin your-branch-name`
 5. Create a pull request
+
+#### Version Bumping
+When preparing a new release, use our version bumping script to update all necessary files:
+
+```bash
+# Update version across all project files
+bun run bump-version <new-version>
+
+# Example:
+bun run bump-version 7.0.1
+```
+
+This script automatically updates:
+- Root `package.json`
+- App `package.json`
+- Tauri configuration (`tauri.conf.json`)
+- Cargo manifest (`Cargo.toml`)
+
+After running the script, follow the displayed instructions to commit, tag, and push the changes.
 
 #### Good First Issues
 - UI/UX improvements and accessibility enhancements

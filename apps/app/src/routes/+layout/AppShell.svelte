@@ -7,13 +7,13 @@
 	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
+	import { settings } from '$lib/stores/settings.svelte';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
 	import { checkForUpdates } from './check-for-updates';
 	import {
 		resetGlobalShortcutsToDefaultIfDuplicates,
@@ -23,7 +23,6 @@
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.manualRecorder.getRecorderState.options,
@@ -46,8 +45,6 @@
 		}
 	});
 
-
-	closeToTrayIfEnabled();
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
