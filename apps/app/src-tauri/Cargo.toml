@@ -1,6 +1,6 @@
 [package]
 name = "whispering"
-version = "7.0.0"
+version = "7.0.1"
 description = "A Tauri App"
 authors = ["you"]
 repository = "https://github.com/braden-w/whispering"

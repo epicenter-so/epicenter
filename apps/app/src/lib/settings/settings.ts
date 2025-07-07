@@ -96,7 +96,6 @@ export const settingsSchema = z.object({
 	'transformation.clipboard.copyOnSuccess': z.boolean().default(true),
 	'transformation.clipboard.pasteOnSuccess': z.boolean().default(false),
 
-	'system.closeToTray': z.boolean().default(false),
 	'system.alwaysOnTop': z.enum(ALWAYS_ON_TOP_VALUES).default('Never'),
 
 	'database.recordingRetentionStrategy': z
