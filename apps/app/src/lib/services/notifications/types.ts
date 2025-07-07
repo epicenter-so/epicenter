@@ -1,5 +1,5 @@
 import type { Result } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
 
 /**
@@ -15,7 +15,10 @@ import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-not
  * - Extension (Future): Chrome extension API, full action support
  */
 
-export type NotificationServiceError = TaggedError<'NotificationServiceError'>;
+const { NotificationServiceError, NotificationServiceErr } =
+	createTaggedError('NotificationServiceError');
+export type NotificationServiceError = ReturnType<typeof NotificationServiceError>;
+export { NotificationServiceError, NotificationServiceErr };
 
 /**
  * Link action for internal navigation

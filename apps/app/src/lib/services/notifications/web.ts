@@ -1,6 +1,10 @@
 import { Ok, Err, tryAsync } from 'wellcrafted/result';
 import type { NotificationService, UnifiedNotificationOptions } from './types';
-import { toBrowserNotification, toExtensionNotification } from './types';
+import {
+	toBrowserNotification,
+	toExtensionNotification,
+	NotificationServiceErr,
+} from './types';
 import { nanoid } from 'nanoid/non-secure';
 
 export function createNotificationServiceWeb(): NotificationService {
@@ -76,12 +80,12 @@ export function createNotificationServiceWeb(): NotificationService {
 						};
 					}
 				},
-				mapError: (error) => ({
-					name: 'NotificationServiceError' as const,
-					message: 'Failed to send browser notification',
-					context: { notificationId, title: options.title },
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceErr({
+						message: 'Failed to send browser notification',
+						context: { notificationId, title: options.title },
+						cause: error,
+					}),
 			});
 
 			if (error) return Err(error);

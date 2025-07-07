@@ -12,15 +12,16 @@ import {
 	Ok,
 	type Result,
 } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
-import { extractErrorMessage } from 'wellcrafted/error';
-import type { WhisperingError, WhisperingResult } from '$lib/result';
+import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
+import { WhisperingError, type WhisperingResult } from '$lib/result';
 import { defineMutation } from './_utils';
 import { queryClient } from './index';
 import { transformationRunKeys } from './transformation-runs';
 import { transformationsKeys } from './transformations';
 
-type TransformServiceError = TaggedError<'TransformServiceError'>;
+const { TransformServiceError, TransformServiceErr } =
+	createTaggedError('TransformServiceError');
+type TransformServiceError = ReturnType<typeof TransformServiceError>;
 
 const transformerKeys = {
 	transformInput: ['transformer', 'transformInput'] as const,
@@ -48,28 +49,25 @@ export const transformer = {
 					});
 
 				if (transformationRunError)
-					return Err({
-						name: 'WhisperingError',
+					return Err(WhisperingError({
 						title: '⚠️ Transformation failed',
 						description: transformationRunError.message,
 						action: { type: 'more-details', error: transformationRunError },
-					});
+					}));
 
 				if (transformationRun.status === 'failed') {
-					return Err({
-						name: 'WhisperingError',
+					return Err(WhisperingError({
 						title: '⚠️ Transformation failed',
 						description: transformationRun.error,
 						action: { type: 'more-details', error: transformationRun.error },
-					});
+					}));
 				}
 
 				if (!transformationRun.output) {
-					return Err({
-						name: 'WhisperingError',
+					return Err(WhisperingError({
 						title: '⚠️ Transformation produced no output',
 						description: 'The transformation completed but produced no output.',
-					});
+					}));
 				}
 
 				return Ok(transformationRun.output);
@@ -107,11 +105,10 @@ export const transformer = {
 			const { data: recording, error: getRecordingError } =
 				await services.db.getRecordingById(recordingId);
 			if (getRecordingError || !recording) {
-				return Err({
-					name: 'WhisperingError',
+				return Err(WhisperingError({
 					title: '⚠️ Recording not found',
 					description: 'Could not find the selected recording.',
-				});
+				}));
 			}
 
 			const { data: transformationRun, error: transformationRunError } =
@@ -122,12 +119,11 @@ export const transformer = {
 				});
 
 			if (transformationRunError)
-				return Err({
-					name: 'WhisperingError',
+				return Err(WhisperingError({
 					title: '⚠️ Transformation failed',
 					description: transformationRunError.message,
 					action: { type: 'more-details', error: transformationRunError },
-				});
+				}));
 
 			queryClient.invalidateQueries({
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
@@ -273,8 +269,7 @@ async function runTransformation({
 	>
 > {
 	if (!input.trim()) {
-		return Err({
-			name: 'TransformServiceError',
+		return TransformServiceErr({
 			message: 'Empty input. Please enter some text to transform',
 			cause: undefined,
 			context: { input, transformationId: transformation.id },
@@ -282,8 +277,7 @@ async function runTransformation({
 	}
 
 	if (transformation.steps.length === 0) {
-		return Err({
-			name: 'TransformServiceError',
+		return TransformServiceErr({
 			message:
 				'No steps configured. Please add at least one transformation step',
 			cause: undefined,
@@ -299,8 +293,7 @@ async function runTransformation({
 		});
 
 	if (createTransformationRunError)
-		return Err({
-			name: 'TransformServiceError',
+		return TransformServiceErr({
 			message: 'Unable to start transformation run',
 			cause: createTransformationRunError,
 			context: {
@@ -326,8 +319,7 @@ async function runTransformation({
 		});
 
 		if (addTransformationStepRunError)
-			return Err({
-				name: 'TransformServiceError',
+			return TransformServiceErr({
 				message: 'Unable to initialize transformation step',
 				cause: addTransformationStepRunError,
 				context: {
@@ -353,8 +345,7 @@ async function runTransformation({
 				error: handleStepResult.error,
 			});
 			if (markTransformationRunAndRunStepAsFailedError)
-				return Err({
-					name: 'TransformServiceError',
+				return TransformServiceErr({
 					message: 'Unable to save failed transformation step result',
 					cause: markTransformationRunAndRunStepAsFailedError,
 					context: {
@@ -377,8 +368,7 @@ async function runTransformation({
 			});
 
 		if (markTransformationRunStepAsCompletedError)
-			return Err({
-				name: 'TransformServiceError',
+			return TransformServiceErr({
 				message: 'Unable to save completed transformation step result',
 				cause: markTransformationRunStepAsCompletedError,
 				context: {
@@ -401,8 +391,7 @@ async function runTransformation({
 	});
 
 	if (markTransformationRunAsCompletedError)
-		return Err({
-			name: 'TransformServiceError',
+		return TransformServiceErr({
 			message: 'Unable to save completed transformation run',
 			cause: markTransformationRunAsCompletedError,
 			context: {

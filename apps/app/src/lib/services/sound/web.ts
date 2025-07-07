@@ -14,12 +14,13 @@ export function createPlaySoundServiceWeb(): PlaySoundService {
 			// 	sound: soundName,
 			// });
 			// if (playSoundError) {
-			// 	return Err({
-			// 		name: 'PlaySoundServiceError',
-			// 		message: `We encountered an issue while playing the ${soundName} sound`,
-			// 		context: { soundName },
-			// 		cause: playSoundError,
-			// 	});
+			// 	return PlaySoundServiceErr(
+			// 		`We encountered an issue while playing the ${soundName} sound`,
+			// 		{
+			// 			context: { soundName },
+			// 			cause: playSoundError,
+			// 		}
+			// 	);
 			// }
 			return Ok(undefined);
 		},

@@ -1,5 +1,5 @@
 import type { Result } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import type { z } from 'zod';
 
 /**
@@ -15,7 +15,9 @@ import type { z } from 'zod';
  * // Result: ConnectionError
  * ```
  */
-export type ConnectionError = TaggedError<'ConnectionError'>;
+const { ConnectionError, ConnectionErr } = createTaggedError('ConnectionError');
+export type ConnectionError = ReturnType<typeof ConnectionError>;
+export { ConnectionError, ConnectionErr };
 
 /**
  * HTTP response with a non-2xx status code (4xx client errors, 5xx server errors).
@@ -30,10 +32,19 @@ export type ConnectionError = TaggedError<'ConnectionError'>;
  * // Result: ResponseError with status: 401, 404, 500, etc.
  * ```
  */
-export type ResponseError = TaggedError<'ResponseError'> & {
+const { ResponseError: ResponseErrorBase, ResponseErr: ResponseErrBase } = createTaggedError('ResponseError');
+export type ResponseError = ReturnType<typeof ResponseErrorBase> & {
 	/** HTTP status code (e.g., 400, 401, 404, 500) */
 	status: number;
 };
+export const ResponseError = (args: Omit<ResponseError, 'name'>) => ({
+	...ResponseErrorBase(args),
+	status: args.status,
+});
+export const ResponseErr = (args: Omit<ResponseError, 'name'>) => ({
+	data: null,
+	error: ResponseError(args),
+});
 
 /**
  * Failed to parse the response body as valid JSON or validate against the Zod schema.
@@ -48,7 +59,9 @@ export type ResponseError = TaggedError<'ResponseError'> & {
  * // Result: ParseError
  * ```
  */
-export type ParseError = TaggedError<'ParseError'>;
+const { ParseError, ParseErr } = createTaggedError('ParseError');
+export type ParseError = ReturnType<typeof ParseError>;
+export { ParseError, ParseErr };
 
 export type HttpServiceError = ConnectionError | ResponseError | ParseError;
 

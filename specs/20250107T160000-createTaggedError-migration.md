@@ -68,21 +68,21 @@ return VadRecorderServiceErr({
 - [x] local-shortcut-manager.ts - `LocalShortcutServiceError`
 - [x] tray.ts - `SetTrayIconServiceErrorProperties`
 - [x] clipboard/types.ts - `ClipboardServiceError`
-- [ ] completion/types.ts - `CompletionServiceError`
-- [ ] db/dexie.ts - `DbServiceError`
-- [ ] download/types.ts - `DownloadServiceError`
-- [ ] http/types.ts - `ConnectionError`, `ResponseError`, `ParseError`
-- [ ] notifications/types.ts - `NotificationServiceError`
-- [ ] os/types.ts - `OsServiceError`
-- [ ] sound/types.ts - `PlaySoundServiceError`
+- [x] completion/types.ts - `CompletionServiceError`
+- [x] db/dexie.ts - `DbServiceError`
+- [x] download/types.ts - `DownloadServiceError`
+- [x] http/types.ts - `ConnectionError`, `ResponseError`, `ParseError`
+- [x] notifications/types.ts - `NotificationServiceError`
+- [x] os/types.ts - `OsServiceError`
+- [x] sound/types.ts - `PlaySoundServiceError`
 
 ### Query Layer (1 file)
-- [ ] transformer.ts - `TransformServiceError`
+- [x] transformer.ts - `TransformServiceError`
 
 ### Core (1 file)
 - [ ] result.ts - `WhisperingWarning`, `WhisperingError` (special case - extends TaggedError)
 
 ### Utils (1 file)
-- [ ] createPersistedState.svelte.ts - `ParseJsonError`
+- [x] createPersistedState.svelte.ts - `ParseJsonError`
 
 Total: 20 error types across 19 files

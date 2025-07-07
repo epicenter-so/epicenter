@@ -1,7 +1,8 @@
 import { Err, tryAsync } from 'wellcrafted/result';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { fetch } from '@tauri-apps/plugin-http';
-import type { HttpService, ConnectionError, ParseError } from '.';
+import type { HttpService } from '.';
+import { ConnectionError, ResponseError, ParseError } from './types';
 
 export function createHttpServiceDesktop(): HttpService {
 	return {
@@ -13,8 +14,7 @@ export function createHttpServiceDesktop(): HttpService {
 						body,
 						headers: headers,
 					}),
-				mapError: (error): ConnectionError => ({
-					name: 'ConnectionError',
+				mapError: (error) => ConnectionError({
 					message: 'Failed to establish connection',
 					context: { url, body, headers },
 					cause: error,
@@ -23,13 +23,12 @@ export function createHttpServiceDesktop(): HttpService {
 			if (responseError) return Err(responseError);
 
 			if (!response.ok) {
-				return Err({
-					name: 'ResponseError',
+				return Err(ResponseError({
 					status: response.status,
 					message: extractErrorMessage(await response.json()),
 					context: { url, body, headers },
 					cause: responseError,
-				});
+				}));
 			}
 
 			const parseResult = await tryAsync({
@@ -37,8 +36,7 @@ export function createHttpServiceDesktop(): HttpService {
 					const json = await response.json();
 					return schema.parse(json);
 				},
-				mapError: (error): ParseError => ({
-					name: 'ParseError',
+				mapError: (error) => ParseError({
 					message: 'Failed to parse response',
 					context: { url, body, headers },
 					cause: error,

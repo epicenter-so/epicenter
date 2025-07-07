@@ -12,9 +12,12 @@ import { exit } from '@tauri-apps/plugin-process';
 
 const TRAY_ID = 'whispering-tray';
 
-const { SetTrayIconServiceError, SetTrayIconServiceErr } =
-	createTaggedError('SetTrayIconServiceError');
-export type SetTrayIconServiceErrorProperties = ReturnType<typeof SetTrayIconServiceError>;
+const { SetTrayIconServiceError, SetTrayIconServiceErr } = createTaggedError(
+	'SetTrayIconServiceError',
+);
+export type SetTrayIconServiceErrorProperties = ReturnType<
+	typeof SetTrayIconServiceError
+>;
 
 type SetTrayIconService = {
 	setTrayIcon: (
@@ -29,12 +32,11 @@ export function createTrayIconWebService(): SetTrayIconService {
 			// 	{ recorderState: icon },
 			// );
 			// if (setRecorderStateError)
-			// 	return Err({
-			// 		name: 'SetTrayIconServiceError',
+			// 	return SetTrayIconServiceErr({
 			// 		message: 'Failed to set recorder state',
 			// 		context: { icon },
 			// 		cause: setRecorderStateError,
-			// 	} as SetTrayIconServiceErrorProperties);
+			// 	});
 			return Ok(undefined);
 		},
 	};
@@ -50,11 +52,12 @@ export function createTrayIconDesktopService(): SetTrayIconService {
 					const tray = await trayPromise;
 					return tray.setIcon(iconPath);
 				},
-				mapError: (error) => SetTrayIconServiceError({
-					message: 'Failed to set tray icon',
-					context: { icon: recorderState },
-					cause: error,
-				}),
+				mapError: (error) =>
+					SetTrayIconServiceError({
+						message: 'Failed to set tray icon',
+						context: { icon: recorderState },
+						cause: error,
+					}),
 			}),
 	};
 }

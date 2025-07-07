@@ -9,6 +9,15 @@ export type {
 	ResponseError,
 } from './types';
 
+export {
+	ConnectionError,
+	ConnectionErr,
+	ResponseError,
+	ResponseErr,
+	ParseError,
+	ParseErr,
+} from './types';
+
 export const HttpServiceLive = window.__TAURI_INTERNALS__
 	? createHttpServiceDesktop()
 	: createHttpServiceWeb();

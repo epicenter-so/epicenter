@@ -12,7 +12,11 @@ import type {
 	NotificationServiceError,
 	UnifiedNotificationOptions,
 } from './types';
-import { toTauriNotification, hashNanoidToNumber } from './types';
+import {
+	toTauriNotification,
+	hashNanoidToNumber,
+	NotificationServiceErr,
+} from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (
@@ -21,12 +25,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 		const { data: activeNotifications, error: activeNotificationsError } =
 			await tryAsync({
 				try: async () => await active(),
-				mapError: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: 'Unable to retrieve active desktop notifications.',
-					context: { id },
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceErr({
+						message: 'Unable to retrieve active desktop notifications.',
+						context: { id },
+						cause: error,
+					}),
 			});
 		if (activeNotificationsError) return Err(activeNotificationsError);
 		const matchingActiveNotification = activeNotifications.find(
@@ -35,12 +39,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 		if (matchingActiveNotification) {
 			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
-				mapError: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: `Unable to remove notification with id ${id}.`,
-					context: { id, matchingActiveNotification },
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceErr({
+						message: `Unable to remove notification with id ${id}.`,
+						context: { id, matchingActiveNotification },
+						cause: error,
+					}),
 			});
 			if (removeActiveError) return Err(removeActiveError);
 		}
@@ -69,16 +73,16 @@ export function createNotificationServiceDesktop(): NotificationService {
 						});
 					}
 				},
-				mapError: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: 'Could not send notification',
-					context: {
-						idStringified,
-						title: options.title,
-						description: options.description,
-					},
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceErr({
+						message: 'Could not send notification',
+						context: {
+							idStringified,
+							title: options.title,
+							description: options.description,
+						},
+						cause: error,
+					}),
 			});
 			if (notifyError) return Err(notifyError);
 			return Ok(idStringified);
@@ -91,4 +95,3 @@ export function createNotificationServiceDesktop(): NotificationService {
 		},
 	};
 }
-

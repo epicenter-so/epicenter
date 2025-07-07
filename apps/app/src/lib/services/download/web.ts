@@ -1,5 +1,6 @@
 import { tryAsync } from 'wellcrafted/result';
-import type { DownloadService, DownloadServiceError } from '.';
+import type { DownloadService } from '.';
+import { DownloadServiceError } from './types';
 
 export function createDownloadServiceWeb(): DownloadService {
 	return {
@@ -16,13 +17,12 @@ export function createDownloadServiceWeb(): DownloadService {
 					document.body.removeChild(a);
 					URL.revokeObjectURL(url);
 				},
-				mapError: (error): DownloadServiceError => ({
-					name: 'DownloadServiceError',
-					message:
-						'There was an error saving the recording in your browser. Please try again.',
-					context: { name, blob },
-					cause: error,
-				}),
+				mapError: (error) =>
+					DownloadServiceError({
+						message: 'There was an error saving the recording in your browser. Please try again.',
+						context: { name, blob },
+						cause: error,
+					}),
 			}),
 	};
 }
