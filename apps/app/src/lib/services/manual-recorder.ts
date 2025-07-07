@@ -5,7 +5,7 @@ import {
 	type WhisperingRecordingState,
 } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import {
 	getRecordingStream,
 	cleanupRecordingStream,
@@ -14,7 +14,9 @@ import {
 	type DeviceAcquisitionOutcome,
 } from './device-stream';
 
-type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
+const { ManualRecorderServiceError, ManualRecorderServiceErr } =
+	createTaggedError('ManualRecorderServiceError');
+type ManualRecorderServiceError = ReturnType<typeof ManualRecorderServiceError>;
 
 type ActiveRecording = {
 	selectedDeviceId: string | null;
@@ -51,8 +53,7 @@ export function createManualRecorderService() {
 		> => {
 			// Ensure we're not already recording
 			if (activeRecording) {
-				return Err({
-					name: 'ManualRecorderServiceError',
+				return ManualRecorderServiceErr({
 					message:
 						'A recording is already in progress. Please stop the current recording before starting a new one.',
 					context: { activeRecording },
@@ -69,8 +70,7 @@ export function createManualRecorderService() {
 			const { data: streamResult, error: acquireStreamError } =
 				await getRecordingStream(selectedDeviceId, sendStatus);
 			if (acquireStreamError) {
-				return Err({
-					name: 'ManualRecorderServiceError',
+				return ManualRecorderServiceErr({
 					message: acquireStreamError.message,
 					context: acquireStreamError.context,
 					cause: acquireStreamError,
@@ -84,8 +84,7 @@ export function createManualRecorderService() {
 					new MediaRecorder(stream, {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
 					}),
-				mapError: (error): ManualRecorderServiceError => ({
-					name: 'ManualRecorderServiceError',
+				mapError: (error) => ManualRecorderServiceError({
 					message:
 						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
 					context: { selectedDeviceId, bitrateKbps },
@@ -129,8 +128,7 @@ export function createManualRecorderService() {
 			Result<Blob, ManualRecorderServiceError>
 		> => {
 			if (!activeRecording) {
-				return Err({
-					name: 'ManualRecorderServiceError',
+				return ManualRecorderServiceErr({
 					message:
 						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
 					context: { activeRecording },
@@ -158,8 +156,7 @@ export function createManualRecorderService() {
 						});
 						recording.mediaRecorder.stop();
 					}),
-				mapError: (error): ManualRecorderServiceError => ({
-					name: 'ManualRecorderServiceError',
+				mapError: (error) => ManualRecorderServiceError({
 					message:
 						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
 					context: {

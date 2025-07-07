@@ -1,8 +1,11 @@
 import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 
-type DeviceStreamServiceError = TaggedError<'DeviceStreamServiceError'>;
+const { DeviceStreamServiceError, DeviceStreamServiceErr } = createTaggedError(
+	'DeviceStreamServiceError',
+);
+type DeviceStreamServiceError = ReturnType<typeof DeviceStreamServiceError>;
 
 export type DeviceAcquisitionOutcome =
 	| {
@@ -61,8 +64,7 @@ export async function enumerateRecordingDevices(): Promise<
 			);
 			return audioInputDevices;
 		},
-		mapError: (error) => ({
-			name: 'DeviceStreamServiceError',
+		mapError: (error) => DeviceStreamServiceError({
 			message:
 				'We need permission to see your microphones. Check your browser settings and try again.',
 			context: { permissionRequired: 'microphone' },
@@ -86,8 +88,7 @@ export async function getStreamForDeviceId(recordingDeviceId: string) {
 			});
 			return stream;
 		},
-		mapError: (error): DeviceStreamServiceError => ({
-			name: 'DeviceStreamServiceError',
+		mapError: (error) => DeviceStreamServiceError({
 			message:
 				'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
 			context: {
@@ -148,8 +149,7 @@ export async function getRecordingStream(
 		const { data: recordingDevices, error: enumerateDevicesError } =
 			await enumerateRecordingDevices();
 		if (enumerateDevicesError)
-			return Err({
-				name: 'DeviceStreamServiceError',
+			return DeviceStreamServiceErr({
 				message:
 					'Error enumerating recording devices and acquiring first available stream. Please make sure you have given permission to access your audio devices',
 				cause: enumerateDevicesError,
@@ -164,8 +164,7 @@ export async function getRecordingStream(
 			}
 		}
 
-		return Err({
-			name: 'DeviceStreamServiceError',
+		return DeviceStreamServiceErr({
 			message: 'Unable to connect to any available microphone',
 			context: { recordingDevices },
 			cause: undefined,
@@ -179,8 +178,7 @@ export async function getRecordingStream(
 		const errorMessage = selectedDeviceId
 			? "We couldn't connect to any microphones. Make sure they're plugged in and try again!"
 			: "Hmm... We couldn't find any microphones to use. Check your connections and try again!";
-		return Err({
-			name: 'DeviceStreamServiceError',
+		return DeviceStreamServiceErr({
 			message: errorMessage,
 			context: { selectedDeviceId },
 			cause: getFallbackStreamError,

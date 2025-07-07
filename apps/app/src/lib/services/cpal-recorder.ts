@@ -1,12 +1,15 @@
 import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import type {
 	WhisperingRecordingState,
 	CancelRecordingResult,
 } from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 
-type CpalRecorderServiceError = TaggedError<'CpalRecorderServiceError'>;
+const { CpalRecorderServiceError, CpalRecorderServiceErr } = createTaggedError(
+	'CpalRecorderServiceError',
+);
+type CpalRecorderServiceError = ReturnType<typeof CpalRecorderServiceError>;
 
 type UpdateStatusMessageFn = (args: {
 	title: string;
@@ -30,8 +33,7 @@ export function createCpalRecorderService() {
 				'enumerate_recording_devices',
 			);
 		if (enumerateRecordingDevicesError) {
-			return Err({
-				name: 'CpalRecorderServiceError',
+			return CpalRecorderServiceErr({
 				message:
 					'We need permission to see your microphones. Check your browser settings and try again!',
 				cause: enumerateRecordingDevicesError,
@@ -47,8 +49,7 @@ export function createCpalRecorderService() {
 			const { data: recorderState, error: getRecorderStateError } =
 				await invoke<WhisperingRecordingState>('get_recorder_state');
 			if (getRecorderStateError)
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message:
 						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					action: { type: 'more-details', error: getRecorderStateError },
@@ -73,8 +74,7 @@ export function createCpalRecorderService() {
 			> => {
 				const fallbackDeviceCandidate = devices.at(0);
 				if (!fallbackDeviceCandidate)
-					return Err({
-						name: 'CpalRecorderServiceError',
+					return CpalRecorderServiceErr({
 						message: selectedDeviceId
 							? "We couldn't find the selected microphone. Make sure it's connected and try again!"
 							: "We couldn't find any microphones. Make sure they're connected and try again!",
@@ -143,8 +143,7 @@ export function createCpalRecorderService() {
 				{ deviceName },
 			);
 			if (initRecordingSessionError)
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message:
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
@@ -162,8 +161,7 @@ export function createCpalRecorderService() {
 			const { error: startRecordingError } =
 				await invoke<void>('start_recording');
 			if (startRecordingError)
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message:
 						'Unable to start recording. Please check your microphone and try again.',
 					context: { deviceName, deviceOutcome },
@@ -185,8 +183,7 @@ export function createCpalRecorderService() {
 				durationSeconds: number;
 			}>('stop_recording');
 			if (stopRecordingError) {
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message: 'Unable to save your recording. Please try again.',
 					context: { operation: 'stopRecording' },
 					cause: stopRecordingError,
@@ -225,8 +222,7 @@ export function createCpalRecorderService() {
 			const { data: recorderState, error: getStateError } =
 				await invoke<WhisperingRecordingState>('get_recorder_state');
 			if (getStateError) {
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message:
 						'Unable to check recording state. Please try closing the app and starting again.',
 					context: { operation: 'cancelRecording' },
@@ -245,8 +241,7 @@ export function createCpalRecorderService() {
 			});
 			const { error: cancelRecordingError } = await invoke('cancel_recording');
 			if (cancelRecordingError)
-				return Err({
-					name: 'CpalRecorderServiceError',
+				return CpalRecorderServiceErr({
 					message:
 						'Unable to cancel the recording. Please try closing the app and starting again.',
 					context: { recorderState },
