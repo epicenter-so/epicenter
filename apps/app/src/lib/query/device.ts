@@ -6,15 +6,15 @@ const deviceKeys = {
 	cpalDevices: ['device', 'cpalDevices'] as const,
 } as const;
 
-export type DeviceEnumerationStrategy = 'navigator' | 'cpal';
+export type DeviceEnumerationStrategy = 'navigator'; // | 'cpal';
 
 export const device = {
 	getDevices: (deviceEnumerationStrategy: DeviceEnumerationStrategy) =>
 		defineQuery({
 			queryKey: deviceKeys.mediaDevices,
 			resultQueryFn: () =>
-				deviceEnumerationStrategy === 'navigator'
-					? services.manualRecorder.enumerateRecordingDevices()
-					: services.cpalRecorder.enumerateRecordingDevices(),
+				// deviceEnumerationStrategy === 'navigator' ?
+				services.manualRecorder.enumerateRecordingDevices(),
+			// : services.cpalRecorder.enumerateRecordingDevices(),
 		}),
 };

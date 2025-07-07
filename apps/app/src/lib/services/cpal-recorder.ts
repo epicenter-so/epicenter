@@ -25,17 +25,14 @@ type DeviceAcquisitionOutcome =
 	  };
 
 export function createCpalRecorderService() {
-	const enumerateRecordingDevices = async (): Promise<
-		Result<{ deviceId: string; label: string }[], CpalRecorderServiceError>
-	> => {
+	const enumerateRecordingDevices = async () => {
 		const { data: deviceInfos, error: enumerateRecordingDevicesError } =
 			await invoke<{ deviceId: string; label: string }[]>(
 				'enumerate_recording_devices',
 			);
 		if (enumerateRecordingDevicesError) {
 			return CpalRecorderServiceErr({
-				message:
-					'We need permission to see your microphones. Check your browser settings and try again!',
+				message: 'Failed to enumerate recording devices',
 				cause: enumerateRecordingDevicesError,
 			});
 		}
@@ -52,7 +49,7 @@ export function createCpalRecorderService() {
 				return CpalRecorderServiceErr({
 					message:
 						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					action: { type: 'more-details', error: getRecorderStateError },
+					context: { error: getRecorderStateError },
 					cause: getRecorderStateError,
 				});
 			return Ok(recorderState);
