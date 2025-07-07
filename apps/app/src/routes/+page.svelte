@@ -79,10 +79,10 @@
 <main class="flex flex-1 flex-col items-center justify-center gap-4">
 	<div class="xs:flex hidden flex-col items-center gap-4">
 		<h1 class="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
-			Start recording
+			Whispering
 		</h1>
 		<p class="text-muted-foreground text-center">
-			Click the 🎙 button to start. Allow access to your microphone.
+			Press shortcut → speak → get text. Free and open source ❤️
 		</p>
 	</div>
 
@@ -90,12 +90,9 @@
 		type="single"
 		value={settings.value['recording.mode']}
 		class="max-w-sm sm:max-w-md lg:max-w-lg w-full"
-		onValueChange={(mode) => {
+		onValueChange={async (mode) => {
 			if (!mode) return;
-			settings.value = {
-				...settings.value,
-				'recording.mode': mode as RecordingMode,
-			};
+			await rpc.settings.switchRecordingMode.execute(mode as RecordingMode);
 		}}
 	>
 		{#each availableModes as option}

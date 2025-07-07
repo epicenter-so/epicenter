@@ -1,8 +1,8 @@
 import * as services from '$lib/services';
 import { notify } from './notify';
 import type { WhisperingRecordingState } from '$lib/constants/audio';
-import { defineMutation, defineQuery, stopAllRecordingModesExcept } from './_utils';
-import { queryClient } from './index';
+import { defineMutation, defineQuery } from './_utils';
+import { queryClient, rpc } from './index';
 import { settings } from '$lib/stores/settings.svelte';
 
 const recorderKeys = {
@@ -29,12 +29,9 @@ export const manualRecorder = {
 				selectedDeviceId: settings.value['recording.navigator.selectedDeviceId'],
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'] ?? '128',
 			};
-			// Stop any other recording modes before starting manual recording
-			await stopAllRecordingModesExcept('manual');
+			// Switch to manual mode (handles stopping other recordings)
+			await rpc.settings.switchRecordingMode.execute('manual');
 			
-			if (settings.value['recording.mode'] !== 'manual') {
-				settings.value = { ...settings.value, 'recording.mode': 'manual' };
-			}
 			return services.manualRecorder.startRecording(recordingSettings, {
 				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
 			});

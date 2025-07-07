@@ -26,6 +26,7 @@ import { vadRecorder } from './vadRecorder';
 import { sound } from './sound';
 import { notify } from './notify';
 import { delivery } from './delivery';
+import * as settings from './settings';
 
 /**
  * Unified namespace for all query operations.
@@ -48,4 +49,5 @@ export const rpc = {
 	transformer,
 	notify,
 	delivery,
+	settings,
 };
