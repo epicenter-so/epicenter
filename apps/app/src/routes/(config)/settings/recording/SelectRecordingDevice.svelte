@@ -2,7 +2,6 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
 	import type { DeviceEnumerationStrategy } from '$lib/query/device';
-	import { notify } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
@@ -21,7 +20,7 @@
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			notify.warning.execute({
+			rpc.notify.warning.execute({
 				title: 'Error loading devices',
 				description: getDevicesQuery.error.message,
 			});

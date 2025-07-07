@@ -62,7 +62,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { relaunch } from '@tauri-apps/plugin-process';
-	import { notify } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { AlertTriangle } from 'lucide-svelte';
 	import { extractErrorMessage } from 'wellcrafted/error';
@@ -87,7 +87,7 @@
 						updateDialog.updateProgress(downloaded, contentLength);
 						break;
 					case 'Finished':
-						notify.success.execute({
+						rpc.notify.success.execute({
 							title: 'Update installed successfully!',
 							description: 'Restart Whispering to apply the update.',
 							action: {
@@ -101,7 +101,7 @@
 			});
 		} catch (err) {
 			updateDialog.setError(extractErrorMessage(err));
-			notify.error.execute({
+			rpc.notify.error.execute({
 				title: 'Failed to install update',
 				description: extractErrorMessage(err),
 			});

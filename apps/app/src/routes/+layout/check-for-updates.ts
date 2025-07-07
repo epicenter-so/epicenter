@@ -1,22 +1,30 @@
-import { updateDialog, type UpdateInfo } from '$lib/components/UpdateDialog.svelte';
+import {
+	updateDialog,
+	type UpdateInfo,
+} from '$lib/components/UpdateDialog.svelte';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { check, type DownloadEvent } from '@tauri-apps/plugin-updater';
-import { toast } from 'svelte-sonner';
+import { rpc } from '$lib/query';
 
 export async function checkForUpdates() {
 	try {
 		// Use mock or real check based on configuration
 		const update = await (shouldUseMockUpdates() ? mockCheck() : check());
 		if (update) {
-			toast.info(`Update ${update.version} available`, {
+			rpc.notify.info.execute({
+				title: `Update ${update.version} available`,
+				description: 'A new version of Whispering is available.',
 				action: {
+					type: 'button',
 					label: 'View Update',
 					onClick: () => updateDialog.open(update),
 				},
+				// duration infinite
 			});
 		}
 	} catch (error) {
-		toast.error('Failed to check for updates', {
+		rpc.notify.error.execute({
+			title: 'Failed to check for updates',
 			description: extractErrorMessage(error),
 		});
 	}
@@ -30,10 +38,6 @@ export async function checkForUpdates() {
  *
  * @example
  * ```typescript
- * // To enable mock updates during development:
- * // 1. Set VITE_MOCK_UPDATES=true in your .env.local file
- * // 2. Or use URL parameter: http://localhost:5173/?mockUpdates=true
- *
  * const update = await (shouldUseMock ? mockCheck() : check());
  * ```
  *

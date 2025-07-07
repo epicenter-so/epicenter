@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import { notify } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { RotateCcw } from 'lucide-svelte';
 	import SidebarNav from './SidebarNav.svelte';
 	import { resetAllSettingsToDefaults } from './reset-all-settings-to-defaults';
@@ -79,7 +79,7 @@
 					confirmText: 'Reset Settings',
 					onConfirm: () => {
 						resetAllSettingsToDefaults();
-						notify.success.execute({
+						rpc.notify.success.execute({
 							title: 'Settings reset',
 							description: 'All settings have been reset to defaults.',
 						});

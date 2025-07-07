@@ -22,7 +22,6 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
-	import { notify } from '$lib/query';
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
@@ -363,7 +362,7 @@
 						disabled={transcribeRecordings.isPending}
 						onclick={() => {
 							const toastId = nanoid();
-							notify.loading.execute({
+							rpc.notify.loading.execute({
 								id: toastId,
 								title: 'Transcribing queries.recordings...',
 								description: 'This may take a while.',
@@ -375,7 +374,7 @@
 										const isAllSuccessful = errs.length === 0;
 										if (isAllSuccessful) {
 											const n = oks.length;
-											notify.success.execute({
+											rpc.notify.success.execute({
 												id: toastId,
 												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
 												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
@@ -385,7 +384,7 @@
 										const isAllFailed = oks.length === 0;
 										if (isAllFailed) {
 											const n = errs.length;
-											notify.error.execute({
+											rpc.notify.error.execute({
 												id: toastId,
 												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
 												description:
@@ -397,7 +396,7 @@
 											return;
 										}
 										// Mixed results
-										notify.warning.execute({
+										rpc.notify.warning.execute({
 											id: toastId,
 											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
 											description: `${oks.length} succeeded, ${errs.length} failed.`,
@@ -479,13 +478,13 @@
 											{
 												onSuccess: () => {
 													isDialogOpen = false;
-													notify.success.execute({
+													rpc.notify.success.execute({
 														title: 'Copied transcribed texts to clipboard!',
 														description: joinedTranscriptionsText,
 													});
 												},
 												onError: (error) => {
-													notify.error.execute({
+													rpc.notify.error.execute({
 														title:
 															'Error copying transcribed texts to clipboard',
 														description: error.message,
@@ -517,14 +516,14 @@
 										selectedRecordingRows.map(({ original }) => original),
 										{
 											onSuccess: () => {
-												notify.success.execute({
+												rpc.notify.success.execute({
 													title: 'Deleted recordings!',
 													description:
 														'Your recordings have been deleted successfully.',
 												});
 											},
 											onError: (error) => {
-												notify.error.execute({
+												rpc.notify.error.execute({
 													title: 'Failed to delete recordings!',
 													description: 'Your recordings could not be deleted.',
 													action: { type: 'more-details', error: error },

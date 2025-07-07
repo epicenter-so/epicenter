@@ -6,7 +6,6 @@
 	import { rpc } from '$lib/query';
 	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { notify } from '$lib/query';
 	import { cn } from '$lib/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from 'lucide-svelte';
@@ -42,7 +41,7 @@
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			notify.warning.execute({
+			rpc.notify.warning.execute({
 				title: 'Error loading devices',
 				description: getDevicesQuery.error.message,
 			});

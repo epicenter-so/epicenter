@@ -1,4 +1,4 @@
-import { notify } from '$lib/query';
+import { rpc } from '$lib/query';
 import { isTranscriptionServiceConfigured, getSelectedTranscriptionService } from '$lib/settings/transcription-validation';
 
 /**
@@ -9,7 +9,7 @@ export function registerOnboarding() {
 	const selectedService = getSelectedTranscriptionService();
 	
 	if (!selectedService) {
-		notify.info.execute({
+		rpc.notify.info.execute({
 			title: 'Welcome to Whispering!',
 			description: 'Please select a transcription service to get started.',
 			action: {
@@ -17,6 +17,7 @@ export function registerOnboarding() {
 				label: 'Configure',
 				href: '/settings/transcription'
 			}
+			// Duration infinite
 		});
 		return;
 	}
@@ -24,7 +25,7 @@ export function registerOnboarding() {
 	if (!isTranscriptionServiceConfigured(selectedService)) {
 		const missingConfig = selectedService.type === 'api' ? `${selectedService.name} API key` : `${selectedService.name} server URL`;
 		
-		notify.info.execute({
+		rpc.notify.info.execute({
 			title: 'Welcome to Whispering!',
 			description: `Please configure your ${missingConfig} to get started.`,
 			action: {

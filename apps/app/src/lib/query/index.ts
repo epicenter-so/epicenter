@@ -24,6 +24,8 @@ import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vadRecorder';
 import { sound } from './sound';
+import { notify } from './notify';
+import { delivery } from './delivery';
 
 /**
  * Unified namespace for all query operations.
@@ -44,7 +46,6 @@ export const rpc = {
 	transformations,
 	transformationRuns,
 	transformer,
+	notify,
+	delivery,
 };
-
-// Export notify separately as it's not part of the rpc namespace
-export { notify } from './notify';

@@ -4,7 +4,7 @@ import {
 	getDefaultSettings,
 	parseStoredSettings,
 } from '$lib/settings/settings';
-import { notify } from '$lib/query';
+import { rpc } from '$lib/query';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 
 export const settings = createPersistedState({
@@ -37,10 +37,10 @@ export const settings = createPersistedState({
 		return getDefaultSettings();
 	},
 	onUpdateSuccess: () => {
-		notify.success.execute({ title: 'Settings updated!', description: '' });
+		rpc.notify.success.execute({ title: 'Settings updated!', description: '' });
 	},
 	onUpdateError: (err) => {
-		notify.error.execute({
+		rpc.notify.error.execute({
 			title: 'Error updating settings',
 			description: err instanceof Error ? err.message : 'Unknown error',
 		});

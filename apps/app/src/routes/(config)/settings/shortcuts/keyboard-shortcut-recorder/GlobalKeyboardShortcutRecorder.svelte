@@ -7,7 +7,6 @@
 		type Accelerator,
 	} from '$lib/services/global-shortcut-manager';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { notify } from '$lib/query';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './create-key-recorder.svelte';
@@ -38,7 +37,7 @@
 					});
 
 				if (unregisterError) {
-					notify.error.execute({
+					rpc.notify.error.execute({
 						title: 'Failed to unregister shortcut',
 						description:
 							'Could not unregister the global shortcut. It may already be in use by another application.',
@@ -51,7 +50,7 @@
 				pressedKeysToTauriAccelerator(keyCombination);
 
 			if (acceleratorError) {
-				notify.error.execute({
+				rpc.notify.error.execute({
 					title: 'Invalid shortcut combination',
 					description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
 					action: { type: 'more-details', error: acceleratorError },
@@ -68,14 +67,14 @@
 			if (registerError) {
 				switch (registerError.name) {
 					case 'InvalidAcceleratorError':
-						notify.error.execute({
+						rpc.notify.error.execute({
 							title: 'Invalid shortcut combination',
 							description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
 							action: { type: 'more-details', error: registerError },
 						});
 						break;
 					default:
-						notify.error.execute({
+						rpc.notify.error.execute({
 							title: 'Failed to register shortcut',
 							description:
 								'Could not register the global shortcut. It may already be in use by another application.',
@@ -91,7 +90,7 @@
 				[`shortcuts.global.${command.id}`]: accelerator,
 			};
 
-			notify.success.execute({
+			rpc.notify.success.execute({
 				title: `Global shortcut set to ${accelerator}`,
 				description: `Press the shortcut to trigger "${command.title}"`,
 			});
@@ -103,7 +102,7 @@
 				});
 
 			if (unregisterError) {
-				notify.error.execute({
+				rpc.notify.error.execute({
 					title: 'Error clearing global shortcut',
 					description: unregisterError.message,
 					action: { type: 'more-details', error: unregisterError },
@@ -115,7 +114,7 @@
 				[`shortcuts.global.${command.id}`]: null,
 			};
 
-			notify.success.execute({
+			rpc.notify.success.execute({
 				title: 'Global shortcut cleared',
 				description: `Please set a new shortcut to trigger "${command.title}"`,
 			});

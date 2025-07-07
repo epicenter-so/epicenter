@@ -36,7 +36,6 @@
 	import CreateTransformationButton from './CreateTransformationButton.svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import TransformationRowActions from './TransformationRowActions.svelte';
-	import { notify } from '$lib/query';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,
@@ -225,14 +224,14 @@
 								selectedTransformationRows.map(({ original }) => original),
 								{
 									onSuccess: () => {
-										notify.success.execute({
+										rpc.notify.success.execute({
 											title: 'Deleted transformations!',
 											description:
 												'Your transformations have been deleted successfully.',
 										});
 									},
 									onError: (error) => {
-										notify.error.execute({
+										rpc.notify.error.execute({
 											title: 'Failed to delete transformations!',
 											description:
 												'Your transformations could not be deleted.',

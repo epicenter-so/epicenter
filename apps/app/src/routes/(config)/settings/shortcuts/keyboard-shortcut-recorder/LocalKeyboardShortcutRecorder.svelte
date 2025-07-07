@@ -7,7 +7,6 @@
 	} from '$lib/services/local-shortcut-manager';
 	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { notify } from '$lib/query';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
 	import { createKeyRecorder } from './create-key-recorder.svelte';
@@ -36,7 +35,7 @@
 					commandId: command.id as CommandId,
 				});
 			if (unregisterError) {
-				notify.error.execute({
+				rpc.notify.error.execute({
 					title: 'Error unregistering local shortcut',
 					description: unregisterError.message,
 					action: { type: 'more-details', error: unregisterError },
@@ -49,7 +48,7 @@
 				});
 
 			if (registerError) {
-				notify.error.execute({
+				rpc.notify.error.execute({
 					title: 'Error registering local shortcut',
 					description: registerError.message,
 					action: { type: 'more-details', error: registerError },
@@ -63,7 +62,7 @@
 					arrayToShortcutString(keyCombination),
 			};
 
-			notify.success.execute({
+			rpc.notify.success.execute({
 				title: `Local shortcut set to ${keyCombination}`,
 				description: `Press the shortcut to trigger "${command.title}"`,
 			});
@@ -74,7 +73,7 @@
 					commandId: command.id as CommandId,
 				});
 			if (unregisterError) {
-				notify.error.execute({
+				rpc.notify.error.execute({
 					title: 'Error clearing local shortcut',
 					description: unregisterError.message,
 					action: { type: 'more-details', error: unregisterError },
@@ -85,7 +84,7 @@
 				[`shortcuts.local.${command.id}`]: null,
 			};
 
-			notify.success.execute({
+			rpc.notify.success.execute({
 				title: 'Local shortcut cleared',
 				description: `Please set a new shortcut to trigger "${command.title}"`,
 			});

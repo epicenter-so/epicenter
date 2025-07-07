@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { notify, rpc } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 	import { createMutation } from '@tanstack/svelte-query';
@@ -92,13 +92,13 @@
 						{
 							onSuccess: () => {
 								isDialogOpen = false;
-								notify.success.execute({
+								rpc.notify.success.execute({
 									title: `Copied ${title.toLowerCase()} to clipboard!`,
 									description: text,
 								});
 							},
 							onError: (error) => {
-								notify.error.execute({
+								rpc.notify.error.execute({
 									title: `Error copying ${title.toLowerCase()} to clipboard`,
 									description: error.message,
 									action: { type: 'more-details', error },

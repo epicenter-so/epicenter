@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { notify } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { RotateCcw } from 'lucide-svelte';
 	import ShortcutFormatHelp from '../keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import ShortcutTable from '../keyboard-shortcut-recorder/ShortcutTable.svelte';
@@ -33,7 +33,7 @@
 			size="sm"
 			onclick={() => {
 				resetShortcutsToDefaults('local');
-				notify.success.execute({
+				rpc.notify.success.execute({
 					title: 'Shortcuts reset',
 					description: 'All local shortcuts have been reset to defaults.',
 				});

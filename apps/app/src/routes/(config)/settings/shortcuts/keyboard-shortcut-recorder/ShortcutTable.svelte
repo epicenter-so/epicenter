@@ -6,7 +6,7 @@
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
-	import { notify } from '$lib/query';
+	import { rpc } from '$lib/query';
 	import { getDefaultSettings } from '$lib/settings';
 
 	let { type }: { type: 'local' | 'global' } = $props();
@@ -23,7 +23,7 @@
 
 	const pressedKeys = createPressedKeys({
 		onUnsupportedKey: (key) => {
-			notify.warning.execute({
+			rpc.notify.warning.execute({
 				title: 'Unsupported key',
 				description: `The key "${key}" is not supported. Please try a different key.`,
 			});

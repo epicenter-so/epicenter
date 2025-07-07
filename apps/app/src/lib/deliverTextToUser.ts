@@ -1,4 +1,3 @@
-import { notify } from '$lib/query';
 import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
 import { rpc } from './query';
 import { settings } from '$lib/stores/settings.svelte';
@@ -41,7 +40,7 @@ export async function deliverTranscribedText({
 		}
 	};
 	const showBasicToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText(null),
 			description: text,
@@ -53,13 +52,13 @@ export async function deliverTranscribedText({
 						text,
 					});
 					if (error) {
-						notify.error.execute({
+						rpc.notify.error.execute({
 							title: 'Error copying transcribed text to clipboard',
 							description: error.message,
 							action: { type: 'more-details', error },
 						});
 					}
-					notify.success.execute({
+					rpc.notify.success.execute({
 						id: toastId,
 						title: 'Copied transcribed text to clipboard!',
 						description: text,
@@ -69,7 +68,7 @@ export async function deliverTranscribedText({
 		});
 
 	const showCopiedToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED'),
 			description: text,
@@ -81,7 +80,7 @@ export async function deliverTranscribedText({
 		});
 
 	const showCopiedAndPastedToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
 			description: text,
@@ -104,7 +103,7 @@ export async function deliverTranscribedText({
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
-		notify.warning.execute({
+		rpc.notify.warning.execute({
 			title: '⚠️ Copy Operation Failed',
 			description: 'Text could not be copied to clipboard automatically.',
 			action: { type: 'more-details', error: copyError },
@@ -124,7 +123,7 @@ export async function deliverTranscribedText({
 	});
 
 	if (pasteError) {
-		notify.warning.execute({
+		rpc.notify.warning.execute({
 			title: '⚠️ Paste Operation Failed',
 			description:
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
@@ -177,7 +176,7 @@ export async function deliverTransformedText({
 	};
 
 	const showBasicToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText(null),
 			description: text,
@@ -189,13 +188,13 @@ export async function deliverTransformedText({
 						text,
 					});
 					if (error) {
-						notify.error.execute({
+						rpc.notify.error.execute({
 							title: 'Error copying transformed text to clipboard',
 							description: error.message,
 							action: { type: 'more-details', error },
 						});
 					}
-					notify.success.execute({
+					rpc.notify.success.execute({
 						id: toastId,
 						title: 'Copied transformed text to clipboard!',
 						description: text,
@@ -205,7 +204,7 @@ export async function deliverTransformedText({
 		});
 
 	const showCopiedToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED'),
 			description: text,
@@ -217,7 +216,7 @@ export async function deliverTransformedText({
 		});
 
 	const showCopiedAndPastedToast = () =>
-		notify.success.execute({
+		rpc.notify.success.execute({
 			id: toastId,
 			title: statusToToastText('COPIED+PASTED'),
 			description: text,
@@ -240,7 +239,7 @@ export async function deliverTransformedText({
 	const clipboardCopyFailed = copyError;
 
 	if (clipboardCopyFailed) {
-		notify.warning.execute({
+		rpc.notify.warning.execute({
 			title: '⚠️ Copy Operation Failed',
 			description: 'Text could not be copied to clipboard automatically.',
 			action: { type: 'more-details', error: copyError },
@@ -260,7 +259,7 @@ export async function deliverTransformedText({
 	});
 
 	if (pasteError) {
-		notify.warning.execute({
+		rpc.notify.warning.execute({
 			title: '⚠️ Paste Operation Failed',
 			description:
 				'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',

@@ -12,7 +12,6 @@
 	} from '$lib/deliverTextToUser';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
-	import { notify } from '$lib/query';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
@@ -77,7 +76,7 @@
 						: 'Transcription failed - click to try again'}
 			onclick={() => {
 				const toastId = nanoid();
-				notify.loading.execute({
+				rpc.notify.loading.execute({
 					id: toastId,
 					title: '📋 Transcribing...',
 					description: 'Your recording is being transcribed...',
@@ -85,10 +84,10 @@
 				transcribeRecording.mutate(recording, {
 					onError: (error) => {
 						if (error.name === 'WhisperingError') {
-							notify.error.execute({ id: toastId, ...error });
+							rpc.notify.error.execute({ id: toastId, ...error });
 							return;
 						}
-						notify.error.execute({
+						rpc.notify.error.execute({
 							id: toastId,
 							title: '❌ Failed to transcribe recording',
 							description: 'Your recording could not be transcribed.',
@@ -119,7 +118,7 @@
 		<TransformationPicker
 			onSelect={(transformation) => {
 				const toastId = nanoid();
-				notify.loading.execute({
+				rpc.notify.loading.execute({
 					id: toastId,
 					title: '🔄 Running transformation...',
 					description:
@@ -128,10 +127,10 @@
 				transformRecording.mutate(
 					{ recordingId: recording.id, transformation },
 					{
-						onError: (error) => notify.error.execute(error),
+						onError: (error) => rpc.notify.error.execute(error),
 						onSuccess: (transformationRun) => {
 							if (transformationRun.status === 'failed') {
-								notify.error.execute({
+								rpc.notify.error.execute({
 									title: '⚠️ Transformation error',
 									description: transformationRun.error,
 									action: {
@@ -208,17 +207,17 @@
 				downloadRecording.mutate(recording, {
 					onError: (error) => {
 						if (error.name === 'WhisperingError') {
-							notify.error.execute(error);
+							rpc.notify.error.execute(error);
 							return;
 						}
-						notify.error.execute({
+						rpc.notify.error.execute({
 							title: 'Failed to download recording!',
 							description: 'Your recording could not be downloaded.',
 							action: { type: 'more-details', error },
 						});
 					},
 					onSuccess: () => {
-						notify.success.execute({
+						rpc.notify.success.execute({
 							title: 'Recording downloaded!',
 							description: 'Your recording has been downloaded.',
 						});
@@ -244,13 +243,13 @@
 					onConfirm: () =>
 						deleteRecording.mutate(recording, {
 							onSuccess: () => {
-								notify.success.execute({
+								rpc.notify.success.execute({
 									title: 'Deleted recording!',
 									description: 'Your recording has been deleted.',
 								});
 							},
 							onError: (error) => {
-								notify.error.execute({
+								rpc.notify.error.execute({
 									title: 'Failed to delete recording!',
 									description: 'Your recording could not be deleted.',
 									action: { type: 'more-details', error },

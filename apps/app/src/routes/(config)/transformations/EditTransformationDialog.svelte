@@ -8,7 +8,6 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
-	import { notify } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
@@ -148,14 +147,14 @@
 							deleteTransformation.mutate($state.snapshot(transformation), {
 								onSuccess: () => {
 									isDialogOpen = false;
-									notify.success.execute({
+									rpc.notify.success.execute({
 										title: 'Deleted transformation!',
 										description:
 											'Your transformation has been deleted successfully.',
 									});
 								},
 								onError: (error) => {
-									notify.error.execute({
+									rpc.notify.error.execute({
 										title: 'Failed to delete transformation!',
 										description: 'Your transformation could not be deleted.',
 										action: { type: 'more-details', error },
@@ -184,7 +183,7 @@
 					onclick={() => {
 						updateTransformation.mutate($state.snapshot(workingCopy), {
 							onSuccess: () => {
-								notify.success.execute({
+								rpc.notify.success.execute({
 									title: 'Updated transformation!',
 									description:
 										'Your transformation has been updated successfully.',
@@ -192,7 +191,7 @@
 								isDialogOpen = false;
 							},
 							onError: (error) => {
-								notify.error.execute({
+								rpc.notify.error.execute({
 									title: 'Failed to update transformation!',
 									description: 'Your transformation could not be updated.',
 									action: { type: 'more-details', error },
