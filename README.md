@@ -34,7 +34,7 @@
 
 Whispering is a voice-to-text app that turns your speech into text with a single keyboard shortcut. It works anywhere on your desktop—in any app, any text field—giving you instant transcription without switching windows or clicking buttons.
 
-**Quick Links:** [Watch Demo (30s)](#demo) | [Install (2 min)](#installation) | [Why I Built This](#why-whispering-exists) | [FAQ](#frequently-asked-questions) | [Architecture](#architecture-deep-dive)
+**Quick Links:** [Watch Overview (5 min)](#demo) | [Install (2 min)](#installation) | [Why I Built This](#why-whispering-exists) | [FAQ](#frequently-asked-questions) | [Architecture](#architecture-deep-dive)
 
 Unlike subscription services that charge $15-30/month, Whispering lets you bring your own API key and pay providers directly—as little as $0.02/hour. Or go completely free with local transcription. Your audio, your choice, your data.
 
@@ -42,7 +42,14 @@ Unlike subscription services that charge $15-30/month, Whispering lets you bring
 
 ## Demo
 
-https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=1jYgBMrfVZs">
+    <img src="https://img.youtube.com/vi/1jYgBMrfVZs/maxresdefault.jpg" alt="Whispering Complete Setup Guide" width="600">
+  </a>
+  <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
+</div>
+
+> **Want to see the voice coding workflow?** Check out this [3-minute demo](https://www.youtube.com/watch?v=cJrDf8Z4_7k) showing how I use Whispering with Claude Code for faster development.
 
 ## Features at a Glance
 
