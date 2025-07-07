@@ -20,7 +20,7 @@ export const delivery = {
 	 * 
 	 * @param text - The transcribed text to deliver
 	 * @param toastId - Unique ID for toast notifications to prevent duplicates
-	 * @returns Result indicating successful delivery
+	 * @returns Result with no meaningful data (fire-and-forget operation)
 	 * 
 	 * @example
 	 * ```typescript
@@ -37,8 +37,10 @@ export const delivery = {
 			text,
 			toastId,
 		}: { text: string; toastId: string }) => {
-			// Helper to show the basic toast with copy button
-			const showBasicToast = () =>
+			// Define all notification functions at the top for clarity
+			
+			// Shows transcription result and offers manual copy action
+			const offerManualCopy = () =>
 				rpc.notify.success.execute({
 					id: toastId,
 					title: '📝 Recording transcribed!',
@@ -51,6 +53,7 @@ export const delivery = {
 								text,
 							});
 							if (error) {
+								// Report that manual copy attempt failed
 								rpc.notify.error.execute({
 									title: 'Error copying transcribed text to clipboard',
 									description: error.message,
@@ -58,6 +61,7 @@ export const delivery = {
 								});
 								return;
 							}
+							// Confirm manual copy succeeded
 							rpc.notify.success.execute({
 								id: toastId,
 								title: 'Copied transcribed text to clipboard!',
@@ -67,10 +71,57 @@ export const delivery = {
 					},
 				});
 
-			// If user doesn't want auto-copy, just show the basic toast
+			// Warns that automatic copy failed and falls back to manual option
+			const warnAutoCopyFailed = (error: unknown) => {
+				rpc.notify.warning.execute({
+					title: '⚠️ Copy Operation Failed',
+					description: 'Text could not be copied to clipboard automatically.',
+					action: { type: 'more-details', error },
+				});
+			};
+
+			// Confirms text is in clipboard (when paste is not attempted)
+			const confirmTextInClipboard = () =>
+				rpc.notify.success.execute({
+					id: toastId,
+					title: '📝 Recording transcribed and copied to clipboard!',
+					description: text,
+					action: {
+						type: 'link',
+						label: 'Go to recordings',
+						href: WHISPERING_RECORDINGS_PATHNAME,
+					},
+				});
+
+			// Warns that paste failed but confirms copy succeeded
+			const warnPasteFailedButCopied = (error: unknown) => {
+				rpc.notify.warning.execute({
+					title: '⚠️ Paste Operation Failed',
+					description:
+						'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
+					action: { type: 'more-details', error },
+				});
+			};
+
+			// Confirms complete delivery (both copy and paste succeeded)
+			const confirmFullDelivery = () =>
+				rpc.notify.success.execute({
+					id: toastId,
+					title: '📝 Recording transcribed, copied to clipboard, and pasted!',
+					description: text,
+					action: {
+						type: 'link',
+						label: 'Go to recordings',
+						href: WHISPERING_RECORDINGS_PATHNAME,
+					},
+				});
+
+			// Main delivery flow
+			
+			// If user doesn't want auto-copy, just show the result with manual option
 			if (!settings.value['transcription.clipboard.copyOnSuccess']) {
-				await showBasicToast();
-				return Ok({ delivered: true });
+				offerManualCopy();
+				return Ok(undefined);
 			}
 
 			// Try to copy to clipboard
@@ -78,66 +129,29 @@ export const delivery = {
 				text,
 			});
 			if (copyError) {
-				rpc.notify.warning.execute({
-					title: '⚠️ Copy Operation Failed',
-					description: 'Text could not be copied to clipboard automatically.',
-					action: { type: 'more-details', error: copyError },
-				});
-				await showBasicToast();
-				return Ok({ delivered: true });
+				warnAutoCopyFailed(copyError);
+				offerManualCopy();
+				return Ok(undefined);
 			}
 
-			// If user doesn't want auto-paste, show success with link to recordings
+			// If user doesn't want auto-paste, confirm copy only
 			if (!settings.value['transcription.clipboard.pasteOnSuccess']) {
-				await rpc.notify.success.execute({
-					id: toastId,
-					title: '📝 Recording transcribed and copied to clipboard!',
-					description: text,
-					action: {
-						type: 'link',
-						label: 'Go to recordings',
-						href: WHISPERING_RECORDINGS_PATHNAME,
-					},
-				});
-				return Ok({ delivered: true });
+				confirmTextInClipboard();
+				return Ok(undefined);
 			}
 
 			// Try to paste at cursor
 			const { error: pasteError } =
 				await rpc.clipboard.writeTextToCursor.execute({ text });
 			if (pasteError) {
-				rpc.notify.warning.execute({
-					title: '⚠️ Paste Operation Failed',
-					description:
-						'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
-					action: { type: 'more-details', error: pasteError },
-				});
-				// Still show success for copy
-				await rpc.notify.success.execute({
-					id: toastId,
-					title: '📝 Recording transcribed and copied to clipboard!',
-					description: text,
-					action: {
-						type: 'link',
-						label: 'Go to recordings',
-						href: WHISPERING_RECORDINGS_PATHNAME,
-					},
-				});
-				return Ok({ delivered: true });
+				warnPasteFailedButCopied(pasteError);
+				confirmTextInClipboard();
+				return Ok(undefined);
 			}
 
-			// Full success - copied and pasted
-			await rpc.notify.success.execute({
-				id: toastId,
-				title: '📝 Recording transcribed, copied to clipboard, and pasted!',
-				description: text,
-				action: {
-					type: 'link',
-					label: 'Go to recordings',
-					href: WHISPERING_RECORDINGS_PATHNAME,
-				},
-			});
-			return Ok({ delivered: true });
+			// Everything succeeded
+			confirmFullDelivery();
+			return Ok(undefined);
 		},
 	}),
 
@@ -156,7 +170,7 @@ export const delivery = {
 	 * 
 	 * @param text - The transformed text to deliver
 	 * @param toastId - Unique ID for toast notifications to prevent duplicates
-	 * @returns Result indicating successful delivery
+	 * @returns Result with no meaningful data (fire-and-forget operation)
 	 * 
 	 * @example
 	 * ```typescript
@@ -173,8 +187,10 @@ export const delivery = {
 			text,
 			toastId,
 		}: { text: string; toastId: string }) => {
-			// Helper to show the basic toast with copy button
-			const showBasicToast = () =>
+			// Define all notification functions at the top for clarity
+			
+			// Shows transformation result and offers manual copy action
+			const offerManualCopy = () =>
 				rpc.notify.success.execute({
 					id: toastId,
 					title: '🔄 Transformation complete!',
@@ -187,6 +203,7 @@ export const delivery = {
 								text,
 							});
 							if (error) {
+								// Report that manual copy attempt failed
 								rpc.notify.error.execute({
 									title: 'Error copying transformed text to clipboard',
 									description: error.message,
@@ -194,6 +211,7 @@ export const delivery = {
 								});
 								return;
 							}
+							// Confirm manual copy succeeded
 							rpc.notify.success.execute({
 								id: toastId,
 								title: 'Copied transformed text to clipboard!',
@@ -203,10 +221,57 @@ export const delivery = {
 					},
 				});
 
-			// If user doesn't want auto-copy, just show the basic toast
+			// Warns that automatic copy failed and falls back to manual option
+			const warnAutoCopyFailed = (error: unknown) => {
+				rpc.notify.warning.execute({
+					title: '⚠️ Copy Operation Failed',
+					description: 'Text could not be copied to clipboard automatically.',
+					action: { type: 'more-details', error },
+				});
+			};
+
+			// Confirms text is in clipboard (when paste is not attempted)
+			const confirmTextInClipboard = () =>
+				rpc.notify.success.execute({
+					id: toastId,
+					title: '🔄 Transformation complete and copied to clipboard!',
+					description: text,
+					action: {
+						type: 'link',
+						label: 'Go to recordings',
+						href: WHISPERING_RECORDINGS_PATHNAME,
+					},
+				});
+
+			// Warns that paste failed but confirms copy succeeded
+			const warnPasteFailedButCopied = (error: unknown) => {
+				rpc.notify.warning.execute({
+					title: '⚠️ Paste Operation Failed',
+					description:
+						'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
+					action: { type: 'more-details', error },
+				});
+			};
+
+			// Confirms complete delivery (both copy and paste succeeded)
+			const confirmFullDelivery = () =>
+				rpc.notify.success.execute({
+					id: toastId,
+					title: '🔄 Transformation complete, copied to clipboard, and pasted!',
+					description: text,
+					action: {
+						type: 'link',
+						label: 'Go to recordings',
+						href: WHISPERING_RECORDINGS_PATHNAME,
+					},
+				});
+
+			// Main delivery flow
+			
+			// If user doesn't want auto-copy, just show the result with manual option
 			if (!settings.value['transformation.clipboard.copyOnSuccess']) {
-				await showBasicToast();
-				return Ok({ delivered: true });
+				offerManualCopy();
+				return Ok(undefined);
 			}
 
 			// Try to copy to clipboard
@@ -214,66 +279,29 @@ export const delivery = {
 				text,
 			});
 			if (copyError) {
-				rpc.notify.warning.execute({
-					title: '⚠️ Copy Operation Failed',
-					description: 'Text could not be copied to clipboard automatically.',
-					action: { type: 'more-details', error: copyError },
-				});
-				await showBasicToast();
-				return Ok({ delivered: true });
+				warnAutoCopyFailed(copyError);
+				offerManualCopy();
+				return Ok(undefined);
 			}
 
-			// If user doesn't want auto-paste, show success with link to recordings
+			// If user doesn't want auto-paste, confirm copy only
 			if (!settings.value['transformation.clipboard.pasteOnSuccess']) {
-				await rpc.notify.success.execute({
-					id: toastId,
-					title: '🔄 Transformation complete and copied to clipboard!',
-					description: text,
-					action: {
-						type: 'link',
-						label: 'Go to recordings',
-						href: WHISPERING_RECORDINGS_PATHNAME,
-					},
-				});
-				return Ok({ delivered: true });
+				confirmTextInClipboard();
+				return Ok(undefined);
 			}
 
 			// Try to paste at cursor
 			const { error: pasteError } =
 				await rpc.clipboard.writeTextToCursor.execute({ text });
 			if (pasteError) {
-				rpc.notify.warning.execute({
-					title: '⚠️ Paste Operation Failed',
-					description:
-						'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
-					action: { type: 'more-details', error: pasteError },
-				});
-				// Still show success for copy
-				await rpc.notify.success.execute({
-					id: toastId,
-					title: '🔄 Transformation complete and copied to clipboard!',
-					description: text,
-					action: {
-						type: 'link',
-						label: 'Go to recordings',
-						href: WHISPERING_RECORDINGS_PATHNAME,
-					},
-				});
-				return Ok({ delivered: true });
+				warnPasteFailedButCopied(pasteError);
+				confirmTextInClipboard();
+				return Ok(undefined);
 			}
 
-			// Full success - copied and pasted
-			await rpc.notify.success.execute({
-				id: toastId,
-				title: '🔄 Transformation complete, copied to clipboard, and pasted!',
-				description: text,
-				action: {
-					type: 'link',
-					label: 'Go to recordings',
-					href: WHISPERING_RECORDINGS_PATHNAME,
-				},
-			});
-			return Ok({ delivered: true });
+			// Everything succeeded
+			confirmFullDelivery();
+			return Ok(undefined);
 		},
 	}),
 };
