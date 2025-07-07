@@ -651,5 +651,5 @@ async function saveRecordingAndTranscribeTransform({
 
 	rpc.sound.playSoundIfEnabled.execute('transformationComplete');
 
-	await rpc.delivery.deliverTransformationResult.execute({ text: transformationRun.output, toastId });
+	await rpc.delivery.deliverTransformationResult.execute({ text: transformationRun.output, toastId: transformToastId });
 }
