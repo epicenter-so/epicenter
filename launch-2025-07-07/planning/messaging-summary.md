@@ -6,11 +6,10 @@
 ## Key Messages
 
 ### 1. Price Comparison
-- Paid transcription apps charge monthly fees
-
-
-
-- **Whispering: Free forever**
+- Paid services: $15-30/month
+- Whispering with Groq: ~$0.02/hour
+- Whispering with OpenAI: ~$0.10-0.18/hour
+- **Whispering app: Free forever (you pay providers directly)**
 
 ### 2. Unique Differentiators
 - Bring your own API key (pay cents, not dollars)

@@ -30,7 +30,10 @@ I wanted to share a workflow that's transformed how I code with Claude. I built 
 
 I've included a demo video showing this workflow in action. The "vibe coding" approach lets me describe what I want naturally, and Claude just gets it.
 
-GitHub: [link]
-Demo: [link]
+**Watch the workflow:**
+- 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
+- Shows the actual speed difference and how natural it feels
+
+GitHub: https://github.com/braden-w/whispering
 
 Would love to hear how others are combining voice input with AI coding assistants!

@@ -31,7 +31,7 @@ I built Whispering after discovering transcription apps charge $15-30/month for 
 3. Get feedback on positioning: Tool vs. workflow enabler?
 
 **Interesting discovery:**
-I've been using it with Claude Code for voice-driven development. Completely changed how I code - 3x faster for certain tasks. Not sure if this workflow angle is more compelling than the cost savings.
+I've been using it with Claude Code for voice-driven development. It's particularly effective for certain tasks like documentation, boilerplate code, and brainstorming. Not sure if this workflow angle is more compelling than the cost savings.
 
 Would love thoughts on:
 - Is "bring your own API key" too technical for mainstream?

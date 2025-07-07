@@ -16,10 +16,10 @@
 [Show code appearing instantly]
 
 **Results (15-25s):**
-"3x faster development"
-"2 cents per hour"
-"Zero hand pain"
-[Show building something complex while standing/walking]
+"Faster for many tasks"
+"2 cents per hour with Groq"
+"Less typing fatigue"
+[Show building something while standing/walking]
 
 **CTA (25-30s):**
 "It's completely free and open source"

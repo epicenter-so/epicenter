@@ -13,7 +13,7 @@ Just dropped something that changed my entire coding workflow. I haven't typed c
 - Cost: 2 cents per hour (not a typo)
 
 **How it works:**
-I literally just talk about what I want to build. Whispering transcribes it instantly, Claude Code turns it into actual code. It's like pair programming with yourself but 3x faster.
+I literally just talk about what I want to build. Whispering transcribes it instantly, Claude Code turns it into actual code. It's like pair programming with yourself but way more efficient.
 
 **The vibe shift:**
 - No more context switching between thinking and typing

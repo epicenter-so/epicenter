@@ -12,16 +12,14 @@ I wanted to share Whispering, a transcription app I built with Tauri. It's compl
 
 **Tauri implementation highlights:**
 - System tray integration with global shortcuts
-- Secure storage for API keys using Tauri's built-in encryption
-- Native file system access for audio processing
-- Custom window management for overlay mode
-- IPC commands for real-time audio streaming
 - Auto-updater integration
+- **Build-time dependency injection for maximum code reuse**
 
 **Architecture decisions:**
 - Frontend: Svelte 5 with TypeScript
-- Audio processing: Web Audio API → Tauri command
-- State management: Svelte stores + Tauri state
+- Services layer with dependency injection (see [services/README.md](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services))
+- Platform detection at build time: `window.__TAURI_INTERNALS__`
+- Shared business logic between desktop and web versions
 - Permissions: Minimal required (audio, file system)
 
 **Performance wins with Tauri:**
@@ -30,8 +28,19 @@ I wanted to share Whispering, a transcription app I built with Tauri. It's compl
 - Instant startup time
 - Low memory footprint
 
-**Interesting challenges solved:**
-- Streaming audio data efficiently through IPC
+**Code reuse technique that's been incredibly helpful:**
+Instead of maintaining separate web and desktop codebases, I use build-time dependency injection:
+
+```typescript
+// Platform detection at build time
+export const ClipboardServiceLive = window.__TAURI_INTERNALS__
+  ? createClipboardServiceDesktop() // Tauri APIs
+  : createClipboardServiceWeb();     // Browser APIs
+```
+
+This enables ~95% code sharing between desktop and web versions. The UI and business logic are identical - only the thin service layer varies. Check out the [services architecture](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services) for details.
+
+**Other challenges solved:**
 - Managing multiple windows with shared state
 - Implementing global shortcuts that work across OS
 - Building a smooth auto-update experience

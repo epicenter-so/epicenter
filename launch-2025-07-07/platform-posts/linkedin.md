@@ -22,8 +22,10 @@ I built this for myself and used it daily for months before discovering competit
 
 Built with modern tech (Svelte 5 + Tauri) for blazing fast performance on Mac, Windows, and Linux.
 
-Check it out on GitHub: [link]
+🎥 Watch the 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
+📚 5-minute setup guide: [YouTube link]
+💻 GitHub: https://github.com/braden-w/whispering
 
 What transcription tools are you currently paying for that should be free?
 
-#OpenSource #Productivity #TechForGood #Transcription #FreeSoftware
+#OpenSource #Productivity #TechForGood #Transcription #FreeSoftware #VoiceCoding

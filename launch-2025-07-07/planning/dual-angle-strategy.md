@@ -8,8 +8,8 @@
 - Best for: HN, r/opensource, r/selfhosted
 
 ### Angle 2: Productivity Workflow Revolution
-"How I code 3x faster using voice with Whispering + Claude Code"
-- Focus: Hands-free coding, 2¢/hour cost, speed boost
+"Voice-driven development with Whispering + Claude Code"
+- Focus: Hands-free coding, 2¢/hour cost with Groq, productivity benefits
 - Best for: Twitter, TikTok, Instagram, YC Vibe Coders
 
 ## Platform-Specific Strategy

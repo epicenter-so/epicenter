@@ -7,21 +7,21 @@ I haven't typed code in 3 months.
 
 Here's my setup that costs $0.02/hour:
 
-[3-minute demo video]
+https://youtube.com/shorts/tP1fuFpJt7g
 
 ### Tweet 2 (The Reveal + Link)
 It's called @WhisperingApp - a completely free, open-source transcription tool I built.
 
 While others charge $30/month, you just bring your own API key and pay cents directly to providers.
 
-GitHub: [link]
+GitHub: https://github.com/braden-w/whispering
 
 ### Tweet 3 (The Philosophy)
 I built this for myself before knowing competitors existed.
 
 When I discovered they charge monthly subscriptions for what's basically an API wrapper, I knew I had to open source it.
 
-### Tweet 4 (Technical Details)
+### Tweet 4 (Technical Details + Setup Guide)
 Built with:
 - Svelte 5 (production runes example)
 - Tauri (50MB, instant startup)
@@ -29,14 +29,16 @@ Built with:
 
 No servers. No tracking. Just your voice → your code.
 
+5-min setup guide: [YouTube link]
+
 ### Tweet 5 (Call to Action)
 Try the voice coding workflow:
-1. Download Whispering (free)
-2. Add your Groq API key ($0.02/hour)
+1. Download Whispering (free, open source)
+2. Add your API key (Groq is $0.02/hour)
 3. Turn on voice activation
-4. Start talking, stop typing
+4. Start talking to your code
 
-What would you build if typing wasn't the bottleneck?
+Built with @sveltejs 5 + @tauri_apps. The communities that helped me build this.
 
 ---
 

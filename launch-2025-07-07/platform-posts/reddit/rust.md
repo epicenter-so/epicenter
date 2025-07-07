@@ -31,6 +31,18 @@ I wanted to share Whispering, an open-source transcription app I built using Tau
 
 The app lets users bring their own API keys (OpenAI, Groq, etc.) and make direct API calls, avoiding the middleman fees that competitors charge.
 
+**Code reuse through dependency injection:**
+One of Tauri's underappreciated benefits is enabling massive code reuse. Using build-time platform detection, I share ~95% of code between desktop and web versions:
+
+```typescript
+// Services detect platform at build time
+export const HttpServiceLive = window.__TAURI_INTERNALS__
+  ? createHttpServiceDesktop() // Uses Tauri's Rust HTTP client
+  : createHttpServiceWeb();     // Uses browser fetch API
+```
+
+This pattern (detailed in [services/README.md](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services)) means the Rust backend enables a desktop app while maintaining a unified codebase.
+
 I've been impressed with how Tauri leverages Rust's strengths for desktop app development. The combination of Rust's performance and safety with modern web UI has been fantastic.
 
 GitHub: [link]

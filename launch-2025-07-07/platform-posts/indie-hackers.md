@@ -49,6 +49,10 @@ Instead of building a SaaS, I built a desktop app where users bring their own AP
 - Ready for public launch
 - No monetization planned (that's the point!)
 
-GitHub: [link]
+**See it in action:**
+- 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
+- Shows my actual workflow and the speed difference
+
+GitHub: https://github.com/braden-w/whispering
 
 Would love to hear your thoughts on this approach. Anyone else building "anti-SaaS" tools?

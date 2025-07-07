@@ -1,18 +1,27 @@
 # Launch Day Quick Reference
 
+## COMPLETED ✅
+- **8:30 AM PST** → Hacker News ✅
+- Voice Coding Demo uploaded: https://youtube.com/shorts/tP1fuFpJt7g ✅
+
+## URGENT 🚨
+- Upload 5-minute setup guide to YouTube (unlisted)
+
 ## Platform Order & Times (July 7, 2025)
 
-1. **7:00 AM PST** → Hacker News
-2. **9:00 AM PST** → Twitter/X  
-3. **10:00 AM PST** → Reddit (technical: r/sveltejs, r/OpenAI, r/tauri)
-4. **11:00 AM PST** → YC communities
-5. **12:00 PM PST** → Reddit (general + new: r/productivity, r/accessibility, r/Anthropic, r/selfhosted, r/opensource, r/rust)
-6. **2:00 PM PST** → Discord channels
-7. **3:00 PM PST** → LinkedIn
+1. ~~**8:30 AM PST** → Hacker News~~ ✅ DONE
+2. **10:30 AM PST** → Twitter/X  
+3. **11:30 AM PST** → Reddit (technical: r/sveltejs, r/OpenAI, r/tauri)
+4. **12:30 PM PST** → YC communities
+5. **1:30 PM PST** → Reddit (general: r/productivity, r/accessibility, r/Anthropic, r/selfhosted, r/opensource, r/rust)
+6. **3:30 PM PST** → Discord channels
+7. **4:30 PM PST** → LinkedIn
+8. **5:30 PM PST** → Dev.to & IndieHackers
 
 ## Key Links
-- GitHub: [your-repo-link]
-- Demo video: [30-second highlight]
+- GitHub: https://github.com/braden-w/whispering
+- Voice Coding Demo (3 min): https://youtube.com/shorts/tP1fuFpJt7g ✅
+- Setup Guide (5 min): [YouTube unlisted - TO BE UPLOADED] 🚨
 - Blog post: [if published]
 
 ## One-Liner

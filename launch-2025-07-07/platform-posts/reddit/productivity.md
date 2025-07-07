@@ -22,13 +22,22 @@ I wanted to share Whispering, a transcription app I built that's completely free
 - Works on Mac, Windows, and Linux
 
 **Why I built this:**
-I've been using it daily for months (multiple hours per day) before I even knew paid alternatives existed. When I discovered companies charging subscription fees for basic transcription, I knew I had to share this with the community.
+I've been using it daily for months before I even knew paid alternatives existed. When I discovered companies charging $15-30/month for what's essentially an API wrapper, I decided to open source my tool.
+
+**Real costs:**
+- Groq's Whisper: ~$0.02/hour
+- OpenAI's Whisper: ~$0.10-0.18/hour
+- Your actual usage: probably $2-10/month vs $30/month subscriptions
 
 I believe essential productivity tools should be accessible to everyone. Transcription shouldn't be gatekept behind monthly fees.
 
 **Privacy first:**
 With your own API key, you have complete control. The app makes direct calls to your chosen service. No middleman, no data collection, no tracking. It's all open source so you can verify this yourself.
 
-GitHub: [link]
+**See it in action:**
+- 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
+- Shows how I use it for productivity workflows
+
+GitHub: https://github.com/braden-w/whispering
 
 I'd love to hear your feedback and how you use transcription in your workflow!

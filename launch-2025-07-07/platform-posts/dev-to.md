@@ -100,7 +100,11 @@ I believe essential productivity tools should be:
 
 The entire codebase is available on GitHub. Whether you want to use it, learn from it, or contribute to it - you're welcome!
 
-**GitHub**: [link]
+**GitHub**: https://github.com/braden-w/whispering
+
+### See It In Action
+- 🎥 **3-minute voice coding demo**: https://youtube.com/shorts/tP1fuFpJt7g
+- 📚 **5-minute setup guide**: [YouTube link]
 
 I'd love to hear your thoughts and feedback. What features would make this more useful for your workflow?
 

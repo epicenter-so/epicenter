@@ -2,82 +2,109 @@
 
 ## Quick Reference
 - **Launch Date**: Monday, July 7, 2025
-- **Primary Platform**: Hacker News (7-9 AM PST)
+- **Primary Platform**: Hacker News ✅ POSTED
 - **Core Message**: "Transcription should be free, open, and private"
+- **Videos Ready**: 
+  - 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g ✅
+  - 5-minute setup guide: [TO BE UPLOADED - URGENT]
+
+## COMPLETED TASKS
+- [x] Hacker News post (8:30 AM) ✅
+- [x] 3-minute voice coding demo uploaded ✅
+- [x] YouTube descriptions finalized ✅
 
 ## Pre-Launch Checklist (Today - July 7)
 
 ### Technical Preparation (Priority)
-- [ ] Final testing on all platforms (Mac, Windows, Linux)
-- [ ] Polish GitHub README with screenshots
-- [ ] Ensure auto-updater is working
-- [ ] Tag release version
+- [x] Final testing on all platforms (Mac, Windows, Linux)
+- [x] Polish GitHub README with screenshots
+- [x] Ensure auto-updater is working
+- [x] Tag release version
+
+### Video Preparation
+- [ ] Upload 5-minute setup guide to YouTube (unlisted) - URGENT
+- [x] Upload 3-minute voice coding demo to YouTube (public) - https://youtube.com/shorts/tP1fuFpJt7g ✅
+- [x] YouTube descriptions finalized ✅
+- [ ] Update README with setup guide embed
+- [ ] Download videos locally for platform-specific uploads
 
 ### Content Creation (Simplified)
-- [ ] Take fresh app screenshots (main window, settings, output)
-- [ ] Use existing demo video as-is
+- [x] Take fresh app screenshots (main window, settings, output)
 
 ### Platform Preparation
-- [ ] Review all posts in `/platform-posts/` (organized by platform)
-- [ ] Set up link tracking/shortener
-- [ ] Schedule tweets
-- [ ] Notify early supporters
+- [x] Review all posts in `/platform-posts/` (organized by platform)
+- [x] Hacker News post finalized
+- [x] YouTube descriptions finalized
+- [ ] Update Twitter and other posts with video links
+- [x] Notify early supporters
 
 ## Launch Day Schedule (July 7)
 
 ### Morning (PST)
-**7:00 AM** - Hacker News
-- Post: "Show HN: Whispering - Free, open-source transcription app built with Svelte 5 + Tauri"
-- **Angle**: Traditional (open source tool)
-- Monitor comments actively
-- Have technical details ready
-- **Day 2-3 Follow-up**: "Show HN: How I code 3x faster using voice with Whispering + Claude Code"
+**8:30 AM** - Hacker News ✅ COMPLETED
+- Posted: "Show HN: Open-source transcription app that costs $0.02/hour instead of $30/month"
+- **Angle**: Technical communities + open source philosophy
+- Emphasize giving back to Svelte/Rust communities
+- Have technical implementation details ready
+- **Day 2-3 Follow-up**: "Show HN: Voice-driven development with Whispering + Claude Code"
 
-**9:00 AM** - Twitter/X
+**10:30 AM** - Twitter/X
 - **Angle**: Workflow-first with visual hook
-- Lead with "I stopped typing code" + demo GIF
+- Lead with \"I haven't typed code in 3 months\" + 3-minute demo video (native upload)
 - Thread explains tool philosophy
 - Tag @sveltejs @tauri_apps @anthropic
+- Include both video links:
+  - Voice coding demo (3 min): https://youtube.com/shorts/tP1fuFpJt7g
+  - Setup guide (5 min): [YouTube link]
 
 ### Throughout Day
-**10:00 AM** - Reddit Technical Communities
-- r/sveltejs - **Angle**: Technical showcase
+**11:30 AM** - Reddit Technical Communities
+- r/sveltejs - **Angle**: Technical showcase + 5-min setup guide
 - r/OpenAI - **Angle**: Whisper API implementation
 - r/tauri - **Angle**: Architecture focus
 - r/rust - **Angle**: Performance benefits
 
-**11:00 AM** - YC Communities
+**12:30 PM** - YC Communities
 - Bookface - **Angle**: Business metrics + feedback request
 - Batch Engineering Slack - **Angle**: Technical + workflow hybrid
-- Vibe Coders Chat - **Angle**: Pure workflow revolution
+- Vibe Coders Chat - **Angle**: Pure workflow revolution + 3-min demo
 
-**12:00 PM** - Reddit General Communities
-- r/productivity - **Angle**: Workflow (3x faster coding)
+**1:30 PM** - Reddit General Communities
+- r/productivity - **Angle**: Voice workflow benefits + 3-min demo
 - r/accessibility - **Angle**: Traditional (universal access)
-- r/Anthropic - **Angle**: Claude Code integration
+- r/Anthropic - **Angle**: Claude Code integration + 3-min demo
 - r/selfhosted - **Angle**: Traditional (data ownership)
 - r/opensource - **Angle**: Traditional (FOSS philosophy)
+- r/rust - **Angle**: Tauri implementation details
 
-**2:00 PM** - Discord Communities
+**3:30 PM** - Discord Communities
 - Tauri showcase - **Angle**: Technical implementation
 - Svelte showcase - **Angle**: Svelte 5 patterns
 
-**3:00 PM** - LinkedIn
+**4:30 PM** - LinkedIn
 - **Angle**: Combined (professional productivity + open source)
-- Include demo video
+- Include 3-min demo video
 - Focus on ROI and workflow transformation
 
 ### Visual Platforms (Throughout Day)
 **Instagram/TikTok**
 - **Angle**: Pure workflow content
-- "I stopped typing code" series
-- Quick demos of voice → code
-- Target viral potential
+- \"I haven't typed code in 3 months\" series
+- Use 30-60 second clips from 3-minute demo
+- Add captions for accessibility and engagement
+- Target viral potential with hooks like \"$0.02/hr vs $30/month\"
+- Link to full 3-min demo: https://youtube.com/shorts/tP1fuFpJt7g
+
+### Dev.to & IndieHackers (5:30 PM)
+- **Dev.to**: Technical deep dive with code examples
+- **IndieHackers**: Business angle - "anti-SaaS" approach
+- Include both videos for different audiences
 
 ### Post-Launch (July 8-9)
 - ProductHunt submission
 - Follow-up on active discussions
 - Address any critical issues
+- Share 5-min setup guide in response to "how to get started" questions
 
 ## Platform-Specific Notes
 

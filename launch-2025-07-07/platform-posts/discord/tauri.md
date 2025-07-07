@@ -18,8 +18,15 @@ Real-time transcription using your own API keys (OpenAI Whisper, Groq, etc). No 
 
 **Cool features:**
 - Overlay mode for transcribing over other apps
-- Custom IPC for audio streaming
+- Build-time dependency injection for code reuse
 - Auto-updater built in
+
+**Architecture highlight:**
+Using a services pattern with platform detection at build time, I share ~95% of code between desktop and web versions:
+```typescript
+window.__TAURI_INTERNALS__ ? desktopImpl() : webImpl()
+```
+Check out the [services README](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services) for the full pattern!
 
 GitHub: [link]
 
