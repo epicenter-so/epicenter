@@ -64,10 +64,10 @@ return VadRecorderServiceErr({
 - [x] manual-recorder.ts - `ManualRecorderServiceError`
 - [x] cpal-recorder.ts - `CpalRecorderServiceError`
 - [x] device-stream.ts - `DeviceStreamServiceError`
-- [ ] global-shortcut-manager.ts - `InvalidAcceleratorError`, `GlobalShortcutServiceError`
-- [ ] local-shortcut-manager.ts - `LocalShortcutServiceError`
-- [ ] tray.ts - `SetTrayIconServiceErrorProperties`
-- [ ] clipboard/types.ts - `ClipboardServiceError`
+- [x] global-shortcut-manager.ts - `InvalidAcceleratorError`, `GlobalShortcutServiceError`
+- [x] local-shortcut-manager.ts - `LocalShortcutServiceError`
+- [x] tray.ts - `SetTrayIconServiceErrorProperties`
+- [x] clipboard/types.ts - `ClipboardServiceError`
 - [ ] completion/types.ts - `CompletionServiceError`
 - [ ] db/dexie.ts - `DbServiceError`
 - [ ] download/types.ts - `DownloadServiceError`

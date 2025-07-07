@@ -1,7 +1,10 @@
 import type { Result } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 
-export type CompletionServiceError = TaggedError<'CompletionServiceError'>;
+const { CompletionServiceError, CompletionServiceErr } =
+	createTaggedError('CompletionServiceError');
+export type CompletionServiceError = ReturnType<typeof CompletionServiceError>;
+export { CompletionServiceError, CompletionServiceErr };
 
 export type CompletionService = {
 	complete: (opts: {

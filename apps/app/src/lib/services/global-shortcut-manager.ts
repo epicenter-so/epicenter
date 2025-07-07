@@ -13,13 +13,16 @@ import {
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
 import type { Brand } from 'wellcrafted/brand';
-import type { TaggedError } from 'wellcrafted/error';
-import { extractErrorMessage } from 'wellcrafted/error';
+import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
-type InvalidAcceleratorError = TaggedError<'InvalidAcceleratorError'>;
-type GlobalShortcutServiceError = TaggedError<'GlobalShortcutServiceError'>;
+const { InvalidAcceleratorError, InvalidAcceleratorErr } =
+	createTaggedError('InvalidAcceleratorError');
+const { GlobalShortcutServiceError, GlobalShortcutServiceErr } =
+	createTaggedError('GlobalShortcutServiceError');
+type InvalidAcceleratorError = ReturnType<typeof InvalidAcceleratorError>;
+type GlobalShortcutServiceError = ReturnType<typeof GlobalShortcutServiceError>;
 
 /**
  * A type that represents a global shortcut accelerator.
@@ -50,8 +53,7 @@ export function createGlobalShortcutManager() {
 			if (unregisterError) return Err(unregisterError);
 
 			if (!isValidElectronAccelerator(accelerator)) {
-				return Err({
-					name: 'InvalidAcceleratorError',
+				return InvalidAcceleratorErr({
 					message: `Invalid accelerator format: '${accelerator}'. Must follow Electron accelerator specification.`,
 					context: { accelerator },
 					cause: undefined,
@@ -74,8 +76,7 @@ export function createGlobalShortcutManager() {
 							return;
 						}
 					}),
-				mapError: (error): GlobalShortcutServiceError => ({
-					name: 'GlobalShortcutServiceError',
+				mapError: (error) => GlobalShortcutServiceError({
 					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					context: { accelerator, error },
 					cause: error,
@@ -107,8 +108,7 @@ export function createGlobalShortcutManager() {
 
 			const { error: unregisterError } = await tryAsync({
 				try: () => tauriUnregister(accelerator),
-				mapError: (error): GlobalShortcutServiceError => ({
-					name: 'GlobalShortcutServiceError',
+				mapError: (error) => GlobalShortcutServiceError({
 					message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					context: {
 						accelerator,
@@ -129,14 +129,11 @@ export function createGlobalShortcutManager() {
 		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterAllError } = await tryAsync({
 				try: () => tauriUnregisterAll(),
-				mapError: (error): GlobalShortcutServiceError => {
-					return {
-						name: 'GlobalShortcutServiceError',
-						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
-						context: { error },
-						cause: error,
-					};
-				},
+				mapError: (error) => GlobalShortcutServiceError({
+					message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
+					context: { error },
+					cause: error,
+				}),
 			});
 			if (unregisterAllError) return Err(unregisterAllError);
 			return Ok(undefined);
@@ -197,16 +194,14 @@ export function pressedKeysToTauriAccelerator(
 
 	// Must have exactly one key code
 	if (keyCodes.length === 0) {
-		return Err({
-			name: 'InvalidAcceleratorError',
+		return InvalidAcceleratorErr({
 			message: 'No valid key code found in pressed keys',
 			context: { pressedKeys },
 			cause: undefined,
 		});
 	}
 	if (keyCodes.length > 1) {
-		return Err({
-			name: 'InvalidAcceleratorError',
+		return InvalidAcceleratorErr({
 			message: 'Multiple key codes not allowed in accelerator',
 			context: { pressedKeys, keyCodes },
 			cause: undefined,
@@ -223,8 +218,7 @@ export function pressedKeysToTauriAccelerator(
 
 	// Final validation
 	if (!isValidElectronAccelerator(accelerator)) {
-		return Err({
-			name: 'InvalidAcceleratorError',
+		return InvalidAcceleratorErr({
 			message: `Generated invalid accelerator: ${accelerator}`,
 			context: { pressedKeys, accelerator },
 			cause: undefined,

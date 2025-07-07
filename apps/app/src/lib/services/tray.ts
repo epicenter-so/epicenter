@@ -3,7 +3,7 @@ import { goto } from '$app/navigation';
 import type { WhisperingRecordingState } from '$lib/constants/audio';
 // import { commandCallbacks } from '$lib/commands';
 import { type Err, Ok, tryAsync } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import { Menu, MenuItem } from '@tauri-apps/api/menu';
 import { resolveResource } from '@tauri-apps/api/path';
 import { TrayIcon } from '@tauri-apps/api/tray';
@@ -12,8 +12,9 @@ import { exit } from '@tauri-apps/plugin-process';
 
 const TRAY_ID = 'whispering-tray';
 
-export type SetTrayIconServiceErrorProperties =
-	TaggedError<'SetTrayIconServiceError'>;
+const { SetTrayIconServiceError, SetTrayIconServiceErr } =
+	createTaggedError('SetTrayIconServiceError');
+export type SetTrayIconServiceErrorProperties = ReturnType<typeof SetTrayIconServiceError>;
 
 type SetTrayIconService = {
 	setTrayIcon: (
@@ -49,8 +50,7 @@ export function createTrayIconDesktopService(): SetTrayIconService {
 					const tray = await trayPromise;
 					return tray.setIcon(iconPath);
 				},
-				mapError: (error): SetTrayIconServiceErrorProperties => ({
-					name: 'SetTrayIconServiceError',
+				mapError: (error) => SetTrayIconServiceError({
 					message: 'Failed to set tray icon',
 					context: { icon: recorderState },
 					cause: error,

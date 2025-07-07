@@ -1,5 +1,6 @@
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
+import { CompletionServiceErr } from './types';
 import Anthropic from '@anthropic-ai/sdk';
 
 export function createAnthropicCompletionService(): CompletionService {
@@ -36,8 +37,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 400 - BadRequestError
 				if (status === 400) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							`Invalid request to Anthropic API. ${error?.message ?? ''}`.trim(),
@@ -48,8 +48,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 401 - AuthenticationError
 				if (status === 401) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'Your API key appears to be invalid or expired. Please update your API key in settings.',
@@ -60,8 +59,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 403 - PermissionDeniedError
 				if (status === 403) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							"Your account doesn't have access to this model or feature.",
@@ -72,8 +70,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 404 - NotFoundError
 				if (status === 404) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'The requested model was not found. Please check the model name.',
@@ -84,8 +81,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 422 - UnprocessableEntityError
 				if (status === 422) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'The request was valid but the server cannot process it. Please check your parameters.',
@@ -96,8 +92,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// 429 - RateLimitError
 				if (status === 429) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message: message ?? 'Too many requests. Please try again later.',
 						context: { status, name },
 						cause: anthropicApiError,
@@ -106,8 +101,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// >=500 - InternalServerError
 				if (status && status >= 500) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							`The Anthropic service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
@@ -118,8 +112,7 @@ export function createAnthropicCompletionService(): CompletionService {
 
 				// Handle APIConnectionError (no status code)
 				if (!status && name === 'APIConnectionError') {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'Unable to connect to the Anthropic service. This could be a network issue or temporary service interruption.',
@@ -129,8 +122,7 @@ export function createAnthropicCompletionService(): CompletionService {
 				}
 
 				// Catch-all for unexpected errors
-				return Err({
-					name: 'CompletionServiceError',
+				return CompletionServiceErr({
 					message: message ?? 'An unexpected error occurred. Please try again.',
 					context: { status, name },
 					cause: anthropicApiError,
@@ -144,8 +136,7 @@ export function createAnthropicCompletionService(): CompletionService {
 				.join('');
 
 			if (!responseText) {
-				return Err({
-					name: 'CompletionServiceError',
+				return CompletionServiceErr({
 					message: 'Anthropic API returned an empty response',
 					context: { model, completion },
 					cause: undefined,

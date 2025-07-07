@@ -1,12 +1,16 @@
 import type { Result } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import type {
 	MaybePromise,
 	WhisperingError,
 	WhisperingWarning,
 } from '$lib/result';
 
-export type ClipboardServiceError = TaggedError<'ClipboardServiceError'>;
+const { ClipboardServiceError, ClipboardServiceErr } = createTaggedError(
+	'ClipboardServiceError',
+);
+export type ClipboardServiceError = ReturnType<typeof ClipboardServiceError>;
+export { ClipboardServiceError, ClipboardServiceErr };
 
 export type ClipboardService = {
 	/**

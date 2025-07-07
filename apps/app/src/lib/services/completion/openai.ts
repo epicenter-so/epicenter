@@ -1,5 +1,6 @@
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
+import { CompletionServiceErr } from './types';
 import OpenAI from 'openai';
 
 export function createOpenAiCompletionService(): CompletionService {
@@ -33,8 +34,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 400 - BadRequestError
 				if (status === 400) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							`Invalid request to OpenAI API. ${error?.message ?? ''}`.trim(),
@@ -45,8 +45,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 401 - AuthenticationError
 				if (status === 401) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'Your API key appears to be invalid or expired. Please update your API key in settings.',
@@ -57,8 +56,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 403 - PermissionDeniedError
 				if (status === 403) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							"Your account doesn't have access to this model or feature.",
@@ -69,8 +67,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 404 - NotFoundError
 				if (status === 404) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'The requested model was not found. Please check the model name.',
@@ -81,8 +78,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 422 - UnprocessableEntityError
 				if (status === 422) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'The request was valid but the server cannot process it. Please check your parameters.',
@@ -93,8 +89,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// 429 - RateLimitError
 				if (status === 429) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message: message ?? 'Too many requests. Please try again later.',
 						context: { status, name },
 						cause: openaiApiError,
@@ -103,8 +98,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// >=500 - InternalServerError
 				if (status && status >= 500) {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							`The OpenAI service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
@@ -115,8 +109,7 @@ export function createOpenAiCompletionService(): CompletionService {
 
 				// Handle APIConnectionError (no status code)
 				if (!status && name === 'APIConnectionError') {
-					return Err({
-						name: 'CompletionServiceError',
+					return CompletionServiceErr({
 						message:
 							message ??
 							'Unable to connect to the OpenAI service. This could be a network issue or temporary service interruption.',
@@ -126,8 +119,7 @@ export function createOpenAiCompletionService(): CompletionService {
 				}
 
 				// Catch-all for unexpected errors
-				return Err({
-					name: 'CompletionServiceError',
+				return CompletionServiceErr({
 					message: message ?? 'An unexpected error occurred. Please try again.',
 					context: { status, name },
 					cause: openaiApiError,
@@ -137,8 +129,7 @@ export function createOpenAiCompletionService(): CompletionService {
 			// Extract the response text
 			const responseText = completion.choices[0]?.message?.content;
 			if (!responseText) {
-				return Err({
-					name: 'CompletionServiceError',
+				return CompletionServiceErr({
 					message: 'OpenAI API returned an empty response',
 					context: { model, completion },
 					cause: undefined,

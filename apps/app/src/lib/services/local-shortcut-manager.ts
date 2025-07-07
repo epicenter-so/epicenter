@@ -7,7 +7,7 @@ import {
 import { IS_MACOS } from '$lib/constants/platform';
 import { on } from 'svelte/events';
 import type { Brand } from 'wellcrafted/brand';
-import type { TaggedError } from 'wellcrafted/error';
+import { createTaggedError } from 'wellcrafted/error';
 import { Ok, type Result } from 'wellcrafted/result';
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
@@ -17,7 +17,9 @@ import type { ShortcutTriggerState } from './_shortcut-trigger-state';
  * local shortcut operations fail. Uses a tagged error pattern for type safety
  * and better error discrimination in Result types.
  */
-type LocalShortcutServiceError = TaggedError<'LocalShortcutServiceError'>;
+const { LocalShortcutServiceError, LocalShortcutServiceErr } =
+	createTaggedError('LocalShortcutServiceError');
+type LocalShortcutServiceError = ReturnType<typeof LocalShortcutServiceError>;
 
 export type CommandId = string & Brand<'CommandId'>;
 

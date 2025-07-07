@@ -1,17 +1,17 @@
 import type { WhisperingWarning } from '$lib/result';
-import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';
-import type { ClipboardService, ClipboardServiceError } from '.';
+import type { ClipboardService } from '.';
+import { ClipboardServiceError } from './types';
 
 export function createClipboardServiceDesktop(): ClipboardService {
 	return {
 		setClipboardText: (text) =>
 			tryAsync({
 				try: () => writeText(text),
-				mapError: (error): ClipboardServiceError => ({
-					name: 'ClipboardServiceError',
+				mapError: (error) => ClipboardServiceError({
 					message:
 						'There was an error writing to the clipboard using the Tauri Clipboard Manager API. Please try again.',
 					context: { text },
@@ -22,11 +22,10 @@ export function createClipboardServiceDesktop(): ClipboardService {
 		writeTextToCursor: async (text) => {
 			const writeTextToCursor = (
 				text: string,
-			): Promise<Result<void, ClipboardServiceError>> =>
+			) =>
 				tryAsync({
 					try: () => invoke<void>('write_text', { text }),
-					mapError: (error): ClipboardServiceError => ({
-						name: 'ClipboardServiceError',
+					mapError: (error) => ClipboardServiceError({
 						message:
 							'There was an error pasting from the clipboard using the Tauri Invoke API. Please try again.',
 						context: { text },
@@ -51,8 +50,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 					invoke<boolean>('is_macos_accessibility_enabled', {
 						askIfNotAllowed: false,
 					}),
-				mapError: (error): ClipboardServiceError => ({
-					name: 'ClipboardServiceError',
+				mapError: (error) => ClipboardServiceError({
 					message:
 						'There was an error checking if accessibility is enabled using the Tauri Invoke API. Please try again.',
 					context: { text },
