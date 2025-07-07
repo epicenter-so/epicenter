@@ -48,7 +48,7 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
 - **🎯 Multiple Transcription Providers** - Choose from Groq, OpenAI, ElevenLabs, or local options → [See providers](#-custom-transcription-services)
 - **🤖 AI-Powered Transformations** - Automatically format, translate, or summarize your transcriptions → [Learn more](#-ai-powered-transformations)
-- **🎙️ Voice Activity Detection** - Hands-free recording that starts when you speak → [Enable VAD](#️-voice-activity-detection-vad)
+- **🎙️ Voice Activity Detection** - Hands-free recording that starts when you speak
 - **⌨️ Custom Shortcuts** - Set any keyboard combination for recording → [Customize shortcuts](#️-custom-shortcuts)
 - **💾 Local-First Storage** - Your data stays on your device with IndexedDB → [Data privacy](#how-is-my-data-stored)
 - **🏗️ Modern Architecture** - Clean, testable code with extensive documentation → [Architecture deep dive](#architecture-deep-dive)
@@ -62,6 +62,8 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 ### 1️⃣ Download Whispering
 
 Choose your operating system below and click the download link:
+
+> **Links not working?** Find all downloads at [GitHub Releases](https://github.com/braden-w/whispering/releases/latest)
 
 <details open>
 <summary><strong>🍎 macOS</strong></summary>
