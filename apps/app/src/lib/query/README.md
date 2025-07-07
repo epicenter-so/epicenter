@@ -127,6 +127,32 @@ rpc.clipboard.copyToClipboard;
 // ... and much more
 ```
 
+### The Notify API - Query Layer Coordination
+
+The `notify` API demonstrates how the query layer coordinates multiple services:
+
+```typescript
+import { notify } from '$lib/query';
+
+// Shows BOTH a toast (in-app) AND OS notification
+await notify.success.execute({
+  title: 'Recording saved',
+  description: 'Your recording has been transcribed'
+});
+
+// Loading states only show toasts (no OS notification spam)
+const loadingId = await notify.loading.execute({
+  title: 'Processing...'
+});
+notify.dismiss(loadingId);
+```
+
+This showcases the query layer's coordination role:
+- Calls the `toast` service for in-app notifications
+- Calls the `notifications` service for OS-level alerts
+- Adds intelligent logic (e.g., skipping OS notifications for loading states)
+- Provides a unified API that's easier to use than calling services directly
+
 The name "RPC" is inspired by Remote Procedure Calls, but adapted for our needs:
 
 - **R**esult: Every operation returns a `Result<T, E>` type for consistent error handling
@@ -267,7 +293,8 @@ async function copyToClipboard(text: string) {
 	const { error } = await rpc.clipboard.copyToClipboard.execute({ text });
 
 	if (error) {
-		toast.error({
+		// Using the notify API to show both toast and OS notification
+		await notify.error.execute({
 			title: 'Error copying to clipboard',
 			description: error.message,
 			action: { type: 'more-details', error },

@@ -222,7 +222,8 @@ const result = await services.completion.openai.complete({
 ### Platform-Specific Services
 
 - `clipboard/` - Clipboard operations (Tauri vs Browser API)
-- `notifications/` - System notifications (native vs web)
+- `notifications/` - OS-level system notifications (native desktop vs browser Notification API)
+- `toast` - In-app toast notifications using Sonner (unified across platforms)
 - `download/` - File downloads (filesystem vs browser)
 - `http/` - HTTP client (Tauri vs fetch)
 - `os/` - Operating system info

@@ -1,6 +1,7 @@
 import type { Result } from 'wellcrafted/result';
 import type { TaggedError } from 'wellcrafted/error';
 import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
+import { hashNanoidToNumber } from './desktop';
 
 /**
  * Platform-Specific Notification Transformations
@@ -143,7 +144,7 @@ export function toTauriNotification(
 	options: UnifiedNotificationOptions,
 ): TauriNotificationOptions {
 	return {
-		id: options.id ? stringToNumber(options.id) : undefined,
+		id: options.id ? hashNanoidToNumber(options.id) : undefined,
 		title: options.title,
 		body: options.description,
 		icon: options.icon,
@@ -203,18 +204,6 @@ export function toExtensionNotification(
 	};
 }
 
-/**
- * Convert string ID to number for Tauri (which requires numeric IDs)
- */
-function stringToNumber(str: string): number {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash;
-	}
-	return Math.abs(hash);
-}
 
 /**
  * Chrome extension notification options type
