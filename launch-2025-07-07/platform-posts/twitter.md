@@ -1,48 +1,69 @@
 # Twitter/X Launch Strategy
 
-## Primary Launch Thread (Workflow Angle with Video)
+## 🚨 CRITICAL: Native Video Upload Strategy
 
-### Tweet 1 (Hook + Video)
-I haven't typed code in 3 months.
+**BEFORE POSTING:**
+1. Download the 3-minute demo from YouTube
+2. Upload directly to Twitter (NOT as a link)
+3. NO LINKS in first tweet (algorithm penalty)
+4. First 30 minutes determine success - be ready to engage
 
-Here's my setup that costs $0.02/hour:
+## Primary Launch Thread (10:30 AM PST)
 
-https://youtube.com/shorts/tP1fuFpJt7g
+### Tweet 1 (Hook + Native Video)
+I code hands-free while managing 6 AI agents in parallel.
 
-### Tweet 2 (The Reveal + Link)
-It's called @WhisperingApp - a completely free, open-source transcription tool I built.
+Here's how I talk to my computer to build software faster:
+
+[NATIVE VIDEO UPLOAD - 3 minute demo]
+
+### Tweet 2 (The Reveal + GitHub Link)
+It's called Whispering: a completely free, open-source transcription tool I built.
 
 While others charge $30/month, you just bring your own API key and pay cents directly to providers.
 
-GitHub: https://github.com/braden-w/whispering
+GitHub: https://github.com/braden-w/whispering#readme
 
 ### Tweet 3 (The Philosophy)
-I built this for myself before knowing competitors existed.
+I built this for myself and made it open-source from day one.
 
-When I discovered they charge monthly subscriptions for what's basically an API wrapper, I knew I had to open source it.
+When I discovered competitors charge $30/month for what's basically an API wrapper, I was glad I chose a different path.
 
 ### Tweet 4 (Technical Details + Setup Guide)
 Built with:
-- Svelte 5 (production runes example)
-- Tauri (50MB, instant startup)
-- Your choice of API (OpenAI, Groq)
+- @sveltejs 5 (production runes)
+- @tauri_apps (lightweight native app)
+- @tan_stack Query (reactive state)
+- TypeScript + Rust
 
 No servers. No tracking. Just your voice → your code.
 
-5-min setup guide: [YouTube link]
+5-min setup guide: https://www.youtube.com/watch?v=1jYgBMrfVZs
 
-### Tweet 5 (Call to Action)
-Try the voice coding workflow:
-1. Download Whispering (free, open source)
-2. Add your API key (Groq is $0.02/hour)
-3. Turn on voice activation
-4. Start talking to your code
+### Tweet 5 (Call to Action + More Tech)
+Try the voice coding workflow yourself:
 
-Built with @sveltejs 5 + @tauri_apps. The communities that helped me build this.
+Installation: https://github.com/braden-w/whispering#installation
+
+And thank you to the amazing open-source community that made this possible!
 
 ---
 
-## Alternative: Pure Tool Thread (If Video Doesn't Perform)
+## First 30 Minutes Engagement Plan
+
+**CRITICAL ACTIONS:**
+1. Reply to EVERY comment immediately
+2. Like comments quickly
+3. Quote tweet yourself with additional context if taking off
+4. Have friends/team ready to engage early
+
+**Prepared Responses:**
+- "How do I set this up?" → Here's a 5-min guide: https://www.youtube.com/watch?v=1jYgBMrfVZs
+- "What's the catch?" → No catch. I built this for myself and use it daily. The code is open source so you can verify everything yourself.
+- "How is this different?" → You own everything. Your API keys, your data, your costs. No middleman.
+- Technical questions → The implementation details are all on GitHub!
+
+## Alternative: Pure Tool Thread (If Video Doesn't Perform by Noon)
 
 ### Tweet 1 (Problem/Solution Hook)
 Transcription apps charging $30/month for API wrappers is insane.
@@ -59,7 +80,7 @@ The math:
 
 Whispering is 100% free and open source.
 
-GitHub: [link]
+GitHub: https://github.com/braden-w/whispering
 
 ### Tweet 3 (How It Works)
 How it works:
@@ -88,28 +109,43 @@ Just transcription as it should be.
 
 ---
 
-## Video-First Strategy (RECOMMENDED)
+## Why This Strategy Works
 
-### Why Video First?
-- Shows the magic moment (voice → code)
-- 3 minutes is perfect for Twitter video
-- Demonstrates value immediately
-- Higher engagement than text
+### Native Video Advantages
+- **2-3x more reach** than YouTube links
+- **Auto-plays in timeline** (YouTube links don't)
+- **No friction** - users stay on platform
+- **Better analytics** - full Twitter metrics
+- **Mobile optimized** - 70% of users on mobile
 
-### Optimal Posting Strategy
-1. **9:00 AM PST**: Post video thread
-2. **Monitor for 1 hour**: Check engagement
-3. **If viral**: Keep pushing with quote tweets
-4. **If flat**: Try text thread at 2 PM PST
+### Your Hook is Perfect Because
+- Creates curiosity (managing 6 AI agents)
+- Shows unique workflow (hands-free coding)
+- Personal story (not corporate)
+- Specific capability (parallel multitasking)
+- Visual payoff in video
 
-### Key Twitter/X Optimizations
-- ✅ Link in second tweet (avoids algorithm penalty)
-- ✅ Video in first tweet (maximum engagement)
-- ✅ Thread format (more surface area)
-- ✅ Clear CTA in final tweet
-- ✅ @ mention relevant accounts (@sveltejs, @tauri_apps)
+### Viral Triggers in Your Demo
+- **Paradigm shift**: Voice replaces typing
+- **Cost shock**: $0.02/hr vs $30/month
+- **Live demo**: Seeing voice → code is magical
+- **Relatable**: Everyone knows typing fatigue
+- **David vs Goliath**: Open source vs paid apps
 
 ---
+
+## If Video Takes Off (2 PM Quote Tweet)
+
+"A lot of people asking about the setup.
+
+It takes 5 minutes:
+1. Download Whispering
+2. Get a Groq API key (free)
+3. Paste it in settings
+
+That's it. You're now transcribing at $0.02/hour instead of paying $30/month.
+
+Full guide: https://www.youtube.com/watch?v=1jYgBMrfVZs"
 
 ## Follow-up Tweets (Next 24-48 Hours)
 
@@ -132,4 +168,4 @@ Transcription should be free."
 
 Here's how I handle real-time audio streams with the new runes system: [code screenshot]
 
-Full source: [GitHub link]"
+Full source: https://github.com/braden-w/whispering"
