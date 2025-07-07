@@ -112,11 +112,33 @@ import { Input } from '$lib/components/ui/input';
 - Acknowledge limitations and trade-offs openly
 
 ## Avoiding AI-Generated Feel
-- Remove promotional language patterns ("game-changing", "revolutionary")
-- Use specific examples and concrete numbers instead of vague estimates
-- Structure content logically (features → benefits → costs) not sales-first
-- Maintain consistent voice that matches existing authentic sections
-- Avoid excessive enthusiasm or overselling
+
+### The Dead Giveaways
+- **Bold formatting everywhere** - Biggest red flag. Never bold section headers in post content
+- **Excessive bullet lists** - Convert to flowing paragraphs
+- **Marketing language** - "game-changing", "revolutionary", "unleash", "empower"
+- **Structured sections** - "Key Features:", "Benefits:", "Why This Matters:"
+- **Vague superlatives** - "incredibly powerful", "seamlessly integrates", "robust solution"
+
+### Writing Natural Prose
+- **Start with a story or problem** - "I was paying $30/month..." not "Introducing..."
+- **Use specific numbers** - "$0.02/hour" not "affordable pricing"
+- **Personal voice** - "I built this because..." not "This was built to..."
+- **Conversational flow** - Ideas connect naturally, not in rigid sections
+- **Concrete examples** - "I use it 3-4 hours daily" not "heavy usage"
+
+### The OpenAI Post Pattern (What Works)
+```
+Personal hook → Specific problem → Real numbers → How I solved it → 
+What it actually does → Technical details → Genuine question to community
+```
+
+### Paragraph Structure
+- Mix short and long sentences
+- One idea flows into the next
+- No rigid formatting or sections
+- Natural transitions like "So I built..." or "Here's the thing..."
+- End with engagement, not a sales pitch
 
 ## README Structure Principles
 - Start with what the tool actually does, not why it's amazing
@@ -124,6 +146,31 @@ import { Input } from '$lib/components/ui/input';
 - Present facts and let users draw conclusions
 - Include real limitations and use cases
 - Make pricing transparent with actual provider costs
+
+# Writing Style Examples
+
+## Good Example (Natural, Human)
+"I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
+
+So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no data collection, no lock-in."
+
+## Bad Example (AI-Generated Feel)
+"**Introducing Whispering** - A revolutionary transcription solution that empowers users with unprecedented control.
+
+**Key Benefits:**
+- **Cost-Effective**: Save up to 90% on transcription costs
+- **Privacy-First**: Your data never leaves your control
+- **Flexible**: Multiple provider options available
+
+**Why Whispering?** We believe transcription should be accessible to everyone..."
+
+## The Difference
+- Good: Tells a story, uses specific numbers, flows naturally
+- Bad: Structured sections, bold headers, marketing language
+- Good: "I built this because..." (personal)
+- Bad: "This was built to..." (corporate)
+- Good: "$0.02/hour" (specific)
+- Bad: "affordable pricing" (vague)
 
 # Git Commit and Pull Request Guidelines
 
