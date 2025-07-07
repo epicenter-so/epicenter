@@ -113,6 +113,13 @@ export type UnifiedNotificationOptions = {
 	 * @others Ignored
 	 */
 	variant: 'success' | 'error' | 'warning' | 'info' | 'loading';
+
+	/**
+	 * Keep toast visible indefinitely until manually dismissed
+	 * @toast Uses Infinity duration in Sonner
+	 * @note Only applies to toast notifications, not OS notifications
+	 */
+	persist?: boolean;
 };
 
 export type NotificationService = {

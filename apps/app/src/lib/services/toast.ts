@@ -42,6 +42,9 @@ export const ToastServiceLive = {
 
 // Helper to determine toast duration
 function getDuration(options: UnifiedNotificationOptions): number {
+	// Persistent toasts use Infinity duration
+	if (options.persist) return Number.POSITIVE_INFINITY;
+
 	if (options.variant === 'loading') return 5000;
 	if (options.variant === 'error' || options.variant === 'warning') return 5000;
 	if (options.action) return 4000;
