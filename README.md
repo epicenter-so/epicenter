@@ -49,7 +49,7 @@ Unlike subscription services that charge $15-30/month, Whispering lets you bring
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
 </div>
 
-> **Want to see the voice coding workflow?** Check out this [3-minute demo](https://www.youtube.com/watch?v=cJrDf8Z4_7k) showing how I use Whispering with Claude Code for faster development.
+> **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
 ## Features at a Glance
 
