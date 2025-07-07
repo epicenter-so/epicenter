@@ -3,20 +3,23 @@ import { rpc } from '$lib/query';
 import * as services from '$lib/services';
 import { settings as settingsStore } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import { Ok } from 'wellcrafted/result';
+import { Ok, Err, partitionResults, type Result } from 'wellcrafted/result';
 import { defineMutation } from './_utils';
+import type { TaggedError } from 'wellcrafted/error';
+import type { ManualRecorderServiceError } from '$lib/services/manual-recorder';
+import type { VadRecorderServiceError } from '$lib/services/vad-recorder';
 
 /**
  * Centralized settings mutations that ensure consistent behavior across the application.
- * 
+ *
  * This module provides a single source of truth for settings-related operations that
  * require additional logic or side effects beyond simple value updates.
- * 
+ *
  * Key responsibilities:
  * - Enforcing business rules when settings change (e.g., stopping active recordings when switching modes)
  * - Providing atomic operations that combine multiple related changes
  * - Ensuring UI feedback and notifications are consistent
- * 
+ *
  * Example: When switching recording modes, we always stop any active recordings first
  * to prevent conflicts between different recording systems.
  */
@@ -31,11 +34,11 @@ export const settings = {
 			const toastId = nanoid();
 
 			// First, stop all active recordings except the new mode
-			try {
-				await stopAllRecordingModesExcept(newMode);
-			} catch (error) {
+			const { errs } = await stopAllRecordingModesExcept(newMode);
+
+			if (errs.length > 0) {
 				// Even if stopping fails, we should still switch modes
-				console.error('Failed to stop active recordings:', error);
+				console.error('Failed to stop active recordings:', errs);
 				rpc.notify.warning.execute({
 					id: toastId,
 					title: '⚠️ Recording may still be active',
@@ -65,17 +68,12 @@ export const settings = {
 /**
  * Ensures only one recording mode is active at a time by stopping all other modes.
  * This prevents conflicts between different recording methods and ensures clean transitions.
+ *
+ * @returns Object containing array of errors that occurred while stopping recordings
  */
-async function stopAllRecordingModesExcept(
-	modeToKeep: RecordingMode,
-): Promise<void> {
+async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 	// Each recording mode with its check and stop logic
 	const recordingModes = [
-		{
-			mode: 'vad' as const,
-			isActive: () => services.vad.getVadState() !== 'IDLE',
-			stop: () => services.vad.stopActiveListening(),
-		},
 		{
 			mode: 'manual' as const,
 			isActive: () =>
@@ -86,26 +84,44 @@ async function stopAllRecordingModesExcept(
 				}),
 		},
 		{
-			mode: 'cpal' as const,
-			isActive: () =>
-				services.cpalRecorder.getRecorderState().data === 'RECORDING',
-			stop: () =>
-				services.cpalRecorder.stopRecording({
-					sendStatus: () => {}, // Silent cancel - no UI notifications
-				}),
+			mode: 'vad' as const,
+			isActive: () => services.vad.getVadState() !== 'IDLE',
+			stop: () => services.vad.stopActiveListening(),
 		},
+		// {
+		// 	mode: 'cpal' as const,
+		// 	isActive: () =>
+		// 		services.cpalRecorder.getRecorderState().data === 'RECORDING',
+		// 	stop: () =>
+		// 		services.cpalRecorder.stopRecording({
+		// 			sendStatus: () => {}, // Silent cancel - no UI notifications
+		// 		}),
+		// },
 	] satisfies {
 		mode: RecordingMode;
 		isActive: () => boolean;
 		stop: () => Promise<unknown>;
 	}[];
 
-	// Stop all modes except the one to keep
-	for (const recordingMode of recordingModes) {
-		if (recordingMode.mode === modeToKeep) continue;
+	// Filter to modes that need to be stopped
+	const modesToStop = recordingModes.filter(
+		(recordingMode) =>
+			recordingMode.mode !== modeToKeep && recordingMode.isActive(),
+	);
 
-		if (recordingMode.isActive()) {
-			await recordingMode.stop();
-		}
-	}
+	// Create promises that wrap each stop call in try-catch
+	const stopPromises = modesToStop.map(
+		async (recordingMode) => await recordingMode.stop(),
+	);
+
+	// Execute all stops in parallel
+	const results: Result<
+		Blob | undefined,
+		ManualRecorderServiceError | VadRecorderServiceError
+	>[] = await Promise.all(stopPromises);
+
+	// Partition results into successes and errors
+	const { errs } = partitionResults(results);
+
+	return { errs };
 }

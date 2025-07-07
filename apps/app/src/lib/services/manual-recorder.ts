@@ -16,7 +16,9 @@ import {
 
 const { ManualRecorderServiceError, ManualRecorderServiceErr } =
 	createTaggedError('ManualRecorderServiceError');
-type ManualRecorderServiceError = ReturnType<typeof ManualRecorderServiceError>;
+export type ManualRecorderServiceError = ReturnType<
+	typeof ManualRecorderServiceError
+>;
 
 type ActiveRecording = {
 	selectedDeviceId: string | null;
@@ -84,12 +86,13 @@ export function createManualRecorderService() {
 					new MediaRecorder(stream, {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
 					}),
-				mapError: (error) => ManualRecorderServiceError({
-					message:
-						'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
-					context: { selectedDeviceId, bitrateKbps },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ManualRecorderServiceError({
+						message:
+							'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
+						context: { selectedDeviceId, bitrateKbps },
+						cause: error,
+					}),
 			});
 
 			if (recorderError) {
@@ -156,16 +159,17 @@ export function createManualRecorderService() {
 						});
 						recording.mediaRecorder.stop();
 					}),
-				mapError: (error) => ManualRecorderServiceError({
-					message:
-						'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
-					context: {
-						chunksCount: recording.recordedChunks.length,
-						mimeType: recording.mediaRecorder.mimeType,
-						state: recording.mediaRecorder.state,
-					},
-					cause: error,
-				}),
+				mapError: (error) =>
+					ManualRecorderServiceError({
+						message:
+							'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
+						context: {
+							chunksCount: recording.recordedChunks.length,
+							mimeType: recording.mediaRecorder.mimeType,
+							state: recording.mediaRecorder.state,
+						},
+						cause: error,
+					}),
 			});
 
 			// Always clean up the stream
