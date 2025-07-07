@@ -6,12 +6,7 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { TrashIcon, ClipboardIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import {
-		deliverTranscribedText,
-		deliverTransformedText,
-	} from '$lib/deliverTextToUser';
 	import { rpc } from '$lib/query';
-	import type { Recording } from '$lib/services/db';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
@@ -97,7 +92,10 @@
 					onSuccess: (transcribedText) => {
 						rpc.sound.playSoundIfEnabled.execute('transcriptionComplete');
 
-						deliverTranscribedText({ text: transcribedText, toastId });
+						rpc.delivery.deliverTranscriptionResult.execute({
+							text: transcribedText,
+							toastId,
+						});
 					},
 				});
 			}}
@@ -143,7 +141,7 @@
 
 							rpc.sound.playSoundIfEnabled.execute('transformationComplete');
 
-							deliverTransformedText({
+							rpc.delivery.deliverTransformationResult.execute({
 								text: transformationRun.output,
 								toastId,
 							});
