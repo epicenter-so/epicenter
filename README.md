@@ -66,20 +66,19 @@ Choose your operating system below and click the download link:
 <details>
 <summary><strong>🍎 macOS</strong></summary>
 
-### Choose your version:
+#### Download Options
 
-**Apple Silicon (M1/M2/M3 Macs)**  
-[⬇️ Download Whispering for Apple Silicon](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)
-
-**Intel Macs**  
-[⬇️ Download Whispering for Intel](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)
+| Architecture | Download | Requirements |
+|-------------|----------|--------------|
+| **Apple Silicon** | [Whispering_7.0.0_aarch64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg) | M1/M2/M3 Macs |
+| **Intel** | [Whispering_7.0.0_x64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg) | Intel-based Macs |
 
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3 → Use Apple Silicon version
 > - Intel Core → Use Intel version
 
-### Installation steps:
-1. Download the `.dmg` file using the link above
+#### Installation steps:
+1. Download the `.dmg` file for your architecture
 2. Open the downloaded file
 3. Drag Whispering to your Applications folder
 4. Open Whispering from Applications
@@ -93,12 +92,16 @@ Choose your operating system below and click the download link:
 <details>
 <summary><strong>🪟 Windows</strong></summary>
 
-### Download:
-[⬇️ Download Whispering Installer (.msi)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) — Recommended  
-[⬇️ Download Whispering (.exe)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe) — Alternative installer
+#### Download Options
 
-### Installation steps:
-1. Download the `.msi` file above
+| Installer Type | Download | Description |
+|---------------|----------|-------------|
+| **MSI Installer** | [Whispering_7.0.0_x64_en-US.msi](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) | Recommended - Standard Windows installer |
+| **EXE Installer** | [Whispering_7.0.0_x64-setup.exe](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe) | Alternative installer option |
+
+#### Installation
+
+1. Download the `.msi` installer (recommended)
 2. Double-click to run the installer
 3. If Windows Defender appears: Click "More Info" → "Run Anyway"
 4. Follow the installation wizard
@@ -110,32 +113,30 @@ Whispering will appear in your Start Menu when complete.
 <details>
 <summary><strong>🐧 Linux</strong></summary>
 
-### Download:
-**AppImage (Universal)**  
-[⬇️ Download Whispering AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage) — Works on any Linux distribution
+#### Download Options
 
-**Debian/Ubuntu**  
-[⬇️ Download Whispering .deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb) — For apt-based systems
+| Package Format | Download | Compatible With |
+|---------------|----------|-----------------|
+| **AppImage** | [Whispering_7.0.0_amd64.AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage) | All Linux distributions |
+| **DEB Package** | [Whispering_7.0.0_amd64.deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
+| **RPM Package** | [Whispering-7.0.0-1.x86_64.rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
 
-**Fedora/RHEL**  
-[⬇️ Download Whispering .rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm) — For rpm-based systems
+#### Quick Install Commands
 
-### Quick install commands:
-
-**AppImage:**
+**AppImage** (Universal)
 ```bash
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage
 chmod +x Whispering_7.0.0_amd64.AppImage
 ./Whispering_7.0.0_amd64.AppImage
 ```
 
-**Debian/Ubuntu:**
+**Debian/Ubuntu**
 ```bash
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb
 sudo dpkg -i Whispering_7.0.0_amd64.deb
 ```
 
-**Fedora/RHEL:**
+**Fedora/RHEL**
 ```bash
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm
 sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
@@ -146,13 +147,15 @@ sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
 > **Links not working?** Find all downloads at [GitHub Releases](https://github.com/braden-w/whispering/releases/latest)
 
 <details>
-<summary><strong>🌐 Try in Browser (No Download)</strong></summary>
+<summary><strong>Try in Browser (No Download)</strong></summary>
 
-### [🚀 Open Whispering Web App](https://whispering.bradenwong.com)
+<br>
+
+**[🚀 Open Whispering Web App →](https://whispering.bradenwong.com)**
 
 No installation needed! Works in any modern browser.
 
-**Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
+> **Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
