@@ -66,150 +66,87 @@ Choose your operating system below and click the download link:
 <details open>
 <summary><strong>🍎 macOS</strong></summary>
 
-<table>
-<tr>
-<td width="50%">
+### Choose your version:
 
-### Apple Silicon (M1/M2/M3)
-**[⬇️ Download for Apple Silicon](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)**
+**Apple Silicon (M1/M2/M3 Macs)**  
+[⬇️ Download Whispering for Apple Silicon](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)
 
-For newer Macs with M1, M2, or M3 chips
+**Intel Macs**  
+[⬇️ Download Whispering for Intel](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)
 
-</td>
-<td width="50%">
+> **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
+> - Apple M1/M2/M3 → Use Apple Silicon version
+> - Intel Core → Use Intel version
 
-### Intel Macs
-**[⬇️ Download for Intel](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)**
-
-For older Macs with Intel processors
-
-</td>
-</tr>
-</table>
-
-<details>
-<summary>🤔 Not sure which Mac you have?</summary>
-
-Click the Apple menu → About This Mac:
-- If you see **"Apple M1/M2/M3"** → [Download Apple Silicon version](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)
-- If you see **"Intel"** → [Download Intel version](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)
-
-</details>
-
-**Installation (30 seconds):**
-1. Click the download link above
-2. Open the downloaded `.dmg` file
+### Installation steps:
+1. Download the `.dmg` file using the link above
+2. Open the downloaded file
 3. Drag Whispering to your Applications folder
-4. Launch Whispering from Applications
+4. Open Whispering from Applications
 
-<details>
-<summary>⚠️ Troubleshooting</summary>
-
-**"Unverified developer" warning?**
-- Right-click Whispering → click "Open" → click "Open" again
-
-**"App is damaged" on Apple Silicon?**
-- Open Terminal and run: `xattr -cr /Applications/Whispering.app`
-- Try opening again
-
-</details>
+### Troubleshooting:
+- **"Unverified developer" warning:** Right-click the app → Open → Open
+- **"App is damaged" error (Apple Silicon):** Run `xattr -cr /Applications/Whispering.app` in Terminal
 
 </details>
 
 <details>
 <summary><strong>🪟 Windows</strong></summary>
 
-### Download for Windows
-**[⬇️ Download Windows Installer (.msi)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi)** (Recommended)
+### Download:
+[⬇️ Download Whispering Installer (.msi)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) — Recommended  
+[⬇️ Download Whispering (.exe)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe) — Alternative installer
 
-Alternative: [Download .exe installer](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe)
+### Installation steps:
+1. Download the `.msi` file above
+2. Double-click to run the installer
+3. If Windows Defender appears: Click "More Info" → "Run Anyway"
+4. Follow the installation wizard
 
-**Installation (1 minute):**
-1. Click the download link above
-2. Run the downloaded installer
-3. If Windows Defender appears: Click **"More Info"** → **"Run Anyway"**
-4. Follow the installation wizard (just click Next → Next → Install)
-
-✅ That's it! Whispering will appear in your Start Menu.
+Whispering will appear in your Start Menu when complete.
 
 </details>
 
 <details>
 <summary><strong>🐧 Linux</strong></summary>
 
-### Choose your Linux package:
+### Download:
+**AppImage (Universal)**  
+[⬇️ Download Whispering AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage) — Works on any Linux distribution
 
-<table>
-<tr>
-<td width="33%">
+**Debian/Ubuntu**  
+[⬇️ Download Whispering .deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb) — For apt-based systems
 
-**Universal (AppImage)**
-[⬇️ Download AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage)
+**Fedora/RHEL**  
+[⬇️ Download Whispering .rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm) — For rpm-based systems
 
-Works on any Linux distro
+### Quick install commands:
 
-</td>
-<td width="33%">
-
-**Debian/Ubuntu (.deb)**
-[⬇️ Download .deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb)
-
-For Debian-based systems
-
-</td>
-<td width="33%">
-
-**Fedora/RHEL (.rpm)**
-[⬇️ Download .rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm)
-
-For Red Hat-based systems
-
-</td>
-</tr>
-</table>
-
-**Quick Install Commands:**
-
-<details>
-<summary>AppImage (Universal)</summary>
-
+**AppImage:**
 ```bash
-# Download and run
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage
 chmod +x Whispering_7.0.0_amd64.AppImage
 ./Whispering_7.0.0_amd64.AppImage
 ```
 
-</details>
-
-<details>
-<summary>Debian/Ubuntu</summary>
-
+**Debian/Ubuntu:**
 ```bash
-# Download and install
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb
 sudo dpkg -i Whispering_7.0.0_amd64.deb
 ```
 
-</details>
-
-<details>
-<summary>Fedora/RHEL</summary>
-
+**Fedora/RHEL:**
 ```bash
-# Download and install
 wget https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm
 sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
 ```
 
 </details>
 
-</details>
-
 <details>
 <summary><strong>🌐 Try in Browser (No Download)</strong></summary>
 
-### **[▶️ Open Whispering Web App](https://whispering.bradenwong.com)**
+### [🚀 Open Whispering Web App](https://whispering.bradenwong.com)
 
 No installation needed! Works in any modern browser.
 
