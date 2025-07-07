@@ -86,7 +86,7 @@
 		"nanoid": "^5.1.5",
 		"openai": "^5.7.0",
 		"vaul-svelte": "1.0.0-next.7",
-		"wellcrafted": "^0.17.0",
+		"wellcrafted": "^0.18.0",
 		"zod": "^3.25.67"
 	}
 }

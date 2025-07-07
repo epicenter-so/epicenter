@@ -126,8 +126,8 @@ importers:
         specifier: 1.0.0-next.7
         version: 1.0.0-next.7(svelte@5.34.7)
       wellcrafted:
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.0
+        version: 0.18.0
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -232,8 +232,8 @@ importers:
         specifier: ^0.468.0
         version: 0.468.0(svelte@5.34.7)
       wellcrafted:
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: ^0.18.0
+        version: 0.18.0
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -2645,11 +2645,8 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
-  wellcrafted@0.16.1:
-    resolution: {integrity: sha512-cxpmVy6qTToZKUAr78m6tQJAdKWyF4SW9LOYrQG3rFOtcOId/GG3j/R/yLg2SrchhfdK40VSSSLMGtGRWrkl4A==}
-
-  wellcrafted@0.17.0:
-    resolution: {integrity: sha512-lmM3i6IjqB4cX8AElN7WSmK3pligD7JWiHn+oaH+U82syBaaA1zQk9Y6QEsXy4xNFlAEjoviFgGqRrdAj0bi9g==}
+  wellcrafted@0.18.0:
+    resolution: {integrity: sha512-6jKZO9T62mX/btfrwO3HOSzeD5lm/Qk0CbURretwQh8N5fNpoIuRc74+q5thBYxYPlQBbN2czy2EwHbkx8Dm9A==}
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
@@ -4951,9 +4948,7 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
-  wellcrafted@0.16.1: {}
-
-  wellcrafted@0.17.0: {}
+  wellcrafted@0.18.0: {}
 
   whatwg-url@5.0.0:
     dependencies:
