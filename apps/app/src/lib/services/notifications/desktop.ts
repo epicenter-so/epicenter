@@ -9,13 +9,12 @@ import {
 import { nanoid } from 'nanoid/non-secure';
 import type {
 	NotificationService,
-	NotificationServiceError,
 	UnifiedNotificationOptions,
 } from './types';
 import {
 	toTauriNotification,
 	hashNanoidToNumber,
-	NotificationServiceErr,
+	NotificationServiceError,
 } from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {
@@ -26,7 +25,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 			await tryAsync({
 				try: async () => await active(),
 				mapError: (error) =>
-					NotificationServiceErr({
+					NotificationServiceError({
 						message: 'Unable to retrieve active desktop notifications.',
 						context: { id },
 						cause: error,
@@ -40,7 +39,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
 				mapError: (error) =>
-					NotificationServiceErr({
+					NotificationServiceError({
 						message: `Unable to remove notification with id ${id}.`,
 						context: { id, matchingActiveNotification },
 						cause: error,
@@ -74,7 +73,7 @@ export function createNotificationServiceDesktop(): NotificationService {
 					}
 				},
 				mapError: (error) =>
-					NotificationServiceErr({
+					NotificationServiceError({
 						message: 'Could not send notification',
 						context: {
 							idStringified,

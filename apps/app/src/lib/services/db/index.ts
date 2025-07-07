@@ -9,7 +9,6 @@ export {
 	TRANSFORMATION_STEP_TYPES_TO_LABELS,
 } from './models';
 export type {
-	DbServiceError,
 	InsertTransformationStep,
 	Recording,
 	Transformation,
@@ -19,7 +18,8 @@ export type {
 	TransformationStep,
 	TransformationStepRun,
 } from './models';
-export type { DbService } from './dexie';
+export type { DbService, DbServiceError } from './dexie';
+export { DbServiceError, DbServiceErr } from './dexie';
 
 export const DbServiceLive = createDbServiceDexie({
 	DownloadService: DownloadServiceLive,

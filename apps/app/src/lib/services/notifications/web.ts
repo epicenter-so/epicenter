@@ -3,7 +3,7 @@ import type { NotificationService, UnifiedNotificationOptions } from './types';
 import {
 	toBrowserNotification,
 	toExtensionNotification,
-	NotificationServiceErr,
+	NotificationServiceError,
 } from './types';
 import { nanoid } from 'nanoid/non-secure';
 
@@ -81,7 +81,7 @@ export function createNotificationServiceWeb(): NotificationService {
 					}
 				},
 				mapError: (error) =>
-					NotificationServiceErr({
+					NotificationServiceError({
 						message: 'Failed to send browser notification',
 						context: { notificationId, title: options.title },
 						cause: error,
