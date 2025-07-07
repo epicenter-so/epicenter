@@ -63,9 +63,7 @@ https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
 Choose your operating system below and click the download link:
 
-> **Links not working?** Find all downloads at [GitHub Releases](https://github.com/braden-w/whispering/releases/latest)
-
-<details open>
+<details>
 <summary><strong>🍎 macOS</strong></summary>
 
 ### Choose your version:
@@ -145,6 +143,8 @@ sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
 
 </details>
 
+> **Links not working?** Find all downloads at [GitHub Releases](https://github.com/braden-w/whispering/releases/latest)
+
 <details>
 <summary><strong>🌐 Try in Browser (No Download)</strong></summary>
 
@@ -176,13 +176,15 @@ Right now, I personally use **Groq** for almost all my transcriptions.
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
----
+<details>
+<summary><strong>Having trouble? Common issues & fixes</strong></summary>
 
-### Common Issues
-
+### Quick Fixes
 - **No transcription?** → Double-check API key in Settings
 - **Shortcut not working?** → Bring Whispering to foreground (see macOS section below)
 - **Wrong provider selected?** → Check Settings → Transcription
+
+### Platform-Specific Issues
 
 <details>
 <summary><strong>macOS: Global shortcut stops working?</strong></summary>
@@ -234,7 +236,11 @@ See [Issue #526](https://github.com/braden-w/whispering/issues/526) for more det
 
 </details>
 
+</details>
+
 ### 4️⃣ Next Steps: Power User Features
+
+Take your transcription experience to the next level with these advanced features:
 
 <details>
 <summary><strong>🎯 Custom Transcription Services</strong></summary>
