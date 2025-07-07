@@ -1,5 +1,5 @@
 import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audio';
-import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { Ok, type Result, tryAsync } from 'wellcrafted/result';
 import { createTaggedError } from 'wellcrafted/error';
 
 const { DeviceStreamServiceError, DeviceStreamServiceErr } = createTaggedError(
@@ -64,12 +64,13 @@ export async function enumerateRecordingDevices(): Promise<
 			);
 			return audioInputDevices;
 		},
-		mapError: (error) => DeviceStreamServiceError({
-			message:
-				'We need permission to see your microphones. Check your browser settings and try again.',
-			context: { permissionRequired: 'microphone' },
-			cause: error,
-		}),
+		mapError: (error) =>
+			DeviceStreamServiceError({
+				message:
+					'We need permission to see your microphones. Check your browser settings and try again.',
+				context: { permissionRequired: 'microphone' },
+				cause: error,
+			}),
 	});
 }
 
@@ -88,15 +89,16 @@ export async function getStreamForDeviceId(recordingDeviceId: string) {
 			});
 			return stream;
 		},
-		mapError: (error) => DeviceStreamServiceError({
-			message:
-				'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
-			context: {
-				recordingDeviceId,
-				hasPermission,
-			},
-			cause: error,
-		}),
+		mapError: (error) =>
+			DeviceStreamServiceError({
+				message:
+					'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
+				context: {
+					recordingDeviceId,
+					hasPermission,
+				},
+				cause: error,
+			}),
 	});
 }
 
