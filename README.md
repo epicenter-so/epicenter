@@ -163,7 +163,7 @@ No installation needed! Works in any modern browser.
 
 </details>
 
-### 2️⃣ Get Your API Key (30 seconds)
+### 2️⃣ Get Your API Key
 
 Right now, I personally use **Groq** for almost all my transcriptions.
 
