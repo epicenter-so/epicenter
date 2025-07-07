@@ -1,39 +1,33 @@
 # Reddit r/Anthropic Launch Post
 
+## Status: ✅ POSTED
+
+## Posted URL: https://www.reddit.com/r/Anthropic/comments/1lu29ba/i_manage_6_claude_code_agents_in_parallel_by/
+
+## Post Type: **Video Post (3-minute voice coding demo)**
+
 ## Title
 
-How I use Claude Code + Whispering (my free transcription app) for 3x faster coding
+I manage 6 Claude Code agents in parallel by talking to my computer - here's the workflow
 
 ## Post Content
 
 Hey r/Anthropic!
 
-I wanted to share a workflow that's transformed how I code with Claude. I built Whispering, a free open-source transcription app, and the combination with Claude Code has been incredible.
+I wanted to share a workflow that's completely changed how I use Claude Code. I can now manage 6 different Claude agents in parallel just by talking.
 
-**The workflow:**
-1. I speak my thoughts naturally while coding
-2. Whispering transcribes in real-time (using OpenAI Whisper API)
-3. I paste the transcription into Claude Code
-4. Claude understands my intent and generates/refactors code
+Here's what I do: I speak my thoughts naturally while coding, Whispering transcribes it instantly, and I paste that into Claude Code. Claude just gets it. No more carefully crafting prompts - I just talk like I'm explaining to a colleague.
 
-**Why this works so well:**
-- Speaking is 3x faster than typing
-- Natural language captures intent better than trying to write precise prompts
-- Claude excels at understanding conversational context
-- The feedback loop is incredibly fast
+The speed difference is insane. Speaking is 3x faster than typing, but more importantly, I stay in flow state. When I'm deep in a problem, I can just ramble about what I'm trying to solve and Claude picks up on all the context.
 
-**About Whispering:**
-- 100% free and open source
-- You bring your own API key (OpenAI, Groq, etc.)
-- Direct API calls - your audio never touches our servers
-- Built with Svelte 5 + Tauri
+I built Whispering specifically for this workflow. It's free and open source - you bring your own API key (OpenAI, Groq, whatever) and your audio goes directly to them. No middleman servers. Costs me about $0.02/hour instead of the $30/month other apps charge.
 
-I've included a demo video showing this workflow in action. The "vibe coding" approach lets me describe what I want naturally, and Claude just gets it.
+The video shows me actually coding this way - managing multiple Claude agents, describing complex refactors, debugging by thinking out loud. It's like pair programming but Claude never gets tired of my rambling.
 
-**Watch the workflow:**
-- 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
-- Shows the actual speed difference and how natural it feels
+Built with Svelte 5 and Tauri so it's tiny and starts instantly. Works on Mac, Windows, Linux.
 
 GitHub: https://github.com/braden-w/whispering
 
-Would love to hear how others are combining voice input with AI coding assistants!
+Demo: [Coding workflow](https://youtube.com/shorts/tP1fuFpJt7g)
+
+Anyone else using voice with Claude? What's your workflow?

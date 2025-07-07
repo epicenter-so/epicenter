@@ -7,44 +7,20 @@ Whispering - Self-hosted transcription using your own API keys (no subscription 
 
 Hey r/selfhosted!
 
-I built Whispering because I was tired of transcription services that charge monthly fees for something you can essentially self-host.
+I built Whispering because I was tired of transcription services charging $30/month for what's essentially an API wrapper. It's not self-hosted in the traditional sense, but it embodies the same principles we care about here.
 
-**How it works:**
-- Desktop app (not a web service)
-- You provide your own API key (OpenAI, Groq, etc.)
-- Direct API calls from your machine
-- No intermediary servers
-- Pay providers directly (typically $0.006/minute)
+Here's the deal: you bring your own API key (OpenAI, Groq, whatever), and the app makes direct calls from your machine. No middleman servers, no subscription fees, no data leaving your control. You pay the actual API costs - about $0.006/minute or $0.36/hour.
 
-**Why this fits the self-hosted philosophy:**
-- You control the entire pipeline
-- No dependency on a third-party service
-- Your data never leaves your control
-- Transparent costs (see exactly what you pay)
-- Can switch providers anytime
+I've been using it daily for months. My total cost? About $3/month going directly to Groq. If I used a commercial service, I'd be paying $30/month for the exact same API calls.
 
-**Features:**
-- Real-time transcription
-- Multiple language support
-- Export formats (TXT, SRT, JSON)
-- Global hotkeys
-- System tray integration
-- Cross-platform (Mac, Windows, Linux)
+The privacy aspect is what really matters to me. Your audio goes directly from your machine to your chosen API provider. No company in between logging your conversations or training on your data. API keys are encrypted locally. Zero telemetry.
 
-**Tech stack:**
-- Svelte 5 + Tauri (native desktop app)
-- ~50MB download
-- No Docker needed - runs natively
-- Auto-updater for convenience
+It's a native desktop app built with Tauri, so it's tiny (~22MB) and runs without Docker. Works on Mac, Windows, and Linux. Has all the features you'd expect - real-time transcription, multiple languages, export formats, global hotkeys.
 
-**Privacy:**
-- 100% open source
-- No telemetry or analytics
-- API keys stored encrypted locally
-- Audio processed on your machine, sent directly to your chosen API
+The code is 100% open source. You can audit exactly what it does with your data (spoiler: nothing except send it to your chosen API).
 
-While it's not self-hosted in the traditional sense (since it uses external APIs), it embodies the same principles: you own your data, you control your costs, and you're not locked into a subscription service.
+I know it's not traditional self-hosting since it uses external APIs, but it gives you the same control and ownership we value here. No SaaS lock-in, transparent costs, and your data stays yours.
 
-GitHub: [link]
+GitHub: https://github.com/braden-w/whispering
 
-Perfect for those who want transcription without the SaaS lock-in!
+Anyone else tired of subscription services for basic utilities?

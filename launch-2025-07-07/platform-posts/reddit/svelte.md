@@ -15,27 +15,23 @@ Show r/sveltejs: Whispering, an production Svelte 5 + Tauri desktop app
 
 Hey r/sveltejs!
 
-I wanted to share Whispering, a complex production Svelte 5 app I built with several hundred GitHub stars. It's completely free and open-source, built as an alternative to apps that charge $30/month for API wrappers.
+I wanted to share Whispering, a production Svelte 5 app I've been building. It's a free, open-source transcription tool that's saved me hundreds of dollars.
 
-Full project details: [https://github.com/braden-w/whispering#readme](https://github.com/braden-w/whispering#readme)
+The Svelte 5 patterns in this codebase might interest you. I'm using runes extensively - `$state` for reactive UI, `$derived` for computed values, and `$effect` for side effects. The new reactivity system has been fantastic for managing real-time audio state.
 
-**What makes this interesting for Svelte devs:**
+One pattern I'm particularly proud of is using `createSubscriber` for event management. Check out [createPressedKeys.svelte.ts](https://github.com/braden-w/whispering/blob/main/apps/app/src/lib/utils/createPressedKeys.svelte.ts) - it only listens to keyboard events when components actually need them. Same pattern for [localStorage sync](https://github.com/braden-w/whispering/blob/main/apps/app/src/lib/utils/createPersistedState.svelte.ts). No memory leaks, automatic cleanup.
 
-* Extensive use of Svelte 5 runes (`$state`, `$derived`, `$effect`) in production
-* Clean component architecture following `shadcn-svelte` patterns
-* Complex state management with `TanStack Query` integration
-* Using `createSubscriber` for syncing persisted state and syncing keyboard shortcuts and to window event listeners on `keydown` and `storage` events
-* \~95% code sharing between desktop and web versions through a [service layer](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services#readme) with dependency injection for platform abstraction, [query layer](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/query#readme) using TanStack Query for reactive state
-* `createSubscriber` for [keyboard management](https://github.com/braden-w/whispering/blob/main/apps/app/src/lib/utils/createPressedKeys.svelte.ts) and [localStorage sync](https://github.com/braden-w/whispering/blob/main/apps/app/src/lib/utils/createPersistedState.svelte.ts)
-* Error handling with `result` types (`wellcrafted` pattern)
+The architecture achieves 95% code sharing between desktop and web through dependency injection. Components don't know if they're running on Tauri or web - they just use services that get injected at build time. Details in the [service layer docs](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services#readme).
 
-**Why open source:** Transcription shouldn't cost $30/month. With Whispering, you bring your own API key (OpenAI, Groq, etc.) and pay providers directly, typically $0.02-0.18/hour. No middleman, no tracking, your data stays yours.
+I'm also using TanStack Query with Svelte 5, which has been a great combination. The query layer handles all the async state management while Svelte runes handle the UI reactivity.
 
-I've been using it daily for months and put a lot of effort into making the codebase clean and educational. Whether you're looking for a free transcription tool or want to learn from a production Svelte 5 app, I hope you find it useful!
+Why I built this: transcription apps charge $30/month for what's basically an API wrapper. With Whispering, you bring your own API key and pay cents directly to providers. I use it 3-4 hours daily and pay about $3/month.
 
-**GitHub:** [**https://github.com/braden-w/whispering#readme**](https://github.com/braden-w/whispering#readme)
+The codebase is clean and well-documented if you want to see Svelte 5 patterns in production. Using shadcn-svelte components, wellcrafted for error handling, and modern TypeScript throughout.
 
-Happy to answer any questions about the implementation, architecture decisions, or Svelte 5 patterns used!
+GitHub: https://github.com/braden-w/whispering
+
+Happy to discuss any of the Svelte 5 patterns or architecture decisions!
 
 ---
 

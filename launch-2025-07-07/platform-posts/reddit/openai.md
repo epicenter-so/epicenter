@@ -1,36 +1,35 @@
 # Reddit r/OpenAI Launch Post
 
+## Status: ✅ POSTED
+
+## Posted URL: https://www.reddit.com/r/OpenAI/comments/1lu20tr/i_built_a_free_opensource_app_that_connects/
+
+## Post Type: **Link Post with Screenshot**
+- Primary: Link to GitHub repo
+- Thumbnail: App screenshot showing transcription in action
+
 ## Title
 
-I built a free, open-source app that connects directly to the Whisper API - no middleman, no subscriptions
+I built a free, open-source app that connects directly to the Whisper API - pay $0.02/hour instead of $30/month
 
-## Post Content
+## Post Content (First Comment)
 
 Hey r/OpenAI!
 
-I built Whispering, a desktop app that connects directly to OpenAI's Whisper API for transcription. It's completely free and open source.
+I built Whispering because I was tired of paying subscription fees for what's essentially a UI wrapper around OpenAI's Whisper API. It's completely free and open source.
 
-**How it works:**
-- You provide your own OpenAI API key
-- The app makes direct calls to the Whisper API
-- Pay only for what you use (typically cents per hour)
-- Your audio goes straight to OpenAI - no intermediary servers
+I realized the actual Whisper API costs about $0.006/minute. At 3-4 hours daily use, that's only $3/month going directly to OpenAI.
 
-**Technical details:**
-- Supports all Whisper models (whisper-1)
-- Real-time transcription with streaming
-- Automatic language detection
-- Custom prompts for domain-specific vocabulary
-- Cross-platform (Mac, Windows, Linux)
+So I built my own wrapper to destroy the other wrappers. You bring your own API key, make direct calls to Whisper (or Groq, or any provider), and your audio never touches any middleman servers. Same privacy guarantees as using the API directly.
 
-**Why I built this:**
-I was frustrated seeing apps charging monthly subscriptions for what's essentially a UI wrapper around the Whisper API. With your own API key, you maintain full control and transparency over costs.
+It supports all the Whisper models - the standard `whisper-1`, the new `whisper-4o-transcribe` (super accurate), and `whisper-4o-transcribe-mini` (faster/cheaper). Plus models from other providers that go as low as $0.02/hour.
 
-**Privacy first:**
-Since you're using your own API key, you have the same privacy guarantees as using the OpenAI API directly. The app is open source, so you can verify that no data is collected or transmitted elsewhere.
+The killer feature for me is voice-activated mode. I use it constantly with ChatGPT and my code editor. Press shortcut, speak, get text, paste. No clicking around. It's completely changed how I write code and documentation.
 
-Built with Svelte 5 + Tauri for native performance.
+Built with Svelte 5 and Tauri, so it's tiny (\~22MB) and starts instantly. Works on Mac, Windows, and Linux.
 
-GitHub: [link]
+GitHub: [https://github.com/braden-w/whispering](https://github.com/braden-w/whispering)
 
-Happy to answer questions about the implementation or Whisper API integration!
+[How I use it for coding](https://youtube.com/shorts/tP1fuFpJt7g)
+
+Happy to answer questions about the implementation or how to optimize API costs. Been using this daily for months and it's saved me hundreds of dollars.

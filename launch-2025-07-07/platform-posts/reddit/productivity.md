@@ -1,43 +1,29 @@
-# Reddit r/productivity (or r/opensource) Launch Post
+# Reddit r/productivity Launch Post
 
-## Title Options
+## Post Type: **Video Post (3-minute voice coding demo)**
 
-1. I built a completely free, open-source alternative to paid transcription apps
-2. Tired of paying for transcription? I made a free, open-source alternative
-3. Whispering: A free transcription app where you own your data and API keys
+## Title
+
+I code hands-free while managing 6 AI agents in parallel - here's my $0.02/hour workflow
 
 ## Post Content
 
-Title: I built a completely free, open-source alternative to paid transcription apps
+Hey r/productivity!
 
-Hey everyone,
+I've completely changed how I work by talking to my computer hands-free. I can now code while walking around, cooking, or just thinking out loud. It sounds crazy but it actually works.
 
-I wanted to share Whispering, a transcription app I built that's completely free and open source. I was frustrated seeing basic transcription tools charging monthly subscriptions for what should be a simple utility.
+Here's what happened: I was getting terrible wrist pain from typing all day. Started looking into voice transcription apps but they all wanted $30/month. Did the math and realized they're just charging 10x markup on API calls that cost pennies.
 
-**What makes it different:**
-- 100% free forever - no premium tiers, no limits
-- You bring your own API key (OpenAI Whisper, Groq, etc.)
-- Your audio never touches our servers - direct API calls only
-- Fully open source - audit the code yourself
-- Works on Mac, Windows, and Linux
+So I built Whispering - a free, open-source transcription app where you bring your own API key. Costs me about $0.02/hour for heavy use. The game changer is voice-activated mode - I just talk and it transcribes. No clicking, no shortcuts while I'm speaking.
 
-**Why I built this:**
-I've been using it daily for months before I even knew paid alternatives existed. When I discovered companies charging $15-30/month for what's essentially an API wrapper, I decided to open source my tool.
+Now I code by explaining what I want to build out loud. I paste the transcription into my AI coding assistant and it just works. I'm literally managing 6 different coding tasks in parallel just by talking through each one. It's like having a conversation with myself but productive.
 
-**Real costs:**
-- Groq's Whisper: ~$0.02/hour
-- OpenAI's Whisper: ~$0.10-0.18/hour
-- Your actual usage: probably $2-10/month vs $30/month subscriptions
+The productivity gains are real: no context switching between thinking and typing, ideas captured at the speed of thought, and my wrists don't hurt anymore. Plus I can pace around while working which keeps me energized.
 
-I believe essential productivity tools should be accessible to everyone. Transcription shouldn't be gatekept behind monthly fees.
-
-**Privacy first:**
-With your own API key, you have complete control. The app makes direct calls to your chosen service. No middleman, no data collection, no tracking. It's all open source so you can verify this yourself.
-
-**See it in action:**
-- 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
-- Shows how I use it for productivity workflows
+The video shows my actual workflow - you can see how natural it feels once you get used to it.
 
 GitHub: https://github.com/braden-w/whispering
 
-I'd love to hear your feedback and how you use transcription in your workflow!
+Demo: https://youtube.com/shorts/tP1fuFpJt7g
+
+Anyone else gone voice-first? What's your setup?
