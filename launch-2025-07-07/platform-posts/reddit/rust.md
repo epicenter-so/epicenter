@@ -1,33 +1,38 @@
 # Reddit r/rust Launch Post
 
+## Status: ✅ POSTED
+
+## Posted URL: https://www.reddit.com/r/rust/comments/1lu3aj3/built_a_desktop_transcription_app_with_tauri_and/
+
 ## Title
 
-Built a desktop transcription app with Tauri - showcasing Rust's performance for real-time audio processing
+Built a desktop transcription app with Tauri and Rust/Wry's performance has been amazing
 
 ## Post Content
 
 Hey Rustaceans!
 
-I built a transcription app with Tauri and the Rust performance benefits have been incredible. Whispering is a free, open-source alternative to those $30/month transcription services.
+I built a transcription app with Tauri and the Rust performance benefits have been incredible. I wish all Electron apps were built with this framework.
 
-What impressed me most about Tauri: the final bundle is just 22MB on macOS and starts instantly. Near-zero idle CPU, about 100MB memory usage. Compare that to Electron apps that start at 150MB+ just to show "Hello World".
+What impressed me most about Tauri: the final bundle is just 22MB on macOS and starts instantly. Near-zero idle CPU. Compare that to Electron apps that start at 150MB+ just to show "Hello World". Slack on my machine is over 490MB, which is crazy.
 
-The Rust backend handles all the security-critical stuff - encrypted API key storage, native OS integration for global shortcuts, and audio buffer management. Tauri's IPC is blazing fast between the Rust backend and Svelte frontend.
+The beauty of Tauri is that many common functions (like `fs`, `fetch`, `shell`) are implemented in Rust and exposed as JavaScript APIs. It feels almost Node-like—the functions you'd rely on in server-side Node have Rust equivalents that you can call directly from JavaScript. This gives you native performance without needing to write and register your own Tauri commands and invoke them from the frontend for every basic operation. But I still had to write quite a bit of my own Rust for platform-specific features, which has been really fun. Organizing the bridge between TypeScript and Rust has been an interesting challenge.
 
-One pattern I'm really proud of is how Tauri enabled 95% code reuse between desktop and web versions:
+For example, I needed to handle macOS accessibility permissions. While Tauri provides most of what you need, some features require custom Rust code:
 
-```typescript
-// Services detect platform at build time
-export const HttpServiceLive = window.__TAURI_INTERNALS__
-  ? createHttpServiceDesktop() // Uses Tauri's Rust HTTP client
-  : createHttpServiceWeb();     // Uses browser fetch API
+```rust
+#[tauri::command]
+pub fn is_macos_accessibility_enabled(ask_if_not_allowed: bool) -> Result<bool, &'static str> {
+    let options = create_options_dictionary(ask_if_not_allowed)?;
+    let is_allowed = unsafe { AXIsProcessTrustedWithOptions(options) };
+    release_options_dictionary(options);
+    Ok(is_allowed)
+}
 ```
 
-This means I write business logic once and Rust handles the desktop-specific heavy lifting. Details in [services/README.md](https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services).
+The `#[tauri::command]` macro makes it seamless to call this from TypeScript. The full implementation ([accessibility.rs](https://github.com/braden-w/whispering/blob/main/apps/app/src-tauri/src/accessibility.rs)) can be found here.
 
-The app itself solves a real problem - transcription services charging 10x markup on API calls. With Whispering, you bring your own API key and pay providers directly. About $0.02/hour instead of $30/month.
-
-Been using it daily for months. The combination of Rust's performance guarantees and Tauri's small footprint makes it feel like a native app, not a web wrapper.
+Tauri's IPC is blazing fast—the Rust backend handles server-side-like operations, while the frontend stays static and lightweight. We achieved 97% code sharing between desktop and web by using dependency injection at build time.
 
 GitHub: https://github.com/braden-w/whispering
 
