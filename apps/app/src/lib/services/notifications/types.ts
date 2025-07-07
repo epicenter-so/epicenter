@@ -1,7 +1,6 @@
 import type { Result } from 'wellcrafted/result';
 import type { TaggedError } from 'wellcrafted/error';
 import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
-import { hashNanoidToNumber } from './desktop';
 
 /**
  * Platform-Specific Notification Transformations
@@ -218,3 +217,25 @@ type ChromeNotificationOptions = {
 	priority?: -2 | -1 | 0 | 1 | 2;
 	buttons?: Array<{ title: string }>;
 };
+
+/**
+ * Converts a nanoid string to a numeric ID for Tauri notifications.
+ * 
+ * This function takes a nanoid (alphanumeric random string like "V1StGXR8_Z5jdHi6B-myT")
+ * and converts it to a numeric hash. This is necessary because Tauri's notification
+ * API requires numeric IDs, while we use nanoid strings for consistency with web APIs.
+ * 
+ * Note: This is NOT parsing a stringified number - it's hashing an alphanumeric string.
+ * 
+ * @param str - A nanoid string (e.g., "V1StGXR8_Z5jdHi6B-myT")
+ * @returns A positive integer hash of the string
+ */
+export function hashNanoidToNumber(str: string): number {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash;
+	}
+	return Math.abs(hash);
+}
