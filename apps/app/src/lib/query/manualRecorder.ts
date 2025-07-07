@@ -4,6 +4,8 @@ import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { defineMutation, defineQuery } from './_utils';
 import { queryClient, rpc } from './index';
 import { settings } from '$lib/stores/settings.svelte';
+import { WhisperingError } from '$lib/result';
+import { Err, Ok } from 'wellcrafted/result';
 
 const recorderKeys = {
 	state: ['recorder', 'state'] as const,
@@ -26,34 +28,76 @@ export const manualRecorder = {
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
 			const recordingSettings = {
-				selectedDeviceId: settings.value['recording.navigator.selectedDeviceId'],
+				selectedDeviceId:
+					settings.value['recording.navigator.selectedDeviceId'],
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'] ?? '128',
 			};
 			// Switch to manual mode (handles stopping other recordings)
 			await rpc.settings.switchRecordingMode.execute('manual');
-			
-			return services.manualRecorder.startRecording(recordingSettings, {
-				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
-			});
+
+			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
+				await services.manualRecorder.startRecording(recordingSettings, {
+					sendStatus: (options) =>
+						notify.loading.execute({ id: toastId, ...options }),
+				});
+
+			if (startRecordingError) {
+				return Err(
+					WhisperingError({
+						title: '❌ Failed to start recording',
+						description: startRecordingError.message,
+						action: { type: 'more-details', error: startRecordingError },
+					}),
+				);
+			}
+			return Ok(deviceAcquisitionOutcome);
 		},
 		onSettled: invalidateRecorderState,
 	}),
 
 	stopRecording: defineMutation({
 		mutationKey: recorderKeys.stopRecording,
-		resultMutationFn: ({ toastId }: { toastId: string }) =>
-			services.manualRecorder.stopRecording({
-				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
-			}),
+		resultMutationFn: async ({ toastId }: { toastId: string }) => {
+			const { data: blob, error: stopRecordingError } =
+				await services.manualRecorder.stopRecording({
+					sendStatus: (options) =>
+						notify.loading.execute({ id: toastId, ...options }),
+				});
+
+			if (stopRecordingError) {
+				return Err(
+					WhisperingError({
+						title: '❌ Failed to stop recording',
+						description: stopRecordingError.message,
+						action: { type: 'more-details', error: stopRecordingError },
+					}),
+				);
+			}
+			return Ok(blob);
+		},
 		onSettled: invalidateRecorderState,
 	}),
 
 	cancelRecording: defineMutation({
 		mutationKey: recorderKeys.cancelRecording,
-		resultMutationFn: ({ toastId }: { toastId: string }) =>
-			services.manualRecorder.cancelRecording({
-				sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
-			}),
+		resultMutationFn: async ({ toastId }: { toastId: string }) => {
+			const { data: cancelResult, error: cancelRecordingError } =
+				await services.manualRecorder.cancelRecording({
+					sendStatus: (options) =>
+						notify.loading.execute({ id: toastId, ...options }),
+				});
+
+			if (cancelRecordingError) {
+				return Err(
+					WhisperingError({
+						title: '❌ Failed to cancel recording',
+						description: cancelRecordingError.message,
+						action: { type: 'more-details', error: cancelRecordingError },
+					}),
+				);
+			}
+			return Ok(cancelResult);
+		},
 		onSettled: invalidateRecorderState,
 	}),
 };

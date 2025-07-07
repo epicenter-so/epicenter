@@ -107,6 +107,127 @@ async function transcribe(
 }
 ```
 
+## Service-Specific Error Types
+
+Each service defines its own `TaggedError` type to represent domain-specific failures. These error types are part of the service's public API and contain all the context needed to understand what went wrong:
+
+```typescript
+// From manual-recorder.ts
+type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
+
+// From cpal-recorder.ts  
+type CpalRecorderServiceError = TaggedError<'CpalRecorderServiceError'>;
+
+// From device-stream.ts
+type DeviceStreamServiceError = TaggedError<'DeviceStreamServiceError'>;
+```
+
+#### Error Type Best Practices
+
+1. **Name Convention**: Use `{ServiceName}ServiceError` format
+   ```typescript
+   type ClipboardServiceError = TaggedError<'ClipboardServiceError'>;
+   ```
+
+2. **Rich Error Messages**: Provide detailed, user-friendly messages
+   ```typescript
+   return Err({
+     name: 'ManualRecorderServiceError',
+     message: 'A recording is already in progress. Please stop the current recording before starting a new one.',
+     context: { activeRecording },
+     cause: undefined,
+   });
+   ```
+
+3. **Include Context**: Add relevant debugging information
+   ```typescript
+   return Err({
+     name: 'CpalRecorderServiceError',
+     message: 'We encountered an issue while setting up your recording session.',
+     context: {
+       selectedDeviceId,
+       deviceName,
+       availableDevices: devices,
+     },
+     cause: underlyingError,
+   });
+   ```
+
+4. **Map Platform Errors**: Transform platform-specific errors
+   ```typescript
+   return tryAsync({
+     try: () => navigator.mediaDevices.getUserMedia(constraints),
+     mapError: (error): DeviceStreamServiceError => ({
+       name: 'DeviceStreamServiceError',
+       message: 'Unable to access microphone. Please check permissions.',
+       context: { constraints, hasPermission },
+       cause: error,
+     }),
+   });
+   ```
+
+#### Important: Services Don't Know About UI
+
+Services should **never** import or use `WhisperingError`. That transformation happens in the query layer:
+
+```typescript
+// ❌ WRONG - Service shouldn't know about WhisperingError
+import { WhisperingError } from '$lib/result';
+
+// ✅ CORRECT - Service uses its own error type
+type MyServiceError = TaggedError<'MyServiceError'>;
+```
+
+The query layer is responsible for transforming service errors into `WhisperingError` for toast notifications. This separation ensures:
+- Services remain pure and testable
+- Error types can evolve independently
+- UI concerns don't leak into business logic
+
+#### Real-World Example: Recording Service Errors
+
+```typescript
+// In manual-recorder.ts
+export function createManualRecorderService() {
+  return {
+    startRecording: async (
+      recordingSettings,
+      { sendStatus }
+    ): Promise<Result<DeviceAcquisitionOutcome, ManualRecorderServiceError>> => {
+      if (activeRecording) {
+        return Err({
+          name: 'ManualRecorderServiceError',
+          message: 'A recording is already in progress. Please stop the current recording before starting a new one.',
+          context: { activeRecording },
+          cause: undefined,
+        });
+      }
+      
+      // When using another service's functions, map their errors
+      const { data: streamResult, error: acquireStreamError } =
+        await getRecordingStream(selectedDeviceId, sendStatus);
+      
+      if (acquireStreamError) {
+        // Transform DeviceStreamServiceError → ManualRecorderServiceError
+        return Err({
+          name: 'ManualRecorderServiceError',
+          message: acquireStreamError.message,
+          context: acquireStreamError.context,
+          cause: acquireStreamError,
+        });
+      }
+      
+      // Continue with recording logic...
+    },
+  };
+}
+```
+
+This example shows:
+- Service-specific error type (`ManualRecorderServiceError`)
+- Detailed error messages for different failure scenarios
+- Error mapping when consuming other services
+- Rich context for debugging
+
 ## Service Patterns
 
 ### Pattern 1: Single Implementation

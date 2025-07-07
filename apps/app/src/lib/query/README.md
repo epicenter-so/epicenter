@@ -100,6 +100,100 @@ createRecording: defineMutation({
 
 The query layer co-locates three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way, and gives developers a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder.
 
+## Error Transformation Pattern
+
+A critical responsibility of the query layer is transforming service-specific errors into `WhisperingError` types that work seamlessly with our toast notification system. This transformation happens inside `resultMutationFn` or `resultQueryFn`, creating a clean boundary between business logic errors and UI presentation.
+
+### How It Works
+
+Services return their own specific error types (e.g., `ManualRecorderServiceError`, `CpalRecorderServiceError`), which contain detailed error information. The query layer transforms these into `WhisperingError` with UI-friendly formatting:
+
+```typescript
+// From manualRecorder.ts - Error transformation in resultMutationFn
+startRecording: defineMutation({
+  resultMutationFn: async ({ toastId }: { toastId: string }) => {
+    const { data: deviceAcquisitionOutcome, error: startRecordingError } = 
+      await services.manualRecorder.startRecording(recordingSettings, {
+        sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
+      });
+    
+    // Transform service error to WhisperingError
+    if (startRecordingError) {
+      return Err(WhisperingError({
+        title: '❌ Failed to start recording',
+        description: startRecordingError.message,  // Use service error message
+        action: { type: 'more-details', error: startRecordingError },
+      }));
+    }
+    return Ok(deviceAcquisitionOutcome);
+  },
+  // WhisperingError is now available in onError hook
+  onError: (error) => {
+    // error is WhisperingError, ready for toast display
+    notify.error.execute(error);
+  }
+})
+```
+
+### The Pattern Explained
+
+1. **Service Layer**: Returns domain-specific errors (`TaggedError` types from WellCrafted)
+   ```typescript
+   // In manual-recorder.ts
+   type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
+   ```
+
+2. **Query Layer**: Transforms to `WhisperingError` in `resultMutationFn`/`resultQueryFn`
+   ```typescript
+   if (serviceError) {
+     return Err(WhisperingError({
+       title: '❌ User-friendly title',
+       description: serviceError.message,  // Preserve detailed message
+       action: { type: 'more-details', error: serviceError }
+     }));
+   }
+   ```
+
+3. **UI Layer**: Receives `WhisperingError` in hooks, perfect for toasts
+   ```typescript
+   onError: (error) => notify.error.execute(error)  // error is WhisperingError
+   ```
+
+### Why This Pattern?
+
+- **Separation of Concerns**: Services focus on business logic errors, not UI presentation
+- **Consistent UI**: All errors are transformed to a format that toasts understand
+- **Detailed Context**: Original service errors are preserved in the `action` field
+- **Type Safety**: TypeScript knows exactly what error types flow through each layer
+
+### Real Example: CPAL Recorder
+
+```typescript
+// From cpalRecorder.ts
+getRecorderState: defineQuery({
+  resultQueryFn: async () => {
+    const { data: recorderState, error: getRecorderStateError } = 
+      await services.cpalRecorder.getRecorderState();
+    
+    if (getRecorderStateError) {
+      // Transform CpalRecorderServiceError → WhisperingError
+      return Err(WhisperingError({
+        title: '❌ Failed to get recorder state',
+        description: getRecorderStateError.message,
+        action: { type: 'more-details', error: getRecorderStateError },
+      }));
+    }
+    return Ok(recorderState);
+  },
+})
+```
+
+This pattern ensures that:
+- Services remain pure and testable with their own error types
+- The query layer handles all UI-specific error formatting
+- Toast notifications receive properly formatted `WhisperingError` objects
+- Original error context is preserved for debugging
+
 ## Static Site Generation Advantage
 
 This application is fully static site generated and client-side only, which gives us a unique architectural advantage: direct access to the TanStack Query client.

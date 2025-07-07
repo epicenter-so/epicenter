@@ -565,6 +565,24 @@ createRecording: defineMutation({
 
 This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. [→ Learn more in Query README](./apps/app/src/lib/query/README.md)
 
+#### Error Transformation
+
+The query layer also transforms service-specific errors into `WhisperingError` types that integrate seamlessly with the toast notification system. This happens inside `resultMutationFn` or `resultQueryFn`, creating a clean boundary between business logic errors and UI presentation:
+
+```typescript
+// Service returns domain-specific error
+const { data, error: serviceError } = await services.manualRecorder.startRecording(...);
+
+if (serviceError) {
+  // Query layer transforms to UI-friendly WhisperingError
+  return Err(WhisperingError({
+    title: '❌ Failed to start recording',
+    description: serviceError.message,  // Preserve detailed message
+    action: { type: 'more-details', error: serviceError }
+  }));
+}
+```
+
 #### Error Handling with WellCrafted
 
 Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted after using the [effect-ts library](https://github.com/Effect-TS/effect) when it first came out in 2023—I was very excited about the concepts but found it too verbose. WellCrafted distills my takeaways from effect-ts and makes them better by leaning into more native JavaScript syntax, making it perfect for this use case. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
