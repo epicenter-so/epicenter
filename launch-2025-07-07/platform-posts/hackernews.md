@@ -2,42 +2,41 @@
 
 ## Primary Post (Day 1 - Traditional Angle)
 
-### Title Options (Ranked by Viral Potential)
+### Title
 
-1. **Show HN: Open-source transcription app that costs $0.02/hour instead of $30/month** ⭐ RECOMMENDED
-2. Show HN: I made a 50MB transcription app with Svelte 5 + Tauri (free, your API keys)
-3. Show HN: Transcription apps charge $30/month for API wrappers. Here's my free alternative
+Show HN: Open-source transcription app that costs $0.02/hour instead of $30/month
 
 ### Post Content
-I built Whispering as a completely free and open-source alternative to paid transcription apps. I believe transcription is too fundamental a tool to be locked behind paywalls.
+I built Whispering because I believe transcription is too fundamental a tool to be locked behind paywalls. It's a cross-platform desktop and web transcription app that turns speech into text with a keyboard shortcut, among other things.
 
-Key features:
-- 100% free and open source (MIT license)
-- Bring your own API key (OpenAI Whisper, Groq, etc.)
-- Built with Svelte 5 + Tauri for native performance (~50MB, instant startup)
-- Your data never touches our servers - direct API calls only
-- Cross-platform (macOS, Windows, Linux)
+The app lets you bring your own API key (OpenAI, Groq, etc.) and make direct calls. If you want complete privacy, it also supports local transcription. Either way, your audio never goes through any middleman servers. It's super lightweight (~22MB), built with Svelte 5 and Tauri, and works on Mac, Windows, and Linux.
 
-Technical highlights:
-- One of the more complex Svelte 5 apps in production (extensive use of runes)
-- Tauri for secure API key storage and native OS integration
-- Real-time waveform visualization with efficient memory management
-- Clean architecture that's actually educational to read
+I've been using it daily for the past few months and just released v7 last night. I spent a considerable amount of time developing a clean architecture that's hopefully educational to read. This is one of the most complex Svelte 5 apps in production, with extensive use of runes and TanStack Query.
 
-I've been using it daily for months (3-4 hours/day) before discovering that competitors charge $15-30/month for essentially the same API wrapper. With Whispering + Groq, I pay about $0.02/hour.
+I'm happy to answer questions about implementation or how to build desktop apps with this stack!
+---
 
-GitHub: [link]
+### Prepared First Comment
 
-Happy to answer questions about the implementation, architecture decisions, or how to build desktop apps with Svelte 5 + Tauri.
+
+For those interested in the architecture: I use dependency injection at build time to share ~95% of code between desktop and web versions. Instead of maintaining separate codebases, I detect the platform and inject the appropriate service implementations.
+
+The three-layer architecture has been particularly helpful:
+
+- *Services*: https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/services: Pure functions with platform abstraction, no UI dependencies
+
+- *Query layer*: https://github.com/braden-w/whispering/tree/main/apps/app/src/lib/query : Adds reactivity, caching, and runtime dependency injection
+
+Voice-activated mode is particularly nice when coding—you can keep your hands on the keyboard while dictating. The Svelte 5 runes + TanStack Query combination has been fantastic for managing real-time audio state.
 
 ---
 
 ## Follow-up Post (Day 2-3 - Workflow Angle)
 
 ### Title Options
-1. Show HN: How I code 3x faster using voice with Whispering + Claude Code
-2. Show HN: My $0.02/hour voice coding setup that replaced typing
-3. Show HN: Voice-driven development - Whispering + Claude Code workflow
+1. Show HN: Voice-driven development with Whispering + Claude Code
+2. Show HN: My $0.02/hour voice coding setup with Groq
+3. Show HN: How I use voice transcription for coding (open-source workflow)
 
 ### Post Content
 Yesterday I shared Whispering, my open-source transcription app. Several people asked about my workflow, so here's how I actually use it to code faster than I can type.
@@ -55,10 +54,10 @@ The workflow:
 4. I review and voice any corrections
 
 Results:
-- 3x faster than typing for boilerplate/CRUD operations
-- Natural for explaining complex logic
-- Great for documentation and comments
-- Reduces RSI from typing
+- Faster for certain tasks (especially boilerplate and documentation)
+- More natural for explaining complex logic out loud
+- Helps with RSI/typing fatigue
+- Works well for brainstorming and rubber duck debugging
 
 Video demo: [link] (shows actual coding session)
 
