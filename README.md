@@ -32,11 +32,11 @@
 
 ## What is Whispering?
 
-Whispering is a voice-to-text app that turns your speech into text with a single keyboard shortcut. It works anywhere on your desktop—in any app, any text field—giving you instant transcription without switching windows or clicking buttons.
+Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
 
-**Quick Links:** [Watch Overview (5 min)](#demo) | [Install (2 min)](#installation) | [Why I Built This](#why-whispering-exists) | [FAQ](#frequently-asked-questions) | [Architecture](#architecture-deep-dive)
+I built this because I was tired of paying $30/month for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it 3-4 hours daily and pay about $3/month.
 
-Unlike subscription services that charge $15-30/month, Whispering lets you bring your own API key and pay providers directly—as little as $0.02/hour. Or go completely free with local transcription. Your audio, your choice, your data.
+The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
 > **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
 
@@ -51,20 +51,17 @@ Unlike subscription services that charge $15-30/month, Whispering lets you bring
 
 > **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
-## Features at a Glance
+## Key Features
 
-- **🎯 Multiple Transcription Providers** - Choose from Groq, OpenAI, ElevenLabs, or local options → [See providers](#-custom-transcription-services)
-- **🤖 AI-Powered Transformations** - Automatically format, translate, or summarize your transcriptions → [Learn more](#-ai-powered-transformations)
-- **🎙️ Voice Activity Detection** - Hands-free recording that starts when you speak
-- **⌨️ Custom Shortcuts** - Set any keyboard combination for recording → [Customize shortcuts](#️-custom-shortcuts)
-- **💾 Local-First Storage** - Your data stays on your device with IndexedDB → [Data privacy](#how-is-my-data-stored)
-- **🏗️ Modern Architecture** - Clean, testable code with extensive documentation → [Architecture deep dive](#architecture-deep-dive)
+Choose from multiple transcription providers (Groq at $0.02/hour is my favorite). The app supports voice-activated mode for hands-free operation - just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
+
+Everything is stored locally on your device. Your audio goes directly from your machine to your chosen API provider. No middleman servers, no data collection, no tracking.
+
+Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn.
 
 ## Installation
 
-<!-- Download links are automatically updated by .github/workflows/update-readme-version.yml when new releases are published -->
-
-**Get transcribing in 2 minutes** → Download, install, speak
+Takes about 2 minutes to get running.
 
 ### 1️⃣ Download Whispering
 
@@ -420,18 +417,13 @@ Change the recording shortcut to whatever feels natural:
 
 ## Why Whispering Exists
 
-I was tired of the usual SaaS problems:
+I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
 
-- **The pricing was nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're paying for their profit margin.
-- **You have no idea what happens to your recordings.** Your recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy.
-- **Limited options.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
-- **Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
+That's when I realized these apps are just middlemen. They take your audio, send it to OpenAI's Whisper API, and charge you 10x markup. Plus your recordings go through their servers, get stored who knows where, and you're locked into their ecosystem.
 
-So I built Whispering the way transcription should work:
+So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no data collection, no lock-in. Just transcription at cost.
 
-- **No middleman** - Your audio goes straight to the provider you choose (or stays fully local)
-- **Your keys, your costs** - Pay OpenAI/Groq/whoever directly at actual rates: $0.02-$0.18/hour instead of $20/month
-- **Actually yours** - Open source means no one can take it away, change the pricing, or sunset the service
+The code is open source because I believe tools this fundamental should be free. Companies pivot, get acquired, or shut down. But open source is forever.
 
 ### Cost Comparison
 
@@ -465,47 +457,41 @@ You can change both the transcription and transformation services in the setting
 
 ## Frequently Asked Questions
 
-### How is Whispering different from other transcription apps?
+### How is this different from other transcription apps?
 
-The main difference is philosophy. Whispering is 100% free and open source. You bring your own API key, so you pay cents directly to providers instead of monthly subscriptions. Your data never touches our servers—it goes straight from your device to your chosen transcription service (or stays completely local).
+Most apps are middlemen charging $30/month for API calls that cost pennies. With Whispering, you bring your own API key and pay providers directly. Your audio goes straight from your device to the API - no servers in between, no data collection, no subscriptions.
 
 ### What's the catch?
 
-No catch. I built this for myself and use it daily. I believe essential tools should be free and transparent. The code is open source so you can verify everything yourself. There's no telemetry, no data collection, and no premium tiers. It's just a tool that does one thing well.
+There isn't one. I built this for myself and use it every day. The code is open source so you can verify exactly what it does. No telemetry, no premium tiers, no upsells.
 
-### What's the technical stack?
+### What's it built with?
 
-Built with Svelte 5 (using new runes) + Tauri for native performance. Lightweight bundle (~22MB on macOS), instant startup, low memory usage. The codebase showcases modern patterns and is great for learning. For a deep dive into the architecture, see the [Architecture section](#architecture-deep-dive).
+Svelte 5 + Tauri. The app is tiny (~22MB), starts instantly, and uses minimal resources. The codebase is clean and well-documented if you want to learn or contribute.
 
-### Can I use this offline?
+### Can I use it offline?
 
-Yes! Choose the Speaches provider for completely local transcription. No internet required, no API keys, and your audio never leaves your device.
+Yes - use the Speaches provider for local transcription. No internet, no API keys, completely private.
 
-### How much does it cost to use?
+### How much does it actually cost?
 
-With your own API key:
-- Groq: $0.02-$0.06/hour
-- OpenAI: $0.18-$0.36/hour  
-- Local (Speaches): Free forever
+With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local transcription: free forever. I use it 3-4 hours daily and pay about $3/month total.
 
-Compare that to subscription services charging $15-30/month!
+### Is it really private?
 
-### Is my data private?
+Your recordings stay on your device in IndexedDB. When you transcribe, audio goes directly to your chosen provider using your API key. No middleman servers. For maximum privacy, use local transcription.
 
-Yes. Whispering stores recordings locally in IndexedDB. When using external transcription services, your audio goes directly to them using your API key—there's no middleman server. For maximum privacy, use the local Speaches provider.
+### Can I format the output automatically?
 
-### Can I customize the transcription output?
+Yes - set up AI transformations to fix grammar, translate languages, or reformat text. Works with any LLM provider.
 
-Absolutely! Use AI-powered transformations to automatically format, translate, or summarize your transcriptions. See [AI-Powered Transformations](#-ai-powered-transformations) for details.
+### What platforms work?
 
-### What platforms are supported?
+Desktop: Mac (Intel & Apple Silicon), Windows, Linux. Web: Any modern browser at [whispering.bradenwong.com](https://whispering.bradenwong.com).
 
-Desktop: macOS (Intel & Apple Silicon), Windows, Linux  
-Web: Any modern browser at [whispering.bradenwong.com](https://whispering.bradenwong.com)
+### Found a bug?
 
-### I found a bug or have a feature request
-
-Please open an issue on [GitHub](https://github.com/braden-w/whispering/issues) or join our [Discord](https://discord.gg/YWa5YVUSxa). I actively maintain this project and love hearing from users!
+Open an issue on [GitHub](https://github.com/braden-w/whispering/issues). I actively maintain this and respond quickly.
 
 ## Development
 
@@ -576,7 +562,28 @@ export const NotificationServiceLive = window.__TAURI_INTERNALS__
   : createNotificationServiceWeb();     // Browser notifications
 ```
 
-This design enables **extensive code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies). 
+This design enables **97% code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies).
+
+##### Measuring Code Sharing
+
+To calculate the actual code sharing percentage, I analyzed the codebase:
+
+```bash
+# Count total lines of code in the app
+find apps/app/src -name "*.ts" -o -name "*.svelte" -o -name "*.js" | \
+  grep -v node_modules | xargs wc -l
+# Result: 22,824 lines total
+
+# Count platform-specific implementation code
+find apps/app/src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
+  xargs wc -l
+# Result: 685 lines (3%)
+
+# Code sharing calculation
+# Shared code: 22,824 - 685 = 22,139 lines (97%)
+```
+
+This minimal platform-specific code demonstrates how the architecture maximizes code reuse while maintaining native performance on each platform.
 
 **→ Learn more:** [Services README](./apps/app/src/lib/services/README.md) | [Constants Organization](./apps/app/src/lib/constants/README.md)
 
