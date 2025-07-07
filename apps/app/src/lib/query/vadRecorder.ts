@@ -1,9 +1,10 @@
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from 'wellcrafted/result';
+import { Ok, Err } from 'wellcrafted/result';
 import type { VadState } from '$lib/constants/audio';
 import { defineMutation, defineQuery } from './_utils';
 import { queryClient, rpc } from './index';
+import { WhisperingError } from '$lib/result';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
@@ -35,7 +36,7 @@ export const vadRecorder = {
 			// Switch to VAD mode (handles stopping other recordings)
 			await rpc.settings.switchRecordingMode.execute('vad');
 
-			const result = await services.vad.startActiveListening({
+			const { data: deviceOutcome, error: startListeningError } = await services.vad.startActiveListening({
 				deviceId: settings.value['recording.navigator.selectedDeviceId'],
 				onSpeechStart: () => {
 					invalidateVadState();
@@ -47,17 +48,34 @@ export const vadRecorder = {
 				},
 			});
 
+			if (startListeningError) {
+				return Err(WhisperingError({
+					title: '❌ Failed to start voice activity detection',
+					description: startListeningError.message,
+					action: { type: 'more-details', error: startListeningError },
+				}));
+			}
+
 			invalidateVadState();
-			return result;
+			return Ok(deviceOutcome);
 		},
 	}),
 
 	stopActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'stopActiveListening'] as const,
 		resultMutationFn: async () => {
-			const result = await services.vad.stopActiveListening();
+			const { data, error: stopListeningError } = await services.vad.stopActiveListening();
+			
+			if (stopListeningError) {
+				return Err(WhisperingError({
+					title: '❌ Failed to stop voice activity detection',
+					description: stopListeningError.message,
+					action: { type: 'more-details', error: stopListeningError },
+				}));
+			}
+			
 			invalidateVadState();
-			return result;
+			return Ok(data);
 		},
 	}),
 };

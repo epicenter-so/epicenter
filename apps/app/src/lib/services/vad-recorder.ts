@@ -1,12 +1,14 @@
 import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
+import type { TaggedError } from 'wellcrafted/error';
 import type { VadState } from '$lib/constants/audio';
-import { WhisperingError } from '$lib/result';
 import { MicVAD, utils } from '@ricky0123/vad-web';
 import {
 	getRecordingStream,
 	cleanupRecordingStream,
 	type DeviceAcquisitionOutcome,
 } from './device-stream';
+
+type VadRecorderServiceError = TaggedError<'VadRecorderServiceError'>;
 
 export function createVadService() {
 	let maybeVad: MicVAD | null = null;
@@ -29,26 +31,28 @@ export function createVadService() {
 		}) => {
 			// Always start fresh - no reuse
 			if (maybeVad) {
-				return Err(
-					WhisperingError({
-						title: 'VAD already active',
-						description: 'Stop the current session before starting a new one.',
-					})
-				);
+				return Err({
+					name: 'VadRecorderServiceError',
+					message:
+						'VAD already active. Stop the current session before starting a new one.',
+					context: { vadState },
+					cause: undefined,
+				});
 			}
 
 			// Get validated stream with device fallback
-			const { data: streamResult, error: streamError } = await getRecordingStream(
-				deviceId,
-				() => {} // No-op for status updates
-			);
-			if (streamError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to access microphone',
-						description: streamError.message,
-					})
+			const { data: streamResult, error: streamError } =
+				await getRecordingStream(
+					deviceId,
+					() => {}, // No-op for status updates
 				);
+			if (streamError) {
+				return Err({
+					name: 'VadRecorderServiceError',
+					message: streamError.message,
+					context: streamError.context,
+					cause: streamError,
+				});
 			}
 
 			const { stream, deviceOutcome } = streamResult;
@@ -75,33 +79,37 @@ export function createVadService() {
 						},
 						model: 'v5',
 					}),
-				mapError: (error) => ({
-					name: 'WhisperingError',
-					title: '❌ Failed to start voice activated capture',
-					description: 'Your voice activated capture could not be started.',
+				mapError: (error): VadRecorderServiceError => ({
+					name: 'VadRecorderServiceError',
+					message:
+						'Failed to start voice activated capture. Your voice activated capture could not be started.',
+					context: { deviceId },
+					cause: error,
 				}),
 			});
-			
+
 			if (initializeVadError) {
 				// Clean up stream if VAD initialization fails
 				cleanupRecordingStream(stream);
 				currentStream = null;
 				return Err(initializeVadError);
 			}
-			
+
 			maybeVad = newVad;
 
 			// Start listening
 			const { error: startError } = trySync({
 				try: () => newVad.start(),
-				mapError: (error) =>
-					WhisperingError({
-						title: 'Failed to start Voice Activity Detector',
-						description:
-							error instanceof Error
-								? error.message
-								: 'An unknown error occurred while starting the VAD.',
-					}),
+				mapError: (error): VadRecorderServiceError => ({
+					name: 'VadRecorderServiceError',
+					message: `Failed to start Voice Activity Detector. ${
+						error instanceof Error
+							? error.message
+							: 'An unknown error occurred while starting the VAD.'
+					}`,
+					context: { vadState },
+					cause: error,
+				}),
 			});
 			if (startError) {
 				// Clean up everything on start error
@@ -114,7 +122,7 @@ export function createVadService() {
 				currentStream = null;
 				return Err(startError);
 			}
-			
+
 			vadState = 'LISTENING';
 			return Ok(deviceOutcome);
 		},
@@ -125,24 +133,26 @@ export function createVadService() {
 			const vad = maybeVad;
 			const { error: destroyError } = trySync({
 				try: () => vad.destroy(),
-				mapError: (error) =>
-					WhisperingError({
-						title: 'Failed to stop Voice Activity Detector',
-						description:
-							error instanceof Error ? error.message : 'Failed to stop VAD',
-					}),
+				mapError: (error): VadRecorderServiceError => ({
+					name: 'VadRecorderServiceError',
+					message: `Failed to stop Voice Activity Detector. ${
+						error instanceof Error ? error.message : 'Failed to stop VAD'
+					}`,
+					context: { vadState },
+					cause: error,
+				}),
 			});
-			
+
 			// Always clean up, even if destroy had an error
 			maybeVad = null;
 			vadState = 'IDLE';
-			
+
 			// Clean up our managed stream
 			if (currentStream) {
 				cleanupRecordingStream(currentStream);
 				currentStream = null;
 			}
-			
+
 			if (destroyError) return Err(destroyError);
 			return Ok(undefined);
 		},
