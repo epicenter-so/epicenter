@@ -29,7 +29,7 @@ export function createOpenaiTranscriptionService() {
 					action: {
 						type: 'link',
 						label: 'Add API key',
-						goto: '/settings/transcription',
+						href: '/settings/transcription',
 					},
 				} satisfies WhisperingError);
 			}
@@ -43,7 +43,7 @@ export function createOpenaiTranscriptionService() {
 					action: {
 						type: 'link',
 						label: 'Update API key',
-						goto: '/settings/transcription',
+						href: '/settings/transcription',
 					},
 				} satisfies WhisperingError);
 			}
@@ -133,7 +133,7 @@ export function createOpenaiTranscriptionService() {
 						action: {
 							type: 'link',
 							label: 'Update API key',
-							goto: '/settings/transcription',
+							href: '/settings/transcription',
 						},
 					} satisfies WhisperingError);
 				}
@@ -208,7 +208,7 @@ export function createOpenaiTranscriptionService() {
 						action: {
 							type: 'link',
 							label: 'Update API key',
-							goto: '/settings/transcription',
+							href: '/settings/transcription',
 						},
 					} satisfies WhisperingError);
 				}

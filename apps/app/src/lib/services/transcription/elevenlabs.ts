@@ -25,7 +25,7 @@ export function createElevenLabsTranscriptionService() {
 					action: {
 						type: 'link',
 						label: 'Add API key',
-						goto: '/settings/transcription',
+						href: '/settings/transcription',
 					},
 				} satisfies WhisperingError);
 			}

@@ -72,7 +72,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 					action: {
 						type: 'link',
 						label: 'Open Directions',
-						goto: '/macos-enable-accessibility',
+						href: '/macos-enable-accessibility',
 					},
 					context: { text, isAccessibilityEnabled },
 					cause: undefined,
