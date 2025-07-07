@@ -19,7 +19,7 @@ export async function checkForUpdates() {
 					label: 'View Update',
 					onClick: () => updateDialog.open(update),
 				},
-				// duration infinite
+				persist: true,
 			});
 		}
 	} catch (error) {

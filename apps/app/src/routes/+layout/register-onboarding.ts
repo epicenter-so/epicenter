@@ -1,5 +1,8 @@
 import { rpc } from '$lib/query';
-import { isTranscriptionServiceConfigured, getSelectedTranscriptionService } from '$lib/settings/transcription-validation';
+import {
+	isTranscriptionServiceConfigured,
+	getSelectedTranscriptionService,
+} from '$lib/settings/transcription-validation';
 
 /**
  * Checks if the user has configured the necessary API keys/settings for their selected transcription service.
@@ -7,7 +10,7 @@ import { isTranscriptionServiceConfigured, getSelectedTranscriptionService } fro
  */
 export function registerOnboarding() {
 	const selectedService = getSelectedTranscriptionService();
-	
+
 	if (!selectedService) {
 		rpc.notify.info.execute({
 			title: 'Welcome to Whispering!',
@@ -15,24 +18,28 @@ export function registerOnboarding() {
 			action: {
 				type: 'link',
 				label: 'Configure',
-				href: '/settings/transcription'
-			}
-			// Duration infinite
+				href: '/settings/transcription',
+			},
+			persist: true,
 		});
 		return;
 	}
 
 	if (!isTranscriptionServiceConfigured(selectedService)) {
-		const missingConfig = selectedService.type === 'api' ? `${selectedService.name} API key` : `${selectedService.name} server URL`;
-		
+		const missingConfig =
+			selectedService.type === 'api'
+				? `${selectedService.name} API key`
+				: `${selectedService.name} server URL`;
+
 		rpc.notify.info.execute({
 			title: 'Welcome to Whispering!',
 			description: `Please configure your ${missingConfig} to get started.`,
 			action: {
 				type: 'link',
 				label: 'Configure',
-				href: '/settings/transcription'
-			}
+				href: '/settings/transcription',
+			},
+			persist: true,
 		});
 	}
 }
