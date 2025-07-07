@@ -32,17 +32,11 @@
 
 ## What is Whispering?
 
-Press a shortcut anywhere on your desktop → speak → get text in your clipboard. That's it.
+Whispering is a voice-to-text app that turns your speech into text with a single keyboard shortcut. It works anywhere on your desktop—in any app, any text field—giving you instant transcription without switching windows or clicking buttons.
 
-**Try it in 2 minutes:** [Quick Start](#quick-start) | [Watch Demo (30s)](#demo)
+**Quick Links:** [Watch Demo (30s)](#demo) | [Install (2 min)](#installation) | [Why I Built This](#why-whispering-exists) | [FAQ](#frequently-asked-questions) | [Architecture](#architecture-deep-dive)
 
-Whispering is the transcription app I built because I believe productivity tools should be free and accessible to everyone.
-
-Whispering is free and open source—you own your data, you audit the code, and you control your privacy.
-
-Bring your own API key from providers like `OpenAI`, `Groq`, or `ElevenLabs`, and pay only cents per hour instead of monthly subscriptions. Or use a local transcription service like `Speaches`, which keeps everything free and on-device. Your audio goes directly to your chosen service.
-
-Open source. No tracking. No paywalls.
+Unlike subscription services that charge $15-30/month, Whispering lets you bring your own API key and pay providers directly—as little as $0.02/hour. Or go completely free with local transcription. Your audio, your choice, your data.
 
 > **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
 
@@ -50,70 +44,73 @@ Open source. No tracking. No paywalls.
 
 https://github.com/user-attachments/assets/eca93701-10a0-4d91-b38a-f715bd7e0357
 
-## Why I Built This
+## Features at a Glance
 
-I was tired of the usual SaaS problems:
+- **🎯 Multiple Transcription Providers** - Choose from Groq, OpenAI, ElevenLabs, or local options → [See providers](#-custom-transcription-services)
+- **🤖 AI-Powered Transformations** - Automatically format, translate, or summarize your transcriptions → [Learn more](#-ai-powered-transformations)
+- **🎙️ Voice Activity Detection** - Hands-free recording that starts when you speak → [Enable VAD](#️-voice-activity-detection-vad)
+- **⌨️ Custom Shortcuts** - Set any keyboard combination for recording → [Customize shortcuts](#️-custom-shortcuts)
+- **💾 Local-First Storage** - Your data stays on your device with IndexedDB → [Data privacy](#how-is-my-data-stored)
+- **🏗️ Modern Architecture** - Clean, testable code with extensive documentation → [Architecture deep dive](#architecture-deep-dive)
 
-- **The pricing was nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're paying for their profit margin.
-- **You have no idea what happens to your recordings.** Your recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy.
-- **Limited options.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
-- **Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
+## Installation
 
-So I built Whispering the way transcription should work:
+<!-- Download links are automatically updated by .github/workflows/update-readme-version.yml when new releases are published -->
 
-- **No middleman** - Your audio goes straight to the provider you choose (or stays fully local)
-- **Your keys, your costs** - Pay OpenAI/Groq/whoever directly at actual rates: $0.02-$0.18/hour instead of $20/month
-- **Actually yours** - Open source means no one can take it away, change the pricing, or sunset the service
+**Get transcribing in 2 minutes** → Download, install, speak
 
-### Cost Comparison
+### 1️⃣ Download Whispering
 
-With Whispering, you pay providers directly instead of marked-up subscription prices:
+Choose your operating system below and click the download link:
 
-| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
-|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
-| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
-| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
-| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
-| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
-
-## Quick Start
-
-**Get transcribing in 2 minutes** → Press shortcut, speak, get text
-
-### 1️⃣ Install Whispering
-
-Visit the [GitHub Releases page](https://github.com/braden-w/whispering/releases/latest) and download the right version for your system:
-
-<details>
+<details open>
 <summary><strong>🍎 macOS</strong></summary>
 
-**Choose your version:**
-- **Apple Silicon** (M1/M2/M3): `Whispering_x.x.x_aarch64.dmg`
-- **Intel**: `Whispering_x.x.x_x64.dmg`
+<table>
+<tr>
+<td width="50%">
+
+### Apple Silicon (M1/M2/M3)
+**[⬇️ Download for Apple Silicon](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)**
+
+For newer Macs with M1, M2, or M3 chips
+
+</td>
+<td width="50%">
+
+### Intel Macs
+**[⬇️ Download for Intel](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)**
+
+For older Macs with Intel processors
+
+</td>
+</tr>
+</table>
 
 <details>
-<summary>Not sure which Mac you have?</summary>
+<summary>🤔 Not sure which Mac you have?</summary>
 
 Click the Apple menu → About This Mac:
-- If you see "Apple M1/M2/M3", download `aarch64.dmg`
-- If you see "Intel", download `x64.dmg`
+- If you see **"Apple M1/M2/M3"** → [Download Apple Silicon version](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg)
+- If you see **"Intel"** → [Download Intel version](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg)
 
 </details>
 
-**Installation:**
-1. Download the `.dmg` file
-2. Double-click to open
+**Installation (30 seconds):**
+1. Click the download link above
+2. Open the downloaded `.dmg` file
 3. Drag Whispering to your Applications folder
-4. Open Whispering from your Applications folder
+4. Launch Whispering from Applications
 
 <details>
-<summary><strong>Troubleshooting</strong></summary>
+<summary>⚠️ Troubleshooting</summary>
 
-**If you see "Unverified developer" warning:**
-- Right-click the app → select "Open"
+**"Unverified developer" warning?**
+- Right-click Whispering → click "Open" → click "Open" again
 
-**Apple Silicon users - If you see "app is damaged":**
-- Run this command in Terminal: `xattr -cr /Applications/Whispering.app`
+**"App is damaged" on Apple Silicon?**
+- Open Terminal and run: `xattr -cr /Applications/Whispering.app`
+- Try opening again
 
 </details>
 
@@ -122,52 +119,87 @@ Click the Apple menu → About This Mac:
 <details>
 <summary><strong>🪟 Windows</strong></summary>
 
-**Download:**
-- Installer: `Whispering_x.x.x_x64_en-US.msi` (recommended)
-- Alternative: `Whispering_x.x.x_x64-setup.exe`
+### Download for Windows
+**[⬇️ Download Windows Installer (.msi)](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi)** (Recommended)
 
-**Installation:**
-1. Download the `.msi` installer
-2. Double-click to run
-3. If Windows Defender appears: Click "More Info" → "Run Anyway"
-4. Follow the installation wizard
+Alternative: [Download .exe installer](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe)
+
+**Installation (1 minute):**
+1. Click the download link above
+2. Run the downloaded installer
+3. If Windows Defender appears: Click **"More Info"** → **"Run Anyway"**
+4. Follow the installation wizard (just click Next → Next → Install)
+
+✅ That's it! Whispering will appear in your Start Menu.
 
 </details>
 
 <details>
 <summary><strong>🐧 Linux</strong></summary>
 
-**Choose your format:**
-- **AppImage** (universal): `Whispering_x.x.x_amd64.AppImage`
-- **Debian/Ubuntu**: `Whispering_x.x.x_amd64.deb`
-- **Fedora/RHEL**: `Whispering-x.x.x-1.x86_64.rpm`
+### Choose your Linux package:
 
-**Installation:**
+<table>
+<tr>
+<td width="33%">
+
+**Universal (AppImage)**
+[⬇️ Download AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage)
+
+Works on any Linux distro
+
+</td>
+<td width="33%">
+
+**Debian/Ubuntu (.deb)**
+[⬇️ Download .deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb)
+
+For Debian-based systems
+
+</td>
+<td width="33%">
+
+**Fedora/RHEL (.rpm)**
+[⬇️ Download .rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm)
+
+For Red Hat-based systems
+
+</td>
+</tr>
+</table>
+
+**Quick Install Commands:**
 
 <details>
-<summary>AppImage</summary>
+<summary>AppImage (Universal)</summary>
 
 ```bash
-chmod +x Whispering_x.x.x_amd64.AppImage
-./Whispering_x.x.x_amd64.AppImage
+# Download and run
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage
+chmod +x Whispering_7.0.0_amd64.AppImage
+./Whispering_7.0.0_amd64.AppImage
 ```
 
 </details>
 
 <details>
-<summary>DEB (Debian/Ubuntu)</summary>
+<summary>Debian/Ubuntu</summary>
 
 ```bash
-sudo dpkg -i Whispering_x.x.x_amd64.deb
+# Download and install
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb
+sudo dpkg -i Whispering_7.0.0_amd64.deb
 ```
 
 </details>
 
 <details>
-<summary>RPM (Fedora/RHEL)</summary>
+<summary>Fedora/RHEL</summary>
 
 ```bash
-sudo rpm -i Whispering-x.x.x-1.x86_64.rpm
+# Download and install
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm
+sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
 ```
 
 </details>
@@ -175,9 +207,13 @@ sudo rpm -i Whispering-x.x.x-1.x86_64.rpm
 </details>
 
 <details>
-<summary><strong>🌐 Web App</strong></summary>
+<summary><strong>🌐 Try in Browser (No Download)</strong></summary>
 
-No installation needed! Visit [whispering.bradenwong.com](https://whispering.bradenwong.com) in your browser. The web version has most but not all features of the desktop app (no global shortcuts).
+### **[▶️ Open Whispering Web App](https://whispering.bradenwong.com)**
+
+No installation needed! Works in any modern browser.
+
+**Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
@@ -427,6 +463,32 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
+## Why Whispering Exists
+
+I was tired of the usual SaaS problems:
+
+- **The pricing was nuts.** Most transcription services charge $15-30/month for what should cost at most $2. You're paying for their profit margin.
+- **You have no idea what happens to your recordings.** Your recordings get uploaded to someone else's servers, processed by their systems, and stored according to their privacy policy.
+- **Limited options.** Most services use OpenAI's Whisper behind the scenes anyway, but you can't switch providers, can't use faster models, and can't go local when you need privacy.
+- **Things just disappear.** Companies pivot, get acquired, or shut down. Then you're stuck migrating your workflows and retraining your muscle memory.
+
+So I built Whispering the way transcription should work:
+
+- **No middleman** - Your audio goes straight to the provider you choose (or stays fully local)
+- **Your keys, your costs** - Pay OpenAI/Groq/whoever directly at actual rates: $0.02-$0.18/hour instead of $20/month
+- **Actually yours** - Open source means no one can take it away, change the pricing, or sunset the service
+
+### Cost Comparison
+
+With Whispering, you pay providers directly instead of marked-up subscription prices:
+
+| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
+|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
+
 ## How is my data stored?
 
 Whispering stores as much data as possible locally on your device, including recordings and text transcriptions. This approach ensures maximum privacy and data security. Here's an overview of how data is handled:
@@ -445,6 +507,50 @@ Whispering stores as much data as possible locally on your device, including rec
    When using AI-powered transformations, your transcribed text is sent to your chosen LLM provider using your own API key. All transformation configurations, including prompts and step sequences, are stored locally in your settings.
 
 You can change both the transcription and transformation services in the settings to ensure maximum local functionality and privacy.
+
+## Frequently Asked Questions
+
+### How is Whispering different from other transcription apps?
+
+The main difference is philosophy. Whispering is 100% free and open source. You bring your own API key, so you pay cents directly to providers instead of monthly subscriptions. Your data never touches our servers—it goes straight from your device to your chosen transcription service (or stays completely local).
+
+### What's the catch?
+
+No catch. I built this for myself and use it daily. I believe essential tools should be free and transparent. The code is open source so you can verify everything yourself. There's no telemetry, no data collection, and no premium tiers. It's just a tool that does one thing well.
+
+### What's the technical stack?
+
+Built with Svelte 5 (using new runes) + Tauri for native performance. ~50MB download, instant startup, low memory usage. The codebase showcases modern patterns and is great for learning. For a deep dive into the architecture, see the [Architecture section](#architecture-deep-dive).
+
+### Can I use this offline?
+
+Yes! Choose the Speaches provider for completely local transcription. No internet required, no API keys, and your audio never leaves your device.
+
+### How much does it cost to use?
+
+With your own API key:
+- Groq: $0.02-$0.06/hour
+- OpenAI: $0.18-$0.36/hour  
+- Local (Speaches): Free forever
+
+Compare that to subscription services charging $15-30/month!
+
+### Is my data private?
+
+Yes. Whispering stores recordings locally in IndexedDB. When using external transcription services, your audio goes directly to them using your API key—there's no middleman server. For maximum privacy, use the local Speaches provider.
+
+### Can I customize the transcription output?
+
+Absolutely! Use AI-powered transformations to automatically format, translate, or summarize your transcriptions. See [AI-Powered Transformations](#-ai-powered-transformations) for details.
+
+### What platforms are supported?
+
+Desktop: macOS (Intel & Apple Silicon), Windows, Linux  
+Web: Any modern browser at [whispering.bradenwong.com](https://whispering.bradenwong.com)
+
+### I found a bug or have a feature request
+
+Please open an issue on [GitHub](https://github.com/braden-w/whispering/issues) or join our [Discord](https://discord.gg/YWa5YVUSxa). I actively maintain this project and love hearing from users!
 
 ## Development
 
@@ -485,6 +591,8 @@ Whispering showcases the power of modern web development as a comprehensive exam
 
 Whispering uses a clean three-layer architecture that achieves **extensive code sharing** between the desktop app (Tauri) and web app. This is possible because of how we handle platform differences and separate business logic from UI concerns.
 
+**Quick Navigation:** [Service Layer](#service-layer---pure-business-logic--platform-abstraction) | [Query Layer](#query-layer---adding-reactivity-and-state-management) | [Error Handling](#error-handling-with-wellcrafted)
+
 ```
 ┌─────────────┐     ┌─────────────┐     ┌──────────────┐
 │  UI Layer   │ --> │  Query Layer│ --> │ Service Layer│
@@ -513,7 +621,9 @@ export const NotificationServiceLive = window.__TAURI_INTERNALS__
   : createNotificationServiceWeb();     // Browser notifications
 ```
 
-This design enables **extensive code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies). [→ Learn more in Services README](./apps/app/src/lib/services/README.md)
+This design enables **extensive code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies). 
+
+**→ Learn more:** [Services README](./apps/app/src/lib/services/README.md) | [Constants Organization](./apps/app/src/lib/constants/README.md)
 
 #### Query Layer - Adding Reactivity and State Management
 
@@ -563,7 +673,9 @@ createRecording: defineMutation({
 })
 ```
 
-This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. [→ Learn more in Query README](./apps/app/src/lib/query/README.md)
+This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. 
+
+**→ Learn more:** [Query README](./apps/app/src/lib/query/README.md) | [RPC Pattern Guide](./apps/app/src/lib/query/README.md#rpc-pattern)
 
 #### Error Transformation
 
@@ -633,9 +745,11 @@ We welcome contributions! Whispering is built with care and attention to clean, 
 - Use Result types from the [WellCrafted library](https://github.com/wellcrafted-dev/wellcrafted) for all error handling
 - Follow WellCrafted best practices: explicit errors with `Result<T, E>`, structured `TaggedError` objects, and comprehensive error context
 - Study the existing patterns in these key directories:
-  - [Services Architecture](./apps/app/src/lib/services/README.md) - Platform-agnostic business logic
-  - [Query Layer Patterns](./apps/app/src/lib/query/README.md) - RPC pattern and reactive state
-  - [Constants Organization](./apps/app/src/lib/constants/README.md) - Type-safe configuration
+  - **[Services Architecture](./apps/app/src/lib/services/README.md)** - Platform-agnostic business logic
+  - **[Query Layer Patterns](./apps/app/src/lib/query/README.md)** - RPC pattern and reactive state  
+  - **[Constants Organization](./apps/app/src/lib/constants/README.md)** - Type-safe configuration
+  
+**→ New to the codebase?** Start with the [Architecture Deep Dive](#architecture-deep-dive) to understand how everything fits together.
 
 Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspired error handling to JavaScript. It makes errors explicit in function signatures and ensures robust error handling throughout the codebase.
 
