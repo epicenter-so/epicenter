@@ -5,7 +5,7 @@ const { CompletionServiceError, CompletionServiceErr } = createTaggedError(
 	'CompletionServiceError',
 );
 export type CompletionServiceError = ReturnType<typeof CompletionServiceError>;
-export { type CompletionServiceError, CompletionServiceErr };
+export { CompletionServiceError, CompletionServiceErr };
 
 export type CompletionService = {
 	complete: (opts: {

@@ -16,7 +16,7 @@ import type { z } from 'zod';
  * ```
  */
 const { ConnectionError, ConnectionErr } = createTaggedError('ConnectionError');
-export type ConnectionError = ReturnType<typeof ConnectionError>;
+type ConnectionError = ReturnType<typeof ConnectionError>;
 export { ConnectionError, ConnectionErr };
 
 /**
@@ -60,9 +60,9 @@ export const ResponseErr = (args: Omit<ResponseError, 'name'>) => ({
  * // Result: ParseError
  * ```
  */
-const { ParseError, ParseErr } = createTaggedError('ParseError');
-export type ParseError = ReturnType<typeof ParseError>;
-export { ParseError, ParseErr };
+const { ParseError: ParseErrorFn, ParseErr } = createTaggedError('ParseError');
+export type ParseError = ReturnType<typeof ParseErrorFn>;
+export { ParseErrorFn as ParseError, ParseErr };
 
 export type HttpServiceError = ConnectionError | ResponseError | ParseError;
 

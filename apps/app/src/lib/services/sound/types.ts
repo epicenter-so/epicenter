@@ -6,7 +6,7 @@ const { PlaySoundServiceError, PlaySoundServiceErr } = createTaggedError(
 	'PlaySoundServiceError',
 );
 export type PlaySoundServiceError = ReturnType<typeof PlaySoundServiceError>;
-export { type PlaySoundServiceError, PlaySoundServiceErr };
+export { PlaySoundServiceError, PlaySoundServiceErr };
 
 export type PlaySoundService = {
 	playSound: (

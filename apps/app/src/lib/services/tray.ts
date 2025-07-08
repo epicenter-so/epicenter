@@ -15,14 +15,12 @@ const TRAY_ID = 'whispering-tray';
 const { SetTrayIconServiceError, SetTrayIconServiceErr } = createTaggedError(
 	'SetTrayIconServiceError',
 );
-export type SetTrayIconServiceErrorProperties = ReturnType<
-	typeof SetTrayIconServiceError
->;
+type SetTrayIconServiceError = ReturnType<typeof SetTrayIconServiceError>;
 
 type SetTrayIconService = {
 	setTrayIcon: (
 		icon: WhisperingRecordingState,
-	) => Promise<Ok<void> | Err<SetTrayIconServiceErrorProperties>>;
+	) => Promise<Ok<void> | Err<SetTrayIconServiceError>>;
 };
 
 export function createTrayIconWebService(): SetTrayIconService {

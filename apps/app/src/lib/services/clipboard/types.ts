@@ -9,7 +9,7 @@ import type { Result } from 'wellcrafted/result';
 const { ClipboardServiceError, ClipboardServiceErr } = createTaggedError(
 	'ClipboardServiceError',
 );
-export type ClipboardServiceError = ReturnType<typeof ClipboardServiceError>;
+type ClipboardServiceError = ReturnType<typeof ClipboardServiceError>;
 export { ClipboardServiceError, ClipboardServiceErr };
 
 export type ClipboardService = {

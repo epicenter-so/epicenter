@@ -18,10 +18,8 @@ import type { Result } from 'wellcrafted/result';
 const { NotificationServiceError, NotificationServiceErr } = createTaggedError(
 	'NotificationServiceError',
 );
-export type NotificationServiceError = ReturnType<
-	typeof NotificationServiceError
->;
-export { type NotificationServiceError, NotificationServiceErr };
+type NotificationServiceError = ReturnType<typeof NotificationServiceError>;
+export { NotificationServiceError, NotificationServiceErr };
 
 /**
  * Link action for internal navigation
