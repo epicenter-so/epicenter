@@ -1,8 +1,8 @@
 import type { OpenAIModel } from '$lib/constants/transcription/models';
-import type { WhisperingError } from '$lib/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync, trySync, type Result } from 'wellcrafted/result';
+import { Ok, tryAsync, trySync, type Result } from 'wellcrafted/result';
 import OpenAI from 'openai';
 
 const MAX_FILE_SIZE_MB = 25 as const;
@@ -21,8 +21,7 @@ export function createOpenaiTranscriptionService() {
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
 			if (!options.apiKey) {
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: '🔑 API Key Required',
 					description:
 						'Please enter your OpenAI API key in settings to use Whisper transcription.',
@@ -31,12 +30,11 @@ export function createOpenaiTranscriptionService() {
 						label: 'Add API key',
 						href: '/settings/transcription',
 					},
-				} satisfies WhisperingError);
+				});
 			}
 
 			if (!options.apiKey.startsWith('sk-')) {
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
 						'Your OpenAI API key should start with "sk-". Please check and update your API key.',
@@ -45,14 +43,13 @@ export function createOpenaiTranscriptionService() {
 						label: 'Update API key',
 						href: '/settings/transcription',
 					},
-				} satisfies WhisperingError);
+				});
 			}
 
 			// Validate file size
 			const blobSizeInMb = audioBlob.size / (1024 * 1024);
 			if (blobSizeInMb > MAX_FILE_SIZE_MB) {
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
 				});
@@ -112,20 +109,18 @@ export function createOpenaiTranscriptionService() {
 
 				// 400 - BadRequestError
 				if (status === 400) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '❌ Bad Request',
 						description:
 							message ??
 							`Invalid request to OpenAI API. ${error?.message ?? ''}`.trim(),
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 401 - AuthenticationError
 				if (status === 401) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '🔑 Authentication Required',
 						description:
 							message ??
@@ -135,73 +130,67 @@ export function createOpenaiTranscriptionService() {
 							label: 'Update API key',
 							href: '/settings/transcription',
 						},
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 403 - PermissionDeniedError
 				if (status === 403) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '⛔ Permission Denied',
 						description:
 							message ??
 							"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions.",
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 404 - NotFoundError
 				if (status === 404) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '🔍 Not Found',
 						description:
 							message ??
 							'The requested resource was not found. This might indicate an issue with the model or API endpoint.',
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 413 - Request Entity Too Large
 				if (status === 413) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '📦 Audio File Too Large',
 						description:
 							message ??
 							'Your audio file exceeds the maximum size limit (25MB). Try splitting it into smaller segments or reducing the audio quality.',
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 415 - Unsupported Media Type
 				if (status === 415) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '🎵 Unsupported Format',
 						description:
 							message ??
 							"This audio format isn't supported. Please convert your file to MP3, WAV, M4A, or another common audio format.",
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 422 - UnprocessableEntityError
 				if (status === 422) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '⚠️ Invalid Input',
 						description:
 							message ??
 							'The request was valid but the server cannot process it. Please check your audio file and parameters.',
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// 429 - RateLimitError
 				if (status === 429) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '⏱️ Rate Limit Reached',
 						description:
 							message ?? 'Too many requests. Please try again later.',
@@ -210,41 +199,38 @@ export function createOpenaiTranscriptionService() {
 							label: 'Update API key',
 							href: '/settings/transcription',
 						},
-					} satisfies WhisperingError);
+					});
 				}
 
 				// >=500 - InternalServerError
 				if (status && status >= 500) {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '🔧 Service Unavailable',
 						description:
 							message ??
 							`The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// Handle APIConnectionError (no status code)
 				if (!status && name === 'APIConnectionError') {
-					return Err({
-						name: 'WhisperingError',
+					return WhisperingErr({
 						title: '🌐 Connection Issue',
 						description:
 							message ??
 							'Unable to connect to the OpenAI service. This could be a network issue or temporary service interruption.',
 						action: { type: 'more-details', error: openaiApiError },
-					} satisfies WhisperingError);
+					});
 				}
 
 				// Return the error directly for other API errors
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: '❌ Unexpected Error',
 					description:
 						message ?? 'An unexpected error occurred. Please try again.',
 					action: { type: 'more-details', error: openaiApiError },
-				} satisfies WhisperingError);
+				});
 			}
 
 			// Success - return the transcription text

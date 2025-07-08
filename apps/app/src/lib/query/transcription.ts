@@ -2,8 +2,8 @@ import type { Recording } from '$lib/services/db';
 import * as services from '$lib/services';
 import { notify } from './notify';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
-import type { WhisperingError } from '$lib/result';
+import { Ok, type Result, partitionResults } from 'wellcrafted/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import { defineMutation } from './_utils';
 import { queryClient } from './index';
 import { recordings } from './recordings';
@@ -26,8 +26,7 @@ export const transcription = {
 			recording: Recording,
 		): Promise<Result<string, WhisperingError>> => {
 			if (!recording.blob) {
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: '⚠️ Recording blob not found',
 					description: "Your recording doesn't have a blob to transcribe.",
 				});
@@ -97,11 +96,10 @@ export const transcription = {
 			const results = await Promise.all(
 				recordings.map(async (recording) => {
 					if (!recording.blob) {
-						return Err({
-							name: 'WhisperingError',
+						return WhisperingErr({
 							title: '⚠️ Recording blob not found',
 							description: "Your recording doesn't have a blob to transcribe.",
-						} satisfies WhisperingError);
+						});
 					}
 					return await transcribeBlob(recording.blob);
 				}),

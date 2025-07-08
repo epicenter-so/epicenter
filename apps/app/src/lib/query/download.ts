@@ -1,8 +1,8 @@
 import * as services from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import type { DownloadServiceError } from '$lib/services/download';
-import { Err, type Result } from 'wellcrafted/result';
-import type { WhisperingError } from '$lib/result';
+import type { Result } from 'wellcrafted/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import { defineMutation } from './_utils';
 
 export const download = {
@@ -12,11 +12,10 @@ export const download = {
 			recording: Recording,
 		): Promise<Result<void, WhisperingError | DownloadServiceError>> => {
 			if (!recording.blob) {
-				return Err({
-					name: 'WhisperingError',
+				return WhisperingErr({
 					title: '⚠️ Recording blob not found',
 					description: "Your recording doesn't have a blob to download.",
-				} satisfies WhisperingError);
+				});
 			}
 
 			return await services.download.downloadBlob({
