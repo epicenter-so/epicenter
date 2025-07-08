@@ -5,11 +5,12 @@
 - **Primary Platform**: Hacker News ✅ POSTED
 - **Core Message**: "Transcription should be free, open, and private"
 - **Videos Ready**: 
-  - 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g ✅
-  - 5-minute setup guide: [TO BE UPLOADED - URGENT]
+  - 3-minute voice coding demo: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s ✅
+  - 5-minute setup guide: https://www.youtube.com/watch?v=1jYgBMrfVZs ✅
 
 ## COMPLETED TASKS
 - [x] Hacker News post (8:30 AM) ✅
+- [x] Twitter/X thread posted (10:30 AM) ✅ https://x.com/braden_wong_/status/1942255651083919547
 - [x] 3-minute voice coding demo uploaded ✅
 - [x] YouTube descriptions finalized ✅
 
@@ -21,11 +22,11 @@
 - [x] Ensure auto-updater is working
 - [x] Tag release version
 
-### Video Preparation
-- [ ] Upload 5-minute setup guide to YouTube (unlisted) - URGENT
-- [x] Upload 3-minute voice coding demo to YouTube (public) - https://youtube.com/shorts/tP1fuFpJt7g ✅
+### Video Preparation ✅ COMPLETED
+- [x] Upload 5-minute setup guide to YouTube - https://www.youtube.com/watch?v=1jYgBMrfVZs ✅
+- [x] Upload 3-minute voice coding demo to YouTube (public) - https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s ✅
 - [x] YouTube descriptions finalized ✅
-- [ ] Update README with setup guide embed
+- [x] Update README with setup guide embed ✅
 - [ ] Download videos locally for platform-specific uploads
 
 ### Content Creation (Simplified)
@@ -48,14 +49,11 @@
 - Have technical implementation details ready
 - **Day 2-3 Follow-up**: "Show HN: Voice-driven development with Whispering + Claude Code"
 
-**10:30 AM** - Twitter/X
-- **Angle**: Workflow-first with visual hook
-- Lead with \"I haven't typed code in 3 months\" + 3-minute demo video (native upload)
-- Thread explains tool philosophy
-- Tag @sveltejs @tauri_apps @anthropic
-- Include both video links:
-  - Voice coding demo (3 min): https://youtube.com/shorts/tP1fuFpJt7g
-  - Setup guide (5 min): [YouTube link]
+**10:30 AM** - Twitter/X ✅ COMPLETED
+- Posted thread: https://x.com/braden_wong_/status/1942255651083919547
+- **Strategy executed**: Native video upload, 5-tweet thread
+- **Engagement ongoing**: Monitor replies and engagement
+- **2 PM**: If viral, quote tweet with setup instructions
 
 ### Throughout Day
 **11:30 AM** - Reddit Technical Communities
@@ -89,16 +87,13 @@
 ### Visual Platforms (Throughout Day)
 **Instagram/TikTok**
 - **Angle**: Pure workflow content
-- \"I haven't typed code in 3 months\" series
+- \"I code like a 10x engineer\" series
 - Use 30-60 second clips from 3-minute demo
 - Add captions for accessibility and engagement
 - Target viral potential with hooks like \"$0.02/hr vs $30/month\"
-- Link to full 3-min demo: https://youtube.com/shorts/tP1fuFpJt7g
+- Link to full 3-min demo: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
 
-### Dev.to & IndieHackers (5:30 PM)
-- **Dev.to**: Technical deep dive with code examples
-- **IndieHackers**: Business angle - "anti-SaaS" approach
-- Include both videos for different audiences
+
 
 ### Post-Launch (July 8-9)
 - ProductHunt submission
@@ -114,9 +109,11 @@
 - Be ready for "Why not just use X?" questions
 
 ### Twitter/X
-- Lead with visual (GIF/video)
-- Keep initial tweet punchy
-- Have thread ready if it gains traction
+- **CRITICAL**: Upload video natively (don't link YouTube)
+- **NO LINKS** in first tweet (algorithm penalty)
+- First 30 minutes determine success
+- Reply to every comment immediately
+- Have backup text thread ready
 
 ### Reddit
 - Each subreddit has different culture
@@ -139,7 +136,7 @@
 > No catch. I built this for myself and use it daily. I believe essential tools should be free and transparent. The code is open source so you can verify everything yourself.
 
 **"Technical stack?"**
-> Built with Svelte 5 (using new runes) + Tauri for native performance. ~50MB download, instant startup, low memory usage. The codebase showcases modern patterns and is great for learning.
+> Built with Svelte 5 (using new runes) + Tauri for native performance. Lightweight bundle (~22MB on macOS), instant startup, low memory usage. The codebase showcases modern patterns and is great for learning.
 
 ## Success Metrics
 - [ ] 100+ GitHub stars first day

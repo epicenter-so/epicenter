@@ -17,7 +17,7 @@
   ```
 
 # Standard Workflow
-1. First think through the problem, read the codebase for relevant files, and write a plan to specs/[timestamp] [feature-name].md where [timestamp] is the timestamp in YYYYMMDDThhmmss format and [feature-name] is the name of the feature.
+1. First think through the problem, read the codebase for relevant files, and write a plan to docs/specs/[timestamp] [feature-name].md where [timestamp] is the timestamp in YYYYMMDDThhmmss format and [feature-name] is the name of the feature.
 2. The plan should have a list of todo items that you can check off as you complete them
 3. Before you begin working, check in with me and I will verify the plan.
 4. Then, begin working on the todo items, marking them as complete as you go.

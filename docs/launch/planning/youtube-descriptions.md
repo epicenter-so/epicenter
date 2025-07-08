@@ -30,7 +30,7 @@ Links:
 - GitHub: https://github.com/braden-w/whispering
 - Download: https://github.com/braden-w/whispering/releases
 - Documentation: https://github.com/braden-w/whispering#readme
-- How I use Whispering to code: https://youtube.com/shorts/tP1fuFpJt7g
+- How I use Whispering to code: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
 
 Built with Svelte 5 + Tauri for developers who believe transcription should be free.
 
@@ -41,7 +41,7 @@ Built with Svelte 5 + Tauri for developers who believe transcription should be f
 
 ## Video 2: Voice Coding Demo (3 minutes)
 
-**Title**: I Code 3x Faster Using Voice - Here's My $0.02/Hour Setup
+**Title**: How I code 5x faster by talking to Claude Code
 
 **Description**:
 ```

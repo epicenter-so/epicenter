@@ -112,7 +112,7 @@ I built Whispering after discovering transcription apps charge $30/month for wha
 **Add Concrete Metrics:**
 ```
 Performance stats:
-- 50MB download (vs competitors' 200MB+ Electron apps)
+- Lightweight bundle (~22MB on macOS) vs competitors' several hundred MB Electron apps
 - <100MB RAM usage
 - Instant cold start
 - Direct API calls (no proxy latency)

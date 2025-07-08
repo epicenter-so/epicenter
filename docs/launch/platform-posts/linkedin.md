@@ -13,7 +13,7 @@ I just launched Whispering - a completely free, open-source transcription app th
 ✅ Pay only for what you use (typically $0.02-0.18/hour)
 ✅ No subscriptions, no limits, no premium tiers
 
-I built this for myself and used it daily for months before discovering competitors were charging monthly fees. When I saw the pricing, I knew I had to open source it.
+I built this for myself and open sourced it from the start. When I discovered competitors were charging $15-30/month for similar functionality, it validated my decision to keep it free.
 
 **For Professionals:**
 - Create content faster with voice
@@ -22,8 +22,8 @@ I built this for myself and used it daily for months before discovering competit
 
 Built with modern tech (Svelte 5 + Tauri) for blazing fast performance on Mac, Windows, and Linux.
 
-🎥 Watch the 3-minute voice coding demo: https://youtube.com/shorts/tP1fuFpJt7g
-📚 5-minute setup guide: [YouTube link]
+🎥 Watch the 3-minute voice coding demo: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
+📚 5-minute setup guide: https://www.youtube.com/watch?v=1jYgBMrfVZs
 💻 GitHub: https://github.com/braden-w/whispering
 
 What transcription tools are you currently paying for that should be free?

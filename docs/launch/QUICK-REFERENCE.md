@@ -2,7 +2,8 @@
 
 ## COMPLETED ✅
 - **8:30 AM PST** → Hacker News ✅
-- Voice Coding Demo uploaded: https://youtube.com/shorts/tP1fuFpJt7g ✅
+- **10:30 AM PST** → Twitter/X ✅ https://x.com/braden_wong_/status/1942255651083919547
+- Voice Coding Demo uploaded: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s ✅
 
 ## URGENT 🚨
 - Upload 5-minute setup guide to YouTube (unlisted)
@@ -10,17 +11,17 @@
 ## Platform Order & Times (July 7, 2025)
 
 1. ~~**8:30 AM PST** → Hacker News~~ ✅ DONE
-2. **10:30 AM PST** → Twitter/X  
+2. ~~**10:30 AM PST** → Twitter/X~~ ✅ DONE
 3. **11:30 AM PST** → Reddit (technical: r/sveltejs, r/OpenAI, r/tauri)
 4. **12:30 PM PST** → YC communities
 5. **1:30 PM PST** → Reddit (general: r/productivity, r/accessibility, r/Anthropic, r/selfhosted, r/opensource, r/rust)
 6. **3:30 PM PST** → Discord channels
 7. **4:30 PM PST** → LinkedIn
-8. **5:30 PM PST** → Dev.to & IndieHackers
+
 
 ## Key Links
 - GitHub: https://github.com/braden-w/whispering
-- Voice Coding Demo (3 min): https://youtube.com/shorts/tP1fuFpJt7g ✅
+- Voice Coding Demo (3 min): https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s ✅
 - Setup Guide (5 min): [YouTube unlisted - TO BE UPLOADED] 🚨
 - Blog post: [if published]
 

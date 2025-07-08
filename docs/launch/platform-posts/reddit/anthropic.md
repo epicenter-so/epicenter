@@ -28,6 +28,6 @@ Built with Svelte 5 and Tauri so it's tiny and starts instantly. Works on Mac, W
 
 GitHub: https://github.com/braden-w/whispering
 
-Demo: [Coding workflow](https://youtube.com/shorts/tP1fuFpJt7g)
+Demo: [Coding workflow](https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s)
 
 Anyone else using voice with Claude? What's your workflow?

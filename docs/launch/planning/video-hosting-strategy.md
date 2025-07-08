@@ -4,7 +4,7 @@
 
 ### 3-Minute Voice Coding Demo ✅
 **Status**: PUBLISHED
-**URL**: https://youtube.com/shorts/tP1fuFpJt7g
+**URL**: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
 **Title**: "I Code 3x Faster Using Voice - Here's My $0.02/Hour Setup"
 **Platform**: YouTube Shorts (Public)
 
@@ -39,7 +39,7 @@ GitHub: https://github.com/braden-w/whispering
 ```
 
 ### For Launch (3-minute Coding Demo) ✅ COMPLETED
-**Published URL**: https://youtube.com/shorts/tP1fuFpJt7g
+**Published URL**: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
 **Title Used**: "I Code 3x Faster Using Voice - Here's My $0.02/Hour Setup"
 **Platform**: YouTube Shorts (Public)
 
@@ -101,13 +101,13 @@ Built with love for developers who want to code faster and type less.
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
 </div>
 
-> **Prefer a quick demo?** See the [3-minute voice coding workflow](https://youtube.com/shorts/tP1fuFpJt7g)
+> **Prefer a quick demo?** See the [3-minute voice coding workflow](https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s)
 ```
 
 ## File Naming Convention
 
 **Completed**:
-- `whispering-voice-coding-demo.mp4` (3-min demo) - ✅ https://youtube.com/shorts/tP1fuFpJt7g
+- `whispering-voice-coding-demo.mp4` (3-min demo) - ✅ https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
 
 **To Upload**:
 - `whispering-setup-guide-v7.mp4` (5-min overview) - 🚧 URGENT

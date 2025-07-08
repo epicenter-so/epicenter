@@ -64,14 +64,14 @@ The CI/CD workflow automatically:
 ### How It Works
 
 ```yaml
-# The workflow reads release-notes/{tag}.md
-RELEASE_FILE="release-notes/${{ github.ref_name }}.md"
+# The workflow reads docs/release-notes/{tag}.md
+RELEASE_FILE=\"docs/release-notes/${{ github.ref_name }}.md\"
 
 # Extracts summary for the update dialog
-SUMMARY=$(sed -n '/<!-- SUMMARY:START -->/,/<!-- SUMMARY:END -->/p' "$RELEASE_FILE")
+SUMMARY=$(sed -n '/<!-- SUMMARY:START -->/,/<!-- SUMMARY:END -->/p' \"$RELEASE_FILE\")
 
 # Uses full content for GitHub release
-FULL_NOTES=$(cat "$RELEASE_FILE")
+FULL_NOTES=$(cat \"$RELEASE_FILE\")
 ```
 
 ## 🎯 Best Practices
@@ -95,7 +95,7 @@ FULL_NOTES=$(cat "$RELEASE_FILE")
 ## 📌 Example Workflow
 
 1. Finish development for v7.1.0
-2. Create `release-notes/v7.1.0.md` from template
+2. Create `docs/release-notes/v7.1.0.md` from template
 3. Write summary and full release notes
 4. Commit: `git add release-notes/v7.1.0.md && git commit -m "docs: add v7.1.0 release notes"`
 5. Tag: `git tag -a v7.1.0 -m "..."`
@@ -116,6 +116,6 @@ FULL_NOTES=$(cat "$RELEASE_FILE")
 - Ensure file was committed before tag was created
 
 **Workflow can't find release file:**
-- File must be in `release-notes/` directory
+- File must be in `docs/release-notes/` directory
 - File name must be `{tag}.md` (e.g., `v7.1.0.md` for tag `v7.1.0`)
 - Check workflow logs for the exact file path it's looking for

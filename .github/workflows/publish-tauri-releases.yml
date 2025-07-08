@@ -96,8 +96,8 @@ jobs:
         id: release_notes
         shell: bash
         run: |
-          # Look for release notes file matching the tag name (e.g., v7.0.0 -> release-notes/v7.0.0.md)
-          RELEASE_FILE="release-notes/${{ github.ref_name }}.md"
+          # Look for release notes file matching the tag name (e.g., v7.0.0 -> docs/release-notes/v7.0.0.md)
+          RELEASE_FILE="docs/release-notes/${{ github.ref_name }}.md"
           
           if [ -f "$RELEASE_FILE" ]; then
             echo "Found release notes file: $RELEASE_FILE"

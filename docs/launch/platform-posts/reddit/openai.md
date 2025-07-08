@@ -30,6 +30,6 @@ Built with Svelte 5 and Tauri, so it's tiny (\~22MB) and starts instantly. Works
 
 GitHub: [https://github.com/braden-w/whispering](https://github.com/braden-w/whispering)
 
-[How I use it for coding](https://youtube.com/shorts/tP1fuFpJt7g)
+[How I use it for coding](https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s)
 
 Happy to answer questions about the implementation or how to optimize API costs. Been using this daily for months and it's saved me hundreds of dollars.

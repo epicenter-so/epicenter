@@ -12,7 +12,7 @@ Real-time transcription using your own API keys (OpenAI Whisper, Groq, etc). No 
 **Tauri highlights:**
 - System tray with global shortcuts
 - Secure API key storage
-- 50MB bundle size
+- Lightweight bundle (~22MB on macOS)
 - Native audio processing
 - Cross-platform (Mac/Win/Linux)
 
