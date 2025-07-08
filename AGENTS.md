@@ -32,7 +32,7 @@ When refactoring complex control flow, mirror natural human reasoning patterns:
 1. **Ask the human question first**: "Can I use what I already have?" → early return for happy path
 2. **Assess the situation**: "What's my current state and what do I need to do?" → clear, mutually exclusive conditions  
 3. **Take action**: "Get what I need" → consolidated logic at the end
-4. **Use natural language variables**: `canReuseCurrentSession`, `isSameSettings`, `hasNoSession` - names that read like thoughts
+4. **Use natural language variables**: `canReuseCurrentSession`, `isSameSettings`, `hasNoSession`: names that read like thoughts
 5. **Avoid artificial constructs**: No nested conditions that don't match how humans actually think through problems
 
 Transform this: nested conditionals with duplicated logic
@@ -114,18 +114,18 @@ import { Input } from '$lib/components/ui/input';
 ## Avoiding AI-Generated Feel
 
 ### The Dead Giveaways
-- **Bold formatting everywhere** - Biggest red flag. Never bold section headers in post content
-- **Excessive bullet lists** - Convert to flowing paragraphs
-- **Marketing language** - "game-changing", "revolutionary", "unleash", "empower"
-- **Structured sections** - "Key Features:", "Benefits:", "Why This Matters:"
-- **Vague superlatives** - "incredibly powerful", "seamlessly integrates", "robust solution"
+- **Bold formatting everywhere**: Biggest red flag. Never bold section headers in post content
+- **Excessive bullet lists**: Convert to flowing paragraphs
+- **Marketing language**: "game-changing", "revolutionary", "unleash", "empower"
+- **Structured sections**: "Key Features:", "Benefits:", "Why This Matters:"
+- **Vague superlatives**: "incredibly powerful", "seamlessly integrates", "robust solution"
 
 ### Writing Natural Prose
-- **Start with a story or problem** - "I was paying $30/month..." not "Introducing..."
-- **Use specific numbers** - "$0.02/hour" not "affordable pricing"
-- **Personal voice** - "I built this because..." not "This was built to..."
-- **Conversational flow** - Ideas connect naturally, not in rigid sections
-- **Concrete examples** - "I use it 3-4 hours daily" not "heavy usage"
+- **Start with a story or problem**: "I was paying $30/month..." not "Introducing..."
+- **Use specific numbers**: "$0.02/hour" not "affordable pricing"
+- **Personal voice**: "I built this because..." not "This was built to..."
+- **Conversational flow**: Ideas connect naturally, not in rigid sections
+- **Concrete examples**: "I use it 3-4 hours daily" not "heavy usage"
 
 ### The OpenAI Post Pattern (What Works)
 ```
@@ -196,7 +196,7 @@ So I built Whispering to cut out the middleman. You bring your own API key, your
 - `ci`: Changes to CI configuration files and scripts
 
 ### Scope Guidelines
-- **Scope is OPTIONAL** - only add when it provides clarity
+- **Scope is OPTIONAL**: only add when it provides clarity
 - Use lowercase, placed in parentheses after type: `feat(transcription):`
 - Prefer specific component/module names over generic terms
 - Your current practice is good: component names (`EditRecordingDialog`), feature areas (`transcription`, `sound`)
@@ -249,3 +249,31 @@ So I built Whispering to cut out the middleman. You bring your own API key, your
 - `Co-Authored-By: Claude <noreply@anthropic.com>`
 - Any references to AI assistance
 - Tool attribution or watermarks
+
+# Punctuation Guidelines
+
+## Avoiding AI Artifacts
+The pattern " - " (space-hyphen-space) is a common AI writing artifact that should be replaced with proper punctuation.
+
+### Replacement Priority
+1. **Semicolon (;)** - Use to connect closely related independent clauses
+   - Before: `The code works - the tests pass`
+   - After: `The code works; the tests pass`
+
+2. **Colon (:)** - Use when introducing an explanation, list, or example
+   - Before: `**Bold text** - This explains what it means`
+   - After: `**Bold text**: This explains what it means`
+
+3. **Em dash (—)** - Use for dramatic pauses or parenthetical statements where semicolon and colon don't work
+   - Before: `The app is fast - really fast`
+   - After: `The app is fast—really fast`
+
+### Common Patterns
+- **Definitions/Explanations**: Use colon
+  - `**Feature name**: Description of the feature`
+- **Examples/Lists**: Use colon
+  - `**Examples**: item1, item2, item3`
+- **Dramatic emphasis**: Use em dash
+  - `It's more than fast—it's instant`
+- **Related statements**: Use semicolon
+  - `The API is simple; the documentation is clear`

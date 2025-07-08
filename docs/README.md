@@ -7,14 +7,14 @@ This directory contains all documentation, resources, and planning materials for
 ### `/assets`
 Static resources used throughout the project documentation.
 
-- **`/images`** - Screenshots, demos, and visual assets used in documentation, release notes, and marketing materials
+- **`/images`**: Screenshots, demos, and visual assets used in documentation, release notes, and marketing materials
 
 ### `/launch`
 Launch campaign materials and planning documents.
 
-- **`/demo-videos`** - Video demonstrations of the application
-- **`/planning`** - Strategic planning documents for launches
-- **`/platform-posts`** - Pre-written posts for various social media and community platforms
+- **`/demo-videos`**: Video demonstrations of the application
+- **`/planning`**: Strategic planning documents for launches
+- **`/platform-posts`**: Pre-written posts for various social media and community platforms
 
 ### `/release-notes`
 Version release notes used by the CI/CD pipeline.

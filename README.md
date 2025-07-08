@@ -53,7 +53,7 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
 
 ## Key Features
 
-Choose from multiple transcription providers (Groq at $0.02/hour is my favorite). The app supports voice-activated mode for hands-free operation - just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
+Choose from multiple transcription providers (Groq at $0.02/hour is my favorite). The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
 
 Everything is stored locally on your device. Your audio goes directly from your machine to your chosen API provider. No middleman servers, no data collection, no tracking.
 
@@ -100,7 +100,7 @@ Choose your operating system below and click the download link:
 
 | Installer Type | Download | Description |
 |---------------|----------|-------------|
-| **MSI Installer** | [Whispering_7.0.0_x64_en-US.msi](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) | Recommended - Standard Windows installer |
+| **MSI Installer** | [Whispering_7.0.0_x64_en-US.msi](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) | Recommended Standard Windows installer |
 | **EXE Installer** | [Whispering_7.0.0_x64-setup.exe](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe) | Alternative installer option |
 
 #### Installation
@@ -280,7 +280,7 @@ Choose from multiple transcription providers based on your needs for speed, accu
 
 Transform your transcriptions automatically with custom AI workflows:
 
-**Quick Example - Format Text:**
+**Quick Example: Format Text**
 1. Go to **Transformations** (📚) in the top bar
 2. Click "Create Transformation" → Name it "Format Text"
 3. Add a **Prompt Transform** step:
@@ -289,9 +289,9 @@ Transform your transcriptions automatically with custom AI workflows:
 
 Core Principles:
 
-1. Preserve authenticity - Keep the original wording and phrasing as much as possible
-2. Add clarity - Make intelligent corrections only where needed for comprehension
-3. Enhance readability - Apply proper formatting, punctuation, and structure
+1. Preserve authenticity: Keep the original wording and phrasing as much as possible
+2. Add clarity: Make intelligent corrections only where needed for comprehension
+3. Enhance readability: Apply proper formatting, punctuation, and structure
 
 Formatting Guidelines:
 
