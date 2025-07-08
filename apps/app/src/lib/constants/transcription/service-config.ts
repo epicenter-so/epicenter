@@ -5,10 +5,15 @@ import type { Settings } from '$lib/settings';
 import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
-	GROQ_MODELS,
+	type ElevenLabsModel,
+} from '$lib/services/transcription/elevenlabs';
+import { GROQ_MODELS, type GroqModel } from '$lib/services/transcription/groq';
+import {
 	OPENAI_TRANSCRIPTION_MODELS,
-	type TranscriptionModel,
-} from './models';
+	type OpenAIModel,
+} from '$lib/services/transcription/openai';
+
+type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'OpenAI',

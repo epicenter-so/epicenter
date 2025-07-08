@@ -1,8 +1,24 @@
-import type { ElevenLabsModel } from '$lib/constants/transcription';
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { ElevenLabsClient } from 'elevenlabs';
 import { Ok, type Result } from 'wellcrafted/result';
+
+export const ELEVENLABS_TRANSCRIPTION_MODELS = [
+	{
+		name: 'scribe_v1',
+		description:
+			"World's most accurate transcription model with 96.7% accuracy for English. Supports 99 languages with word-level timestamps and speaker diarization.",
+		cost: '$0.40/hour',
+	},
+	{
+		name: 'scribe_v1_experimental',
+		description:
+			'Experimental version of Scribe with latest features and improvements. May include cutting-edge capabilities but with potential instability.',
+		cost: '$0.40/hour',
+	},
+] as const;
+
+export type ElevenLabsModel = (typeof ELEVENLABS_TRANSCRIPTION_MODELS)[number];
 
 export function createElevenLabsTranscriptionService() {
 	return {

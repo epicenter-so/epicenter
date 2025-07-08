@@ -39,11 +39,9 @@ import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import { SUPPORTED_LANGUAGES } from '$lib/constants/languages';
 import type { WhisperingSoundNames } from '$lib/constants/sounds';
 import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
-import type {
-	ElevenLabsModel,
-	GroqModel,
-	OpenAIModel,
-} from '$lib/constants/transcription/models';
+import type { ElevenLabsModel } from '$lib/services/transcription/elevenlabs';
+import type { GroqModel } from '$lib/services/transcription/groq';
+import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 

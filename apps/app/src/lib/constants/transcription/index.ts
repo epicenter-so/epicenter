@@ -1,10 +1,17 @@
 export {
 	OPENAI_TRANSCRIPTION_MODELS,
+	type OpenAIModel,
+} from '$lib/services/transcription/openai';
+
+export {
 	GROQ_MODELS,
-	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type GroqModel,
+} from '$lib/services/transcription/groq';
+
+export {
+	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
-} from './models';
+} from '$lib/services/transcription/elevenlabs';
 
 export {
 	TRANSCRIPTION_SERVICE_IDS,
