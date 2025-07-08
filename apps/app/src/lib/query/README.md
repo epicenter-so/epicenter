@@ -8,30 +8,31 @@ Every operation in the query layer provides **two interfaces** to match how you 
 
 ```svelte
 <script lang="ts">
-  import { createQuery } from '@tanstack/svelte-query';
-  import { rpc } from '$lib/query';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { rpc } from '$lib/query';
 
-  // Reactive in components - automatic state management
-  const recordings = createQuery(rpc.recordings.getAllRecordings.options());
-  // Syncs: recordings.isPending, recordings.data, recordings.error, recordings.isStale automatically
+	// Reactive in components - automatic state management
+	const recordings = createQuery(rpc.recordings.getAllRecordings.options());
+	// Syncs: recordings.isPending, recordings.data, recordings.error, recordings.isStale automatically
 </script>
 
 {#if recordings.isPending}
-  <div class="spinner">Loading recordings...</div>
+	<div class="spinner">Loading recordings...</div>
 {:else if recordings.error}
-  <div class="error">Error: {recordings.error.message}</div>
+	<div class="error">Error: {recordings.error.message}</div>
 {:else if recordings.data}
-  {#each recordings.data as recording}
-    <RecordingCard {recording} />
-  {/each}
+	{#each recordings.data as recording}
+		<RecordingCard {recording} />
+	{/each}
 {/if}
 ```
 
 **Perfect for** when you want the UI to track and synchronize with the query/mutation lifecycle. This provides automatic state management where your components react to loading states, data changes, and errors without manual intervention.
 
 Examples:
+
 - Component data display
-- Loading states and spinners  
+- Loading states and spinners
 - Automatic re-renders when data changes
 - Cache synchronization across components
 
@@ -39,13 +40,15 @@ Examples:
 
 ```typescript
 // Imperative in actions - lightweight and fast
-const { data, error } = await rpc.recordings.deleteRecording.execute(recordingId);
+const { data, error } =
+	await rpc.recordings.deleteRecording.execute(recordingId);
 // No observers, no subscriptions, just the result
 ```
 
 **Perfect for** when you don't need the overhead of observers or subscriptions, and when you want to call operations outside of component lifecycle. This avoids having to create mutations first or prop-drill mutation functions down to child components. You can call `.execute()` directly from anywhere without being constrained by component boundaries.
 
 Examples:
+
 - Event handlers (button clicks, form submissions)
 - Sequential operations and workflows
 - One-time data fetches
@@ -59,20 +62,21 @@ The query layer handles **runtime dependency injection**—dynamically switching
 ```typescript
 // Simplified example inspired by the actual transcription implementation
 async function transcribeBlob(blob: Blob) {
-  const selectedService = settings.value['transcription.selectedTranscriptionService'];
+	const selectedService =
+		settings.value['transcription.selectedTranscriptionService'];
 
-  switch (selectedService) {
-    case 'OpenAI':
-      return services.transcriptions.openai.transcribe(blob, {
-        apiKey: settings.value['apiKeys.openai'],
-        model: settings.value['transcription.openai.model'],
-      });
-    case 'Groq':
-      return services.transcriptions.groq.transcribe(blob, {
-        apiKey: settings.value['apiKeys.groq'], 
-        model: settings.value['transcription.groq.model'],
-      });
-  }
+	switch (selectedService) {
+		case 'OpenAI':
+			return services.transcriptions.openai.transcribe(blob, {
+				apiKey: settings.value['apiKeys.openai'],
+				model: settings.value['transcription.openai.model'],
+			});
+		case 'Groq':
+			return services.transcriptions.groq.transcribe(blob, {
+				apiKey: settings.value['apiKeys.groq'],
+				model: settings.value['transcription.groq.model'],
+			});
+	}
 }
 ```
 
@@ -83,19 +87,19 @@ The query layer uses the TanStack Query client to manipulate the cache for optim
 ```typescript
 // From recordings mutations
 createRecording: defineMutation({
-  resultMutationFn: async (recording: Recording) => {
-    const { data, error } = await services.db.createRecording(recording);
-    if (error) return Err(error);
+	resultMutationFn: async (recording: Recording) => {
+		const { data, error } = await services.db.createRecording(recording);
+		if (error) return Err(error);
 
-    // Optimistically update cache - UI updates instantly
-    queryClient.setQueryData(['recordings'], (oldData) => {
-      if (!oldData) return [recording];
-      return [...oldData, recording];
-    });
+		// Optimistically update cache - UI updates instantly
+		queryClient.setQueryData(['recordings'], (oldData) => {
+			if (!oldData) return [recording];
+			return [...oldData, recording];
+		});
 
-    return Ok(data);
-  },
-})
+		return Ok(data);
+	},
+});
 ```
 
 The query layer co-locates three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way, and gives developers a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder.
@@ -111,52 +115,59 @@ Services return their own specific error types (e.g., `ManualRecorderServiceErro
 ```typescript
 // From manualRecorder.ts - Error transformation in resultMutationFn
 startRecording: defineMutation({
-  resultMutationFn: async ({ toastId }: { toastId: string }) => {
-    const { data: deviceAcquisitionOutcome, error: startRecordingError } = 
-      await services.manualRecorder.startRecording(recordingSettings, {
-        sendStatus: (options) => notify.loading.execute({ id: toastId, ...options }),
-      });
-    
-    // Transform service error to WhisperingError
-    if (startRecordingError) {
-      return Err(WhisperingError({
-        title: '❌ Failed to start recording',
-        description: startRecordingError.message,  // Use service error message
-        action: { type: 'more-details', error: startRecordingError },
-      }));
-    }
-    return Ok(deviceAcquisitionOutcome);
-  },
-  // WhisperingError is now available in onError hook
-  onError: (error) => {
-    // error is WhisperingError, ready for toast display
-    notify.error.execute(error);
-  }
-})
+	resultMutationFn: async ({ toastId }: { toastId: string }) => {
+		const { data: deviceAcquisitionOutcome, error: startRecordingError } =
+			await services.manualRecorder.startRecording(recordingSettings, {
+				sendStatus: (options) =>
+					notify.loading.execute({ id: toastId, ...options }),
+			});
+
+		// Transform service error to WhisperingError
+		if (startRecordingError) {
+			return Err(
+				WhisperingError({
+					title: '❌ Failed to start recording',
+					description: startRecordingError.message, // Use service error message
+					action: { type: 'more-details', error: startRecordingError },
+				}),
+			);
+		}
+		return Ok(deviceAcquisitionOutcome);
+	},
+	// WhisperingError is now available in onError hook
+	onError: (error) => {
+		// error is WhisperingError, ready for toast display
+		notify.error.execute(error);
+	},
+});
 ```
 
 ### The Pattern Explained
 
 1. **Service Layer**: Returns domain-specific errors (`TaggedError` types from WellCrafted)
+
    ```typescript
    // In manual-recorder.ts
    type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
    ```
 
 2. **Query Layer**: Transforms to `WhisperingError` in `resultMutationFn`/`resultQueryFn`
+
    ```typescript
    if (serviceError) {
-     return Err(WhisperingError({
-       title: '❌ User-friendly title',
-       description: serviceError.message,  // Preserve detailed message
-       action: { type: 'more-details', error: serviceError }
-     }));
+   	return Err(
+   		WhisperingError({
+   			title: '❌ User-friendly title',
+   			description: serviceError.message, // Preserve detailed message
+   			action: { type: 'more-details', error: serviceError },
+   		}),
+   	);
    }
    ```
 
 3. **UI Layer**: Receives `WhisperingError` in hooks, perfect for toasts
    ```typescript
-   onError: (error) => notify.error.execute(error)  // error is WhisperingError
+   onError: (error) => notify.error.execute(error); // error is WhisperingError
    ```
 
 ### Why This Pattern?
@@ -171,24 +182,27 @@ startRecording: defineMutation({
 ```typescript
 // From cpalRecorder.ts
 getRecorderState: defineQuery({
-  resultQueryFn: async () => {
-    const { data: recorderState, error: getRecorderStateError } = 
-      await services.cpalRecorder.getRecorderState();
-    
-    if (getRecorderStateError) {
-      // Transform CpalRecorderServiceError → WhisperingError
-      return Err(WhisperingError({
-        title: '❌ Failed to get recorder state',
-        description: getRecorderStateError.message,
-        action: { type: 'more-details', error: getRecorderStateError },
-      }));
-    }
-    return Ok(recorderState);
-  },
-})
+	resultQueryFn: async () => {
+		const { data: recorderState, error: getRecorderStateError } =
+			await services.cpalRecorder.getRecorderState();
+
+		if (getRecorderStateError) {
+			// Transform CpalRecorderServiceError → WhisperingError
+			return Err(
+				WhisperingError({
+					title: '❌ Failed to get recorder state',
+					description: getRecorderStateError.message,
+					action: { type: 'more-details', error: getRecorderStateError },
+				}),
+			);
+		}
+		return Ok(recorderState);
+	},
+});
 ```
 
 This pattern ensures that:
+
 - Services remain pure and testable with their own error types
 - The query layer handles all UI-specific error formatting
 - Toast notifications receive properly formatted `WhisperingError` objects
@@ -230,18 +244,19 @@ import { notify } from '$lib/query';
 
 // Shows BOTH a toast (in-app) AND OS notification
 await notify.success.execute({
-  title: 'Recording saved',
-  description: 'Your recording has been transcribed'
+	title: 'Recording saved',
+	description: 'Your recording has been transcribed',
 });
 
 // Loading states only show toasts (no OS notification spam)
 const loadingId = await notify.loading.execute({
-  title: 'Processing...'
+	title: 'Processing...',
 });
 notify.dismiss(loadingId);
 ```
 
 This showcases the query layer's coordination role:
+
 - Calls the `toast` service for in-app notifications
 - Calls the `notifications` service for OS-level alerts
 - Adds intelligent logic (e.g., skipping OS notifications for loading states)

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
+	import { Editor } from '$lib/components/transformations-editor';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
@@ -7,7 +8,6 @@
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
-	import { Editor } from '$lib/components/transformations-editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,

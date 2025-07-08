@@ -35,16 +35,16 @@ import {
 	DEFAULT_BITRATE_KBPS,
 	RECORDING_MODES,
 } from '$lib/constants/audio';
-import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
+import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import { SUPPORTED_LANGUAGES } from '$lib/constants/languages';
-import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import type { WhisperingSoundNames } from '$lib/constants/sounds';
+import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
 import type {
 	ElevenLabsModel,
 	GroqModel,
 	OpenAIModel,
 } from '$lib/constants/transcription/models';
-import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
+import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 
 /**
@@ -157,14 +157,8 @@ export const settingsSchema = z.object({
 	'apiKeys.elevenlabs': z.string().default(''),
 
 	...({
-		'shortcuts.local.toggleManualRecording': z
-			.string()
-			.nullable()
-			.default(' '),
-		'shortcuts.local.cancelManualRecording': z
-			.string()
-			.nullable()
-			.default('c'),
+		'shortcuts.local.toggleManualRecording': z.string().nullable().default(' '),
+		'shortcuts.local.cancelManualRecording': z.string().nullable().default('c'),
 		'shortcuts.local.toggleCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.toggleVadRecording': z.string().nullable().default('v'),
@@ -186,7 +180,10 @@ export const settingsSchema = z.object({
 		'shortcuts.global.toggleCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.toggleVadRecording': z.string().nullable().default(null),
-		'shortcuts.global.pushToTalk': z.string().nullable().default(`${CommandOrAlt}+Shift+D`),
+		'shortcuts.global.pushToTalk': z
+			.string()
+			.nullable()
+			.default(`${CommandOrAlt}+Shift+D`),
 	} satisfies Record<
 		`shortcuts.global.${Command['id']}`,
 		z.ZodDefault<z.ZodNullable<ZodString>>

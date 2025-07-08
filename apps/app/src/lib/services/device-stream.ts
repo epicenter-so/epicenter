@@ -1,6 +1,6 @@
 import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audio';
-import { Ok, type Result, tryAsync } from 'wellcrafted/result';
 import { createTaggedError } from 'wellcrafted/error';
+import { Ok, type Result, tryAsync } from 'wellcrafted/result';
 
 const { DeviceStreamServiceError, DeviceStreamServiceErr } = createTaggedError(
 	'DeviceStreamServiceError',

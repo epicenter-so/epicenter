@@ -1,7 +1,7 @@
+import Groq from 'groq-sdk';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
 import { CompletionServiceErr } from './types';
-import Groq from 'groq-sdk';
 
 export function createGroqCompletionService(): CompletionService {
 	return {

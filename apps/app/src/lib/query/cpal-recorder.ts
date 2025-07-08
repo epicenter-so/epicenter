@@ -1,11 +1,11 @@
-import * as services from '$lib/services';
-import { notify } from './notify';
 import type { WhisperingRecordingState } from '$lib/constants/audio';
+import { WhisperingError } from '$lib/result';
+import * as services from '$lib/services';
+import { settings } from '$lib/stores/settings.svelte';
+import { Err, Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery } from './_utils';
 import { queryClient } from './index';
-import { settings } from '$lib/stores/settings.svelte';
-import { WhisperingError } from '$lib/result';
-import { Err, Ok } from 'wellcrafted/result';
+import { notify } from './notify';
 
 const recorderKeys = {
 	state: ['cpalRecorder', 'state'] as const,

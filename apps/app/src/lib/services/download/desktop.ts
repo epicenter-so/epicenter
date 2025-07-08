@@ -1,7 +1,7 @@
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { DownloadService } from '.';
 import { DownloadServiceError } from './types';
 
@@ -18,7 +18,8 @@ export function createDownloadServiceDesktop(): DownloadService {
 				},
 				mapError: (error) =>
 					DownloadServiceError({
-						message: 'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
+						message:
+							'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
 						context: { name, blob },
 						cause: error,
 					}),
@@ -40,7 +41,8 @@ export function createDownloadServiceDesktop(): DownloadService {
 				},
 				mapError: (error) =>
 					DownloadServiceError({
-						message: 'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
+						message:
+							'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
 						context: { name, blob, path },
 						cause: error,
 					}),

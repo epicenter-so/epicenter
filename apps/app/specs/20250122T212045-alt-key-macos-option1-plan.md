@@ -1,6 +1,7 @@
 # macOS Alt/Option Key Recording Fix - Implementation Plan
 
 ## Overview
+
 Implement Solution 1: Track Alt state and normalize special characters by creating a comprehensive mapping of Option+Key combinations to their base keys.
 
 ## Todo List
@@ -47,7 +48,7 @@ const OPTION_CHAR_TO_KEY_MAP: Record<string, string> = {
   '≈': 'x',  // Option+X
   '¥': 'y',  // Option+Y
   'Ω': 'z',  // Option+Z
-  
+
   // Option + Numbers
   'º': '0',  // Option+0
   '¡': '1',  // Option+1
@@ -57,7 +58,7 @@ const OPTION_CHAR_TO_KEY_MAP: Record<string, string> = {
   // Option+5, 6, 7 don't produce special characters
   '•': '8',  // Option+8
   'ª': '9',  // Option+9
-  
+
   // Option + Special Keys
   '"': '[',  // Option+[
   ''': ']',  // Option+]
@@ -70,14 +71,14 @@ const OPTION_CHAR_TO_KEY_MAP: Record<string, string> = {
 /**
  * Coerces macOS Option+Key special characters back to their base keys.
  * This fixes the issue where Option+A produces 'å' instead of registering as 'alt+a'.
- * 
+ *
  * @param key - The key from the keyboard event (already lowercased)
  * @returns The base key if it was a special character, or the original key
  */
 export function coerceMacosKey(key: string): string {
   // Only coerce single-character keys that might be special characters
   if (key.length !== 1) return key;
-  
+
   // Check if this is a known Option+Key special character
   return OPTION_CHAR_TO_KEY_MAP[key] ?? key;
 }
@@ -91,66 +92,66 @@ Update `src/lib/utils/createPressedKeys.svelte.ts`:
 import { coerceMacosKey } from '$lib/constants/_option-char-mappings';
 
 export function createPressedKeys<
-  TSupportedKey extends KeyboardEventPossibleKey,
+	TSupportedKey extends KeyboardEventPossibleKey,
 >({
-  supportedKeys,
-  preventDefault = true,
-  onUnsupportedKey,
+	supportedKeys,
+	preventDefault = true,
+	onUnsupportedKey,
 }: {
-  supportedKeys: TSupportedKey[];
-  preventDefault?: boolean;
-  onUnsupportedKey?: (key: KeyboardEventPossibleKey) => void;
+	supportedKeys: TSupportedKey[];
+	preventDefault?: boolean;
+	onUnsupportedKey?: (key: KeyboardEventPossibleKey) => void;
 }) {
-  // ... existing code ...
+	// ... existing code ...
 
-  const subscribe = createSubscriber((update) => {
-    const keydown = on(window, 'keydown', (e) => {
-      if (preventDefault) {
-        e.preventDefault();
-      }
-      
-      let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-      
-      // Coerce macOS special characters when Alt is pressed
-      const isAltPressed = pressedKeys.includes('alt' as TSupportedKey);
-      if (isAltPressed) {
-        key = coerceMacosKey(key) as KeyboardEventPossibleKey;
-      }
+	const subscribe = createSubscriber((update) => {
+		const keydown = on(window, 'keydown', (e) => {
+			if (preventDefault) {
+				e.preventDefault();
+			}
 
-      if (!isSupportedKey(key)) {
-        onUnsupportedKey?.(key);
-        return;
-      }
+			let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
-      if (!pressedKeys.includes(key)) {
-        pressedKeys.push(key);
-      }
-      update();
-    });
+			// Coerce macOS special characters when Alt is pressed
+			const isAltPressed = pressedKeys.includes('alt' as TSupportedKey);
+			if (isAltPressed) {
+				key = coerceMacosKey(key) as KeyboardEventPossibleKey;
+			}
 
-    const keyup = on(window, 'keyup', (e) => {
-      let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-      
-      // Coerce on keyup too for consistency
-      const isAltPressed = pressedKeys.includes('alt' as TSupportedKey);
-      if (isAltPressed) {
-        key = coerceMacosKey(key) as KeyboardEventPossibleKey;
-      }
+			if (!isSupportedKey(key)) {
+				onUnsupportedKey?.(key);
+				return;
+			}
 
-      if (!isSupportedKey(key)) return;
+			if (!pressedKeys.includes(key)) {
+				pressedKeys.push(key);
+			}
+			update();
+		});
 
-      // ... existing modifier key handling and filtering ...
-    });
+		const keyup = on(window, 'keyup', (e) => {
+			let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
 
-    // ... rest of existing code ...
-  });
+			// Coerce on keyup too for consistency
+			const isAltPressed = pressedKeys.includes('alt' as TSupportedKey);
+			if (isAltPressed) {
+				key = coerceMacosKey(key) as KeyboardEventPossibleKey;
+			}
 
-  return {
-    get current() {
-      subscribe();
-      return pressedKeys;
-    },
-  };
+			if (!isSupportedKey(key)) return;
+
+			// ... existing modifier key handling and filtering ...
+		});
+
+		// ... rest of existing code ...
+	});
+
+	return {
+		get current() {
+			subscribe();
+			return pressedKeys;
+		},
+	};
 }
 ```
 
@@ -165,12 +166,13 @@ export function createPressedKeys<
 ### 4. Testing Strategy
 
 1. **Unit tests for coerceMacosKey**:
+
    ```typescript
    test('coerceMacosKey maps Option special characters', () => {
-     expect(coerceMacosKey('å')).toBe('a');
-     expect(coerceMacosKey('∫')).toBe('b');
-     expect(coerceMacosKey('a')).toBe('a'); // unchanged
-     expect(coerceMacosKey('alt')).toBe('alt'); // multi-char unchanged
+   	expect(coerceMacosKey('å')).toBe('a');
+   	expect(coerceMacosKey('∫')).toBe('b');
+   	expect(coerceMacosKey('a')).toBe('a'); // unchanged
+   	expect(coerceMacosKey('alt')).toBe('alt'); // multi-char unchanged
    });
    ```
 

@@ -5,9 +5,9 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { rpc } from '$lib/query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
-	import { createMutation } from '@tanstack/svelte-query';
 
 	/**
 	 * Props for the CopyableTextDialog component.

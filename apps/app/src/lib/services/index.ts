@@ -1,4 +1,3 @@
-import { TrayIconServiceLive } from './tray';
 import { ClipboardServiceLive } from './clipboard';
 import * as completions from './completion';
 import { CpalRecorderServiceLive } from './cpal-recorder';
@@ -8,10 +7,11 @@ import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
 import { NavigatorRecorderServiceLive } from './manual-recorder';
 import { NotificationServiceLive } from './notifications';
-import { ToastServiceLive } from './toast';
 import { OsServiceLive } from './os';
 import { PlaySoundServiceLive } from './sound';
+import { ToastServiceLive } from './toast';
 import * as transcriptions from './transcription';
+import { TrayIconServiceLive } from './tray';
 import { VadServiceLive } from './vad-recorder';
 
 /**

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as SectionHeader from '$lib/components/ui/section-header';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		LabeledInput,
@@ -7,13 +6,18 @@
 		LabeledSwitch,
 		LabeledTextarea,
 	} from '$lib/components/labeled/index.js';
+	import {
+		AnthropicApiKeyInput,
+		GoogleApiKeyInput,
+		GroqApiKeyInput,
+		OpenAiApiKeyInput,
+	} from '$lib/components/settings';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import * as Alert from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
+	import * as SectionHeader from '$lib/components/ui/section-header';
 	import { Separator } from '$lib/components/ui/separator';
-	import type { Transformation } from '$lib/services/db';
-	import { generateDefaultTransformationStep } from '$lib/services/db';
 	import {
 		TRANSFORMATION_STEP_TYPES,
 		TRANSFORMATION_STEP_TYPES_TO_LABELS,
@@ -25,14 +29,10 @@
 		INFERENCE_PROVIDER_OPTIONS,
 		OPENAI_INFERENCE_MODEL_OPTIONS,
 	} from '$lib/constants/inference';
+	import type { Transformation } from '$lib/services/db';
+	import { generateDefaultTransformationStep } from '$lib/services/db';
 	import { CopyIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
-	import {
-		AnthropicApiKeyInput,
-		GoogleApiKeyInput,
-		GroqApiKeyInput,
-		OpenAiApiKeyInput,
-	} from '$lib/components/settings';
 
 	let { transformation = $bindable() }: { transformation: Transformation } =
 		$props();

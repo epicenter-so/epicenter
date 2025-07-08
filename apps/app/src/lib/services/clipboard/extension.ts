@@ -1,5 +1,5 @@
 import { tryAsync, trySync } from 'wellcrafted/result';
-import { ClipboardServiceError, type ClipboardService } from './types';
+import { type ClipboardService, ClipboardServiceError } from './types';
 
 export function createClipboardServiceExtension(): ClipboardService {
 	return {

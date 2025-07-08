@@ -45,7 +45,6 @@
 		}
 	});
 
-
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
 		syncIconWithRecorderState();

@@ -8,33 +8,37 @@ Services are consumed through the query layer, which wraps them with caching, re
 
 ```typescript
 // From: /lib/query/transcription.ts
-async function transcribeBlob(blob: Blob): Promise<Result<string, WhisperingError>> {
-  const selectedService = settings.value['transcription.selectedTranscriptionService'];
+async function transcribeBlob(
+	blob: Blob,
+): Promise<Result<string, WhisperingError>> {
+	const selectedService =
+		settings.value['transcription.selectedTranscriptionService'];
 
-  switch (selectedService) {
-    case 'OpenAI':
-      // Pure service call with explicit parameters
-      return services.transcriptions.openai.transcribe(blob, {
-        outputLanguage: settings.value['transcription.outputLanguage'],
-        prompt: settings.value['transcription.prompt'],
-        temperature: settings.value['transcription.temperature'],
-        apiKey: settings.value['apiKeys.openai'],
-        modelName: settings.value['transcription.openai.model'],
-      });
-    case 'Groq':
-      // Same interface, different implementation
-      return services.transcriptions.groq.transcribe(blob, {
-        outputLanguage: settings.value['transcription.outputLanguage'],
-        prompt: settings.value['transcription.prompt'],
-        temperature: settings.value['transcription.temperature'],
-        apiKey: settings.value['apiKeys.groq'],
-        modelName: settings.value['transcription.groq.model'],
-      });
-  }
+	switch (selectedService) {
+		case 'OpenAI':
+			// Pure service call with explicit parameters
+			return services.transcriptions.openai.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.openai'],
+				modelName: settings.value['transcription.openai.model'],
+			});
+		case 'Groq':
+			// Same interface, different implementation
+			return services.transcriptions.groq.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.groq'],
+				modelName: settings.value['transcription.groq.model'],
+			});
+	}
 }
 ```
 
 **Notice how services are:**
+
 - **Pure**: Accept explicit parameters, no hidden dependencies
 - **Isolated**: No knowledge of UI state, settings, or reactive stores
 - **Testable**: Easy to unit test with mock parameters
@@ -50,8 +54,8 @@ Services also handle **build-time dependency injection** for platform difference
 ```typescript
 // Platform detection happens at build time
 export const ClipboardServiceLive = window.__TAURI_INTERNALS__
-  ? createClipboardServiceDesktop() // Tauri APIs
-  : createClipboardServiceWeb(); // Browser APIs
+	? createClipboardServiceDesktop() // Tauri APIs
+	: createClipboardServiceWeb(); // Browser APIs
 ```
 
 This platform abstraction enables **97% code sharing** between Whispering's desktop and web versions. The vast majority of application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Instead of maintaining separate codebases, we write business logic once and let services handle platform differences automatically.
@@ -59,6 +63,7 @@ This platform abstraction enables **97% code sharing** between Whispering's desk
 #### Measuring Code Sharing
 
 The 97% figure comes from analyzing the codebase:
+
 - **Total application code**: 22,824 lines
 - **Platform-specific services**: 685 lines (3%)
 - **Shared code**: 22,139 lines (97%)
@@ -68,7 +73,7 @@ Platform-specific implementations are minimal - just 6 services with ~57 lines p
 > **💡 Dependency Injection Strategy**
 >
 > Services only use dependency injection for **build-time platform differences** (desktop vs web). When we need to switch implementations based on **reactive variables** like user settings, that logic lives in the query layer instead.
-> 
+>
 > - **Services**: Static platform detection (`ClipboardServiceLive` chooses Tauri vs Browser APIs)
 > - **Query Layer**: Dynamic implementation switching based on `settings.value['transcription.selectedTranscriptionService']`
 
@@ -124,7 +129,7 @@ Each service defines its own `TaggedError` type to represent domain-specific fai
 // From manual-recorder.ts
 type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
 
-// From cpal-recorder.ts  
+// From cpal-recorder.ts
 type CpalRecorderServiceError = TaggedError<'CpalRecorderServiceError'>;
 
 // From device-stream.ts
@@ -134,44 +139,49 @@ type DeviceStreamServiceError = TaggedError<'DeviceStreamServiceError'>;
 #### Error Type Best Practices
 
 1. **Name Convention**: Use `{ServiceName}ServiceError` format
+
    ```typescript
    type ClipboardServiceError = TaggedError<'ClipboardServiceError'>;
    ```
 
 2. **Rich Error Messages**: Provide detailed, user-friendly messages
+
    ```typescript
    return Err({
-     name: 'ManualRecorderServiceError',
-     message: 'A recording is already in progress. Please stop the current recording before starting a new one.',
-     context: { activeRecording },
-     cause: undefined,
+   	name: 'ManualRecorderServiceError',
+   	message:
+   		'A recording is already in progress. Please stop the current recording before starting a new one.',
+   	context: { activeRecording },
+   	cause: undefined,
    });
    ```
 
 3. **Include Context**: Add relevant debugging information
+
    ```typescript
    return Err({
-     name: 'CpalRecorderServiceError',
-     message: 'We encountered an issue while setting up your recording session.',
-     context: {
-       selectedDeviceId,
-       deviceName,
-       availableDevices: devices,
-     },
-     cause: underlyingError,
+   	name: 'CpalRecorderServiceError',
+   	message:
+   		'We encountered an issue while setting up your recording session.',
+   	context: {
+   		selectedDeviceId,
+   		deviceName,
+   		availableDevices: devices,
+   	},
+   	cause: underlyingError,
    });
    ```
 
 4. **Map Platform Errors**: Transform platform-specific errors
    ```typescript
    return tryAsync({
-     try: () => navigator.mediaDevices.getUserMedia(constraints),
-     mapError: (error): DeviceStreamServiceError => ({
-       name: 'DeviceStreamServiceError',
-       message: 'Unable to access microphone. Please check permissions.',
-       context: { constraints, hasPermission },
-       cause: error,
-     }),
+   	try: () => navigator.mediaDevices.getUserMedia(constraints),
+   	mapError: (error): DeviceStreamServiceError => ({
+   		name: 'DeviceStreamServiceError',
+   		message: 'Unable to access microphone. Please check permissions.',
+   		context: { constraints, hasPermission },
+   		cause: error,
+   	}),
    });
    ```
 
@@ -188,6 +198,7 @@ type MyServiceError = TaggedError<'MyServiceError'>;
 ```
 
 The query layer is responsible for transforming service errors into `WhisperingError` for toast notifications. This separation ensures:
+
 - Services remain pure and testable
 - Error types can evolve independently
 - UI concerns don't leak into business logic
@@ -197,41 +208,45 @@ The query layer is responsible for transforming service errors into `WhisperingE
 ```typescript
 // In manual-recorder.ts
 export function createManualRecorderService() {
-  return {
-    startRecording: async (
-      recordingSettings,
-      { sendStatus }
-    ): Promise<Result<DeviceAcquisitionOutcome, ManualRecorderServiceError>> => {
-      if (activeRecording) {
-        return Err({
-          name: 'ManualRecorderServiceError',
-          message: 'A recording is already in progress. Please stop the current recording before starting a new one.',
-          context: { activeRecording },
-          cause: undefined,
-        });
-      }
-      
-      // When using another service's functions, map their errors
-      const { data: streamResult, error: acquireStreamError } =
-        await getRecordingStream(selectedDeviceId, sendStatus);
-      
-      if (acquireStreamError) {
-        // Transform DeviceStreamServiceError → ManualRecorderServiceError
-        return Err({
-          name: 'ManualRecorderServiceError',
-          message: acquireStreamError.message,
-          context: acquireStreamError.context,
-          cause: acquireStreamError,
-        });
-      }
-      
-      // Continue with recording logic...
-    },
-  };
+	return {
+		startRecording: async (
+			recordingSettings,
+			{ sendStatus },
+		): Promise<
+			Result<DeviceAcquisitionOutcome, ManualRecorderServiceError>
+		> => {
+			if (activeRecording) {
+				return Err({
+					name: 'ManualRecorderServiceError',
+					message:
+						'A recording is already in progress. Please stop the current recording before starting a new one.',
+					context: { activeRecording },
+					cause: undefined,
+				});
+			}
+
+			// When using another service's functions, map their errors
+			const { data: streamResult, error: acquireStreamError } =
+				await getRecordingStream(selectedDeviceId, sendStatus);
+
+			if (acquireStreamError) {
+				// Transform DeviceStreamServiceError → ManualRecorderServiceError
+				return Err({
+					name: 'ManualRecorderServiceError',
+					message: acquireStreamError.message,
+					context: acquireStreamError.context,
+					cause: acquireStreamError,
+				});
+			}
+
+			// Continue with recording logic...
+		},
+	};
 }
 ```
 
 This example shows:
+
 - Service-specific error type (`ManualRecorderServiceError`)
 - Detailed error messages for different failure scenarios
 - Error mapping when consuming other services

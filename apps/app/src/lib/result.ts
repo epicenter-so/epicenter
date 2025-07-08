@@ -1,6 +1,6 @@
-import { Err, type Ok } from 'wellcrafted/result';
-import type { TaggedError } from 'wellcrafted/error';
 import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
+import type { TaggedError } from 'wellcrafted/error';
+import { Err, type Ok } from 'wellcrafted/result';
 
 export type WhisperingWarning = Omit<
 	TaggedError<'WhisperingWarning'>,

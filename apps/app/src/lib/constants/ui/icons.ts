@@ -5,4 +5,8 @@
  */
 
 // Re-export from audio since these are tied to recording states
-export { recorderStateToIcons, cpalStateToIcons, vadStateToIcons } from '../audio/recording-states';
+export {
+	recorderStateToIcons,
+	cpalStateToIcons,
+	vadStateToIcons,
+} from '../audio/recording-states';

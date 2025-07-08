@@ -3,7 +3,7 @@
 	import { ChromeWebStoreIcon } from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card } from '$lib/components/ui/card/index.js';
-	import { MicIcon, CommandIcon, ZapIcon, DownloadIcon } from 'lucide-svelte';
+	import { CommandIcon, DownloadIcon, MicIcon, ZapIcon } from 'lucide-svelte';
 </script>
 
 <svelte:head>

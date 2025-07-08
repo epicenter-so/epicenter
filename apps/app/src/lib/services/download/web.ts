@@ -19,7 +19,8 @@ export function createDownloadServiceWeb(): DownloadService {
 				},
 				mapError: (error) =>
 					DownloadServiceError({
-						message: 'There was an error saving the recording in your browser. Please try again.',
+						message:
+							'There was an error saving the recording in your browser. Please try again.',
 						context: { name, blob },
 						cause: error,
 					}),

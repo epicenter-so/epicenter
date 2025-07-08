@@ -1,19 +1,19 @@
 <script lang="ts">
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import * as Alert from '$lib/components/ui/alert/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { HelpCircle, ExternalLink, AlertTriangle } from 'lucide-svelte';
-	import { Badge } from '$lib/components/ui/badge/index.js';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import * as Alert from '$lib/components/ui/alert/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import {
-		KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS,
 		ACCELERATOR_SECTIONS,
 		CommandOrAlt,
 		CommandOrControl,
+		KEYBOARD_EVENT_SUPPORTED_KEY_SECTIONS,
 		OPTION_DEAD_KEYS,
 	} from '$lib/constants/keyboard';
 	import { IS_MACOS } from '$lib/constants/platform';
+	import { AlertTriangle, ExternalLink, HelpCircle } from 'lucide-svelte';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);

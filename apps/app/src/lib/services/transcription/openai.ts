@@ -2,8 +2,8 @@ import type { OpenAIModel } from '$lib/constants/transcription/models';
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Ok, tryAsync, trySync, type Result } from 'wellcrafted/result';
 import OpenAI from 'openai';
+import { Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 
 const MAX_FILE_SIZE_MB = 25 as const;
 

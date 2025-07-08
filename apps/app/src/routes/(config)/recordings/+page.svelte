@@ -6,11 +6,6 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Card } from '$lib/components/ui/card';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
-	import {
-		FlexRender,
-		createTable as createSvelteTable,
-		renderComponent,
-	} from '@tanstack/svelte-table';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -25,6 +20,11 @@
 	import { cn } from '$lib/utils';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import {
+		FlexRender,
+		createTable as createSvelteTable,
+		renderComponent,
+	} from '@tanstack/svelte-table';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -43,13 +43,13 @@
 		RepeatIcon as RetryTranscriptionIcon,
 		PlayIcon as StartTranscriptionIcon,
 	} from 'lucide-svelte';
+	import { nanoid } from 'nanoid/non-secure';
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
-	import { RecordingRowActions } from './row-actions';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
-	import { nanoid } from 'nanoid/non-secure';
+	import { RecordingRowActions } from './row-actions';
 
 	const getAllRecordingsQuery = createQuery(
 		rpc.recordings.getAllRecordings.options,

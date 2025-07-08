@@ -2,12 +2,12 @@
 	import { commands } from '$lib/commands';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { rpc } from '$lib/query';
+	import { getDefaultSettings } from '$lib/settings';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import { Search } from 'lucide-svelte';
 	import GlobalKeyboardShortcutRecorder from './GlobalKeyboardShortcutRecorder.svelte';
 	import LocalKeyboardShortcutRecorder from './LocalKeyboardShortcutRecorder.svelte';
-	import { rpc } from '$lib/query';
-	import { getDefaultSettings } from '$lib/settings';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 

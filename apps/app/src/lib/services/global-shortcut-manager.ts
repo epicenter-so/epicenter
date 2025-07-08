@@ -17,8 +17,9 @@ import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
-const { InvalidAcceleratorError, InvalidAcceleratorErr } =
-	createTaggedError('InvalidAcceleratorError');
+const { InvalidAcceleratorError, InvalidAcceleratorErr } = createTaggedError(
+	'InvalidAcceleratorError',
+);
 const { GlobalShortcutServiceError, GlobalShortcutServiceErr } =
 	createTaggedError('GlobalShortcutServiceError');
 type InvalidAcceleratorError = ReturnType<typeof InvalidAcceleratorError>;
@@ -76,11 +77,12 @@ export function createGlobalShortcutManager() {
 							return;
 						}
 					}),
-				mapError: (error) => GlobalShortcutServiceError({
-					message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
-					context: { accelerator, error },
-					cause: error,
-				}),
+				mapError: (error) =>
+					GlobalShortcutServiceError({
+						message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
+						context: { accelerator, error },
+						cause: error,
+					}),
 			});
 			/**
 			 * NOTE: We often get "RegisterEventHotKey failed for <key>" errors when
@@ -108,14 +110,15 @@ export function createGlobalShortcutManager() {
 
 			const { error: unregisterError } = await tryAsync({
 				try: () => tauriUnregister(accelerator),
-				mapError: (error) => GlobalShortcutServiceError({
-					message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
-					context: {
-						accelerator,
-						originalError: error,
-					},
-					cause: error,
-				}),
+				mapError: (error) =>
+					GlobalShortcutServiceError({
+						message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
+						context: {
+							accelerator,
+							originalError: error,
+						},
+						cause: error,
+					}),
 			});
 			if (unregisterError) return Err(unregisterError);
 			return Ok(undefined);
@@ -129,11 +132,12 @@ export function createGlobalShortcutManager() {
 		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterAllError } = await tryAsync({
 				try: () => tauriUnregisterAll(),
-				mapError: (error) => GlobalShortcutServiceError({
-					message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
-					context: { error },
-					cause: error,
-				}),
+				mapError: (error) =>
+					GlobalShortcutServiceError({
+						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
+						context: { error },
+						cause: error,
+					}),
 			});
 			if (unregisterAllError) return Err(unregisterAllError);
 			return Ok(undefined);

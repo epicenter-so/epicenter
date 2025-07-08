@@ -1,8 +1,8 @@
-import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
-import { createTaggedError } from 'wellcrafted/error';
 import type { VadState } from '$lib/constants/audio';
 import { MicVAD, utils } from '@ricky0123/vad-web';
-import { getRecordingStream, cleanupRecordingStream } from './device-stream';
+import { createTaggedError } from 'wellcrafted/error';
+import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
+import { cleanupRecordingStream, getRecordingStream } from './device-stream';
 
 const { VadRecorderServiceError, VadRecorderServiceErr } = createTaggedError(
 	'VadRecorderServiceError',

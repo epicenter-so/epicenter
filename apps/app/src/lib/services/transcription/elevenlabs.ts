@@ -1,8 +1,8 @@
 import type { ElevenLabsModel } from '$lib/constants/transcription';
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
-import { Ok, type Result } from 'wellcrafted/result';
 import { ElevenLabsClient } from 'elevenlabs';
+import { Ok, type Result } from 'wellcrafted/result';
 
 export function createElevenLabsTranscriptionService() {
 	return {

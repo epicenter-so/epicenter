@@ -5,6 +5,7 @@
 Dead keys are a special case where pressing Option+Key doesn't immediately produce a character. Instead, macOS enters a "composition" state, waiting for the next key to create an accented character.
 
 ### macOS Dead Keys:
+
 - **Option+E**: Waits to create acute accents (é, á, ó)
 - **Option+I**: Waits to create circumflex accents (î, ô, û)
 - **Option+N**: Waits to create tildes (ñ, ã, õ)
@@ -33,12 +34,12 @@ const OPTION_DEAD_KEYS = new Set(['e', 'i', 'n', 'u', '`']);
 
 // In keydown handler:
 if (isOptionPressed && e.key === 'Dead') {
-  // Some browsers report 'Dead' for dead keys
-  // We need to figure out which dead key from e.code
-  const code = e.code.toLowerCase();
-  if (code === 'keye') key = 'e';
-  else if (code === 'keyi') key = 'i';
-  // ... etc
+	// Some browsers report 'Dead' for dead keys
+	// We need to figure out which dead key from e.code
+	const code = e.code.toLowerCase();
+	if (code === 'keye') key = 'e';
+	else if (code === 'keyi') key = 'i';
+	// ... etc
 }
 ```
 
@@ -48,15 +49,15 @@ if (isOptionPressed && e.key === 'Dead') {
 let compositionKey: string | null = null;
 
 window.addEventListener('compositionstart', (e) => {
-  if (pressedKeys.includes('alt')) {
-    // A dead key was pressed with Option
-    // Try to extract the key from the event
-    compositionKey = extractKeyFromComposition(e);
-  }
+	if (pressedKeys.includes('alt')) {
+		// A dead key was pressed with Option
+		// Try to extract the key from the event
+		compositionKey = extractKeyFromComposition(e);
+	}
 });
 
 window.addEventListener('compositionend', (e) => {
-  compositionKey = null;
+	compositionKey = null;
 });
 ```
 
@@ -66,21 +67,21 @@ window.addEventListener('compositionend', (e) => {
 const OPTION_DEAD_KEYS = new Set(['e', 'i', 'n', 'u', '`']);
 
 const keydown = on(window, 'keydown', (e) => {
-  let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-  
-  // Handle Option dead keys BEFORE they become dead
-  const isMacos = services.os.type() === 'macos';
-  const isOptionPressed = isMacos && pressedKeys.includes('alt');
-  
-  if (isOptionPressed && OPTION_DEAD_KEYS.has(key)) {
-    // Force preventDefault to stop composition mode
-    e.preventDefault();
-    // The key will register normally now
-  } else if (preventDefault) {
-    e.preventDefault();
-  }
-  
-  // Rest of the logic...
+	let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+
+	// Handle Option dead keys BEFORE they become dead
+	const isMacos = services.os.type() === 'macos';
+	const isOptionPressed = isMacos && pressedKeys.includes('alt');
+
+	if (isOptionPressed && OPTION_DEAD_KEYS.has(key)) {
+		// Force preventDefault to stop composition mode
+		e.preventDefault();
+		// The key will register normally now
+	} else if (preventDefault) {
+		e.preventDefault();
+	}
+
+	// Rest of the logic...
 });
 ```
 
@@ -88,19 +89,19 @@ const keydown = on(window, 'keydown', (e) => {
 
 ```typescript
 if (isOptionPressed) {
-  // Try multiple sources to get the actual key
-  let actualKey = e.key.toLowerCase();
-  
-  // If we get 'Dead' or nothing useful, try other properties
-  if (!actualKey || actualKey === 'dead' || actualKey === 'unidentified') {
-    // Extract from code (e.g., 'KeyE' -> 'e')
-    const codeMatch = e.code.match(/^Key([A-Z])$/i);
-    if (codeMatch) {
-      actualKey = codeMatch[1].toLowerCase();
-    }
-  }
-  
-  key = actualKey;
+	// Try multiple sources to get the actual key
+	let actualKey = e.key.toLowerCase();
+
+	// If we get 'Dead' or nothing useful, try other properties
+	if (!actualKey || actualKey === 'dead' || actualKey === 'unidentified') {
+		// Extract from code (e.g., 'KeyE' -> 'e')
+		const codeMatch = e.code.match(/^Key([A-Z])$/i);
+		if (codeMatch) {
+			actualKey = codeMatch[1].toLowerCase();
+		}
+	}
+
+	key = actualKey;
 }
 ```
 
@@ -114,30 +115,30 @@ export const OPTION_DEAD_KEYS = new Set(['e', 'i', 'n', 'u', '`']);
 
 // In createPressedKeys
 const keydown = on(window, 'keydown', (e) => {
-  let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-  const isMacos = services.os.type() === 'macos';
-  const isOptionPressed = isMacos && pressedKeys.includes('alt');
-  
-  // Special handling for Option dead keys on macOS
-  if (isOptionPressed) {
-    // Always preventDefault when Option is held to prevent dead key composition
-    e.preventDefault();
-    
-    // If the key appears to be dead, extract from e.code
-    if (key === 'dead' || key === 'unidentified' || key === '') {
-      const codeMatch = e.code.match(/^Key([A-Z])$/i);
-      if (codeMatch) {
-        key = codeMatch[1].toLowerCase() as KeyboardEventPossibleKey;
-      }
-    } else {
-      // Normal Option+Key combinations, normalize special characters
-      key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
-    }
-  } else if (preventDefault) {
-    e.preventDefault();
-  }
-  
-  // Continue with normal key handling...
+	let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+	const isMacos = services.os.type() === 'macos';
+	const isOptionPressed = isMacos && pressedKeys.includes('alt');
+
+	// Special handling for Option dead keys on macOS
+	if (isOptionPressed) {
+		// Always preventDefault when Option is held to prevent dead key composition
+		e.preventDefault();
+
+		// If the key appears to be dead, extract from e.code
+		if (key === 'dead' || key === 'unidentified' || key === '') {
+			const codeMatch = e.code.match(/^Key([A-Z])$/i);
+			if (codeMatch) {
+				key = codeMatch[1].toLowerCase() as KeyboardEventPossibleKey;
+			}
+		} else {
+			// Normal Option+Key combinations, normalize special characters
+			key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
+		}
+	} else if (preventDefault) {
+		e.preventDefault();
+	}
+
+	// Continue with normal key handling...
 });
 ```
 
@@ -160,6 +161,7 @@ To test if the solution works:
 ## Conclusion
 
 The best approach is to:
+
 1. Always preventDefault when Option is held during shortcut recording
 2. Check multiple properties (e.key, e.code) to extract the actual key
 3. Test thoroughly on real macOS devices with different browsers

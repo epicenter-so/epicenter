@@ -1,4 +1,3 @@
-import { Err, Ok, resolve, type Result } from 'wellcrafted/result';
 import type {
 	CreateQueryOptions,
 	MutationFunction,
@@ -8,6 +7,7 @@ import type {
 	QueryFunctionContext,
 	QueryKey,
 } from '@tanstack/svelte-query';
+import { Err, Ok, type Result, resolve } from 'wellcrafted/result';
 import { queryClient } from './index';
 
 /**
@@ -274,4 +274,3 @@ function executeMutation<TData, TError, TVariables, TContext>(
 	const mutation = queryClient.getMutationCache().build(queryClient, options);
 	return mutation.execute(variables);
 }
-

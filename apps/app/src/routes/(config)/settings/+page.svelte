@@ -5,8 +5,8 @@
 	} from '$lib/components/labeled/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { ALWAYS_ON_TOP_OPTIONS } from '$lib/constants/ui';
+	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
 <svelte:head>
@@ -76,7 +76,6 @@
 	/>
 
 	<Separator />
-
 
 	<LabeledSelect
 		id="recording-retention-strategy"

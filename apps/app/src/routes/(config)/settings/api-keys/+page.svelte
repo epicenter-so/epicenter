@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Separator } from '$lib/components/ui/separator/index.js';
 	import {
 		AnthropicApiKeyInput,
 		ElevenLabsApiKeyInput,
@@ -7,6 +6,7 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 </script>
 
 <svelte:head>

@@ -1,7 +1,7 @@
 import { rpc } from '$lib/query';
 import {
-	isTranscriptionServiceConfigured,
 	getSelectedTranscriptionService,
+	isTranscriptionServiceConfigured,
 } from '$lib/settings/transcription-validation';
 
 /**

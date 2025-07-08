@@ -1,11 +1,11 @@
-import { Ok, Err, tryAsync } from 'wellcrafted/result';
+import { nanoid } from 'nanoid/non-secure';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { NotificationService, UnifiedNotificationOptions } from './types';
 import {
+	NotificationServiceError,
 	toBrowserNotification,
 	toExtensionNotification,
-	NotificationServiceError,
 } from './types';
-import { nanoid } from 'nanoid/non-secure';
 
 export function createNotificationServiceWeb(): NotificationService {
 	// Cache extension detection result

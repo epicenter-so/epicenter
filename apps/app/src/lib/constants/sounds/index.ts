@@ -1,1 +1,1 @@
-export { type WhisperingSoundNames } from './sound-names';
+export type { WhisperingSoundNames } from './sound-names';

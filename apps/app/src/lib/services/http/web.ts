@@ -1,7 +1,7 @@
-import { Err, tryAsync } from 'wellcrafted/result';
 import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, tryAsync } from 'wellcrafted/result';
 import type { HttpService } from '.';
-import { ConnectionError, ResponseError, ParseError } from './types';
+import { ConnectionError, ParseError, ResponseError } from './types';
 
 export function createHttpServiceWeb(): HttpService {
 	return {
@@ -13,21 +13,24 @@ export function createHttpServiceWeb(): HttpService {
 						body,
 						headers,
 					}),
-				mapError: (error) => ConnectionError({
-					message: 'Failed to establish connection',
-					context: { url, body, headers },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ConnectionError({
+						message: 'Failed to establish connection',
+						context: { url, body, headers },
+						cause: error,
+					}),
 			});
 			if (responseError) return Err(responseError);
 
 			if (!response.ok) {
-				return Err(ResponseError({
-					status: response.status,
-					message: extractErrorMessage(await response.json()),
-					context: { url, body, headers },
-					cause: responseError,
-				}));
+				return Err(
+					ResponseError({
+						status: response.status,
+						message: extractErrorMessage(await response.json()),
+						context: { url, body, headers },
+						cause: responseError,
+					}),
+				);
 			}
 
 			const parseResult = await tryAsync({
@@ -35,11 +38,12 @@ export function createHttpServiceWeb(): HttpService {
 					const json = await response.json();
 					return schema.parse(json);
 				},
-				mapError: (error) => ParseError({
-					message: 'Failed to parse response',
-					context: { url, body, headers },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ParseError({
+						message: 'Failed to parse response',
+						context: { url, body, headers },
+						cause: error,
+					}),
 			});
 			return parseResult;
 		},

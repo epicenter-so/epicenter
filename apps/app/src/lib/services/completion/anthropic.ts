@@ -1,7 +1,7 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
 import { CompletionServiceErr } from './types';
-import Anthropic from '@anthropic-ai/sdk';
 
 export function createAnthropicCompletionService(): CompletionService {
 	return {

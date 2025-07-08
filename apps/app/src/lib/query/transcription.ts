@@ -1,11 +1,11 @@
-import type { Recording } from '$lib/services/db';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import * as services from '$lib/services';
-import { notify } from './notify';
+import type { Recording } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, type Result, partitionResults } from 'wellcrafted/result';
-import { WhisperingErr, type WhisperingError } from '$lib/result';
 import { defineMutation } from './_utils';
 import { queryClient } from './index';
+import { notify } from './notify';
 import { recordings } from './recordings';
 
 const transcriptionKeys = {

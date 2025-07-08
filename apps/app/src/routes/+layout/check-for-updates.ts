@@ -1,10 +1,10 @@
 import {
-	updateDialog,
 	type UpdateInfo,
+	updateDialog,
 } from '$lib/components/UpdateDialog.svelte';
-import { extractErrorMessage } from 'wellcrafted/error';
-import { check, type DownloadEvent } from '@tauri-apps/plugin-updater';
 import { rpc } from '$lib/query';
+import { type DownloadEvent, check } from '@tauri-apps/plugin-updater';
+import { extractErrorMessage } from 'wellcrafted/error';
 
 export async function checkForUpdates() {
 	try {

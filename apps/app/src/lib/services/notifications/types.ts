@@ -1,6 +1,6 @@
-import type { Result } from 'wellcrafted/result';
-import { createTaggedError } from 'wellcrafted/error';
 import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
+import { createTaggedError } from 'wellcrafted/error';
+import type { Result } from 'wellcrafted/result';
 
 /**
  * Platform-Specific Notification Transformations
@@ -15,10 +15,13 @@ import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-not
  * - Extension (Future): Chrome extension API, full action support
  */
 
-const { NotificationServiceError, NotificationServiceErr } =
-	createTaggedError('NotificationServiceError');
-export type NotificationServiceError = ReturnType<typeof NotificationServiceError>;
-export { NotificationServiceError, NotificationServiceErr };
+const { NotificationServiceError, NotificationServiceErr } = createTaggedError(
+	'NotificationServiceError',
+);
+export type NotificationServiceError = ReturnType<
+	typeof NotificationServiceError
+>;
+export { type NotificationServiceError, NotificationServiceErr };
 
 /**
  * Link action for internal navigation
@@ -206,7 +209,6 @@ export function toExtensionNotification(
 	};
 }
 
-
 /**
  * Chrome extension notification options type
  * @future This type will be properly imported when extension support is added
@@ -223,13 +225,13 @@ type ChromeNotificationOptions = {
 
 /**
  * Converts a nanoid string to a numeric ID for Tauri notifications.
- * 
+ *
  * This function takes a nanoid (alphanumeric random string like "V1StGXR8_Z5jdHi6B-myT")
  * and converts it to a numeric hash. This is necessary because Tauri's notification
  * API requires numeric IDs, while we use nanoid strings for consistency with web APIs.
- * 
+ *
  * Note: This is NOT parsing a stringified number - it's hashing an alphanumeric string.
- * 
+ *
  * @param str - A nanoid string (e.g., "V1StGXR8_Z5jdHi6B-myT")
  * @returns A positive integer hash of the string
  */

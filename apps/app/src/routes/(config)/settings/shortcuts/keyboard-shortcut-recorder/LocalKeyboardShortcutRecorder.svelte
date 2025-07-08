@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Command } from '$lib/commands';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { rpc } from '$lib/query';
 	import {
-		arrayToShortcutString,
 		type CommandId,
+		arrayToShortcutString,
 	} from '$lib/services/local-shortcut-manager';
-	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';

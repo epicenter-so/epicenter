@@ -1,4 +1,3 @@
-import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
 import {
 	active,
 	isPermissionGranted,
@@ -7,14 +6,12 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
-import type {
-	NotificationService,
-	UnifiedNotificationOptions,
-} from './types';
+import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import type { NotificationService, UnifiedNotificationOptions } from './types';
 import {
-	toTauriNotification,
-	hashNanoidToNumber,
 	NotificationServiceError,
+	hashNanoidToNumber,
+	toTauriNotification,
 } from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {

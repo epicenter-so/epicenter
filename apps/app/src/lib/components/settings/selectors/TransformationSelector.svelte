@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { Badge } from '$lib/components/ui/badge';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
+	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
@@ -14,9 +17,6 @@
 		FilterXIcon,
 		LayersIcon,
 	} from 'lucide-svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { useCombobox } from '$lib/components/useCombobox.svelte';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,

@@ -3,8 +3,8 @@
 	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { rpc } from '$lib/query';
 	import {
-		pressedKeysToTauriAccelerator,
 		type Accelerator,
+		pressedKeysToTauriAccelerator,
 	} from '$lib/services/global-shortcut-manager';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';

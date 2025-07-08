@@ -4,9 +4,9 @@
 import type { Settings } from '$lib/settings';
 import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
 import {
-	OPENAI_TRANSCRIPTION_MODELS,
-	GROQ_MODELS,
 	ELEVENLABS_TRANSCRIPTION_MODELS,
+	GROQ_MODELS,
+	OPENAI_TRANSCRIPTION_MODELS,
 	type TranscriptionModel,
 } from './models';
 

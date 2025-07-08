@@ -7,9 +7,9 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { rpc } from '$lib/query';
-	import { createMutation } from '@tanstack/svelte-query';
 	import type { Recording } from '$lib/services/db';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { PencilIcon as EditIcon, Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
 

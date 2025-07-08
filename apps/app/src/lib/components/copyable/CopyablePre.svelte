@@ -38,8 +38,7 @@
 	<CopyToClipboardButton
 		class="absolute right-4 top-1/2 -translate-y-1/2"
 		contentDescription={variant === 'code' ? 'code' : 'transcribed text'}
-		textToCopy={copyableText}
-	>
+		textToCopy={copyableText}>
 		<ClipboardIcon class="size-4" />
 	</CopyToClipboardButton>
 </pre>

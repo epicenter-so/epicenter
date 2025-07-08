@@ -1,13 +1,13 @@
 import type { RecordingMode } from '$lib/constants/audio';
 import { rpc } from '$lib/query';
 import * as services from '$lib/services';
-import { settings as settingsStore } from '$lib/stores/settings.svelte';
-import { nanoid } from 'nanoid/non-secure';
-import { Ok, Err, partitionResults, type Result } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
-import type { TaggedError } from 'wellcrafted/error';
 import type { ManualRecorderServiceError } from '$lib/services/manual-recorder';
 import type { VadRecorderServiceError } from '$lib/services/vad-recorder';
+import { settings as settingsStore } from '$lib/stores/settings.svelte';
+import { nanoid } from 'nanoid/non-secure';
+import type { TaggedError } from 'wellcrafted/error';
+import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
+import { defineMutation } from './_utils';
 
 /**
  * Centralized settings mutations that ensure consistent behavior across the application.

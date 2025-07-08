@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import {
+		cpalStateToIcons,
+		recorderStateToIcons,
+		vadStateToIcons,
+	} from '$lib/constants/audio';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '$lib/utils.js';
-	import {
-		recorderStateToIcons,
-		cpalStateToIcons,
-		vadStateToIcons,
-	} from '$lib/constants/audio';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { MediaQuery } from 'svelte/reactivity';
 

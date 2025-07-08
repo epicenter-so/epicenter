@@ -5,9 +5,9 @@ import {
 	type CommandId,
 	shortcutStringToArray,
 } from '$lib/services/local-shortcut-manager';
+import type { Settings } from '$lib/settings';
 import { settings } from '$lib/stores/settings.svelte';
 import { partitionResults } from 'wellcrafted/result';
-import type { Settings } from '$lib/settings';
 import { resetShortcutsToDefaults } from '../(config)/settings/shortcuts/reset-shortcuts-to-defaults';
 
 /**

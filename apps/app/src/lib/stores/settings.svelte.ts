@@ -1,10 +1,10 @@
+import { rpc } from '$lib/query';
 import {
 	type Settings,
-	settingsSchema,
 	getDefaultSettings,
 	parseStoredSettings,
+	settingsSchema,
 } from '$lib/settings/settings';
-import { rpc } from '$lib/query';
 import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 
 export const settings = createPersistedState({

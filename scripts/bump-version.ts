@@ -2,13 +2,13 @@
 
 /**
  * @fileoverview Version bumping utility for Whispering monorepo
- * 
+ *
  * This script updates version numbers across all necessary files in the project:
  * - Root package.json
  * - App package.json
  * - Tauri configuration
  * - Cargo.toml
- * 
+ *
  * Usage: bun run bump-version <new-version>
  * Example: bun run bump-version 7.0.1
  */

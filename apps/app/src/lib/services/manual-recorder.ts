@@ -1,17 +1,17 @@
 // import { extension } from '@repo/extension';
 import {
-	TIMESLICE_MS,
 	type CancelRecordingResult,
+	TIMESLICE_MS,
 	type WhisperingRecordingState,
 } from '$lib/constants/audio';
-import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import { createTaggedError } from 'wellcrafted/error';
+import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
-	getRecordingStream,
+	type DeviceAcquisitionOutcome,
+	type UpdateStatusMessageFn,
 	cleanupRecordingStream,
 	enumerateRecordingDevices,
-	type UpdateStatusMessageFn,
-	type DeviceAcquisitionOutcome,
+	getRecordingStream,
 } from './device-stream';
 
 const { ManualRecorderServiceError, ManualRecorderServiceErr } =
@@ -127,9 +127,9 @@ export function createManualRecorderService() {
 
 		stopRecording: async ({
 			sendStatus,
-		}: { sendStatus: UpdateStatusMessageFn }): Promise<
-			Result<Blob, ManualRecorderServiceError>
-		> => {
+		}: {
+			sendStatus: UpdateStatusMessageFn;
+		}): Promise<Result<Blob, ManualRecorderServiceError>> => {
 			if (!activeRecording) {
 				return ManualRecorderServiceErr({
 					message:
@@ -186,9 +186,9 @@ export function createManualRecorderService() {
 
 		cancelRecording: async ({
 			sendStatus,
-		}: { sendStatus: UpdateStatusMessageFn }): Promise<
-			Result<CancelRecordingResult, ManualRecorderServiceError>
-		> => {
+		}: {
+			sendStatus: UpdateStatusMessageFn;
+		}): Promise<Result<CancelRecordingResult, ManualRecorderServiceError>> => {
 			if (!activeRecording) {
 				return Ok({ status: 'no-recording' });
 			}

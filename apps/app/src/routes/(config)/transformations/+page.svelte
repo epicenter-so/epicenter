@@ -11,10 +11,10 @@
 	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { rpc } from '$lib/query';
-	import { createQuery, createMutation } from '@tanstack/svelte-query';
 	import { type Transformation } from '$lib/services/db';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		FlexRender,
 		createTable as createSvelteTable,
@@ -233,8 +233,7 @@
 									onError: (error) => {
 										rpc.notify.error.execute({
 											title: 'Failed to delete transformations!',
-											description:
-												'Your transformations could not be deleted.',
+											description: 'Your transformations could not be deleted.',
 											action: { type: 'more-details', error: error },
 										});
 									},

@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import TransformationPicker from './TransformationPicker.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import WhisperingTooltip from '$lib/components/WhisperingTooltip.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import { TrashIcon, ClipboardIcon } from '$lib/components/icons';
+	import { ClipboardIcon, TrashIcon } from '$lib/components/icons';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { rpc } from '$lib/query';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
@@ -20,6 +19,7 @@
 	} from 'lucide-svelte';
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingDialog from './EditRecordingDialog.svelte';
+	import TransformationPicker from './TransformationPicker.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
 
 	const transcribeRecording = createMutation(

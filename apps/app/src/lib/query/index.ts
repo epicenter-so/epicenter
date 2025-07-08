@@ -12,21 +12,21 @@ export const queryClient = new QueryClient({
 // Import all query modules
 import { clipboard } from './clipboard';
 import { cpalRecorder } from './cpal-recorder';
+import { delivery } from './delivery';
 import { device } from './device';
 import { download } from './download';
 import { manualRecorder } from './manual-recorder';
+import { notify } from './notify';
 import { recordings } from './recordings';
-import { tray } from './tray';
+import { settings } from './settings';
 import { shortcuts } from './shortcuts';
+import { sound } from './sound';
 import { transcription } from './transcription';
 import { transformationRuns } from './transformation-runs';
 import { transformations } from './transformations';
 import { transformer } from './transformer';
+import { tray } from './tray';
 import { vadRecorder } from './vad-recorder';
-import { sound } from './sound';
-import { notify } from './notify';
-import { delivery } from './delivery';
-import { settings } from './settings';
 
 /**
  * Unified namespace for all query operations.

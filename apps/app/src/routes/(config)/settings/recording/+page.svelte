@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import {
+		BITRATE_OPTIONS,
+		RECORDING_MODE_OPTIONS,
+	} from '$lib/constants/audio';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { BITRATE_OPTIONS, RECORDING_MODE_OPTIONS } from '$lib/constants/audio';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 </script>
 
@@ -41,7 +44,8 @@
 			<div>
 				<h4 class="text-md font-medium">Navigator Settings</h4>
 				<p class="text-muted-foreground text-sm">
-					These settings apply to browser-based recording modes (Manual and Voice Activated).
+					These settings apply to browser-based recording modes (Manual and
+					Voice Activated).
 				</p>
 			</div>
 

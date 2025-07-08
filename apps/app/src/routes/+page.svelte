@@ -1,27 +1,27 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import { ClipboardIcon } from '$lib/components/icons';
 	import {
 		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
-	import { ClipboardIcon } from '$lib/components/icons';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
+	import {
+		RECORDING_MODE_OPTIONS,
+		type RecordingMode,
+		cpalStateToIcons,
+		recorderStateToIcons,
+		vadStateToIcons,
+	} from '$lib/constants/audio';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import {
-		recorderStateToIcons,
-		cpalStateToIcons,
-		RECORDING_MODE_OPTIONS,
-		vadStateToIcons,
-		type RecordingMode,
-	} from '$lib/constants/audio';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
 	import { onDestroy } from 'svelte';

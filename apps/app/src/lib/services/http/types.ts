@@ -1,5 +1,5 @@
-import type { Result } from 'wellcrafted/result';
 import { createTaggedError } from 'wellcrafted/error';
+import type { Result } from 'wellcrafted/result';
 import type { z } from 'zod';
 
 /**
@@ -32,7 +32,8 @@ export { ConnectionError, ConnectionErr };
  * // Result: ResponseError with status: 401, 404, 500, etc.
  * ```
  */
-const { ResponseError: ResponseErrorBase, ResponseErr: ResponseErrBase } = createTaggedError('ResponseError');
+const { ResponseError: ResponseErrorBase, ResponseErr: ResponseErrBase } =
+	createTaggedError('ResponseError');
 export type ResponseError = ReturnType<typeof ResponseErrorBase> & {
 	/** HTTP status code (e.g., 400, 401, 404, 500) */
 	status: number;

@@ -1,10 +1,10 @@
-import type { Result } from 'wellcrafted/result';
-import { createTaggedError } from 'wellcrafted/error';
 import type {
 	MaybePromise,
 	WhisperingError,
 	WhisperingWarning,
 } from '$lib/result';
+import { createTaggedError } from 'wellcrafted/error';
+import type { Result } from 'wellcrafted/result';
 
 const { ClipboardServiceError, ClipboardServiceErr } = createTaggedError(
 	'ClipboardServiceError',

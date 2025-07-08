@@ -1,7 +1,4 @@
-export {
-	INFERENCE_PROVIDERS,
-	INFERENCE_PROVIDER_OPTIONS,
-} from './providers';
+export { INFERENCE_PROVIDERS, INFERENCE_PROVIDER_OPTIONS } from './providers';
 
 export {
 	OPENAI_INFERENCE_MODELS,

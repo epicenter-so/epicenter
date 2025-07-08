@@ -1,6 +1,6 @@
-import type { OsService } from '.';
 import type { OsType } from '@tauri-apps/plugin-os';
 import { type } from 'arktype';
+import type { OsService } from '.';
 
 const UserAgentData = type({ platform: 'string' });
 type UserAgentData = typeof UserAgentData.infer;

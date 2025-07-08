@@ -1,27 +1,27 @@
+import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
+import { settings } from '$lib/stores/settings.svelte';
+import { Ok } from 'wellcrafted/result';
 import { defineMutation } from './_utils';
 import { rpc } from './index';
-import { settings } from '$lib/stores/settings.svelte';
-import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
-import { Ok } from 'wellcrafted/result';
 
 export const delivery = {
 	/**
 	 * Delivers transcribed text to the user according to their clipboard preferences.
-	 * 
+	 *
 	 * This mutation handles the complete delivery workflow for transcription results:
 	 * 1. Shows a success toast with the transcribed text
 	 * 2. Optionally copies text to clipboard based on user settings
 	 * 3. Optionally pastes text at cursor based on user settings
 	 * 4. Provides fallback UI actions when automatic operations fail
-	 * 
+	 *
 	 * The user's preferences are read from:
 	 * - `transcription.clipboard.copyOnSuccess` - Whether to auto-copy
 	 * - `transcription.clipboard.pasteOnSuccess` - Whether to auto-paste
-	 * 
+	 *
 	 * @param text - The transcribed text to deliver
 	 * @param toastId - Unique ID for toast notifications to prevent duplicates
 	 * @returns Result with no meaningful data (fire-and-forget operation)
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * // After transcription completes
@@ -36,9 +36,12 @@ export const delivery = {
 		resultMutationFn: async ({
 			text,
 			toastId,
-		}: { text: string; toastId: string }) => {
+		}: {
+			text: string;
+			toastId: string;
+		}) => {
 			// Define all notification functions at the top for clarity
-			
+
 			// Shows transcription result and offers manual copy action
 			const offerManualCopy = () =>
 				rpc.notify.success.execute({
@@ -117,7 +120,7 @@ export const delivery = {
 				});
 
 			// Main delivery flow
-			
+
 			// If user doesn't want auto-copy, just show the result with manual option
 			if (!settings.value['transcription.clipboard.copyOnSuccess']) {
 				offerManualCopy();
@@ -157,21 +160,21 @@ export const delivery = {
 
 	/**
 	 * Delivers transformed text to the user according to their clipboard preferences.
-	 * 
+	 *
 	 * This mutation handles the complete delivery workflow for transformation results:
 	 * 1. Shows a success toast with the transformed text
 	 * 2. Optionally copies text to clipboard based on user settings
 	 * 3. Optionally pastes text at cursor based on user settings
 	 * 4. Provides fallback UI actions when automatic operations fail
-	 * 
+	 *
 	 * The user's preferences are read from:
 	 * - `transformation.clipboard.copyOnSuccess` - Whether to auto-copy
 	 * - `transformation.clipboard.pasteOnSuccess` - Whether to auto-paste
-	 * 
+	 *
 	 * @param text - The transformed text to deliver
 	 * @param toastId - Unique ID for toast notifications to prevent duplicates
 	 * @returns Result with no meaningful data (fire-and-forget operation)
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * // After transformation completes
@@ -186,9 +189,12 @@ export const delivery = {
 		resultMutationFn: async ({
 			text,
 			toastId,
-		}: { text: string; toastId: string }) => {
+		}: {
+			text: string;
+			toastId: string;
+		}) => {
 			// Define all notification functions at the top for clarity
-			
+
 			// Shows transformation result and offers manual copy action
 			const offerManualCopy = () =>
 				rpc.notify.success.execute({
@@ -267,7 +273,7 @@ export const delivery = {
 				});
 
 			// Main delivery flow
-			
+
 			// If user doesn't want auto-copy, just show the result with manual option
 			if (!settings.value['transformation.clipboard.copyOnSuccess']) {
 				offerManualCopy();

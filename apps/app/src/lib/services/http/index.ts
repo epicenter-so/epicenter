@@ -1,10 +1,7 @@
 import { createHttpServiceDesktop } from './desktop';
 import { createHttpServiceWeb } from './web';
 
-export type {
-	HttpService,
-	HttpServiceError,
-} from './types';
+export type { HttpService, HttpServiceError } from './types';
 
 // Re-export both types and factory functions
 export type { ConnectionError, ParseError, ResponseError } from './types';

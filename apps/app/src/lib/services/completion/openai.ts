@@ -1,7 +1,7 @@
+import OpenAI from 'openai';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
 import { CompletionServiceErr } from './types';
-import OpenAI from 'openai';
 
 export function createOpenAiCompletionService(): CompletionService {
 	return {

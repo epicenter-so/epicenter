@@ -30,82 +30,82 @@ export const OPTION_DEAD_KEYS = new Set(['e', 'i', 'n', 'u', '`']);
 /**
  * Extracts the base key from a keyboard event code.
  * Used when dead keys report no useful key value.
- * 
+ *
  * @example
  * extractKeyFromCode('KeyE') // returns 'e'
  * extractKeyFromCode('Digit1') // returns '1'
  * extractKeyFromCode('BracketLeft') // returns null
  */
 export function extractKeyFromCode(code: string): string | null {
-  // Handle letter keys: KeyA -> a
-  const letterMatch = code.match(/^Key([A-Z])$/i);
-  if (letterMatch) {
-    return letterMatch[1].toLowerCase();
-  }
-  
-  // Handle digit keys: Digit1 -> 1
-  const digitMatch = code.match(/^Digit(\d)$/);
-  if (digitMatch) {
-    return digitMatch[1];
-  }
-  
-  // Handle Backquote for Option+`
-  if (code === 'Backquote') {
-    return '`';
-  }
-  
-  return null;
+	// Handle letter keys: KeyA -> a
+	const letterMatch = code.match(/^Key([A-Z])$/i);
+	if (letterMatch) {
+		return letterMatch[1].toLowerCase();
+	}
+
+	// Handle digit keys: Digit1 -> 1
+	const digitMatch = code.match(/^Digit(\d)$/);
+	if (digitMatch) {
+		return digitMatch[1];
+	}
+
+	// Handle Backquote for Option+`
+	if (code === 'Backquote') {
+		return '`';
+	}
+
+	return null;
 }
 ```
 
 ### 2. Update createPressedKeys.svelte.ts
 
 ```typescript
-import { 
-  normalizeOptionKeyCharacter, 
-  extractKeyFromCode 
+import {
+	normalizeOptionKeyCharacter,
+	extractKeyFromCode,
 } from '$lib/constants/macos-option-key-map';
 
 // In the keydown handler, replace the current Option handling with:
 
 const keydown = on(window, 'keydown', (e) => {
-  const isMacos = services.os.type() === 'macos';
-  const isOptionPressed = isMacos && pressedKeys.includes('alt');
-  
-  // Force preventDefault when Option is held on macOS
-  // This prevents dead key composition mode
-  if (isOptionPressed || preventDefault) {
-    e.preventDefault();
-  }
-  
-  let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-  
-  // macOS Option key handling:
-  // 1. Dead keys (E, I, N, U, `) need special handling
-  // 2. Regular Option combinations need character normalization
-  if (isOptionPressed) {
-    // Check if this is a dead key situation
-    if (!key || key === 'dead' || key === 'unidentified' || key === 'process') {
-      // Dead key detected, extract from e.code
-      const extractedKey = extractKeyFromCode(e.code);
-      if (extractedKey) {
-        key = extractedKey as KeyboardEventPossibleKey;
-      }
-    } else if (key.length === 1) {
-      // Normal Option+Key combination, normalize special characters
-      key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
-    }
-  }
-  
-  if (!isSupportedKey(key)) {
-    onUnsupportedKey?.(key);
-    return;
-  }
-  
-  if (!pressedKeys.includes(key)) {
-    pressedKeys.push(key);
-  }
-  update();
+	const isMacos = services.os.type() === 'macos';
+	const isOptionPressed = isMacos && pressedKeys.includes('alt');
+
+	// Force preventDefault when Option is held on macOS
+	// This prevents dead key composition mode
+	if (isOptionPressed || preventDefault) {
+		e.preventDefault();
+	}
+
+	let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+
+	// macOS Option key handling:
+	// 1. Dead keys (E, I, N, U, `) need special handling
+	// 2. Regular Option combinations need character normalization
+	if (isOptionPressed) {
+		// Check if this is a dead key situation
+		if (!key || key === 'dead' || key === 'unidentified' || key === 'process') {
+			// Dead key detected, extract from e.code
+			const extractedKey = extractKeyFromCode(e.code);
+			if (extractedKey) {
+				key = extractedKey as KeyboardEventPossibleKey;
+			}
+		} else if (key.length === 1) {
+			// Normal Option+Key combination, normalize special characters
+			key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
+		}
+	}
+
+	if (!isSupportedKey(key)) {
+		onUnsupportedKey?.(key);
+		return;
+	}
+
+	if (!pressedKeys.includes(key)) {
+		pressedKeys.push(key);
+	}
+	update();
 });
 ```
 
@@ -113,26 +113,26 @@ const keydown = on(window, 'keydown', (e) => {
 
 ```typescript
 const keyup = on(window, 'keyup', (e) => {
-  let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
-  
-  const isMacos = services.os.type() === 'macos';
-  const isOptionPressed = isMacos && pressedKeys.includes('alt');
-  
-  // Apply same key extraction logic for consistency
-  if (isOptionPressed) {
-    if (!key || key === 'dead' || key === 'unidentified' || key === 'process') {
-      const extractedKey = extractKeyFromCode(e.code);
-      if (extractedKey) {
-        key = extractedKey as KeyboardEventPossibleKey;
-      }
-    } else if (key.length === 1) {
-      key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
-    }
-  }
-  
-  if (!isSupportedKey(key)) return;
-  
-  // Rest of keyup logic...
+	let key = e.key.toLowerCase() as KeyboardEventPossibleKey;
+
+	const isMacos = services.os.type() === 'macos';
+	const isOptionPressed = isMacos && pressedKeys.includes('alt');
+
+	// Apply same key extraction logic for consistency
+	if (isOptionPressed) {
+		if (!key || key === 'dead' || key === 'unidentified' || key === 'process') {
+			const extractedKey = extractKeyFromCode(e.code);
+			if (extractedKey) {
+				key = extractedKey as KeyboardEventPossibleKey;
+			}
+		} else if (key.length === 1) {
+			key = normalizeOptionKeyCharacter(key) as KeyboardEventPossibleKey;
+		}
+	}
+
+	if (!isSupportedKey(key)) return;
+
+	// Rest of keyup logic...
 });
 ```
 
@@ -164,6 +164,7 @@ const keyup = on(window, 'keyup', (e) => {
 ## Summary
 
 This solution elegantly handles both dead keys and special characters by:
+
 1. Always preventing default when Option is held (stops composition mode)
 2. Detecting dead keys by checking for empty/special key values
 3. Extracting the actual key from e.code when needed

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
+	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
@@ -11,17 +11,17 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
+		ELEVENLABS_TRANSCRIPTION_MODELS,
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
-		ELEVENLABS_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants/transcription';
-	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon } from 'lucide-svelte';
 </script>

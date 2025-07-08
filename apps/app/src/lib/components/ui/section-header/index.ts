@@ -1,6 +1,6 @@
+import Description from './section-description.svelte';
 import Root from './section-header.svelte';
 import Title from './section-title.svelte';
-import Description from './section-description.svelte';
 
 export {
 	Root,

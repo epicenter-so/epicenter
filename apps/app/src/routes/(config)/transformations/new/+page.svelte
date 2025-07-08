@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { Editor } from '$lib/components/transformations-editor';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { Editor } from '$lib/components/transformations-editor';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,
