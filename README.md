@@ -715,6 +715,382 @@ We welcome contributions! Whispering is built with care and attention to clean, 
 
 Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspired error handling to JavaScript. It makes errors explicit in function signatures and ensures robust error handling throughout the codebase.
 
+#### Contributing New Adapters
+
+We'd love to expand Whispering's capabilities with more transcription and AI service adapters! Here's how to add a new adapter:
+
+**Overview of the adapter system:**
+1. **Transcription services** (`services/transcription/`): Convert audio to text
+2. **Completion services** (`services/completion/`): Power AI transformations in the transformation pipeline
+3. **Query layer** (`query/`): Provides reactive state management and runtime dependency injection
+4. **Settings layer**: Stores API keys and user preferences
+
+##### Adding a Transcription Service Adapter
+
+Adding a new transcription service involves four main steps:
+
+1. **Create the service implementation** in `apps/app/src/lib/services/transcription/`:
+   ```typescript
+   // apps/app/src/lib/services/transcription/your-service.ts
+   import { WhisperingErr, type WhisperingError } from '$lib/result';
+   import type { Settings } from '$lib/settings';
+   import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
+   
+   // Define your models directly in the service file
+   export const YOUR_SERVICE_MODELS = [
+     {
+       name: 'model-v1',
+       description: 'Description of what makes this model special',
+       cost: '$0.XX/hour',
+     },
+     {
+       name: 'model-v2',
+       description: 'A faster variant with different trade-offs',
+       cost: '$0.YY/hour',
+     },
+   ] as const;
+   
+   export type YourServiceModel = (typeof YOUR_SERVICE_MODELS)[number];
+   
+   export function createYourServiceTranscriptionService() {
+     return {
+       async transcribe(
+         audioBlob: Blob,
+         options: {
+           prompt: string;
+           temperature: string;
+           outputLanguage: Settings['transcription.outputLanguage'];
+           apiKey: string;
+           modelName: (string & {}) | YourServiceModel['name'];
+           // Add any service-specific options
+         }
+       ): Promise<Result<string, WhisperingError>> {
+         // Validate API key
+         if (!options.apiKey) {
+           return WhisperingErr({
+             title: '🔑 API Key Required',
+             description: 'Please enter your YourService API key in settings.',
+             action: {
+               type: 'link',
+               label: 'Add API key',
+               href: '/settings/transcription',
+             },
+           });
+         }
+         
+         // Make the API call
+         const { data, error } = await tryAsync({
+           try: () => yourServiceClient.transcribe(audioBlob, options),
+           mapError: (error) => WhisperingErr({
+             title: '❌ Transcription Failed',
+             description: error.message,
+             action: { type: 'more-details', error },
+           }),
+         });
+         
+         if (error) return Err(error);
+         return Ok(data.text.trim());
+       }
+     };
+   }
+   
+   export const YourServiceTranscriptionServiceLive = createYourServiceTranscriptionService();
+   ```
+   
+   Don't forget to export your service in `apps/app/src/lib/services/transcription/index.ts`:
+   ```typescript
+   import { YourServiceTranscriptionServiceLive } from './your-service';
+   
+   export {
+     // ... existing exports
+     YourServiceTranscriptionServiceLive as yourservice,
+   };
+   ```
+   
+   And add the API key field to the settings schema in `apps/app/src/lib/settings/settings.ts`:
+   ```typescript
+   'apiKeys.yourservice': z.string().default(''),
+   ```
+
+2. **Update the service configuration** in `apps/app/src/lib/constants/transcription/service-config.ts`:
+   ```typescript
+   import { YourServiceIcon } from 'lucide-svelte';
+   import {
+     YOUR_SERVICE_MODELS,
+     type YourServiceModel,
+   } from '$lib/services/transcription/your-service';
+   
+   // Add to the imports at the top
+   type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel | YourServiceModel;
+   
+   // Add to TRANSCRIPTION_SERVICE_IDS
+   export const TRANSCRIPTION_SERVICE_IDS = [
+     'OpenAI',
+     'Groq',
+     'speaches',
+     'ElevenLabs',
+     'YourService', // Add here
+   ] as const;
+   
+   // Add to TRANSCRIPTION_SERVICES array
+   {
+     id: 'YourService',
+     name: 'Your Service Name',
+     icon: YourServiceIcon,
+     models: YOUR_SERVICE_MODELS,
+     defaultModel: YOUR_SERVICE_MODELS[0],
+     modelSettingKey: 'transcription.yourservice.model',
+     apiKeyField: 'apiKeys.yourservice',
+     type: 'api',
+   }
+   ```
+
+3. **Wire up the query layer** in `apps/app/src/lib/query/transcription.ts`:
+   ```typescript
+   // Add to the switch statement in transcribeBlob function
+   case 'YourService':
+     return services.transcriptions.yourservice.transcribe(blob, {
+       outputLanguage: settings.value['transcription.outputLanguage'],
+       prompt: settings.value['transcription.prompt'],
+       temperature: settings.value['transcription.temperature'],
+       apiKey: settings.value['apiKeys.yourservice'],
+       modelName: settings.value['transcription.yourservice.model'],
+     });
+   ```
+
+4. **Update the settings UI** in `apps/app/src/routes/(config)/settings/transcription/+page.svelte`:
+   ```svelte
+   <!-- Add after other service conditionals -->
+   {:else if settings.value['transcription.selectedTranscriptionService'] === 'YourService'}
+     <LabeledSelect
+       id="yourservice-model"
+       label="YourService Model"
+       items={YOUR_SERVICE_MODELS.map((model) => ({
+         value: model.name,
+         label: model.name,
+         ...model,
+       }))}
+       selected={settings.value['transcription.yourservice.model']}
+       onSelectedChange={(selected) => {
+         settings.value = {
+           ...settings.value,
+           'transcription.yourservice.model': selected,
+         };
+       }}
+       renderOption={renderModelOption}
+     />
+     <YourServiceApiKeyInput />
+   {/if}
+   ```
+   
+   Create the API key input component in `apps/app/src/lib/components/settings/api-key-inputs/YourServiceApiKeyInput.svelte`:
+   ```svelte
+   <script lang="ts">
+     import { LabeledInput } from '$lib/components/labeled/index.js';
+     import { Button } from '$lib/components/ui/button/index.js';
+     import { settings } from '$lib/stores/settings.svelte';
+   </script>
+   
+   <LabeledInput
+     id="yourservice-api-key"
+     label="YourService API Key"
+     type="password"
+     placeholder="Your YourService API Key"
+     value={settings.value['apiKeys.yourservice']}
+     oninput={({ currentTarget: { value } }) => {
+       settings.value = { ...settings.value, 'apiKeys.yourservice': value };
+     }}
+   >
+     {#snippet description()}
+       <p class="text-muted-foreground text-sm">
+         You can find your YourService API key in your <Button
+           variant="link"
+           class="px-0.3 py-0.2 h-fit"
+           href="https://yourservice.com/api-keys"
+           target="_blank"
+           rel="noopener noreferrer"
+         >
+           YourService dashboard
+         </Button>.
+       </p>
+     {/snippet}
+   </LabeledInput>
+   ```
+   
+   And export it from `apps/app/src/lib/components/settings/index.ts`:
+   ```typescript
+   export { default as YourServiceApiKeyInput } from './api-key-inputs/YourServiceApiKeyInput.svelte';
+   ```
+   
+   Also update `apps/app/src/lib/constants/transcription/index.ts` to re-export your models:
+   ```typescript
+   export {
+     YOUR_SERVICE_MODELS,
+     type YourServiceModel,
+   } from '$lib/services/transcription/your-service';
+   ```
+
+##### Adding an AI Transformation Adapter
+
+AI transformations in Whispering use completion services that can be integrated into transformation workflows. Here's how to add a new AI provider:
+
+1. **Create the completion service** in `apps/app/src/lib/services/completion/`:
+   ```typescript
+   // apps/app/src/lib/services/completion/your-provider.ts
+   import { WhisperingErr, type WhisperingError } from '$lib/result';
+   import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
+   
+   export function createYourProviderCompletionService() {
+     return {
+       async complete(options: {
+         apiKey: string;
+         model: string;
+         systemPrompt: string;
+         userPrompt: string;
+         temperature?: number;
+       }): Promise<Result<string, WhisperingError>> {
+         // Validate API key
+         if (!options.apiKey) {
+           return WhisperingErr({
+             title: '🔑 API Key Required',
+             description: 'Please add your YourProvider API key.',
+           });
+         }
+         
+         // Make the completion request
+         const { data, error } = await tryAsync({
+           try: () => yourProviderClient.complete(options),
+           mapError: (error) => WhisperingErr({
+             title: '❌ Completion Failed',
+             description: error.message,
+             action: { type: 'more-details', error },
+           }),
+         });
+         
+         if (error) return Err(error);
+         return Ok(data.text);
+       }
+     };
+   }
+   
+   export const YourProviderCompletionServiceLive = createYourProviderCompletionService();
+   ```
+
+2. **Register the service** in `apps/app/src/lib/services/completion/index.ts`:
+   ```typescript
+   import { YourProviderCompletionServiceLive } from './your-provider';
+   
+   export {
+     // ... existing exports
+     YourProviderCompletionServiceLive as yourprovider,
+   };
+   ```
+
+3. **Wire up the transformation handler** in `apps/app/src/lib/query/transformer.ts`:
+   ```typescript
+   // Add a new case in the handleStep function's prompt_transform switch statement
+   case 'YourProvider': {
+     const { data: completionResponse, error: completionError } =
+       await services.completions.yourprovider.complete({
+         apiKey: settings.value['apiKeys.yourprovider'],
+         model: step['prompt_transform.inference.provider.YourProvider.model'],
+         systemPrompt,
+         userPrompt,
+       });
+   
+     if (completionError) {
+       return Err(completionError.message);
+     }
+   
+     return Ok(completionResponse);
+   }
+   ```
+
+4. **Add API key to settings** in `apps/app/src/lib/settings/settings.ts`:
+   ```typescript
+   'apiKeys.yourprovider': z.string().default(''),
+   ```
+
+5. **Update transformation types** to include your provider models and configuration
+
+##### Error Handling Best Practices
+
+Always use the `WhisperingErr` helper for user-facing errors:
+
+```typescript
+// Good: User-friendly error with action
+return WhisperingErr({
+  title: '⏱️ Rate Limit Reached',
+  description: 'Too many requests. Please try again in a few minutes.',
+  action: {
+    type: 'link',
+    label: 'View rate limits',
+    href: 'https://yourservice.com/rate-limits',
+  },
+});
+
+// Handle different error types
+if (error.status === 401) {
+  return WhisperingErr({
+    title: '🔑 Invalid API Key',
+    description: 'Your API key appears to be invalid or expired.',
+    action: {
+      type: 'link',
+      label: 'Update API key',
+      href: '/settings/transcription',
+    },
+  });
+}
+
+// Use with tryAsync for automatic error mapping
+const { data, error } = await tryAsync({
+  try: () => apiClient.makeRequest(),
+  mapError: (error) => WhisperingErr({
+    title: '❌ Request Failed',
+    description: error.message,
+    action: { type: 'more-details', error },
+  }),
+});
+```
+
+##### Testing Your Adapter
+
+Create a test file alongside your service:
+
+```typescript
+// apps/app/src/lib/services/transcription/your-service.test.ts
+import { describe, it, expect } from 'vitest';
+import { createYourServiceTranscriptionService } from './your-service';
+
+describe('YourService Transcription', () => {
+  it('should handle missing API key', async () => {
+    const service = createYourServiceTranscriptionService();
+    const result = await service.transcribe(new Blob(), {
+      apiKey: '',
+      // other options
+    });
+    
+    expect(result.error).toBeDefined();
+    expect(result.error?.title).toContain('API Key Required');
+  });
+  
+  // Add more tests
+});
+```
+
+##### Example PR Structure
+
+When submitting a PR for a new adapter, include:
+- The service implementation with comprehensive error handling
+- All type definitions and constants
+- Query layer integration
+- Settings UI components
+- Tests covering success and error cases
+- Documentation of any special requirements or limitations
+- Example `.env` entries if needed
+
+We're excited to see what services you'll integrate! Feel free to open an issue first to discuss your adapter idea.
+
 #### Contributing Process
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
