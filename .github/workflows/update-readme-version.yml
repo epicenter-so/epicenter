@@ -108,8 +108,8 @@ jobs:
           git add README.md
           git commit -m "chore: update README download links to v${{ steps.get_version.outputs.VERSION }}"
           
-          # Push to main branch
-          git push origin HEAD:main
+          # Push to main branch (explicitly specify refs/heads/ to avoid ambiguity with tag)
+          git push origin HEAD:refs/heads/main
 
       - name: Summary
         run: |

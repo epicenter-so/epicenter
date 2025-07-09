@@ -74,8 +74,8 @@ Choose your operating system below and click the download link:
 
 | Architecture | Download | Requirements |
 |-------------|----------|--------------|
-| **Apple Silicon** | [Whispering_7.0.0_aarch64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_aarch64.dmg) | M1/M2/M3 Macs |
-| **Intel** | [Whispering_7.0.0_x64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64.dmg) | Intel-based Macs |
+| **Apple Silicon** | [Whispering_7.0.1_aarch64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_aarch64.dmg) | M1/M2/M3 Macs |
+| **Intel** | [Whispering_7.0.1_x64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_x64.dmg) | Intel-based Macs |
 
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3 → Use Apple Silicon version
@@ -100,8 +100,8 @@ Choose your operating system below and click the download link:
 
 | Installer Type | Download | Description |
 |---------------|----------|-------------|
-| **MSI Installer** | [Whispering_7.0.0_x64_en-US.msi](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64_en-US.msi) | Recommended Standard Windows installer |
-| **EXE Installer** | [Whispering_7.0.0_x64-setup.exe](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_x64-setup.exe) | Alternative installer option |
+| **MSI Installer** | [Whispering_7.0.1_x64_en-US.msi](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_x64_en-US.msi) | Recommended Standard Windows installer |
+| **EXE Installer** | [Whispering_7.0.1_x64-setup.exe](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_x64-setup.exe) | Alternative installer option |
 
 #### Installation
 
@@ -121,29 +121,29 @@ Whispering will appear in your Start Menu when complete.
 
 | Package Format | Download | Compatible With |
 |---------------|----------|-----------------|
-| **AppImage** | [Whispering_7.0.0_amd64.AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage) | All Linux distributions |
-| **DEB Package** | [Whispering_7.0.0_amd64.deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
-| **RPM Package** | [Whispering-7.0.0-1.x86_64.rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
+| **AppImage** | [Whispering_7.0.1_amd64.AppImage](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_amd64.AppImage) | All Linux distributions |
+| **DEB Package** | [Whispering_7.0.1_amd64.deb](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_amd64.deb) | Debian, Ubuntu, Pop!_OS |
+| **RPM Package** | [Whispering-7.0.1-1.x86_64.rpm](https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.1-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
 
 #### Quick Install Commands
 
 **AppImage** (Universal)
 ```bash
-wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.AppImage
-chmod +x Whispering_7.0.0_amd64.AppImage
-./Whispering_7.0.0_amd64.AppImage
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_amd64.AppImage
+chmod +x Whispering_7.0.1_amd64.AppImage
+./Whispering_7.0.1_amd64.AppImage
 ```
 
 **Debian/Ubuntu**
 ```bash
-wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.0_amd64.deb
-sudo dpkg -i Whispering_7.0.0_amd64.deb
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_amd64.deb
+sudo dpkg -i Whispering_7.0.1_amd64.deb
 ```
 
 **Fedora/RHEL**
 ```bash
-wget https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.0-1.x86_64.rpm
-sudo rpm -i Whispering-7.0.0-1.x86_64.rpm
+wget https://github.com/braden-w/whispering/releases/latest/download/Whispering-7.0.1-1.x86_64.rpm
+sudo rpm -i Whispering-7.0.1-1.x86_64.rpm
 ```
 
 </details>
