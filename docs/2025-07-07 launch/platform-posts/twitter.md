@@ -11,27 +11,25 @@
 ## Primary Launch Thread (10:30 AM PST)
 
 ### Tweet 1 (Hook + Native Video)
-I code hands-free while managing 6 AI agents in parallel.
+I often code hands-free while managing 3-6 AI agents in parallel.
 
 Here's how I talk to my computer to build software faster:
 
 [NATIVE VIDEO UPLOAD - 3 minute demo]
 
 ### Tweet 2 (The Reveal + GitHub Link)
-It's called Whispering: a completely free, open-source transcription tool I built.
-
-While others charge $30/month, you just bring your own API key and pay cents directly to providers.
+For my workflow, I use Whispering: a completely free, open-source transcription tool.
 
 GitHub: https://github.com/braden-w/whispering#readme
 
 ### Tweet 3 (The Philosophy)
 I built this for myself and made it open-source from day one.
 
-When I discovered competitors charge $30/month for what's basically an API wrapper, I was glad I chose a different path.
+When I discovered competitors charge $30/month for what's basically an API wrapper, I was glad I chose a different path!
 
 ### Tweet 4 (Technical Details + Setup Guide)
 Built with:
-- @sveltejs 5 (production runes)
+- @sveltejs 5 (runes)
 - @tauri_apps (lightweight native app)
 - @tan_stack Query (reactive state)
 - TypeScript + Rust
