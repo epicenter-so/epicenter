@@ -1,31 +1,26 @@
-# LinkedIn Launch Post
+# LinkedIn Developer Profile Post
 
 ## Post Content
 
-I just launched Whispering - a completely free, open-source transcription app that's saving users hundreds of dollars per year.
+As an open-source developer, maintaining productivity while managing code refactors, issue tracking, and documentation is critical. 
 
-**The Problem:** Transcription apps charge $15-30/month for what's essentially a wrapper around APIs you could use directly.
+Here's the workflow I use to code hands-free:
 
-**The Solution:** Whispering lets you bring your own API key and pay cents, not dollars.
+- Run 3–6 Claude Code agents in parallel (more recently `opencode`)
+- Transcribe voice → prompts with Whispering (2¢/hr)  
+- Clip-on mic for roam-and-riff idea capture
+- One pipeline for emails, docs, blog drafts—even posts
 
-✅ 100% free and open source
-✅ Your data never touches our servers
-✅ Pay only for what you use (typically $0.02-0.18/hour)
-✅ No subscriptions, no limits, no premium tiers
+I speak my thoughts while walking, cooking, or just thinking out loud. The transcription happens on my machine, costs pennies per hour, and integrates seamlessly with my development environment.
 
-I built this for myself and open sourced it from the start. When I discovered competitors were charging $15-30/month for similar functionality, it validated my decision to keep it free.
+This way, I'm able to parallelize verbal instructions, capture ideas instantly without context switching, turn conversations into documentation in real-time, and keep coding even when away from the keyboard.
 
-**For Professionals:**
-- Create content faster with voice
-- Maintain complete privacy and data ownership
-- Save $180-360/year on transcription costs
+I built Whispering as a free, open-source alternative to transcription services that cost $30 per month. You bring your own API key and pay actual costs—no middleman, no data collection, no subscriptions. Use it if you want!
 
-Built with modern tech (Svelte 5 + Tauri) for blazing fast performance on Mac, Windows, and Linux.
+▶️ Watch the demo below!
 
-🎥 Watch the 3-minute voice coding demo: https://www.youtube.com/watch?v=tP1fuFpJt7g&t=8s
-📚 5-minute setup guide: https://www.youtube.com/watch?v=1jYgBMrfVZs
-💻 GitHub: https://github.com/braden-w/whispering
+🔗 Grab the free open-source app: https://lnkd.in/g4wcnRJR  
 
-What transcription tools are you currently paying for that should be free?
+#DeveloperExperience #OpenSource #AI #Productivity #VibeCoding
 
-#OpenSource #Productivity #TechForGood #Transcription #FreeSoftware #VoiceCoding
+Posted on: https://www.linkedin.com/feed/update/urn:li:activity:7348763181550399489/
