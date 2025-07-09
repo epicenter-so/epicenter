@@ -9,7 +9,7 @@
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
-	import * as ToggleGroup from '$lib/components/ui/toggle-group';
+	import * as ToggleGroup from '@repo/ui/toggle-group';
 	import {
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,

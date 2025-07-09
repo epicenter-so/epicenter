@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
+	import { Label } from '@repo/ui/label';
+	import { Switch } from '@repo/ui/switch';
 	import type { Snippet } from 'svelte';
 
 	let {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Separator } from '@repo/ui/separator';
 	import {
 		BITRATE_OPTIONS,
 		RECORDING_MODE_OPTIONS,

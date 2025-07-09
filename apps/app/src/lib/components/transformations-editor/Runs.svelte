@@ -1,11 +1,11 @@
 <script lang="ts">
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import CopyableTextareaExpandsToDialog from '$lib/components/copyable/CopyableTextareaExpandsToDialog.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
-	import * as Table from '$lib/components/ui/table';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import { Label } from '@repo/ui/label';
+	import * as Table from '@repo/ui/table';
 	import type { TransformationRun } from '$lib/services/db';
 	import { getTransformationStepRunTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { format } from 'date-fns';

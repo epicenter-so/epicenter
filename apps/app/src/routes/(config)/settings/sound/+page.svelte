@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledSwitch } from '$lib/components/labeled';
-	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Separator } from '@repo/ui/separator';
 	import { settings } from '$lib/stores/settings.svelte';
 </script>
 

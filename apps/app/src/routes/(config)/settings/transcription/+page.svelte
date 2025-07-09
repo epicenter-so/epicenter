@@ -11,10 +11,10 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import { Separator } from '@repo/ui/separator';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		ELEVENLABS_TRANSCRIPTION_MODELS,

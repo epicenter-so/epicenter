@@ -1,8 +1,8 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { GithubIcon } from '$lib/components/icons';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { cn } from '$lib/utils';
+	import * as DropdownMenu from '@repo/ui/dropdown-menu';
+	import { cn } from '@repo/ui/utils';
 	import { LogicalSize, getCurrentWindow } from '@tauri-apps/api/window';
 	import {
 		LayersIcon,

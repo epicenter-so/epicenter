@@ -2,9 +2,9 @@
 	lang="ts"
 	generics="TItem extends { value: string; label: string; disabled?: boolean }"
 >
-	import { Label } from '$lib/components/ui/label/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import { cn } from '$lib/utils';
+	import { Label } from '@repo/ui/label';
+	import * as Select from '@repo/ui/select';
+	import { cn } from '@repo/ui/utils';
 	import type { Snippet } from 'svelte';
 
 	type T = TItem['value'];

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import * as Alert from '$lib/components/ui/alert/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import * as Alert from '@repo/ui/alert';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import * as Tooltip from '@repo/ui/tooltip';
 	import {
 		ACCELERATOR_SECTIONS,
 		CommandOrAlt,

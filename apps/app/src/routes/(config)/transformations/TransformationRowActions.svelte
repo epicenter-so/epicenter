@@ -2,7 +2,7 @@
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
-	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { Skeleton } from '@repo/ui/skeleton';
 	import { rpc } from '$lib/query';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import EditTransformationDialog from './EditTransformationDialog.svelte';

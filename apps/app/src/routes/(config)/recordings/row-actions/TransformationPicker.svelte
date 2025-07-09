@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Command from '$lib/components/ui/command';
-	import * as Popover from '$lib/components/ui/popover';
+	import { Badge } from '@repo/ui/badge';
+	import * as Command from '@repo/ui/command';
+	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';

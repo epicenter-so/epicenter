@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Command from '$lib/components/ui/command';
-	import * as Popover from '$lib/components/ui/popover';
+	import { Badge } from '@repo/ui/badge';
+	import * as Command from '@repo/ui/command';
+	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '$lib/components/useCombobox.svelte';
 	import {
 		TRANSCRIPTION_SERVICES,
@@ -14,7 +14,7 @@
 		isTranscriptionServiceConfigured,
 	} from '$lib/settings/transcription-validation';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '@repo/ui/utils';
 	import { CheckIcon, MicIcon, SettingsIcon } from 'lucide-svelte';
 
 	let { class: className }: { class?: string } = $props();

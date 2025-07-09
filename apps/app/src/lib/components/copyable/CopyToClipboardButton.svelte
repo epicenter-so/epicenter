@@ -1,6 +1,6 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import type { Props } from '$lib/components/ui/button';
+	import type { Props } from '@repo/ui/button';
 	import { rpc } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
