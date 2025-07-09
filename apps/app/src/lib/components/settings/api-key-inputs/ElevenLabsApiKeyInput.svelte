@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LabeledInput } from '$lib/components/labeled/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button } from '@repo/ui/button';
 	import { settings } from '$lib/stores/settings.svelte';
 </script>
 

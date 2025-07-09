@@ -12,12 +12,12 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import * as Accordion from '$lib/components/ui/accordion';
-	import * as Alert from '$lib/components/ui/alert';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import * as SectionHeader from '$lib/components/ui/section-header';
-	import { Separator } from '$lib/components/ui/separator';
+	import * as Accordion from '@repo/ui/accordion';
+	import * as Alert from '@repo/ui/alert';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import * as SectionHeader from '@repo/ui/section-header';
+	import { Separator } from '@repo/ui/separator';
 	import {
 		TRANSFORMATION_STEP_TYPES,
 		TRANSFORMATION_STEP_TYPES_TO_LABELS,

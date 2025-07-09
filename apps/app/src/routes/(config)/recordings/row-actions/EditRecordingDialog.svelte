@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import { Textarea } from '$lib/components/ui/textarea';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import { Input } from '@repo/ui/input';
+	import { Label } from '@repo/ui/label';
+	import { Textarea } from '@repo/ui/textarea';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';

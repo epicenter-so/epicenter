@@ -4,7 +4,7 @@
 	import WhisperingTooltip from '$lib/components/WhisperingTooltip.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon, TrashIcon } from '$lib/components/icons';
-	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { Skeleton } from '@repo/ui/skeleton';
 	import { rpc } from '$lib/query';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import * as Alert from '$lib/components/ui/alert/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as Alert from '@repo/ui/alert';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import { Input } from '@repo/ui/input';
+	import * as Popover from '@repo/ui/popover';
 	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { IS_MACOS } from '$lib/constants/platform';
-	import { cn } from '$lib/utils';
+	import { cn } from '@repo/ui/utils';
 	import { AlertTriangle, Keyboard, Pencil, XIcon } from 'lucide-svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';
 

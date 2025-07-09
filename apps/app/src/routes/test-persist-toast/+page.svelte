@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '@repo/ui/button';
 	import { notify } from '$lib/query/notify';
 
 	let persistentToastId: string | undefined;

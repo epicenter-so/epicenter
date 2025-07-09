@@ -14,7 +14,7 @@
 	} from '$lib/constants/audio';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { cn } from '$lib/utils.js';
+	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { MediaQuery } from 'svelte/reactivity';
 

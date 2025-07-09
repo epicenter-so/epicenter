@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { cn } from '$lib/utils';
+	import { Button } from '@repo/ui/button';
+	import { cn } from '@repo/ui/utils';
 	import { cubicInOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
 

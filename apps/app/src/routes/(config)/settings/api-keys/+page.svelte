@@ -6,7 +6,7 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Separator } from '@repo/ui/separator';
 </script>
 
 <svelte:head>

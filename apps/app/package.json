@@ -52,6 +52,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@repo/ui": "workspace:*",
 		"@anthropic-ai/sdk": "^0.55.0",
 		"@google/generative-ai": "^0.24.1",
 		"@plasmohq/messaging": "^0.7.2",

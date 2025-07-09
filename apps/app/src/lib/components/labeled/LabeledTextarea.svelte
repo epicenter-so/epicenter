@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Label } from '$lib/components/ui/label';
-	import { Textarea } from '$lib/components/ui/textarea';
+	import { Label } from '@repo/ui/label';
+	import { Textarea } from '@repo/ui/textarea';
 	import type { Snippet } from 'svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 

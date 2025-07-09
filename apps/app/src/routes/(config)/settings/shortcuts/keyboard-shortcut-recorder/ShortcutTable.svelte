@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { commands } from '$lib/commands';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import { Input } from '@repo/ui/input';
+	import * as Table from '@repo/ui/table';
 	import { rpc } from '$lib/query';
 	import { getDefaultSettings } from '$lib/settings';
 	import { createPressedKeys } from '$lib/utils/createPressedKeys.svelte';

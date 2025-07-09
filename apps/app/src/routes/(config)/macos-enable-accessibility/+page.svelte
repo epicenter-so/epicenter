@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
 	import { invoke } from '@tauri-apps/api/core';
 	import { SettingsIcon } from 'lucide-svelte';
 </script>

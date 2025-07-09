@@ -3,9 +3,9 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { PencilIcon as EditIcon } from '$lib/components/icons';
 	import { Editor } from '$lib/components/transformations-editor';
-	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { Separator } from '$lib/components/ui/separator';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import { Separator } from '@repo/ui/separator';
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';

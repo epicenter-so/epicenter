@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { cn } from '$lib/utils';
+	import { Input } from '@repo/ui/input';
+	import { Label } from '@repo/ui/label';
+	import { cn } from '@repo/ui/utils';
 	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 

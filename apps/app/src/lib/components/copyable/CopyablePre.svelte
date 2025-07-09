@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-	import { cn } from '$lib/utils';
+	import { cn } from '@repo/ui/utils';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import CopyToClipboardButton from './CopyToClipboardButton.svelte';
 
