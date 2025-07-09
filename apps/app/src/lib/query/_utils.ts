@@ -1,12 +1,12 @@
 import type {
-	CreateQueryOptions,
 	MutationFunction,
 	MutationKey,
 	MutationOptions,
 	QueryFunction,
 	QueryFunctionContext,
 	QueryKey,
-} from '@tanstack/svelte-query';
+	QueryObserverOptions,
+} from '@tanstack/query-core';
 import { Err, Ok, type Result, resolve } from 'wellcrafted/result';
 import { queryClient } from './index';
 
@@ -68,7 +68,7 @@ export function defineQuery<
 	TQueryKey extends QueryKey = QueryKey,
 >(
 	options: Omit<
-		CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+		QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
 		'queryFn'
 	> & {
 		queryKey: TQueryKey;
@@ -82,7 +82,13 @@ export function defineQuery<
 			if (result instanceof Promise) result = await result;
 			return resolve(result);
 		},
-	} satisfies CreateQueryOptions<TQueryFnData, TError, TData, TQueryKey>;
+	} satisfies QueryObserverOptions<
+		TQueryFnData,
+		TError,
+		TData,
+		TQueryFnData,
+		TQueryKey
+	>;
 
 	return {
 		/**
