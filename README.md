@@ -74,11 +74,11 @@ Choose your operating system below and click the download link:
 
 | Architecture | Download | Requirements |
 |-------------|----------|--------------|
-| **Apple Silicon** | [Whispering_7.0.1_aarch64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_aarch64.dmg) | M1/M2/M3 Macs |
+| **Apple Silicon** | [Whispering_7.0.1_aarch64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
 | **Intel** | [Whispering_7.0.1_x64.dmg](https://github.com/braden-w/whispering/releases/latest/download/Whispering_7.0.1_x64.dmg) | Intel-based Macs |
 
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
-> - Apple M1/M2/M3 → Use Apple Silicon version
+> - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
 
 #### Installation steps:
