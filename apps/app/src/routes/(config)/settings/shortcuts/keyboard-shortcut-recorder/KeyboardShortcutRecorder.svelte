@@ -128,7 +128,7 @@
 					>
 						<div class="flex w-full items-center justify-between">
 							<div
-								class="flex flex-grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
+								class="flex grow items-center gap-1.5 overflow-x-auto pr-2 scrollbar-none"
 							>
 								{#if rawKeyCombination && !keyRecorder.isListening}
 									<Badge variant="secondary" class="font-mono text-xs">
