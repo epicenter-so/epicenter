@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { cn } from '../utils.js';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
 
-	let {
-		class: className,
-		...restProps
-	}: DialogPrimitive.DescriptionProps = $props();
+	import { cn } from '../utils.js';
+
+	let { class: className, ...restProps }: DialogPrimitive.DescriptionProps =
+		$props();
 </script>
 
 <DialogPrimitive.Description

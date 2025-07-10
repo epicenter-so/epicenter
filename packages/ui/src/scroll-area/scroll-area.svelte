@@ -1,18 +1,19 @@
 <script lang="ts">
-	import { type WithoutChild, cn } from '../utils';
 	import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
+
+	import { cn, type WithoutChild } from '../utils';
 	import { Scrollbar } from './index.js';
 
 	let {
-		ref = $bindable(null),
+		children,
 		class: className,
 		orientation = 'vertical',
+		ref = $bindable(null),
 		scrollbarXClasses = '',
 		scrollbarYClasses = '',
-		children,
 		...restProps
 	}: WithoutChild<ScrollAreaPrimitive.RootProps> & {
-		orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
+		orientation?: 'both' | 'horizontal' | 'vertical' | undefined;
 		scrollbarXClasses?: string | undefined;
 		scrollbarYClasses?: string | undefined;
 	} = $props();

@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { type WithElementRef, cn } from '../utils';
 	import type { HTMLTableAttributes } from 'svelte/elements';
 
+	import { cn, type WithElementRef } from '../utils';
+
 	let {
-		ref = $bindable(null),
-		class: className,
 		children,
+		class: className,
+		ref = $bindable(null),
 		...restProps
 	}: WithElementRef<HTMLTableAttributes> = $props();
 </script>

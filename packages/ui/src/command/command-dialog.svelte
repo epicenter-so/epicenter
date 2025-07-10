@@ -1,28 +1,30 @@
 <script lang="ts">
-	import * as Dialog from '../dialog/index.js';
-	import type { WithoutChildrenOrChild } from '../utils';
 	import type {
 		Command as CommandPrimitive,
 		Dialog as DialogPrimitive,
 	} from 'bits-ui';
 	import type { Snippet } from 'svelte';
+
+	import type { WithoutChildrenOrChild } from '../utils';
+
+	import * as Dialog from '../dialog/index.js';
 	import Command from './command.svelte';
 
 	let {
-		open = $bindable(false),
-		ref = $bindable(null),
-		value = $bindable(''),
-		title = 'Command Palette',
-		description = 'Search for a command to run',
-		portalProps,
 		children,
+		description = 'Search for a command to run',
+		open = $bindable(false),
+		portalProps,
+		ref = $bindable(null),
+		title = 'Command Palette',
+		value = $bindable(''),
 		...restProps
-	}: WithoutChildrenOrChild<DialogPrimitive.RootProps> &
-		WithoutChildrenOrChild<CommandPrimitive.RootProps> & {
-			portalProps?: DialogPrimitive.PortalProps;
+	}: WithoutChildrenOrChild<CommandPrimitive.RootProps> &
+		WithoutChildrenOrChild<DialogPrimitive.RootProps> & {
 			children: Snippet;
-			title?: string;
 			description?: string;
+			portalProps?: DialogPrimitive.PortalProps;
+			title?: string;
 		} = $props();
 </script>
 

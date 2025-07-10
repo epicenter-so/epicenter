@@ -1,18 +1,20 @@
 <script lang="ts">
-	import { type WithoutChildrenOrChild, cn } from '../utils.js';
+	import type { Snippet } from 'svelte';
+
 	import { X as XIcon } from '@lucide/svelte';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
-	import type { Snippet } from 'svelte';
+
+	import { cn, type WithoutChildrenOrChild } from '../utils.js';
 	import * as Dialog from './index.js';
 
 	let {
+		children,
 		class: className,
 		portalProps,
-		children,
 		...restProps
 	}: WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {
-		portalProps?: DialogPrimitive.PortalProps;
 		children: Snippet;
+		portalProps?: DialogPrimitive.PortalProps;
 	} = $props();
 </script>
 

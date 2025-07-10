@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { cn } from '../utils';
 	import { Tooltip as TooltipPrimitive } from 'bits-ui';
 
+	import { cn } from '../utils';
+
 	let {
-		ref = $bindable(null),
-		class: className,
-		sideOffset = 0,
-		side = 'top',
-		children,
 		arrowClasses,
+		children,
+		class: className,
+		ref = $bindable(null),
+		side = 'top',
+		sideOffset = 0,
 		...restProps
 	}: TooltipPrimitive.ContentProps & {
 		arrowClasses?: string;

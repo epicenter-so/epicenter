@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { cn } from '../utils';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import { Command as CommandPrimitive } from 'bits-ui';
 
+	import { cn } from '../utils';
+
 	let {
-		ref = $bindable(null),
 		class: className,
+		ref = $bindable(null),
 		value = $bindable(''),
 		...restProps
 	}: CommandPrimitive.InputProps = $props();
