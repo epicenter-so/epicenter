@@ -202,7 +202,7 @@ importers:
         specifier: ^1.0.4
         version: 1.0.5(svelte@5.34.7)
       tailwind-merge:
-        specifier: ^3.3.0
+        specifier: ^3.3.1
         version: 3.3.1
       tailwind-variants:
         specifier: ^1.0.0
