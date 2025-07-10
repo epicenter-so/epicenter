@@ -13,8 +13,8 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "eslint --fix . && prettier --check .",
 		"format": "prettier --write .",
+		"lint": "eslint --fix .",
 		"tauri": "tauri"
 	},
 	"license": "MIT",

@@ -6,6 +6,10 @@
 		"./*": "./src/*/index.ts",
 		"./utils": "./src/utils.ts"
 	},
+	"scripts": {
+		"format": "prettier --write .",
+		"lint": "eslint --fix ."
+	},
 	"dependencies": {
 		"@lucide/svelte": "^0.516.0",
 		"@tanstack/svelte-table": "9.0.0-alpha.10",
