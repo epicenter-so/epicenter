@@ -17,9 +17,8 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
 };
 
 export function getExtensionFromAudioBlob(blob: Blob) {
-	const mimeType = blob.type.toLowerCase();
 	const mimeIncludes = (...types: string[]) =>
-		types.some((type) => mimeType.includes(type));
+		types.some((type) => blob.type.toLowerCase().includes(type));
 	if (mimeIncludes('webm')) return 'webm';
 	if (mimeIncludes('mp4', 'mpeg', 'mp4a')) return 'mp4';
 	if (mimeIncludes('ogg', 'opus')) return 'ogg';
