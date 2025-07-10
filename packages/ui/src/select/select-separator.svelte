@@ -2,7 +2,7 @@
 	import type { Separator as SeparatorPrimitive } from 'bits-ui';
 
 	import { Separator } from '../separator/index.js';
-	import { cn } from '../utils';
+	import { cn } from '../utils.js';
 
 	let {
 		class: className,

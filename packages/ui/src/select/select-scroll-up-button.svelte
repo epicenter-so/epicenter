@@ -2,7 +2,7 @@
 	import ChevronUpIcon from '@lucide/svelte/icons/chevron-up';
 	import { Select as SelectPrimitive } from 'bits-ui';
 
-	import { cn, type WithoutChildrenOrChild } from '../utils';
+	import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
 	let {
 		class: className,

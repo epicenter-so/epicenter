@@ -5,7 +5,7 @@
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
-	import { cn, type WithoutChildrenOrChild } from '../utils';
+	import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
 	let {
 		checked = $bindable(false),

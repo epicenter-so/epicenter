@@ -2,7 +2,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import { Select as SelectPrimitive } from 'bits-ui';
 
-	import { cn, type WithoutChild } from '../utils';
+	import { cn, type WithoutChild } from '../utils.js';
 
 	let {
 		children: childrenProp,

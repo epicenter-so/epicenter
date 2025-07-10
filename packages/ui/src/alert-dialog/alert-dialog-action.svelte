@@ -2,7 +2,7 @@
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 
 	import { buttonVariants } from '../button/index.js';
-	import { cn } from '../utils';
+	import { cn } from '../utils.js';
 
 	let {
 		class: className,

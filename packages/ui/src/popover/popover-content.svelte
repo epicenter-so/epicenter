@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Popover as PopoverPrimitive } from 'bits-ui';
 
-	import { cn } from '../utils';
+	import { cn } from '../utils.js';
 
 	let {
 		align = 'center',

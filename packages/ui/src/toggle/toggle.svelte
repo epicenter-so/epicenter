@@ -29,7 +29,7 @@
 <script lang="ts">
 	import { Toggle as TogglePrimitive } from 'bits-ui';
 
-	import { cn } from '../utils';
+	import { cn } from '../utils.js';
 
 	let {
 		class: className,
