@@ -1,7 +1,18 @@
 import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
 
-// Common ignore patterns for all projects
+/**
+ * Shared ESLint configuration for Svelte applications in the Whispering monorepo.
+ *
+ * This config provides Svelte-specific linting rules that complement the root-level
+ * Biome configuration. While Biome handles general code quality, this ESLint config
+ * adds Svelte-aware linting and additional plugins not available in Biome.
+ */
+
+/**
+ * Common ignore patterns for build outputs and generated files.
+ * These patterns prevent ESLint from checking files that shouldn't be linted.
+ */
 export const ignorePatterns = [
 	// Build outputs
 	'**/dist/**',
@@ -38,7 +49,10 @@ export const ignorePatterns = [
 	'**/yarn.lock',
 ];
 
-// Base configuration for all projects
+/**
+ * Base ESLint configuration that includes Prettier integration and ignore patterns.
+ * This should be included in all configurations to ensure consistent formatting.
+ */
 export const base = [
 	prettier,
 	{
@@ -46,7 +60,10 @@ export const base = [
 	},
 ];
 
-// Svelte-specific configuration
+/**
+ * Complete ESLint configuration for Svelte applications.
+ * Includes base config plus Svelte-specific rules and Prettier compatibility.
+ */
 export const svelteConfig = [
 	...base,
 	...svelte.configs['flat/recommended'],
