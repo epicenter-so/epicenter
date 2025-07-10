@@ -1,5 +1,7 @@
 import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
+import perfectionist from 'eslint-plugin-perfectionist';
+import type { Linter } from 'eslint';
 
 /**
  * Shared ESLint configuration for Svelte applications in the Whispering monorepo.
@@ -54,11 +56,12 @@ export const ignorePatterns = [
  * This should be included in all configurations to ensure consistent formatting.
  */
 export const base = [
-	prettier,
+	// prettier,
+	// perfectionist.configs['recommended-natural'],
 	{
 		ignores: ignorePatterns,
 	},
-];
+] satisfies Linter.Config[];
 
 /**
  * Complete ESLint configuration for Svelte applications.
@@ -66,6 +69,18 @@ export const base = [
  */
 export const svelteConfig = [
 	...base,
-	...svelte.configs['flat/recommended'],
-	...svelte.configs['flat/prettier'],
-];
+	...svelte.configs.recommended,
+	...svelte.configs.prettier,
+	{
+		files: ['**/*.svelte', '**/*.svelte.js'],
+		languageOptions: {
+			parserOptions: {
+				// We recommend importing and specifying svelte.config.js.
+				// By doing so, some rules in eslint-plugin-svelte will automatically read the configuration and adjust their behavior accordingly.
+				// While certain Svelte settings may be statically loaded from svelte.config.js even if you don’t specify it,
+				// explicitly specifying it ensures better compatibility and functionality.
+				svelte,
+			},
+		},
+	},
+] satisfies Linter.Config[];

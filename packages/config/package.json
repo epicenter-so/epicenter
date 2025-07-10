@@ -7,11 +7,16 @@
 		"./eslint": "./eslint.ts",
 		"./prettier": "./prettier.ts"
 	},
+	"dependencies": {
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.35.0",
+		"prettier-plugin-svelte": "^3.4.0"
+	},
 	"peerDependencies": {
 		"eslint": ">=8.0.0",
-		"eslint-config-prettier": ">=9.0.0",
-		"eslint-plugin-svelte": ">=2.35.0",
-		"prettier": ">=3.0.0",
-		"prettier-plugin-svelte": ">=3.0.0"
+		"prettier": ">=3.0.0"
+	},
+	"devDependencies": {
+		"eslint-plugin-perfectionist": "^4.15.0"
 	}
 }

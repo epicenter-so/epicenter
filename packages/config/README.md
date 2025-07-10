@@ -14,9 +14,11 @@ This package centralizes these Svelte-specific configurations to ensure consiste
 ## Installation
 
 ```bash
-# Install peer dependencies for your Svelte app
-pnpm add -D eslint eslint-config-prettier eslint-plugin-svelte prettier prettier-plugin-svelte
+# Add the config package and the tool binaries
+pnpm add -D @repo/config eslint prettier
 ```
+
+The config package includes all the necessary plugins and configurations as dependencies, so you only need to install the main ESLint and Prettier binaries.
 
 ## ESLint Configuration
 
