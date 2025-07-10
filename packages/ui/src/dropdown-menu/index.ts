@@ -1,4 +1,5 @@
 import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+
 import CheckboxItem from './dropdown-menu-checkbox-item.svelte';
 import Content from './dropdown-menu-content.svelte';
 import GroupHeading from './dropdown-menu-group-heading.svelte';
@@ -22,6 +23,7 @@ export {
 	CheckboxItem as DropdownMenuCheckboxItem,
 	Content as DropdownMenuContent,
 	Group as DropdownMenuGroup,
+	GroupHeading as DropdownMenuGroupHeading,
 	Item as DropdownMenuItem,
 	Label as DropdownMenuLabel,
 	RadioGroup as DropdownMenuRadioGroup,
@@ -32,7 +34,6 @@ export {
 	SubContent as DropdownMenuSubContent,
 	SubTrigger as DropdownMenuSubTrigger,
 	Trigger as DropdownMenuTrigger,
-	GroupHeading as DropdownMenuGroupHeading,
 	Group,
 	GroupHeading,
 	Item,
