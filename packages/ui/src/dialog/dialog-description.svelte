@@ -3,11 +3,15 @@
 
 	import { cn } from '../utils.js';
 
-	let { class: className, ...restProps }: DialogPrimitive.DescriptionProps =
-		$props();
+	let {
+		class: className,
+		ref = $bindable(null),
+		...restProps
+	}: DialogPrimitive.DescriptionProps = $props();
 </script>
 
 <DialogPrimitive.Description
+	bind:ref
 	data-slot="dialog-description"
 	class={cn('text-muted-foreground text-sm', className)}
 	{...restProps}
