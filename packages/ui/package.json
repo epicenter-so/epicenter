@@ -10,8 +10,8 @@
 		"@lucide/svelte": "^0.516.0",
 		"clsx": "^2.1.1",
 		"paneforge": "^1.0.0-next.5",
-		"tailwind-merge": "^2.5.5",
-		"tailwind-variants": "^0.3.0",
+		"tailwind-merge": "^3.3.0",
+		"tailwind-variants": "^1.0.0",
 		"@tanstack/svelte-table": "9.0.0-alpha.10"
 	},
 	"devDependencies": {
