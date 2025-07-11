@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
-	import { cn } from '../utils.js';
+	import { cn } from '@/utils.js';
 
 	let {
 		class: className,

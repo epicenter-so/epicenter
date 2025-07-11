@@ -2,7 +2,7 @@
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { Accordion as AccordionPrimitive } from 'bits-ui';
 
-	import { cn, type WithoutChild } from '../utils.js';
+	import { cn, type WithoutChild } from '@/utils.js';
 
 	let {
 		children,
