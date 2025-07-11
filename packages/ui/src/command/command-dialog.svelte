@@ -7,7 +7,8 @@
 
 	import type { WithoutChildrenOrChild } from '@/utils.js';
 
-	import * as Dialog from '../dialog/index.js';
+	import * as Dialog from '@/dialog/index.js';
+
 	import Command from './command.svelte';
 
 	let {

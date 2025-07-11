@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import { getContext, setContext } from 'svelte';
 
-	import type { ToggleVariants } from '../toggle/index.js';
+	import type { ToggleVariants } from '@/toggle/index.js';
 	export function setToggleGroupCtx(props: ToggleVariants) {
 		setContext('toggleGroup', props);
 	}

@@ -2,6 +2,7 @@
 	import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
 
 	import { cn, type WithoutChild } from '@/utils.js';
+
 	import { Scrollbar } from './index.js';
 
 	let {
