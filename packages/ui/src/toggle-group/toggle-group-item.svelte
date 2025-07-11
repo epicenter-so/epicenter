@@ -1,17 +1,15 @@
 <script lang="ts">
-	import {
-		type ToggleVariants,
-		toggleVariants,
-	} from '../toggle/index.js';
-	import { cn } from '../utils';
+	import { cn } from '#/utils.js';
+	import { type ToggleVariants, toggleVariants } from '#toggle/index.js';
 	import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
+
 	import { getToggleGroupCtx } from './toggle-group.svelte';
 
 	let {
-		ref = $bindable(null),
-		value = $bindable(),
 		class: className,
+		ref = $bindable(null),
 		size,
+		value = $bindable(),
 		variant,
 		...restProps
 	}: ToggleGroupPrimitive.ItemProps & ToggleVariants = $props();
@@ -26,8 +24,8 @@
 	data-size={ctx.size || size}
 	class={cn(
 		toggleVariants({
-			variant: ctx.variant || variant,
 			size: ctx.size || size,
+			variant: ctx.variant || variant,
 		}),
 		'min-w-0 flex-1 shrink-0 rounded-none shadow-none first:rounded-l-md last:rounded-r-md focus:z-10 focus-visible:z-10 data-[variant=outline]:border-l-0 data-[variant=outline]:first:border-l',
 		className,

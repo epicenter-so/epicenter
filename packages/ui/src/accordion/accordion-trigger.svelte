@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { type WithoutChild, cn } from '../utils';
+	import { cn, type WithoutChild } from '#/utils.js';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { Accordion as AccordionPrimitive } from 'bits-ui';
 
 	let {
-		ref = $bindable(null),
+		children,
 		class: className,
 		level = 3,
-		children,
+		ref = $bindable(null),
 		...restProps
 	}: WithoutChild<AccordionPrimitive.TriggerProps> & {
 		level?: AccordionPrimitive.HeaderProps['level'];
