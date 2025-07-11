@@ -3,7 +3,7 @@ import * as services from '$lib/services';
 import type { PlaySoundServiceError } from '$lib/services/sound';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, type Result } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 const soundKeys = {
 	all: ['sound'] as const,

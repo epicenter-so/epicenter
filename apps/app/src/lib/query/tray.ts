@@ -2,7 +2,7 @@ import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import * as services from '$lib/services';
 import { Ok, type Result } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 const setTrayIconKeys = {
 	setTrayIcon: ['setTrayIcon', 'setTrayIcon'] as const,

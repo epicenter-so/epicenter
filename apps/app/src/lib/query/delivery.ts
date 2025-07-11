@@ -1,7 +1,7 @@
 import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 import { rpc } from './index';
 
 export const delivery = {

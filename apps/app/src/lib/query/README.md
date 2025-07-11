@@ -4,7 +4,7 @@ The query layer is the reactive bridge between your UI components and the isolat
 
 ```typescript
 import { createQueryFactories } from 'wellcrafted/query';
-import { queryClient } from './index';
+import { queryClient } from './_client';
 
 export const { defineQuery, defineMutation } = createQueryFactories(queryClient);
 ```

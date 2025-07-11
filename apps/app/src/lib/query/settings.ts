@@ -7,7 +7,7 @@ import { settings as settingsStore } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import type { TaggedError } from 'wellcrafted/error';
 import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 /**
  * Centralized settings mutations that ensure consistent behavior across the application.

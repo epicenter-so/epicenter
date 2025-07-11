@@ -4,7 +4,7 @@ import { IS_MACOS } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import type { Accelerator } from '$lib/services/global-shortcut-manager';
 import type { CommandId } from '$lib/services/local-shortcut-manager';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 export const shortcuts = {
 	registerCommandLocally: defineMutation({

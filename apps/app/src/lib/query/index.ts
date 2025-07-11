@@ -1,13 +1,5 @@
-import { browser } from '$app/environment';
-import { QueryClient } from '@tanstack/svelte-query';
-
-export const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			enabled: browser,
-		},
-	},
-});
+// Re-export queryClient for backward compatibility
+export { queryClient } from './_client';
 
 // Import all query modules
 import { clipboard } from './clipboard';

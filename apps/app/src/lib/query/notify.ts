@@ -3,7 +3,7 @@ import { notificationLog } from '$lib/components/NotificationLog.svelte';
 import * as services from '$lib/services';
 import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
 import { Ok } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 // Create a mutation for a specific variant
 const createNotifyMutation = (

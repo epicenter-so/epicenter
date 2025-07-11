@@ -3,7 +3,7 @@ import * as services from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import type { DownloadServiceError } from '$lib/services/download';
 import type { Result } from 'wellcrafted/result';
-import { defineMutation } from './_utils';
+import { defineMutation } from './_client';
 
 export const download = {
 	downloadRecording: defineMutation({
