@@ -1,6 +1,3 @@
-// Re-export queryClient for backward compatibility
-export { queryClient } from './_client';
-
 // Import all query modules
 import { clipboard } from './clipboard';
 import { cpalRecorder } from './cpal-recorder';
