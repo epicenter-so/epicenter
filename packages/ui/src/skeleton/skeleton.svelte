@@ -1,11 +1,10 @@
 <script lang="ts">
+	import { type WithElementRef, type WithoutChildren, cn } from '../utils';
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	import { cn, type WithElementRef, type WithoutChildren } from '#/utils.js';
-
 	let {
-		class: className,
 		ref = $bindable(null),
+		class: className,
 		...restProps
 	}: WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> = $props();
 </script>

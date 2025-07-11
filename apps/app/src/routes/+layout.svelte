@@ -3,7 +3,7 @@
 	import { queryClient } from '$lib/query';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import '@repo/ui/app.css';
+	import '../app.css';
 	import * as services from '$lib/services';
 	import AppShell from './+layout/AppShell.svelte';
 

@@ -1,13 +1,12 @@
 <script lang="ts">
+	import { type WithElementRef, cn } from '../utils';
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	import { cn, type WithElementRef } from '#/utils.js';
-
 	let {
-		children,
+		ref = $bindable(null),
 		class: className,
 		level = 2,
-		ref = $bindable(null),
+		children,
 		...restProps
 	}: WithElementRef<HTMLAttributes<HTMLHeadingElement>> & {
 		level?: 1 | 2 | 3 | 4 | 5 | 6;

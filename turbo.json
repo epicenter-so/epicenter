@@ -7,11 +7,11 @@
 		},
 		"lint": {
 			"cache": false,
-			"inputs": ["**/*.{ts,tsx,js,jsx,svelte,md,json}"]
+			"inputs": ["**/*.{ts,tsx,md,json}"]
 		},
 		"format": {
 			"cache": false,
-			"inputs": ["**/*.{ts,tsx,js,jsx,svelte,md,json}"]
+			"inputs": ["**/*.{ts,tsx,md,json}"]
 		},
 		"dev": {
 			"cache": false,

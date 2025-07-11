@@ -3,11 +3,11 @@ import Root from './section-header.svelte';
 import Title from './section-title.svelte';
 
 export {
-	Description,
 	Root,
-	Description as SectionDescription,
+	Title,
+	Description,
 	//
 	Root as SectionHeader,
 	Title as SectionTitle,
-	Title,
+	Description as SectionDescription,
 };

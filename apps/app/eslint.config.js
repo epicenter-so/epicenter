@@ -1,3 +1,4 @@
-import { base, svelteConfig } from '@repo/config/eslint';
+import prettier from 'eslint-config-prettier';
+import svelte from 'eslint-plugin-svelte';
 
-export default [...base, ...svelteConfig];
+export default [prettier, ...svelte.configs.prettier];

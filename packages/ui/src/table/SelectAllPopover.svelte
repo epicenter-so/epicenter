@@ -1,8 +1,7 @@
 <script lang="ts" generics="TData">
-	import type { Table } from '@tanstack/svelte-table';
-
 	import { Checkbox } from '../checkbox';
 	import * as DropdownMenu from '../dropdown-menu';
+	import type { Table } from '@tanstack/svelte-table';
 
 	let { table }: { table: Table<TData> } = $props();
 

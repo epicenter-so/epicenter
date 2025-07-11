@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { cn, type WithoutChildrenOrChild } from '#/utils.js';
+	import { type WithoutChildrenOrChild, cn } from '../utils';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import * as ResizablePrimitive from 'paneforge';
 
 	let {
-		class: className,
 		ref = $bindable(null),
+		class: className,
 		withHandle = false,
 		...restProps
 	}: WithoutChildrenOrChild<ResizablePrimitive.PaneResizerProps> & {

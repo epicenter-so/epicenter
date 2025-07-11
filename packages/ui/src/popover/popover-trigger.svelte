@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '../utils';
 	import { Popover as PopoverPrimitive } from 'bits-ui';
 
 	let {
-		class: className,
 		ref = $bindable(null),
+		class: className,
 		...restProps
 	}: PopoverPrimitive.TriggerProps = $props();
 </script>

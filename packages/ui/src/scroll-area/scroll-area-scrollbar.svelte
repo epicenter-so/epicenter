@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { cn, type WithoutChild } from '#/utils.js';
+	import { type WithoutChild, cn } from '../utils';
 	import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
 
 	let {
-		children,
+		ref = $bindable(null),
 		class: className,
 		orientation = 'vertical',
-		ref = $bindable(null),
+		children,
 		...restProps
 	}: WithoutChild<ScrollAreaPrimitive.ScrollbarProps> = $props();
 </script>

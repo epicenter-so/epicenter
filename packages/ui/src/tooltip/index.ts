@@ -1,5 +1,4 @@
 import { Tooltip as TooltipPrimitive } from 'bits-ui';
-
 import Content from './tooltip-content.svelte';
 import Trigger from './tooltip-trigger.svelte';
 
@@ -8,15 +7,15 @@ const Provider = TooltipPrimitive.Provider;
 const Portal = TooltipPrimitive.Portal;
 
 export {
-	Content,
-	Portal,
-	Provider,
 	Root,
+	Trigger,
+	Content,
+	Provider,
+	Portal,
 	//
 	Root as Tooltip,
 	Content as TooltipContent,
-	Portal as TooltipPortal,
-	Provider as TooltipProvider,
 	Trigger as TooltipTrigger,
-	Trigger,
+	Provider as TooltipProvider,
+	Portal as TooltipPortal,
 };

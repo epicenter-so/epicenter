@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '../utils';
 	import * as ResizablePrimitive from 'paneforge';
 
 	let {
-		class: className,
 		ref = $bindable(null),
 		this: paneGroup = $bindable(),
+		class: className,
 		...restProps
 	}: ResizablePrimitive.PaneGroupProps & {
 		this?: ResizablePrimitive.PaneGroup;

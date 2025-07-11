@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '../utils';
 	import { Tabs as TabsPrimitive } from 'bits-ui';
 
 	let {
-		class: className,
 		ref = $bindable(null),
+		class: className,
 		...restProps
 	}: TabsPrimitive.ContentProps = $props();
 </script>

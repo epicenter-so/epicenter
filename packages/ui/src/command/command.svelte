@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '../utils';
 	import { Command as CommandPrimitive } from 'bits-ui';
 
 	let {
-		class: className,
 		ref = $bindable(null),
 		value = $bindable(''),
+		class: className,
 		...restProps
 	}: CommandPrimitive.RootProps = $props();
 </script>

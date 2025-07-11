@@ -1,7 +1,7 @@
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { HttpService } from '$lib/services/http';
 import type { Settings } from '$lib/settings';
-import { getExtensionFromAudioBlob } from '$lib/services/_utils';
+import { getExtensionFromAudioBlob } from '$lib/utils';
 import { Ok, type Result } from 'wellcrafted/result';
 import { z } from 'zod';
 
