@@ -2,6 +2,20 @@
 
 The query layer is the reactive bridge between your UI components and the isolated service layer. It adds caching, reactivity, and state management on top of pure service functions.
 
+```typescript
+import { createQueryFactories } from 'wellcrafted/query';
+import { queryClient } from './index';
+
+export const { defineQuery, defineMutation } = createQueryFactories(queryClient);
+```
+
+These factory functions `defineQuery` and `defineMutations` take in query options with result query functions, you get two ways to use it:
+
+1. **`.options()`** - Returns query/mutation options to pass into `createQuery`/`createMutation`. This registers a subscription with TanStack Query.
+2. **`.fetchCached()`/`.execute()`** - Imperative fetching/execution without subscriptions. These still go through TanStack Query's cache/mutation cache, so mutations still register and can be debugged in the devtools.
+
+## The Dual Interface Pattern
+
 Every operation in the query layer provides **two interfaces** to match how you want to use it:
 
 ### Reactive Interface (`.options()`) - Automatic State Management
@@ -360,10 +374,10 @@ RPC provides:
 
 ### How It Works
 
-1. **Services**: Pure functions that do one thing (e.g., save to database, call an API)
-2. **Query Layer**: Wraps services with TanStack Query for caching, reactivity, and error handling
+1. **Services**: Pure functions that return `Result<T, E>` (never throw)
+2. **Query Layer**: Uses WellCrafted's factories to wrap service functions
 3. **RPC Namespace**: Bundles all queries into one global object for easy access
-4. **UI Components**: Use RPC to fetch/mutate data either reactively or imperatively
+4. **UI Components**: Choose reactive (`.options()`) or imperative (`.execute()`) based on needs
 
 ## Real-World RPC Usage Throughout the App
 
@@ -513,9 +527,9 @@ if (rpc.transcription.isCurrentlyTranscribing()) {
 </script>
 ```
 
-## Getting Started with RPC
+## Getting Started
 
-The easiest way to understand RPC is to see it in action. Here's how you'd fetch and display recordings:
+The easiest way to understand the query layer is to see it in action:
 
 ```svelte
 <script lang="ts">
@@ -537,24 +551,33 @@ The easiest way to understand RPC is to see it in action. Here's how you'd fetch
 {/if}
 ```
 
-That's it! The query automatically:
-
-- Fetches data when the component mounts
-- Caches results to avoid unnecessary requests
-- Refetches when you return to the page
-- Updates when recordings change elsewhere in the app
-
-## Core Utilities
-
-### `defineQuery` and `defineMutation` - Enabled by Direct Client Access
-
-Our factory functions in `_utils.ts` provide a consistent dual interface pattern that's only possible because we have direct access to the query client:
+Or imperatively in an event handler:
 
 ```typescript
-// Define a query with automatic error handling via Result types
+async function handleDelete(id: string) {
+	const { error } = await rpc.recordings.deleteRecording.execute(id);
+	if (error) {
+		notify.error.execute({ title: 'Failed to delete', description: error.message });
+	}
+}
+```
+
+WellCrafted handles the `Result<T, E>` unwrapping, so TanStack Query gets regular values/errors while you keep type safety.
+
+## Core Utilities from WellCrafted
+
+### `defineQuery` and `defineMutation`
+
+These factory functions (`defineQuery` and `defineMutation`) take query options with result functions - functions that return `Result<T, E>`. From there, you get two ways to use it:
+- `.options()` - Returns query/mutation options to pass into TanStack Query hooks
+- `.fetchCached()` / `.execute()` - Direct execution methods
+
+**`defineQuery`** - For data fetching:
+```typescript
+// Your service returns Result<T, E>
 const userQuery = defineQuery({
 	queryKey: ['users', userId],
-	resultQueryFn: () => services.getUser(userId), // Returns Result<User, Error>
+	resultQueryFn: () => services.getUser(userId), // Returns Result<User, ApiError>
 });
 
 // ✅ Reactive interface - creates query observer
@@ -570,20 +593,33 @@ const { data, error } = await userQuery.fetchCached();
 // - No reactive overhead
 ```
 
-**This dual interface is powered by direct query client access:**
+**`defineMutation`** - For data modifications:
+```typescript
+const createRecording = defineMutation({
+	mutationKey: ['recordings', 'create'],
+	resultMutationFn: async (recording) => {
+		const result = await services.db.createRecording(recording);
+		if (result.error) return Err(result.error);
+		
+		// Update cache on success
+		queryClient.setQueryData(['recordings'], old => [...(old || []), recording]);
+		return Ok(result.data);
+	}
+});
 
-- `.options()` returns standard TanStack Query configuration
-- `.fetchCached()` calls `queryClient.fetchQuery()` under the hood
-- `.execute()` uses `queryClient.getMutationCache().build()` for direct execution
+// ✅ Reactive interface - creates mutation observer
+const mutation = createMutation(createRecording.options());
+// - Subscribes to mutation state (isPending, isError, etc.)
+// - Triggers component re-renders on state changes
+// - Useful for loading states and error displays
 
-### Why Result Types?
-
-We use `Result<T, E>` types everywhere to ensure consistent error handling:
-
-- No thrown exceptions in normal flow
-- Type-safe error handling
-- Better IDE support and autocomplete
-- Easier testing
+// ✅ Imperative interface - direct execution
+const { error } = await createRecording.execute(recording);
+// - Uses queryClient.getMutationCache().build() directly
+// - Returns simple Result<T, E>
+// - No reactive state management
+// - Still goes through mutation cache for debugging
+```
 
 ## Common Patterns
 
