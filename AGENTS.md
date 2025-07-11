@@ -232,13 +232,13 @@ So I built Whispering to cut out the middleman. You bring your own API key, your
 - `fix!: change default transcription API endpoint`
 
 ## Commit Messages Best Practices
-- NEVER include Claude Code watermarks or attribution
+- NEVER include Claude Code or opencode watermarks or attribution
 - Each commit should represent a single, atomic change
 - Write commits for future developers (including yourself)
 - If you need more than one line to describe what you did, consider splitting the commit
 
 ## Pull Request Guidelines
-- NEVER include Claude Code watermarks or attribution in PR titles/descriptions
+- NEVER include Claude Code or opencode watermarks or attribution in PR titles/descriptions
 - PR title should follow same conventional commit format as commits
 - Focus on the "why" and "what" of changes, not the "how it was created"
 - Include any breaking changes prominently
@@ -248,6 +248,8 @@ So I built Whispering to cut out the middleman. You bring your own API key, your
 - `🤖 Generated with [Claude Code](https://claude.ai/code)`
 - `Co-Authored-By: Claude <noreply@anthropic.com>`
 - Any references to AI assistance
+- `🤖 Generated with [opencode](https://opencode.ai)`
+- `Co-Authored-By: opencode <noreply@opencode.ai>`
 - Tool attribution or watermarks
 
 # Punctuation Guidelines
