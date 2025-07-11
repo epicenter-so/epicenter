@@ -1,4 +1,4 @@
-import { getExtensionFromAudioBlob } from '$lib/utils';
+import { getExtensionFromAudioBlob } from '$lib/services/_utils';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
