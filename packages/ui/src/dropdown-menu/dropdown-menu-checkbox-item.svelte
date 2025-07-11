@@ -1,11 +1,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	import { cn, type WithoutChildrenOrChild } from '#/utils.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-
-	import { cn, type WithoutChildrenOrChild } from '@/utils.js';
 
 	let {
 		checked = $bindable(false),

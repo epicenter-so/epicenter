@@ -4,15 +4,15 @@
 		HTMLInputTypeAttribute,
 	} from 'svelte/elements';
 
-	import { cn, type WithElementRef } from '@/utils.js';
+	import { cn, type WithElementRef } from '#/utils.js';
 
 	type InputType = Exclude<HTMLInputTypeAttribute, 'file'>;
 
 	type Props = WithElementRef<
 		Omit<HTMLInputAttributes, 'type'> &
 			(
-				| { files?: FileList; type: 'file'; }
-				| { files?: undefined; type?: InputType; }
+				| { files?: FileList; type: 'file' }
+				| { files?: undefined; type?: InputType }
 			)
 	>;
 

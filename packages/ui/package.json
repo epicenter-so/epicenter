@@ -2,6 +2,13 @@
 	"name": "@repo/ui",
 	"version": "0.0.1",
 	"type": "module",
+	"imports": {
+		"#*": [
+			"./src/*",
+			"./src/*.ts",
+			"./src/*/index.ts"
+		]
+	},
 	"exports": {
 		"./*": "./src/*/index.ts",
 		"./utils": "./src/utils.ts",

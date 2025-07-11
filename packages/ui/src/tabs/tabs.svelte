@@ -1,7 +1,6 @@
 <script lang="ts">
+	import { cn } from '#/utils.js';
 	import { Tabs as TabsPrimitive } from 'bits-ui';
-
-	import { cn } from '@/utils.js';
 
 	let {
 		class: className,

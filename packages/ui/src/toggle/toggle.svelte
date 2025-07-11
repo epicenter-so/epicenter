@@ -27,9 +27,8 @@
 </script>
 
 <script lang="ts">
+	import { cn } from '#/utils.js';
 	import { Toggle as TogglePrimitive } from 'bits-ui';
-
-	import { cn } from '@/utils.js';
 
 	let {
 		class: className,

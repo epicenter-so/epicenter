@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
-
 	import {
 		cn,
 		type WithoutChild,
 		type WithoutChildrenOrChild,
-	} from '@/utils.js';
+	} from '#/utils.js';
+	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 
 	import AlertDialogOverlay from './alert-dialog-overlay.svelte';
 

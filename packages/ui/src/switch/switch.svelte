@@ -1,7 +1,6 @@
 <script lang="ts">
+	import { cn, type WithoutChildrenOrChild } from '#/utils.js';
 	import { Switch as SwitchPrimitive } from 'bits-ui';
-
-	import { cn, type WithoutChildrenOrChild } from '@/utils.js';
 
 	let {
 		checked = $bindable(false),

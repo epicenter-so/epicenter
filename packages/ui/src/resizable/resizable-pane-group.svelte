@@ -1,7 +1,6 @@
 <script lang="ts">
+	import { cn } from '#/utils.js';
 	import * as ResizablePrimitive from 'paneforge';
-
-	import { cn } from '@/utils.js';
 
 	let {
 		class: className,
