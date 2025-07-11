@@ -1,5 +1,6 @@
 <script lang="ts" module>
-	import type { ToggleVariants } from '../toggle/index.js';
+	import type { ToggleVariants } from '#toggle/index.js';
+
 	import { getContext, setContext } from 'svelte';
 	export function setToggleGroupCtx(props: ToggleVariants) {
 		setContext('toggleGroup', props);
@@ -11,21 +12,21 @@
 </script>
 
 <script lang="ts">
+	import { cn } from '#/utils.js';
 	import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
-	import { cn } from '../utils';
 
 	let {
-		ref = $bindable(null),
-		value = $bindable(),
 		class: className,
+		ref = $bindable(null),
 		size = 'default',
+		value = $bindable(),
 		variant = 'default',
 		...restProps
 	}: ToggleGroupPrimitive.RootProps & ToggleVariants = $props();
 
 	setToggleGroupCtx({
-		variant,
 		size,
+		variant,
 	});
 </script>
 

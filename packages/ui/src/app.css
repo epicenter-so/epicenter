@@ -1,7 +1,8 @@
 @import 'tailwindcss';
+
 @import 'tw-animate-css';
 
-@source "../../../packages/ui/**/*.{svelte,ts}";
+@source "./**/*.{svelte,ts}";
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
