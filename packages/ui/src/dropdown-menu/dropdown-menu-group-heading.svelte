@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { cn } from '../utils';
-	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 	import type { ComponentProps } from 'svelte';
 
+	import { cn } from '#/utils.js';
+	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+
 	let {
-		ref = $bindable(null),
 		class: className,
 		inset,
+		ref = $bindable(null),
 		...restProps
 	}: ComponentProps<typeof DropdownMenuPrimitive.GroupHeading> & {
 		inset?: boolean;

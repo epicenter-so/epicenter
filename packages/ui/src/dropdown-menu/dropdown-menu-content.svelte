@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { cn } from '../utils';
+	import { cn } from '#/utils.js';
 	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
 	let {
+		class: className,
+		portalProps,
 		ref = $bindable(null),
 		sideOffset = 4,
-		portalProps,
-		class: className,
 		...restProps
 	}: DropdownMenuPrimitive.ContentProps & {
 		portalProps?: DropdownMenuPrimitive.PortalProps;

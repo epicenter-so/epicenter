@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { cn } from '../utils';
+	import { cn } from '#/utils.js';
 	import { Command as CommandPrimitive, useId } from 'bits-ui';
 
 	let {
-		ref = $bindable(null),
-		class: className,
 		children,
+		class: className,
 		heading,
+		ref = $bindable(null),
 		value,
 		...restProps
 	}: CommandPrimitive.GroupProps & {

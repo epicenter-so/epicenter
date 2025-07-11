@@ -67,8 +67,8 @@
 		visibleToasts: 5,
 		toastOptions: {
 			classes: {
-				toast: 'flex flex-wrap [&>[data-content]]:flex-1',
-				icon: 'flex-shrink-0',
+				toast: 'flex flex-wrap *:data-content:flex-1',
+				icon: 'shrink-0',
 				actionButton: 'w-full mt-3 inline-flex justify-center',
 				closeButton: 'w-full mt-3 inline-flex justify-center',
 			},

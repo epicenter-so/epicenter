@@ -3,10 +3,7 @@ export {
 	type OpenAIModel,
 } from '$lib/services/transcription/openai';
 
-export {
-	GROQ_MODELS,
-	type GroqModel,
-} from '$lib/services/transcription/groq';
+export { GROQ_MODELS, type GroqModel } from '$lib/services/transcription/groq';
 
 export {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
