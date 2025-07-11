@@ -4,7 +4,8 @@
 	"type": "module",
 	"exports": {
 		"./*": "./src/*/index.ts",
-		"./utils": "./src/utils.ts"
+		"./utils": "./src/utils.ts",
+		"./app.css": "./src/app.css"
 	},
 	"scripts": {
 		"format": "prettier --write .",
@@ -24,7 +25,8 @@
 		"bits-ui": "^2.8.10",
 		"eslint": "^9.30.1",
 		"prettier": "^3.6.2",
-		"svelte": "^5.0.0",
+		"svelte": "^5.35.5",
+		"tailwindcss": "^4.1.11",
 		"typescript": "^5.7.3"
 	}
 }
