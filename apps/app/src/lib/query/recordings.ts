@@ -1,8 +1,10 @@
 import * as services from '$lib/services';
-import type { Recording } from '$lib/services/db';
+import { DbServiceErr, type Recording } from '$lib/services/db';
 import type { Accessor } from '@tanstack/svelte-query';
+import { nanoid } from 'nanoid';
 import { Err, Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
+import { transcription } from './transcription';
 
 const recordingKeys = {
 	all: ['recordings'] as const,
@@ -130,6 +132,60 @@ export const recordings = {
 			});
 
 			return Ok(undefined);
+		},
+	}),
+
+	uploadRecording: defineMutation({
+		mutationKey: ['recordings', 'uploadRecording'] as const,
+		resultMutationFn: async ({ file }: { file: File }) => {
+			// Validate file type
+			if (!file.type.startsWith('audio/')) {
+				return DbServiceErr({
+					message: 'Invalid file type. Please upload an audio file.',
+					context: { fileType: file.type },
+					cause: undefined,
+				});
+			}
+
+			// Create recording from uploaded file
+			const arrayBuffer = await file.arrayBuffer();
+			const audioBlob = new Blob([arrayBuffer], { type: file.type });
+
+			const newRecording: Recording = {
+				id: nanoid(),
+				title: file.name,
+				subtitle: '',
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+				timestamp: new Date().toISOString(),
+				blob: audioBlob,
+				transcribedText: '',
+				transcriptionStatus: 'UNPROCESSED',
+			};
+
+			// Save recording
+			const { error: createError } = await services.db.createRecording(
+				newRecording,
+			);
+			if (createError) return Err(createError);
+
+			// Update query cache
+			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
+				if (!oldData) return [newRecording];
+				return [...oldData, newRecording];
+			});
+			queryClient.setQueryData<Recording>(
+				recordingKeys.byId(() => newRecording.id),
+				newRecording,
+			);
+			queryClient.invalidateQueries({
+				queryKey: recordingKeys.latest,
+			});
+
+			// Trigger transcription
+			transcription.transcribeRecording.execute(newRecording);
+
+			return Ok(newRecording);
 		},
 	}),
 };
