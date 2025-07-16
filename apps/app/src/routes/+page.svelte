@@ -73,15 +73,6 @@
 
 	let fileInput: HTMLInputElement | undefined = $state();
 
-	async function handleFileUpload(event: Event) {
-		const input = event.target as HTMLInputElement;
-		if (input.files && input.files.length > 0) {
-			const file = input.files[0];
-			await rpc.recordings.uploadRecording.execute({ file });
-			// Clear the input so the same file can be uploaded again
-			input.value = '';
-		}
-	}
 </script>
 
 <svelte:head>
@@ -342,7 +333,14 @@
 <input
 	type="file"
 	accept="audio/*"
-	onchange={handleFileUpload}
+	onchange={async (event) => {
+		const input = event.target as HTMLInputElement;
+		if (input.files && input.files.length > 0) {
+			const file = input.files[0];
+			await rpc.recordings.uploadRecording.execute({ file });
+			input.value = '';
+		}
+	}}
 	bind:this={fileInput}
 	class="hidden"
 />
