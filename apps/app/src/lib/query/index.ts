@@ -1,5 +1,6 @@
 // Import all query modules
 import { clipboard } from './clipboard';
+import { commands } from './commands';
 import { cpalRecorder } from './cpal-recorder';
 import { delivery } from './delivery';
 import { device } from './device';
@@ -23,6 +24,7 @@ import { vadRecorder } from './vad-recorder';
  */
 export const rpc = {
 	clipboard,
+	commands,
 	cpalRecorder,
 	device,
 	download,

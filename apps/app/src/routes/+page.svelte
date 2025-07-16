@@ -223,7 +223,7 @@
 					const input = event.target as HTMLInputElement;
 					if (input.files && input.files.length > 0) {
 						const file = input.files[0];
-						await rpc.recordings.uploadRecording.execute({ file });
+						await rpc.commands.uploadRecording.execute({ file });
 						input.value = '';
 					}
 				}}
