@@ -218,7 +218,7 @@
 			</WhisperingButton>
 			<input
 				type="file"
-				accept="audio/*"
+				accept="audio/*, video/*"
 				onchange={async (event) => {
 					const input = event.target as HTMLInputElement;
 					if (input.files && input.files.length > 0) {
