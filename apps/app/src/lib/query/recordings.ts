@@ -151,22 +151,22 @@ export const recordings = {
 			const arrayBuffer = await file.arrayBuffer();
 			const audioBlob = new Blob([arrayBuffer], { type: file.type });
 
+			const now = new Date().toISOString();
 			const newRecording: Recording = {
 				id: nanoid(),
 				title: file.name,
 				subtitle: '',
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
-				timestamp: new Date().toISOString(),
+				createdAt: now,
+				updatedAt: now,
+				timestamp: now,
 				blob: audioBlob,
 				transcribedText: '',
 				transcriptionStatus: 'UNPROCESSED',
 			};
 
 			// Save recording
-			const { error: createError } = await services.db.createRecording(
-				newRecording,
-			);
+			const { error: createError } =
+				await services.db.createRecording(newRecording);
 			if (createError) return Err(createError);
 
 			// Update query cache
