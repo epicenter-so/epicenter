@@ -11,7 +11,7 @@
 	},
 	"exports": {
 		"./*": "./src/*/index.ts",
-		"./utils": "./src/utils.ts",
+		"./utils": "./src/utils/utils.ts",
 		"./app.css": "./src/app.css"
 	},
 	"scripts": {
