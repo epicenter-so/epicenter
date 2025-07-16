@@ -216,6 +216,20 @@
 					📁
 				</span>
 			</WhisperingButton>
+			<input
+				type="file"
+				accept="audio/*"
+				onchange={async (event) => {
+					const input = event.target as HTMLInputElement;
+					if (input.files && input.files.length > 0) {
+						const file = input.files[0];
+						await rpc.recordings.uploadRecording.execute({ file });
+						input.value = '';
+					}
+				}}
+				bind:this={fileInput}
+				class="hidden"
+			/>
 			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
 				<TranscriptionSelector />
 				<TransformationSelector />
@@ -329,18 +343,3 @@
 		</p>
 	</div>
 </main>
-
-<input
-	type="file"
-	accept="audio/*"
-	onchange={async (event) => {
-		const input = event.target as HTMLInputElement;
-		if (input.files && input.files.length > 0) {
-			const file = input.files[0];
-			await rpc.recordings.uploadRecording.execute({ file });
-			input.value = '';
-		}
-	}}
-	bind:this={fileInput}
-	class="hidden"
-/>
