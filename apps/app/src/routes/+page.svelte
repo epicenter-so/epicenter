@@ -10,6 +10,7 @@
 		TransformationSelector,
 	} from '$lib/components/settings';
 	import * as ToggleGroup from '@repo/ui/toggle-group';
+	import { FileDropZone } from '@repo/ui/file-drop-zone';
 	import {
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,
@@ -24,6 +25,7 @@
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
+	import { nanoid } from 'nanoid/non-secure';
 	import { onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
@@ -71,7 +73,6 @@
 		blobUrlManager.revokeCurrentUrl();
 	});
 
-	let fileInput: HTMLInputElement | undefined = $state();
 
 </script>
 
@@ -203,36 +204,29 @@
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'upload'}
-			<WhisperingButton
-				tooltipContent="Click to upload audio file"
-				onclick={() => fileInput?.click()}
-				variant="ghost"
-				class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
-			>
-				<span
-					style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-					class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
-				>
-					📁
-				</span>
-			</WhisperingButton>
-			<input
-				type="file"
-				accept="audio/*, video/*"
-				onchange={async (event) => {
-					const input = event.target as HTMLInputElement;
-					if (input.files && input.files.length > 0) {
-						const file = input.files[0];
-						await rpc.commands.uploadRecording.execute({ file });
-						input.value = '';
-					}
-				}}
-				bind:this={fileInput}
-				class="hidden"
-			/>
-			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
-				<TranscriptionSelector />
-				<TransformationSelector />
+			<div class="flex flex-col items-center gap-4 w-full max-w-md">
+				<FileDropZone
+					accept="audio/*, video/*"
+					maxFiles={1}
+					onUpload={async (files) => {
+						if (files.length > 0) {
+							const file = files[0];
+							await rpc.commands.uploadRecording.execute({ file });
+						}
+					}}
+					onFileRejected={({ file, reason }) => {
+						rpc.notify.error.execute({
+							id: nanoid(),
+							title: '❌ File rejected',
+							description: `${file.name}: ${reason}`,
+						});
+					}}
+					class="h-32 sm:h-36 lg:h-40 xl:h-44"
+				/>
+				<div class="flex items-center gap-1.5">
+					<TranscriptionSelector />
+					<TransformationSelector />
+				</div>
 			</div>
 		{/if}
 	</div>
