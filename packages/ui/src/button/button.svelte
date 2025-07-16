@@ -4,7 +4,7 @@
 		HTMLButtonAttributes,
 	} from 'svelte/elements';
 
-	import { cn, type WithElementRef } from '#/utils.js';
+	import { cn, type WithElementRef } from '#/utils/utils.js';
 	import { tv, type VariantProps } from 'tailwind-variants';
 
 	export const buttonVariants = tv({

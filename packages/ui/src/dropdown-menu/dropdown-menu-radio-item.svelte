@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn, type WithoutChild } from '#/utils.js';
+	import { cn, type WithoutChild } from '#/utils/utils.js';
 	import CircleIcon from '@lucide/svelte/icons/circle';
 	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 

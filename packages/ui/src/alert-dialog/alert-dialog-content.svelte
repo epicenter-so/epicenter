@@ -3,7 +3,7 @@
 		cn,
 		type WithoutChild,
 		type WithoutChildrenOrChild,
-	} from '#/utils.js';
+	} from '#/utils/utils.js';
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 
 	import AlertDialogOverlay from './alert-dialog-overlay.svelte';

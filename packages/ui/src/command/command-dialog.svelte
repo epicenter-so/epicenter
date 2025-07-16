@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { WithoutChildrenOrChild } from '#/utils.js';
+	import type { WithoutChildrenOrChild } from '#/utils/utils.js';
 	import type {
 		Command as CommandPrimitive,
 		Dialog as DialogPrimitive,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '#/utils/utils.js';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
 
 	let {
