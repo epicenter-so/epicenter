@@ -109,7 +109,7 @@ async function processRecordingPipeline({
 	const { data: transformation, error: getTransformationError } =
 		await transformations.queries
 			.getTransformationById(() => transformationId)
-			.fetchCached();
+			.fetch();
 
 	const couldNotRetrieveTransformation = getTransformationError;
 	const transformationNoLongerExists = !transformation;
@@ -380,7 +380,7 @@ export const commands = {
 		mutationKey: ['commands', 'pushToTalk'] as const,
 		resultMutationFn: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await manualRecorder.getRecorderState.fetchCached();
+				await manualRecorder.getRecorderState.fetch();
 			if (getRecorderStateError) {
 				notify.error.execute({
 					id: nanoid(),
@@ -402,7 +402,7 @@ export const commands = {
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await manualRecorder.getRecorderState.fetchCached();
+				await manualRecorder.getRecorderState.fetch();
 			if (getRecorderStateError) {
 				notify.error.execute({
 					id: nanoid(),
@@ -470,7 +470,7 @@ export const commands = {
 	toggleVadRecording: defineMutation({
 		mutationKey: ['commands', 'toggleVadRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: vadState } = await vadRecorder.getVadState.fetchCached();
+			const { data: vadState } = await vadRecorder.getVadState.fetch();
 			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
 				const toastId = nanoid();
 				console.info('Stopping voice activated capture');
@@ -595,7 +595,7 @@ export const commands = {
 					mutationKey: ['commands', 'toggleCpalRecording'] as const,
 					resultMutationFn: async () => {
 						const { data: recorderState, error: getRecorderStateError } =
-							await cpalRecorder.getRecorderState.fetchCached();
+							await cpalRecorder.getRecorderState.fetch();
 						if (getRecorderStateError) {
 							notify.error.execute({
 								id: nanoid(),

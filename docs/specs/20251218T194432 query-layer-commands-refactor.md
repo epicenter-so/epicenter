@@ -135,7 +135,7 @@ export const commands = {
     mutationKey: ['commands', 'pushToTalk'] as const,
     resultMutationFn: async () => {
       const { data: recorderState, error } = 
-        await manualRecorder.getRecorderState.fetchCached();
+        await manualRecorder.getRecorderState.fetch();
       
       if (error) {
         return Err(WhisperingErr({
@@ -392,7 +392,7 @@ uploadRecording: defineMutation({
 ## Considerations
 
 - **Error Handling**: Each command should return `WhisperingError` for consistency with the toast system
-- **State Management**: Commands that check recorder state should use `.fetchCached()` for performance
+- **State Management**: Commands that check recorder state should use `.fetch()` for performance
 - **Conditional Exports**: CPAL commands should only be included when running in Tauri
 - **Toast IDs**: Generate unique toast IDs for each command execution
 - **Sound Effects**: Maintain the current sound effect triggers

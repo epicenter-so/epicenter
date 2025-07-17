@@ -13,7 +13,7 @@ export const { defineQuery, defineMutation } =
 These factory functions `defineQuery` and `defineMutations` take in query options with result query functions, you get two ways to use it:
 
 1. **`.options()`** - Returns query/mutation options to pass into `createQuery`/`createMutation`. This registers a subscription with TanStack Query.
-2. **`.fetchCached()`/`.execute()`** - Imperative fetching/execution without subscriptions. These still go through TanStack Query's cache/mutation cache, so mutations still register and can be debugged in the devtools.
+2. **`.fetch()`/`.execute()`** - Imperative fetching/execution without subscriptions. These still go through TanStack Query's cache/mutation cache, so mutations still register and can be debugged in the devtools.
 
 ## The Dual Interface Pattern
 
@@ -232,7 +232,7 @@ Unlike server-side rendered applications where the query client lifecycle is man
 - Direct Query Client Access: We can call `queryClient.fetchQuery()` and `queryClient.getMutationCache().build()` directly
 - Imperative Control: No need to go through reactive hooks for one-time operations
 - Performance Benefits\*\*: We can build mutations using direct execution rather than creating unnecessary subscribers
-- Flexible Interfaces: Both reactive (`.options()`) and imperative (`.execute()`, `.fetchCached()`) patterns work seamlessly
+- Flexible Interfaces: Both reactive (`.options()`) and imperative (`.execute()`, `.fetch()`) patterns work seamlessly
 
 This enables our unique dual interface pattern where every query and mutation provides both reactive and imperative APIs.
 
@@ -575,7 +575,7 @@ WellCrafted handles the `Result<T, E>` unwrapping, so TanStack Query gets regula
 These factory functions (`defineQuery` and `defineMutation`) take query options with result functions - functions that return `Result<T, E>`. From there, you get two ways to use it:
 
 - `.options()` - Returns query/mutation options to pass into TanStack Query hooks
-- `.fetchCached()` / `.execute()` - Direct execution methods
+- `.fetch()` / `.execute()` - Direct execution methods
 
 **`defineQuery`** - For data fetching:
 
@@ -593,7 +593,7 @@ const query = createQuery(userQuery.options());
 // - Triggers component re-renders
 
 // ✅ Imperative interface - direct query client usage
-const { data, error } = await userQuery.fetchCached();
+const { data, error } = await userQuery.fetch();
 // - Calls queryClient.fetchQuery() directly
 // - Returns cached data if fresh
 // - No reactive overhead
@@ -813,7 +813,7 @@ deleteRecordingMutation.mutate(recordingId);
 
 ```typescript
 // ✅ Queries - uses queryClient.fetchQuery() directly
-const { data, error } = await rpc.recordings.getAllRecordings.fetchCached();
+const { data, error } = await rpc.recordings.getAllRecordings.fetch();
 // - Returns cached data if fresh
 // - No reactive subscription
 // - Perfect for prefetching or one-time fetches
