@@ -665,10 +665,18 @@ export const commands = {
 	uploadRecordings: defineMutation({
 		mutationKey: ['recordings', 'uploadRecordings'] as const,
 		resultMutationFn: async ({ files }: { files: File[] }) => {
-			// Filter out invalid file types
-			const validFiles = files.filter(
-				(file) =>
-					file.type.startsWith('audio/') || file.type.startsWith('video/'),
+			// Partition files into valid and invalid in a single pass
+			const { valid: validFiles, invalid: invalidFiles } = files.reduce<{
+				valid: File[];
+				invalid: File[];
+			}>(
+				(acc, file) => {
+					const isValid =
+						file.type.startsWith('audio/') || file.type.startsWith('video/');
+					acc[isValid ? 'valid' : 'invalid'].push(file);
+					return acc;
+				},
+				{ valid: [], invalid: [] },
 			);
 
 			if (validFiles.length === 0) {
@@ -678,12 +686,6 @@ export const commands = {
 					cause: undefined,
 				});
 			}
-
-			// Show notification for invalid files
-			const invalidFiles = files.filter(
-				(file) =>
-					!file.type.startsWith('audio/') && !file.type.startsWith('video/'),
-			);
 
 			if (invalidFiles.length > 0) {
 				notify.warning.execute({
