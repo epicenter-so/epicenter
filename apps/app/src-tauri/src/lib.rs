@@ -43,6 +43,7 @@ pub fn run() {
     #[cfg(target_os = "macos")]
     let builder = builder.invoke_handler(tauri::generate_handler![
         write_text,
+        paste,
         open_apple_accessibility,
         is_macos_accessibility_enabled,
         // Audio recorder commands
@@ -58,6 +59,7 @@ pub fn run() {
     #[cfg(not(target_os = "macos"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         write_text,
+        paste,
         // Audio recorder commands
         get_recorder_state,
         enumerate_recording_devices,
@@ -74,17 +76,30 @@ pub fn run() {
 }
 
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};
-use tauri::Manager;
-use tauri_plugin_clipboard_manager::ClipboardExt;
 
-/// Paste text into the active application using the clipboard and a paste
-/// keyboard shortcut. Falls back to simulating keystrokes with Enigo.
+/// Types text character-by-character at the cursor position using Enigo.
+/// 
+/// This simulates keyboard input by typing each character sequentially, which works
+/// across all applications but is slower than pasting. Best used as a fallback when
+/// paste operations fail or for applications that don't support paste.
+/// 
+/// **Note**: This method may have issues with non-ASCII characters in some applications
+/// and can appear slow for large text blocks.
 #[tauri::command]
-fn write_text(app: tauri::AppHandle, text: String) -> Result<(), String> {
-    if let Err(err) = app.clipboard().write_text(&text) {
-        return Err(err.to_string());
-    }
+fn write_text(text: String) -> Result<(), String> {
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+    enigo.text(&text).map_err(|e| e.to_string())
+}
 
+/// Simulates a paste operation (Cmd+V on macOS, Ctrl+V elsewhere).
+/// 
+/// **Important**: This assumes text is already in the system clipboard. Call your
+/// clipboard service to copy text before using this function.
+/// 
+/// **Known Issue**: Uses `Key::Unicode('v')` which assumes QWERTY keyboard layout.
+/// This may fail on alternative layouts like Dvorak or Colemak.
+#[tauri::command]
+fn paste() -> Result<(), String> {
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
 
     #[cfg(target_os = "macos")]

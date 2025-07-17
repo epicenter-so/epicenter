@@ -10,20 +10,25 @@ export { ClipboardServiceErr, ClipboardServiceError };
 
 export type ClipboardService = {
 	/**
-	 * Writes text to the user's clipboard.
-	 * @param text The text to write to the clipboard.
+	 * Copies text to the system clipboard.
+	 * @param text The text to copy to the clipboard.
 	 */
-	setClipboardText: (
+	copyToClipboard: (
 		text: string,
 	) => Promise<Result<void, ClipboardServiceError>>;
 
 	/**
-	 * Pastes text from the user's clipboard.
-	 * - Web: No need to implement this function.
-	 * - Desktop: This function should trigger a paste action, as if the user had pressed `Ctrl` + `V`.
-	 * - Mobile: This function should trigger a paste action, as if the user had pressed `Paste` in the context menu.
+	 * Pastes text from the clipboard at the current cursor position.
+	 * Simulates the standard paste keyboard shortcut (Cmd+V on macOS, Ctrl+V elsewhere).
+	 *
+	 * **Note**: The clipboard must already contain the text you want to paste.
+	 * Call `copyToClipboard` first if needed.
+	 *
+	 * - Desktop: Simulates Cmd/Ctrl+V keyboard shortcut
+	 * - Web: Uses browser paste API or extension messaging
+	 * - Mobile: Triggers native paste action
 	 */
-	writeTextToCursor: (
-		text: string,
-	) => MaybePromise<Result<void, ClipboardServiceError | WhisperingError>>;
+	pasteFromClipboard: () => MaybePromise<
+		Result<void, ClipboardServiceError | WhisperingError>
+	>;
 };

@@ -5,11 +5,10 @@ export const clipboard = {
 	copyToClipboard: defineMutation({
 		mutationKey: ['clipboard', 'copyToClipboard'],
 		resultMutationFn: ({ text }: { text: string }) =>
-			services.clipboard.setClipboardText(text),
+			services.clipboard.copyToClipboard(text),
 	}),
-	writeTextToCursor: defineMutation({
-		mutationKey: ['clipboard', 'writeTextToCursor'],
-		resultMutationFn: async ({ text }: { text: string }) =>
-			await services.clipboard.writeTextToCursor(text),
+	pasteFromClipboard: defineMutation({
+		mutationKey: ['clipboard', 'pasteFromClipboard'],
+		resultMutationFn: async () => await services.clipboard.pasteFromClipboard(),
 	}),
 };

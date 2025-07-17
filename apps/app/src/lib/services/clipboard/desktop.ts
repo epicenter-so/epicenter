@@ -8,40 +8,36 @@ import { ClipboardServiceError } from './types';
 
 export function createClipboardServiceDesktop(): ClipboardService {
 	return {
-		setClipboardText: (text) =>
+		copyToClipboard: (text) =>
 			tryAsync({
 				try: () => writeText(text),
 				mapError: (error) =>
 					ClipboardServiceError({
 						message:
-							'There was an error writing to the clipboard using the Tauri Clipboard Manager API. Please try again.',
+							'There was an error copying to the clipboard using the Tauri Clipboard Manager API. Please try again.',
 						context: { text },
 						cause: error,
 					}),
 			}),
 
-		writeTextToCursor: async (text) => {
-			const writeTextToCursor = (text: string) =>
-				tryAsync({
-					try: () => invoke<void>('write_text', { text }),
-					mapError: (error) =>
-						ClipboardServiceError({
-							message:
-								'There was an error pasting from the clipboard using the Tauri Invoke API. Please try again.',
-							context: { text },
-							cause: error,
-						}),
-				});
+		pasteFromClipboard: async () => {
+			// Try to paste using keyboard shortcut
+			const { error: pasteError } = await tryAsync({
+				try: () => invoke<void>('paste'),
+				mapError: (error) =>
+					ClipboardServiceError({
+						message:
+							'There was an error simulating the paste keyboard shortcut. Please try pasting manually with Cmd/Ctrl+V.',
+						cause: error,
+					}),
+			});
 
-			// Attempt to write text first
-			const { error: writeTextToCursorError } = await writeTextToCursor(text);
+			// If paste succeeded, we're done
+			if (!pasteError) return Ok(undefined);
 
-			// If no error, return success
-			if (!writeTextToCursorError) return Ok(undefined);
-
-			// If error and not macOS, propagate the error
+			// On macOS, check accessibility permissions when paste fails
 			const isMacos = type() === 'macos';
-			if (!isMacos) return Err(writeTextToCursorError);
+			if (!isMacos) return Err(pasteError);
 
 			// On macOS, check accessibility permissions
 			const {
@@ -55,8 +51,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 				mapError: (error) =>
 					ClipboardServiceError({
 						message:
-							'There was an error checking if accessibility is enabled using the Tauri Invoke API. Please try again.',
-						context: { text },
+							'There was an error checking if accessibility is enabled. Please try again.',
 						cause: error,
 					}),
 			});
@@ -79,7 +74,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 			}
 
 			// If accessibility is enabled but write still failed, propagate original error
-			return Err(writeTextToCursorError);
+			return Err(pasteError);
 		},
 	};
 }

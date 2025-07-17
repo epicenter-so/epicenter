@@ -1,13 +1,13 @@
 import { Ok, tryAsync } from 'wellcrafted/result';
 // import { extension } from '@repo/extension';
 import type { ClipboardService } from '.';
-import { ClipboardServiceError } from './types';
+import { ClipboardServiceErr, ClipboardServiceError } from './types';
 // import { WhisperingErr } from '$lib/result';
 
 export function createClipboardServiceWeb(): ClipboardService {
 	return {
-		setClipboardText: async (text) => {
-			const { error: setClipboardError } = await tryAsync({
+		copyToClipboard: async (text) => {
+			const { error: copyError } = await tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapError: (error) =>
 					ClipboardServiceError({
@@ -18,51 +18,22 @@ export function createClipboardServiceWeb(): ClipboardService {
 					}),
 			});
 
-			if (setClipboardError) {
-				// const { error: extensionSetClipboardError } =
-				// 	await extension.setClipboardText({
-				// 		transcribedText: text,
-				// 	});
-				// if (extensionSetClipboardError) {
-				// 	return extensionSetClipboardError.name ===
-				// 		'ExtensionNotAvailableError'
-				// 		? Err(setClipboardError)
-				// 		: ClipboardServiceErr({
-				// 				message:
-				// 					'There was an error copying to the clipboard using the Whispering extension. Please try again.',
-				// 				context: { text },
-				// 				cause: extensionSetClipboardError,
-				// 			});
-				// }
+			if (copyError) {
+				// Extension fallback code commented out for now
+				// Could be re-enabled if extension support is needed
 				return Ok(undefined);
 			}
 			return Ok(undefined);
 		},
 
-		writeTextToCursor: async (text) => {
-			// const { error: writeTextToCursorError } =
-			// 	await extension.writeTextToCursor({
-			// 		transcribedText: text,
-			// 	});
-			// if (writeTextToCursorError) {
-			// 	if (writeTextToCursorError.name === 'ExtensionNotAvailableError') {
-			// 		return WhisperingErr({
-			// 			title: '⚠️ Extension Not Available',
-			// 			description:
-			// 				'The Whispering extension is not available. Please install it to enable writing transcribed text to the cursor.',
-			// 			action: { type: 'more-details', error: writeTextToCursorError },
-			// 			context: { text },
-			// 			cause: writeTextToCursorError,
-			// 		});
-			// 	}
-			// 	return ClipboardServiceErr({
-			// 		message:
-			// 			'There was an error writing transcribed text to the cursor using the Whispering extension. Please try again.',
-			// 		context: { text },
-			// 		cause: writeTextToCursorError,
-			// 	});
-			// }
-			return Ok(undefined);
+		pasteFromClipboard: async () => {
+			// In web browsers, we cannot programmatically paste for security reasons
+			// The user must manually paste with Cmd/Ctrl+V
+			return ClipboardServiceErr({
+				message:
+					'Automatic paste is not supported in web browsers for security reasons. Please paste manually using Cmd/Ctrl+V.',
+				cause: undefined,
+			});
 		},
 	};
 }

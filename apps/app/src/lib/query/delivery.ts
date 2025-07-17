@@ -153,7 +153,7 @@ export const delivery = {
 
 			// Try to paste at cursor
 			const { error: pasteError } =
-				await rpc.clipboard.writeTextToCursor.execute({ text });
+				await rpc.clipboard.pasteFromClipboard.execute(undefined);
 			if (pasteError) {
 				warnPasteFailedButCopied(pasteError);
 				confirmTextInClipboard();
@@ -314,7 +314,7 @@ export const delivery = {
 
 			// Try to paste at cursor
 			const { error: pasteError } =
-				await rpc.clipboard.writeTextToCursor.execute({ text });
+				await rpc.clipboard.pasteFromClipboard.execute(undefined);
 			if (pasteError) {
 				warnPasteFailedButCopied(pasteError);
 				confirmTextInClipboard();

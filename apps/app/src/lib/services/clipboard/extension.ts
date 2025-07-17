@@ -3,24 +3,26 @@ import { type ClipboardService, ClipboardServiceError } from './types';
 
 export function createClipboardServiceExtension(): ClipboardService {
 	return {
-		setClipboardText: (text) =>
+		copyToClipboard: (text) =>
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapError: (error) =>
 					ClipboardServiceError({
-						message: 'Unable to write to clipboard',
+						message: 'Unable to copy to clipboard',
 						context: { text },
 						cause: error,
 					}),
 			}),
 
-		writeTextToCursor: (text) =>
-			trySync({
-				try: () => writeTextToCursor(text),
+		pasteFromClipboard: () =>
+			tryAsync({
+				try: async () => {
+					const text = await navigator.clipboard.readText();
+					return writeTextToCursor(text);
+				},
 				mapError: (error) =>
 					ClipboardServiceError({
-						message: 'Unable to paste text to cursor',
-						context: { text },
+						message: 'Unable to paste from clipboard at cursor position',
 						cause: error,
 					}),
 			}),
