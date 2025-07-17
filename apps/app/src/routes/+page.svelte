@@ -10,7 +10,12 @@
 		TransformationSelector,
 	} from '$lib/components/settings';
 	import * as ToggleGroup from '@repo/ui/toggle-group';
-	import { FileDropZone } from '@repo/ui/file-drop-zone';
+	import {
+		FileDropZone,
+		MEGABYTE,
+		ACCEPT_AUDIO,
+		ACCEPT_VIDEO,
+	} from '@repo/ui/file-drop-zone';
 	import {
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,
@@ -72,8 +77,6 @@
 	onDestroy(() => {
 		blobUrlManager.revokeCurrentUrl();
 	});
-
-
 </script>
 
 <svelte:head>
@@ -206,8 +209,9 @@
 		{:else if settings.value['recording.mode'] === 'upload'}
 			<div class="flex flex-col items-center gap-4 w-full max-w-md">
 				<FileDropZone
-					accept="audio/*, video/*"
-					maxFiles={10} 
+					accept="{ACCEPT_AUDIO}, {ACCEPT_VIDEO}"
+					maxFiles={10}
+					maxFileSize={25 * MEGABYTE}
 					onUpload={async (files) => {
 						if (files.length > 0) {
 							await rpc.commands.uploadRecordings.execute({ files });
