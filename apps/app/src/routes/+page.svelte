@@ -84,40 +84,44 @@
 </svelte:head>
 
 <main class="flex flex-1 flex-col items-center justify-center gap-4">
-	<div class="xs:flex hidden flex-col items-center gap-4">
-		<h1 class="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
-			Whispering
-		</h1>
-		<p class="text-muted-foreground text-center">
-			Press shortcut → speak → get text. Free and open source ❤️
-		</p>
-	</div>
+	<!-- Container wrapper for consistent max-width -->
+	<div class="w-full max-w-2xl px-4 flex flex-col items-center gap-4">
+		<div class="xs:flex hidden flex-col items-center gap-4">
+			<h1 class="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl">
+				Whispering
+			</h1>
+			<p class="text-muted-foreground text-center">
+				Press shortcut → speak → get text. Free and open source ❤️
+			</p>
+		</div>
 
-	<ToggleGroup.Root
-		type="single"
-		value={settings.value['recording.mode']}
-		class="max-w-sm sm:max-w-md lg:max-w-lg w-full"
-		onValueChange={async (mode) => {
-			if (!mode) return;
-			await rpc.settings.switchRecordingMode.execute(mode as RecordingMode);
-		}}
-	>
-		{#each availableModes as option}
-			<ToggleGroup.Item
-				value={option.value}
-				aria-label={`Switch to ${option.label.toLowerCase()} mode`}
-			>
-				{option.icon}
-				{option.label}
-			</ToggleGroup.Item>
-		{/each}
-	</ToggleGroup.Root>
+		<ToggleGroup.Root
+			type="single"
+			value={settings.value['recording.mode']}
+			class="w-full"
+			onValueChange={async (mode) => {
+				if (!mode) return;
+				await rpc.settings.switchRecordingMode.execute(mode as RecordingMode);
+			}}
+		>
+			{#each availableModes as option}
+				<ToggleGroup.Item
+					value={option.value}
+					aria-label={`Switch to ${option.label.toLowerCase()} mode`}
+				>
+					{option.icon}
+					{option.label}
+				</ToggleGroup.Item>
+			{/each}
+		</ToggleGroup.Root>
 
-	<div
-		class="max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl flex items-end justify-between w-full gap-2 pt-1"
-	>
-		<div class="flex-1"></div>
+		<div
+			class="w-full grid grid-cols-[1fr_auto_1fr] items-end gap-2 pt-1"
+		>
+			<!-- Empty left column for centering -->
+			<div></div>
 		{#if settings.value['recording.mode'] === 'manual'}
+			<!-- Center column: Recording button -->
 			<WhisperingButton
 				tooltipContent={getRecorderStateQuery.data === 'IDLE'
 					? 'Start recording'
@@ -133,7 +137,8 @@
 					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
-			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+			<!-- Right column: Selectors -->
+			<div class="flex justify-end items-center gap-1.5 mb-2">
 				{#if getRecorderStateQuery.data === 'RECORDING'}
 					<WhisperingButton
 						tooltipContent="Cancel recording"
@@ -151,6 +156,7 @@
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'cpal' && window.__TAURI_INTERNALS__}
+			<!-- Center column: Recording button -->
 			<WhisperingButton
 				tooltipContent={getCpalStateQuery.data === 'IDLE'
 					? 'Start CPAL recording'
@@ -166,7 +172,8 @@
 					{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
-			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+			<!-- Right column: Selectors -->
+			<div class="flex justify-end items-center gap-1.5 mb-2">
 				{#if getCpalStateQuery.data === 'RECORDING'}
 					<WhisperingButton
 						tooltipContent="Cancel CPAL recording"
@@ -184,6 +191,7 @@
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'vad'}
+			<!-- Center column: Recording button -->
 			<WhisperingButton
 				tooltipContent={getVadStateQuery.data === 'IDLE'
 					? 'Start voice activated session'
@@ -199,7 +207,8 @@
 					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 				</span>
 			</WhisperingButton>
-			<div class="flex-1 flex-justify-center mb-2 flex items-center gap-1.5">
+			<!-- Right column: Selectors -->
+			<div class="flex justify-end items-center gap-1.5 mb-2">
 				{#if getVadStateQuery.data === 'IDLE'}
 					<DeviceSelector strategy="navigator" />
 					<TranscriptionSelector />
@@ -207,7 +216,8 @@
 				{/if}
 			</div>
 		{:else if settings.value['recording.mode'] === 'upload'}
-			<div class="flex flex-col items-center gap-4 w-full max-w-md">
+			<!-- Full width spanning all columns -->
+			<div class="col-span-3 flex flex-col items-center gap-4 w-full">
 				<FileDropZone
 					accept="{ACCEPT_AUDIO}, {ACCEPT_VIDEO}"
 					maxFiles={10}
@@ -224,7 +234,7 @@
 							description: `${file.name}: ${reason}`,
 						});
 					}}
-					class="h-32 sm:h-36 lg:h-40 xl:h-44"
+					class="h-32 sm:h-36 lg:h-40 xl:h-44 w-full"
 				/>
 				<div class="flex items-center gap-1.5">
 					<TranscriptionSelector />
@@ -232,54 +242,56 @@
 				</div>
 			</div>
 		{/if}
-	</div>
-
-	<div
-		class="xxs:flex hidden w-full max-w-sm sm:max-w-md lg:max-w-lg flex-col items-center gap-2"
-	>
-		<div class="flex w-full items-center gap-2">
-			<TranscribedTextDialog
-				recordingId={latestRecording.id}
-				transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
-					? '...'
-					: latestRecording.transcribedText}
-				rows={1}
-			/>
-			<CopyToClipboardButton
-				contentDescription="transcribed text"
-				textToCopy={latestRecording.transcribedText}
-				viewTransitionName={getRecordingTransitionId({
-					recordingId: latestRecording.id,
-					propertyName: 'transcribedText',
-				})}
-				size="default"
-				variant="secondary"
-				disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-			>
-				{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
-					<Loader2Icon class="size-6 animate-spin" />
-				{:else}
-					<ClipboardIcon class="size-6" />
-				{/if}
-			</CopyToClipboardButton>
 		</div>
 
-		{#if blobUrl}
-			<audio
-				style="view-transition-name: {getRecordingTransitionId({
-					recordingId: latestRecording.id,
-					propertyName: 'blob',
-				})}"
-				src={blobUrl}
-				controls
-				class="h-8 w-full"
-			></audio>
-		{/if}
-	</div>
+		<div
+			class="xxs:flex hidden w-full flex-col items-center gap-2"
+		>
+			<div class="flex w-full items-center gap-2">
+				<div class="flex-1">
+					<TranscribedTextDialog
+						recordingId={latestRecording.id}
+						transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
+							? '...'
+							: latestRecording.transcribedText}
+						rows={1}
+					/>
+				</div>
+				<CopyToClipboardButton
+					contentDescription="transcribed text"
+					textToCopy={latestRecording.transcribedText}
+					viewTransitionName={getRecordingTransitionId({
+						recordingId: latestRecording.id,
+						propertyName: 'transcribedText',
+					})}
+					size="default"
+					variant="secondary"
+					disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+				>
+					{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
+						<Loader2Icon class="size-6 animate-spin" />
+					{:else}
+						<ClipboardIcon class="size-6" />
+					{/if}
+				</CopyToClipboardButton>
+			</div>
 
-	<NavItems class="xs:flex -mb-2.5 -mt-1 hidden" />
+			{#if blobUrl}
+				<audio
+					style="view-transition-name: {getRecordingTransitionId({
+						recordingId: latestRecording.id,
+						propertyName: 'blob',
+					})}"
+					src={blobUrl}
+					controls
+					class="h-8 w-full"
+				></audio>
+			{/if}
+		</div>
 
-	<div class="xs:flex hidden flex-col items-center gap-3">
+		<NavItems class="xs:flex -mb-2.5 -mt-1 hidden" />
+
+		<div class="xs:flex hidden flex-col items-center gap-3">
 		<p class="text-foreground/75 text-center text-sm">
 			Click the microphone or press
 			{' '}<WhisperingButton
@@ -338,5 +350,6 @@
 				</WhisperingButton>{' '}
 			{/if} for more integrations!
 		</p>
+		</div>
 	</div>
 </main>
