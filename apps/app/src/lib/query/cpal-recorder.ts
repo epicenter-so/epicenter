@@ -1,8 +1,8 @@
 import type { WhisperingRecordingState } from '$lib/constants/audio';
-import { WhisperingError } from '$lib/result';
+import { WhisperingErr } from '$lib/result';
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok } from 'wellcrafted/result';
+import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
 
@@ -23,13 +23,11 @@ export const cpalRecorder = {
 			const { data: recorderState, error: getRecorderStateError } =
 				await services.cpalRecorder.getRecorderState();
 			if (getRecorderStateError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to get recorder state',
-						description: getRecorderStateError.message,
-						action: { type: 'more-details', error: getRecorderStateError },
-					}),
-				);
+				return WhisperingErr({
+					title: '❌ Failed to get recorder state',
+					description: getRecorderStateError.message,
+					action: { type: 'more-details', error: getRecorderStateError },
+				});
 			}
 			return Ok(recorderState);
 		},
@@ -58,13 +56,11 @@ export const cpalRecorder = {
 				);
 
 			if (startRecordingError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to start CPAL recording',
-						description: startRecordingError.message,
-						action: { type: 'more-details', error: startRecordingError },
-					}),
-				);
+				return WhisperingErr({
+					title: '❌ Failed to start CPAL recording',
+					description: startRecordingError.message,
+					action: { type: 'more-details', error: startRecordingError },
+				});
 			}
 			return Ok(deviceAcquisitionOutcome);
 		},
@@ -81,13 +77,11 @@ export const cpalRecorder = {
 				});
 
 			if (stopRecordingError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to stop CPAL recording',
-						description: stopRecordingError.message,
-						action: { type: 'more-details', error: stopRecordingError },
-					}),
-				);
+				return WhisperingErr({
+					title: '❌ Failed to stop CPAL recording',
+					description: stopRecordingError.message,
+					action: { type: 'more-details', error: stopRecordingError },
+				});
 			}
 			return Ok(blob);
 		},
@@ -104,13 +98,11 @@ export const cpalRecorder = {
 				});
 
 			if (cancelRecordingError) {
-				return Err(
-					WhisperingError({
-						title: '❌ Failed to cancel CPAL recording',
-						description: cancelRecordingError.message,
-						action: { type: 'more-details', error: cancelRecordingError },
-					}),
-				);
+				return WhisperingErr({
+					title: '❌ Failed to cancel CPAL recording',
+					description: cancelRecordingError.message,
+					action: { type: 'more-details', error: cancelRecordingError },
+				});
 			}
 			return Ok(cancelResult);
 		},

@@ -100,7 +100,7 @@ export const delivery = {
 
 			// Warns that paste failed but confirms copy succeeded
 			const warnPasteFailedButCopied = (
-				error: ClipboardServiceError | WhisperingWarning | WhisperingError,
+				error: ClipboardServiceError | WhisperingError,
 			) => {
 				if (error.name === 'ClipboardServiceError') {
 					rpc.notify.warning.execute({
@@ -263,7 +263,7 @@ export const delivery = {
 
 			// Warns that paste failed but confirms copy succeeded
 			const warnPasteFailedButCopied = (
-				error: ClipboardServiceError | WhisperingWarning | WhisperingError,
+				error: ClipboardServiceError | WhisperingError,
 			) => {
 				if (error.name === 'ClipboardServiceError') {
 					rpc.notify.error.execute({

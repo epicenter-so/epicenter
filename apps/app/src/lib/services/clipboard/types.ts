@@ -1,8 +1,4 @@
-import type {
-	MaybePromise,
-	WhisperingError,
-	WhisperingWarning,
-} from '$lib/result';
+import type { MaybePromise, WhisperingError } from '$lib/result';
 import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 
@@ -10,7 +6,7 @@ const { ClipboardServiceError, ClipboardServiceErr } = createTaggedError(
 	'ClipboardServiceError',
 );
 type ClipboardServiceError = ReturnType<typeof ClipboardServiceError>;
-export { ClipboardServiceError, ClipboardServiceErr };
+export { ClipboardServiceErr, ClipboardServiceError };
 
 export type ClipboardService = {
 	/**
@@ -29,7 +25,5 @@ export type ClipboardService = {
 	 */
 	writeTextToCursor: (
 		text: string,
-	) => MaybePromise<
-		Result<void, ClipboardServiceError | WhisperingWarning | WhisperingError>
-	>;
+	) => MaybePromise<Result<void, ClipboardServiceError | WhisperingError>>;
 };

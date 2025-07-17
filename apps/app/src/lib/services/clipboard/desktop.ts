@@ -1,4 +1,4 @@
-import type { WhisperingWarning } from '$lib/result';
+import { WhisperingWarningErr } from '$lib/result';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';
@@ -62,8 +62,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 			if (isAccessibilityEnabledError) return Err(isAccessibilityEnabledError);
 
 			if (!isAccessibilityEnabled) {
-				return Err({
-					name: 'WhisperingWarning',
+				return WhisperingWarningErr({
 					title:
 						'Please enable or re-enable accessibility to paste transcriptions!',
 					description:
@@ -73,9 +72,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 						label: 'Open Directions',
 						href: '/macos-enable-accessibility',
 					},
-					context: { text, isAccessibilityEnabled },
-					cause: undefined,
-				} satisfies WhisperingWarning);
+				});
 			}
 
 			const { error: writeTextToCursorError } = await writeTextToCursor(text);

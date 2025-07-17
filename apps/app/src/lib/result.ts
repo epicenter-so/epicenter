@@ -2,34 +2,37 @@ import type { UnifiedNotificationOptions } from '$lib/services/notifications/typ
 import type { TaggedError } from 'wellcrafted/error';
 import { Err, type Ok } from 'wellcrafted/result';
 
-export type WhisperingWarning = Omit<
-	TaggedError<'WhisperingWarning'>,
-	'message'
-> &
-	Omit<UnifiedNotificationOptions, 'variant'>;
-
 export type WhisperingError = Omit<
 	TaggedError<'WhisperingError'>,
 	'message' | 'cause' | 'context'
 > &
-	Omit<UnifiedNotificationOptions, 'variant'>;
+	Omit<UnifiedNotificationOptions, 'variant'> & {
+		severity: 'error' | 'warning';
+	};
 
-export const WhisperingError = (
-	args: Omit<WhisperingError, 'name'>,
+const WhisperingError = (
+	args: Omit<WhisperingError, 'name' | 'severity'>,
 ): WhisperingError => ({
 	name: 'WhisperingError',
+	severity: 'error',
 	...args,
 });
 
-export const WhisperingErr = (args: Omit<WhisperingError, 'name'>) =>
-	Err(WhisperingError(args));
+export const WhisperingErr = (
+	args: Omit<WhisperingError, 'name' | 'severity'>,
+) => Err(WhisperingError(args));
 
-export const WhisperingWarning = (
-	args: Omit<WhisperingWarning, 'name'>,
-): WhisperingWarning => ({
-	name: 'WhisperingWarning',
+const WhisperingWarning = (
+	args: Omit<WhisperingError, 'name' | 'severity'>,
+): WhisperingError => ({
+	name: 'WhisperingError',
+	severity: 'warning',
 	...args,
 });
+
+export const WhisperingWarningErr = (
+	args: Omit<WhisperingError, 'name' | 'severity'>,
+) => Err(WhisperingWarning(args));
 
 export type WhisperingResult<T> = Ok<T> | Err<WhisperingError>;
 

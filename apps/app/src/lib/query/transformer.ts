@@ -1,4 +1,8 @@
-import { WhisperingError, type WhisperingResult } from '$lib/result';
+import {
+	WhisperingErr,
+	type WhisperingError,
+	type WhisperingResult,
+} from '$lib/result';
 import * as services from '$lib/services';
 import type {
 	Transformation,
@@ -44,32 +48,25 @@ export const transformer = {
 					});
 
 				if (transformationRunError)
-					return Err(
-						WhisperingError({
-							title: '⚠️ Transformation failed',
-							description: transformationRunError.message,
-							action: { type: 'more-details', error: transformationRunError },
-						}),
-					);
+					return WhisperingErr({
+						title: '⚠️ Transformation failed',
+						description: transformationRunError.message,
+						action: { type: 'more-details', error: transformationRunError },
+					});
 
 				if (transformationRun.status === 'failed') {
-					return Err(
-						WhisperingError({
-							title: '⚠️ Transformation failed',
-							description: transformationRun.error,
-							action: { type: 'more-details', error: transformationRun.error },
-						}),
-					);
+					return WhisperingErr({
+						title: '⚠️ Transformation failed',
+						description: transformationRun.error,
+						action: { type: 'more-details', error: transformationRun.error },
+					});
 				}
 
 				if (!transformationRun.output) {
-					return Err(
-						WhisperingError({
-							title: '⚠️ Transformation produced no output',
-							description:
-								'The transformation completed but produced no output.',
-						}),
-					);
+					return WhisperingErr({
+						title: '⚠️ Transformation produced no output',
+						description: 'The transformation completed but produced no output.',
+					});
 				}
 
 				return Ok(transformationRun.output);
@@ -107,12 +104,10 @@ export const transformer = {
 			const { data: recording, error: getRecordingError } =
 				await services.db.getRecordingById(recordingId);
 			if (getRecordingError || !recording) {
-				return Err(
-					WhisperingError({
-						title: '⚠️ Recording not found',
-						description: 'Could not find the selected recording.',
-					}),
-				);
+				return WhisperingErr({
+					title: '⚠️ Recording not found',
+					description: 'Could not find the selected recording.',
+				});
 			}
 
 			const { data: transformationRun, error: transformationRunError } =
@@ -123,13 +118,11 @@ export const transformer = {
 				});
 
 			if (transformationRunError)
-				return Err(
-					WhisperingError({
-						title: '⚠️ Transformation failed',
-						description: transformationRunError.message,
-						action: { type: 'more-details', error: transformationRunError },
-					}),
-				);
+				return WhisperingErr({
+					title: '⚠️ Transformation failed',
+					description: transformationRunError.message,
+					action: { type: 'more-details', error: transformationRunError },
+				});
 
 			queryClient.invalidateQueries({
 				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
