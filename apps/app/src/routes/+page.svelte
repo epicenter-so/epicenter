@@ -22,6 +22,9 @@
 		cpalStateToIcons,
 		recorderStateToIcons,
 		vadStateToIcons,
+		isAudioOrVideoFile,
+		getMimeType,
+		getFileName,
 	} from '$lib/constants/audio';
 	import { rpc } from '$lib/query';
 	import type { Recording } from '$lib/services/db';
@@ -31,7 +34,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Loader2Icon } from 'lucide-svelte';
 	import { nanoid } from 'nanoid/non-secure';
-	import { onDestroy } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
 	const getRecorderStateQuery = createQuery(
@@ -74,8 +77,59 @@
 		}),
 	);
 
+	// Store unlisten function for drag drop events
+	let unlistenDragDrop: (() => void) | undefined;
+
+	// Set up desktop drag and drop listener
+	onMount(async () => {
+		if (!window.__TAURI_INTERNALS__) return;
+		try {
+			const { getCurrentWebview } = await import('@tauri-apps/api/webview');
+			const { readFile } = await import('@tauri-apps/plugin-fs');
+			
+			unlistenDragDrop = await getCurrentWebview().onDragDropEvent(async (event) => {
+				if (event.payload.type === 'drop' && event.payload.paths.length > 0) {
+					// Filter for audio/video files based on extension
+					const validPaths = event.payload.paths.filter(isAudioOrVideoFile);
+					
+					if (validPaths.length === 0) {
+						rpc.notify.warning.execute({
+							id: nanoid(),
+							title: '⚠️ No valid files',
+							description: 'Please drop audio or video files',
+						});
+						return;
+					}
+					
+					// Convert file paths to File objects
+					const files: File[] = [];
+					
+					for (const path of validPaths) {
+						try {
+							const fileData = await readFile(path);
+							const fileName = getFileName(path);
+							const mimeType = getMimeType(path);
+							
+							const file = new File([fileData], fileName, { type: mimeType });
+							files.push(file);
+						} catch (error) {
+							console.error(`Failed to read file ${path}:`, error);
+						}
+					}
+					
+					if (files.length > 0) {
+						await rpc.commands.uploadRecordings.execute({ files });
+					}
+				}
+			});
+		} catch (error) {
+			console.error('Failed to set up drag drop listener:', error);
+		}
+	});
+
 	onDestroy(() => {
 		blobUrlManager.revokeCurrentUrl();
+		unlistenDragDrop?.();
 	});
 </script>
 
