@@ -33,15 +33,17 @@ export function createClipboardServiceDesktop(): ClipboardService {
 						}),
 				});
 
+			// Attempt to write text first
+			const { error: writeTextToCursorError } = await writeTextToCursor(text);
+
+			// If no error, return success
+			if (!writeTextToCursorError) return Ok(undefined);
+
+			// If error and not macOS, propagate the error
 			const isMacos = type() === 'macos';
+			if (!isMacos) return Err(writeTextToCursorError);
 
-			if (!isMacos) {
-				const { error: writeTextToCursorError } = await writeTextToCursor(text);
-				if (writeTextToCursorError) return Err(writeTextToCursorError);
-
-				return Ok(undefined);
-			}
-
+			// On macOS, check accessibility permissions
 			const {
 				data: isAccessibilityEnabled,
 				error: isAccessibilityEnabledError,
@@ -61,6 +63,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 
 			if (isAccessibilityEnabledError) return Err(isAccessibilityEnabledError);
 
+			// If accessibility is not enabled, return WhisperingWarning
 			if (!isAccessibilityEnabled) {
 				return WhisperingWarningErr({
 					title:
@@ -75,10 +78,8 @@ export function createClipboardServiceDesktop(): ClipboardService {
 				});
 			}
 
-			const { error: writeTextToCursorError } = await writeTextToCursor(text);
-			if (writeTextToCursorError) return Err(writeTextToCursorError);
-
-			return Ok(undefined);
+			// If accessibility is enabled but write still failed, propagate original error
+			return Err(writeTextToCursorError);
 		},
 	};
 }
