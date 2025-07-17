@@ -207,11 +207,10 @@
 			<div class="flex flex-col items-center gap-4 w-full max-w-md">
 				<FileDropZone
 					accept="audio/*, video/*"
-					maxFiles={1}
+					maxFiles={10} 
 					onUpload={async (files) => {
 						if (files.length > 0) {
-							const file = files[0];
-							await rpc.commands.uploadRecording.execute({ file });
+							await rpc.commands.uploadRecordings.execute({ files });
 						}
 					}}
 					onFileRejected={({ file, reason }) => {

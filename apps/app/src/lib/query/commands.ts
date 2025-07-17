@@ -661,33 +661,59 @@ export const commands = {
 			}
 		: {}),
 
-	// Upload recording
-	uploadRecording: defineMutation({
-		mutationKey: ['recordings', 'uploadRecording'] as const,
-		resultMutationFn: async ({ file }: { file: File }) => {
-			// Validate file type
-			if (!file.type.startsWith('audio/')) {
+	// Upload recordings (supports multiple files)
+	uploadRecordings: defineMutation({
+		mutationKey: ['recordings', 'uploadRecordings'] as const,
+		resultMutationFn: async ({ files }: { files: File[] }) => {
+			// Filter out invalid file types
+			const validFiles = files.filter(
+				(file) =>
+					file.type.startsWith('audio/') || file.type.startsWith('video/'),
+			);
+
+			if (validFiles.length === 0) {
 				return DbServiceErr({
-					message: 'Invalid file type. Please upload an audio file.',
-					context: { fileType: file.type },
+					message: 'No valid audio or video files found.',
+					context: { providedFiles: files.length },
 					cause: undefined,
 				});
 			}
 
-			// Create recording from uploaded file
-			const arrayBuffer = await file.arrayBuffer();
-			const audioBlob = new Blob([arrayBuffer], { type: file.type });
+			// Show notification for invalid files
+			const invalidFiles = files.filter(
+				(file) =>
+					!file.type.startsWith('audio/') && !file.type.startsWith('video/'),
+			);
 
-			// Use the shared pipeline directly
-			const toastId = nanoid();
-			await processRecordingPipeline({
-				blob: audioBlob,
-				toastId,
-				completionTitle: '📁 File uploaded successfully!',
-				completionDescription: file.name,
+			if (invalidFiles.length > 0) {
+				notify.warning.execute({
+					id: nanoid(),
+					title: '⚠️ Some files were skipped',
+					description: `${invalidFiles.length} file(s) were not audio or video files`,
+				});
+			}
+
+			// Process all valid files in parallel
+			await Promise.all(
+				validFiles.map(async (file) => {
+					const arrayBuffer = await file.arrayBuffer();
+					const audioBlob = new Blob([arrayBuffer], { type: file.type });
+
+					// Each file gets its own toast notification
+					const toastId = nanoid();
+					await processRecordingPipeline({
+						blob: audioBlob,
+						toastId,
+						completionTitle: '📁 File uploaded successfully!',
+						completionDescription: file.name,
+					});
+				}),
+			);
+
+			return Ok({
+				processedCount: validFiles.length,
+				skippedCount: invalidFiles.length,
 			});
-
-			return Ok(undefined);
 		},
 	}),
 };
