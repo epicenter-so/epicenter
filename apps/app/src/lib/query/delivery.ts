@@ -4,7 +4,7 @@ import { Ok } from 'wellcrafted/result';
 import { defineMutation } from './_client';
 import { rpc } from './index';
 import type { ClipboardServiceError } from '$lib/services/clipboard';
-import type { WhisperingError, WhisperingWarning } from '$lib/result';
+import type { WhisperingError } from '$lib/result';
 
 export const delivery = {
 	/**
@@ -42,8 +42,6 @@ export const delivery = {
 			text: string;
 			toastId: string;
 		}) => {
-			// Define all notification functions at the top for clarity
-
 			// Shows transcription result and offers manual copy action
 			const offerManualCopy = () =>
 				rpc.notify.success.execute({
@@ -79,8 +77,8 @@ export const delivery = {
 			// Warns that automatic copy failed and falls back to manual option
 			const warnAutoCopyFailed = (error: ClipboardServiceError) => {
 				rpc.notify.warning.execute({
-					title: '⚠️ Copy Operation Failed',
-					description: 'Text could not be copied to clipboard automatically.',
+					title: "Couldn't copy to clipboard",
+					description: error.message,
 					action: { type: 'more-details', error },
 				});
 			};
@@ -104,18 +102,16 @@ export const delivery = {
 			) => {
 				if (error.name === 'ClipboardServiceError') {
 					rpc.notify.warning.execute({
-						title: '⚠️ Paste Operation Failed',
-						description:
-							'Text was copied to clipboard but could not be pasted automatically. Please use Ctrl+V (Cmd+V on Mac) to paste manually.',
+						title: 'Unable to paste automatically',
+						description: error.message,
 						action: { type: 'more-details', error },
 					});
 					return;
 				}
-				if (error.name === 'WhisperingWarning') {
-					rpc.notify.warning.execute(error);
+				if (error.name === 'WhisperingError') {
+					rpc.notify[error.severity].execute(error);
 					return;
 				}
-				rpc.notify.error.execute(error);
 			};
 
 			// Confirms complete delivery (both copy and paste succeeded)
@@ -242,8 +238,8 @@ export const delivery = {
 			// Warns that automatic copy failed and falls back to manual option
 			const warnAutoCopyFailed = (error: ClipboardServiceError) => {
 				rpc.notify.warning.execute({
-					title: '⚠️ Copy Operation Failed',
-					description: 'Text could not be copied to clipboard automatically.',
+					title: "Couldn't copy to clipboard",
+					description: error.message,
 					action: { type: 'more-details', error },
 				});
 			};
@@ -273,11 +269,10 @@ export const delivery = {
 					});
 					return;
 				}
-				if (error.name === 'WhisperingWarning') {
-					rpc.notify.warning.execute(error);
+				if (error.name === 'WhisperingError') {
+					rpc.notify[error.severity].execute(error);
 					return;
 				}
-				rpc.notify.error.execute(error);
 			};
 
 			// Confirms complete delivery (both copy and paste succeeded)
