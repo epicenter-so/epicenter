@@ -47,11 +47,13 @@ export const settings = {
 				});
 			}
 
-			// Update the settings
-			settingsStore.value = {
-				...settingsStore.value,
-				'recording.mode': newMode,
-			};
+			// Update the settings if not already in new mode
+			if (settingsStore.value['recording.mode'] !== newMode) {
+				settingsStore.value = {
+					...settingsStore.value,
+					'recording.mode': newMode,
+				};
+			}
 
 			// Show success notification
 			rpc.notify.success.execute({
