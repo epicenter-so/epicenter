@@ -1,8 +1,8 @@
 import type { WhisperingRecordingState } from '$lib/constants/audio';
-import { WhisperingError } from '$lib/result';
+import { WhisperingErr } from '$lib/result';
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok } from 'wellcrafted/result';
+import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { rpc } from './index';
 import { notify } from './notify';
@@ -42,13 +42,11 @@ export const manualRecorder = {
 				});
 
 			if (startRecordingError) {
-				return Err(
-					WhisperingError({
+				return WhisperingErr({
 						title: '❌ Failed to start recording',
 						description: startRecordingError.message,
 						action: { type: 'more-details', error: startRecordingError },
-					}),
-				);
+				});
 			}
 			return Ok(deviceAcquisitionOutcome);
 		},
@@ -65,13 +63,11 @@ export const manualRecorder = {
 				});
 
 			if (stopRecordingError) {
-				return Err(
-					WhisperingError({
+				return WhisperingErr({
 						title: '❌ Failed to stop recording',
 						description: stopRecordingError.message,
 						action: { type: 'more-details', error: stopRecordingError },
-					}),
-				);
+				});
 			}
 			return Ok(blob);
 		},
@@ -88,13 +84,11 @@ export const manualRecorder = {
 				});
 
 			if (cancelRecordingError) {
-				return Err(
-					WhisperingError({
+				return WhisperingErr({
 						title: '❌ Failed to cancel recording',
 						description: cancelRecordingError.message,
 						action: { type: 'more-details', error: cancelRecordingError },
-					}),
-				);
+				});
 			}
 			return Ok(cancelResult);
 		},
