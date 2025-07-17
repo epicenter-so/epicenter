@@ -177,9 +177,9 @@ class WhisperingDatabase extends Dexie {
 						const blobs = oldRecordings.map(({ id, blob }) => ({ id, blob }));
 
 						await tx
-							.table<RecordingsDbSchemaV2['recordingMetadata']>(
-								'recordingMetadata',
-							)
+							.table<
+								RecordingsDbSchemaV2['recordingMetadata']
+							>('recordingMetadata')
 							.bulkAdd(metadata);
 						await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -202,9 +202,9 @@ class WhisperingDatabase extends Dexie {
 					upgrade: async (tx) => {
 						// Get data from both tables
 						const metadata = await tx
-							.table<RecordingsDbSchemaV2['recordingMetadata']>(
-								'recordingMetadata',
-							)
+							.table<
+								RecordingsDbSchemaV2['recordingMetadata']
+							>('recordingMetadata')
 							.toArray();
 						const blobs = await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')

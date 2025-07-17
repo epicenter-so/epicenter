@@ -12,7 +12,7 @@
 </script>
 
 <script lang="ts">
-	import { cn } from '#/utils.js';
+	import { cn } from '#/utils/utils.js';
 	import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
 
 	let {

@@ -30,7 +30,7 @@
 <script lang="ts">
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
 
-	import { cn, type WithElementRef } from '#/utils.js';
+	import { cn, type WithElementRef } from '#/utils/utils.js';
 
 	let {
 		children,
