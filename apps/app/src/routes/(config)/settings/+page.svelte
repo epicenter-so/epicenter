@@ -83,7 +83,7 @@
 		items={[
 			{ value: 'keep-forever', label: 'Keep All Recordings' },
 			{ value: 'limit-count', label: 'Keep Limited Number' },
-		]}
+		] as const}
 		selected={settings.value['database.recordingRetentionStrategy']}
 		onSelectedChange={(selected) => {
 			settings.value = {
