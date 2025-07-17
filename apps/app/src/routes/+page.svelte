@@ -166,6 +166,8 @@
 						return;
 					}
 
+					await rpc.settings.switchRecordingMode.execute('upload');
+
 					// Convert file paths to File objects
 					const files: File[] = [];
 
