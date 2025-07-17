@@ -130,9 +130,9 @@
 			const { basename, extname } = await import('@tauri-apps/api/path');
 
 			const isAudio = async (path: string) =>
-				AUDIO_EXTENSIONS.includes((await extname(path)) as any);
+				AUDIO_EXTENSIONS.includes((await extname(path)) as (typeof AUDIO_EXTENSIONS)[number]);
 			const isVideo = async (path: string) =>
-				VIDEO_EXTENSIONS.includes((await extname(path)) as any);
+				VIDEO_EXTENSIONS.includes((await extname(path)) as (typeof VIDEO_EXTENSIONS)[number]);
 
 			const getMimeType = async (path: string) => {
 				const ext = await extname(path);
