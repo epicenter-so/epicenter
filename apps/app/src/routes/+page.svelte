@@ -144,6 +144,7 @@
 
 			unlistenDragDrop = await getCurrentWebview().onDragDropEvent(
 				async (event) => {
+					if (settings.value['recording.mode'] !== 'upload') return;
 					if (event.payload.type !== 'drop' || event.payload.paths.length === 0) return;
 
 					// Filter for audio/video files based on extension
