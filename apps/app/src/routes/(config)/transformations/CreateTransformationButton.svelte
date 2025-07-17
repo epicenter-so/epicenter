@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { Separator } from '$lib/components/ui/separator';
-	import { useCreateTransformationWithToast } from '$lib/query/transformations/mutations';
+	import { Editor } from '$lib/components/transformations-editor';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import { Separator } from '@repo/ui/separator';
+	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { PlusIcon } from 'lucide-svelte';
-	import RenderTransformation from './-components/RenderTransformation.svelte';
 
-	const { createTransformationWithToast } = useCreateTransformationWithToast();
+	const createTransformation = createMutation(
+		rpc.transformations.mutations.createTransformation.options,
+	);
 
 	let isDialogOpen = $state(false);
 	let transformation = $state(generateDefaultTransformation());
@@ -36,7 +39,7 @@
 	</Dialog.Trigger>
 
 	<Dialog.Content
-		class="max-h-[80vh] sm:max-w-7xl h-[80vh]"
+		class="max-h-[80vh] sm:max-w-7xl"
 		onEscapeKeydown={(e) => {
 			e.preventDefault();
 			if (isDialogOpen) {
@@ -55,15 +58,7 @@
 			<Separator />
 		</Dialog.Header>
 
-		<RenderTransformation
-			{transformation}
-			setTransformation={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-			setTransformationDebounced={(newTransformation) => {
-				transformation = newTransformation;
-			}}
-		/>
+		<Editor bind:transformation />
 
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>
@@ -72,15 +67,24 @@
 			<Button
 				type="submit"
 				onclick={() =>
-					createTransformationWithToast.mutate(
-						$state.snapshot(transformation),
-						{
-							onSuccess: () => {
-								isDialogOpen = false;
-								transformation = generateDefaultTransformation();
-							},
+					createTransformation.mutate($state.snapshot(transformation), {
+						onSuccess: () => {
+							isDialogOpen = false;
+							transformation = generateDefaultTransformation();
+							rpc.notify.success.execute({
+								title: 'Created transformation!',
+								description:
+									'Your transformation has been created successfully.',
+							});
 						},
-					)}
+						onError: (error) => {
+							rpc.notify.error.execute({
+								title: 'Failed to create transformation!',
+								description: 'Your transformation could not be created.',
+								action: { type: 'more-details', error },
+							});
+						},
+					})}
 			>
 				Create
 			</Button>

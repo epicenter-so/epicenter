@@ -1,4 +1,3 @@
-import { Err, Ok, tryAsync, type Result } from '@epicenterhq/result';
 import {
 	active,
 	isPermissionGranted,
@@ -7,7 +6,13 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
-import type { NotificationService, NotificationServiceError } from './_types';
+import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import type { NotificationService, UnifiedNotificationOptions } from './types';
+import {
+	NotificationServiceError,
+	hashNanoidToNumber,
+	toTauriNotification,
+} from './types';
 
 export function createNotificationServiceDesktop(): NotificationService {
 	const removeNotificationById = async (
@@ -16,12 +21,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 		const { data: activeNotifications, error: activeNotificationsError } =
 			await tryAsync({
 				try: async () => await active(),
-				mapErr: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: 'Unable to retrieve active desktop notifications.',
-					context: {},
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceError({
+						message: 'Unable to retrieve active desktop notifications.',
+						context: { id },
+						cause: error,
+					}),
 			});
 		if (activeNotificationsError) return Err(activeNotificationsError);
 		const matchingActiveNotification = activeNotifications.find(
@@ -30,12 +35,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 		if (matchingActiveNotification) {
 			const { error: removeActiveError } = await tryAsync({
 				try: async () => await removeActive([matchingActiveNotification]),
-				mapErr: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: `Unable to remove notification with id ${id}.`,
-					context: { id, matchingActiveNotification },
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceError({
+						message: `Unable to remove notification with id ${id}.`,
+						context: { id, matchingActiveNotification },
+						cause: error,
+					}),
 			});
 			if (removeActiveError) return Err(removeActiveError);
 		}
@@ -43,8 +48,9 @@ export function createNotificationServiceDesktop(): NotificationService {
 	};
 
 	return {
-		async notify({ id: idStringified = nanoid(), title, description }) {
-			const id = stringToNumber(idStringified);
+		async notify(options: UnifiedNotificationOptions) {
+			const idStringified = options.id ?? nanoid();
+			const id = hashNanoidToNumber(idStringified);
 
 			await removeNotificationById(id);
 
@@ -56,34 +62,32 @@ export function createNotificationServiceDesktop(): NotificationService {
 						permissionGranted = permission === 'granted';
 					}
 					if (permissionGranted) {
-						sendNotification({ id: id, title, body: description });
+						const tauriOptions = toTauriNotification(options);
+						sendNotification({
+							...tauriOptions,
+							id, // Override with our numeric id
+						});
 					}
 				},
-				mapErr: (error): NotificationServiceError => ({
-					name: 'NotificationServiceError',
-					message: 'Could not send notification',
-					context: { idStringified, title, description },
-					cause: error,
-				}),
+				mapError: (error) =>
+					NotificationServiceError({
+						message: 'Could not send notification',
+						context: {
+							idStringified,
+							title: options.title,
+							description: options.description,
+						},
+						cause: error,
+					}),
 			});
 			if (notifyError) return Err(notifyError);
 			return Ok(idStringified);
 		},
 		clear: async (idStringified) => {
 			const removeNotificationResult = await removeNotificationById(
-				stringToNumber(idStringified),
+				hashNanoidToNumber(idStringified),
 			);
 			return removeNotificationResult;
 		},
 	};
-}
-
-function stringToNumber(str: string): number {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash;
-	}
-	return Math.abs(hash);
 }

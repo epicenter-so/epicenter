@@ -1,99 +1,73 @@
-import { dev } from '$app/environment';
 import { goto } from '$app/navigation';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
-import { notificationLog } from '$lib/components/NotificationLog.svelte';
-import { NotificationService } from '$lib/services/index.js';
-import { extension } from '@repo/extension';
-import type { ToastAndNotifyOptions } from '@repo/shared';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { nanoid } from 'nanoid/non-secure';
 import { toast as sonnerToast } from 'svelte-sonner';
+import type { UnifiedNotificationOptions } from './notifications/types';
 
-export const toast = createToastService();
+/**
+ * Toast service implementation using Sonner
+ *
+ * This service handles in-app toast notifications with support for:
+ * - Multiple variants (success, error, warning, info, loading)
+ * - Actions (buttons, links, more details)
+ * - Automatic duration based on content
+ * - In-place updates using the same ID
+ */
+export const ToastServiceLive = {
+	/**
+	 * Show a toast with the specified options
+	 */
+	show(options: UnifiedNotificationOptions): string {
+		const toastId = options.id ?? nanoid();
 
-const isFocused = async () => {
-	const isDocumentFocused = document.hasFocus();
-	if (!window.__TAURI_INTERNALS__) return isDocumentFocused;
-	const isWindowFocused = await getCurrentWindow().isFocused();
-	return isWindowFocused && isDocumentFocused;
+		// Use the appropriate Sonner method based on variant
+		sonnerToast[options.variant](options.title, {
+			id: toastId,
+			description: options.description,
+			descriptionClass: 'line-clamp-6',
+			duration: getDuration(options),
+			action: convertActionToSonner(options.action),
+		});
+
+		return toastId;
+	},
+
+	/**
+	 * Dismiss a specific toast or all toasts
+	 */
+	dismiss(id?: string | number): void {
+		sonnerToast.dismiss(id);
+	},
 };
 
-function createToastService() {
-	const createToastFn =
-		(toastVariant: ToastAndNotifyOptions['variant']) =>
-		(toastOptions: Omit<ToastAndNotifyOptions, 'variant'>) => {
-			if (toastVariant === 'error') {
-				void extension.openWhisperingTab({});
-			}
+// Helper to determine toast duration
+function getDuration(options: UnifiedNotificationOptions): number {
+	// Persistent toasts use Infinity duration
+	if (options.persist) return Number.POSITIVE_INFINITY;
 
-			(async () => {
-				if (toastVariant !== 'loading' && !(await isFocused())) {
-					const { error: notifyError } = await NotificationService.notify({
-						variant: toastVariant,
-						...toastOptions,
-					});
-					if (notifyError) {
-						console.error('[Toast]', notifyError);
-					}
-				}
-			})();
-
-			const getDurationInMs = () => {
-				if (toastVariant === 'loading') return 5000;
-				if (toastVariant === 'error' || toastVariant === 'warning') return 5000;
-				if (toastOptions.action) return 4000;
-				return 3000;
-			};
-
-			const durationInMs = getDurationInMs();
-
-			notificationLog.addLog({ variant: toastVariant, ...toastOptions });
-
-			if (dev) {
-				switch (toastVariant) {
-					case 'error':
-						console.error('[Toast]', toastOptions);
-						break;
-					case 'warning':
-						console.warn('[Toast]', toastOptions);
-						break;
-					case 'info':
-						console.info('[Toast]', toastOptions);
-						break;
-					case 'loading':
-						console.info('[Toast]', toastOptions);
-						break;
-					case 'success':
-						console.log('[Toast]', toastOptions);
-						break;
-				}
-			}
-
-			const { title, action, ...options } = toastOptions;
-			const id = sonnerToast[toastVariant](title, {
-				...options,
-				duration: durationInMs,
-				action: convertActionToToastAction(action),
-			});
-			return String(id);
-		};
-
-	return {
-		success: createToastFn('success'),
-		info: createToastFn('info'),
-		loading: createToastFn('loading'),
-		error: createToastFn('error'),
-		warning: createToastFn('warning'),
-		dismiss: sonnerToast.dismiss,
-	};
+	if (options.variant === 'loading') return 5000;
+	if (options.variant === 'error' || options.variant === 'warning') return 5000;
+	if (options.action) return 4000;
+	return 3000;
 }
 
-function convertActionToToastAction(action: ToastAndNotifyOptions['action']) {
-	switch (action?.type) {
+// Helper to convert action to Sonner format
+function convertActionToSonner(action: UnifiedNotificationOptions['action']) {
+	if (!action) return undefined;
+
+	switch (action.type) {
 		case 'link':
 			return {
 				label: action.label,
-				onClick: () => goto(action.goto),
+				onClick: () => goto(action.href),
 			};
+
+		case 'button':
+			return {
+				label: action.label,
+				onClick: action.onClick,
+			};
+
 		case 'more-details':
 			return {
 				label: 'More details',
@@ -104,7 +78,7 @@ function convertActionToToastAction(action: ToastAndNotifyOptions['action']) {
 						content: action.error,
 					}),
 			};
-		default:
-			return undefined;
 	}
 }
+
+export type ToastService = typeof ToastServiceLive;

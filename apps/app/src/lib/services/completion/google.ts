@@ -1,14 +1,17 @@
-import { Err, Ok, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { CompletionService, CompletionServiceError } from './_types';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import type { CompletionService } from './types';
+import { CompletionServiceErr, CompletionServiceError } from './types';
 
-export function createGoogleCompletionService({
-	apiKey,
-}: {
-	apiKey: string;
-}): CompletionService {
+export function createGoogleCompletionService(): CompletionService {
 	return {
-		complete: async ({ model: modelName, systemPrompt, userPrompt }) => {
+		complete: async ({
+			apiKey,
+			model: modelName,
+			systemPrompt,
+			userPrompt,
+		}) => {
 			const combinedPrompt = `${systemPrompt}\n${userPrompt}`;
 			const { data: completion, error: completionError } = await tryAsync({
 				try: async () => {
@@ -22,19 +25,18 @@ export function createGoogleCompletionService({
 					const { response } = await model.generateContent(combinedPrompt);
 					return response.text();
 				},
-				mapErr: (error): CompletionServiceError => ({
-					name: 'CompletionServiceError',
-					message: `Google API Error: ${extractErrorMessage(error)}`,
-					context: { model: modelName, systemPrompt, userPrompt },
-					cause: error,
-				}),
+				mapError: (error) =>
+					CompletionServiceError({
+						message: `Google API Error: ${extractErrorMessage(error)}`,
+						context: { model: modelName, systemPrompt, userPrompt },
+						cause: error,
+					}),
 			});
 
 			if (completionError) return Err(completionError);
 
 			if (!completion) {
-				return Err({
-					name: 'CompletionServiceError',
+				return CompletionServiceErr({
 					message: 'Google API returned an empty response',
 					context: { model: modelName, systemPrompt, userPrompt },
 					cause: completionError,
@@ -45,3 +47,9 @@ export function createGoogleCompletionService({
 		},
 	};
 }
+
+export type GoogleCompletionService = ReturnType<
+	typeof createGoogleCompletionService
+>;
+
+export const GoogleCompletionServiceLive = createGoogleCompletionService();

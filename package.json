@@ -1,7 +1,7 @@
 {
 	"name": "whispering",
 	"private": true,
-	"version": "6.5.0",
+	"version": "7.0.1",
 	"description": "",
 	"keywords": [],
 	"license": "ISC",
@@ -9,13 +9,15 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "concurrently \"biome format --write .\" \"turbo run format --filter=@repo/app\"",
-		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint --filter=@repo/app\"",
-		"format-and-lint": "concurrently \"biome check --write --unsafe .\" \"turbo run format --filter=@repo/app && turbo run lint --filter=@repo/app\""
+		"format": "concurrently \"biome format --write .\" \"turbo run format\"",
+		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint\"",
+		"format-and-lint": "concurrently \"pnpm format\" \"pnpm lint\"",
+		"bump-version": "bun run scripts/bump-version.ts"
 	},
 	"packageManager": "pnpm@10.11.0",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.15.32",
 		"concurrently": "latest",
 		"turbo": "latest"
 	}

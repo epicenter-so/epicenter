@@ -1,6 +1,5 @@
 import '@tanstack/svelte-table';
-import type { CommandCallbacks } from '$lib/query/singletons/commands';
-import type { Recorder } from './lib/query/recorder/mutations';
+import type { CommandCallbacks } from '$lib/commands';
 
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces

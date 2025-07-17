@@ -1,0 +1,120 @@
+name: 'Update README Download Links'
+
+# Purpose: Automatically update version numbers in README.md download links
+# 
+# Why this exists:
+# - We want one-click download buttons in the README for the best user experience
+# - GitHub releases include version numbers in filenames (e.g., Whispering_7.0.0_aarch64.dmg)
+# - Without this workflow, README links would break with each new release
+# - This automation ensures download links always point to the latest version
+#
+# How it works:
+# 1. Triggers when a release is published (not draft) OR manually via workflow_dispatch
+# 2. Uses regex to find and replace all version numbers in download links
+# 3. Commits the updated README back to the main branch
+# 4. Users always get working download links without manual maintenance
+#
+# Example: When v7.0.1 is released, this changes:
+#   https://github.com/.../Whispering_7.0.0_aarch64.dmg
+# To:
+#   https://github.com/.../Whispering_7.0.1_aarch64.dmg
+
+on:
+  release:
+    types: [published]  # Only runs when draft releases are published
+  workflow_dispatch:    # Manual trigger option
+    inputs:
+      version:
+        description: 'Version to update (without v prefix, e.g., 7.0.0)'
+        required: true
+        type: string
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT or the default token with proper permissions
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Fetch all history for proper git operations
+          fetch-depth: 0
+
+      - name: Determine version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            # Extract version from release tag (remove 'v' prefix)
+            VERSION=${GITHUB_REF_NAME#v}
+          else
+            # Use manually provided version for workflow_dispatch
+            VERSION=${{ inputs.version }}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Updating README to version: $VERSION"
+
+      - name: Update README download links
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          
+          # Create backup for safety
+          cp README.md README.md.bak
+          
+          # Update download links using regex to match semantic version patterns
+          # The regex [0-9]\+\.[0-9]\+\.[0-9]\+ matches version numbers like 7.0.0, 10.2.1, etc.
+          
+          # macOS downloads
+          # Example: Whispering_7.0.0_aarch64.dmg → Whispering_7.0.1_aarch64.dmg
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_aarch64\.dmg/Whispering_${VERSION}_aarch64.dmg/g" README.md
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64\.dmg/Whispering_${VERSION}_x64.dmg/g" README.md
+          
+          # Windows downloads
+          # Example: Whispering_7.0.0_x64_en-US.msi → Whispering_7.0.1_x64_en-US.msi
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64_en-US\.msi/Whispering_${VERSION}_x64_en-US.msi/g" README.md
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64-setup\.exe/Whispering_${VERSION}_x64-setup.exe/g" README.md
+          
+          # Linux downloads
+          # Example: Whispering_7.0.0_amd64.AppImage → Whispering_7.0.1_amd64.AppImage
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.AppImage/Whispering_${VERSION}_amd64.AppImage/g" README.md
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.deb/Whispering_${VERSION}_amd64.deb/g" README.md
+          # RPM has a special format with -1 suffix
+          sed -i "s/Whispering-[0-9]\+\.[0-9]\+\.[0-9]\+-1\.x86_64\.rpm/Whispering-${VERSION}-1.x86_64.rpm/g" README.md
+          
+          # Show what changed for transparency
+          echo "Changes made:"
+          diff README.md.bak README.md || true
+
+      - name: Check if changes were made
+        id: check_changes
+        run: |
+          if git diff --quiet README.md; then
+            echo "No changes needed"
+            echo "CHANGES_MADE=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "CHANGES_MADE=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.CHANGES_MADE == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add README.md
+          git commit -m "chore: update README download links to v${{ steps.get_version.outputs.VERSION }}"
+          
+          # Push to main branch (explicitly specify refs/heads/ to avoid ambiguity with tag)
+          git push origin HEAD:refs/heads/main
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check_changes.outputs.CHANGES_MADE }}" == "true" ]; then
+            echo "✅ Successfully updated README.md download links to version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No updates needed - README.md already has version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          fi

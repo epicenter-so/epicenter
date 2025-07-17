@@ -1,40 +1,60 @@
-import { parseJson } from '@repo/shared';
-import type { z } from 'zod';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+import { on } from 'svelte/events';
+import { createSubscriber } from 'svelte/reactivity';
+import { createTaggedError } from 'wellcrafted/error';
+import { trySync } from 'wellcrafted/result';
 
-const attemptMergeStrategy = <TSchema extends z.ZodTypeAny>({
-	key,
-	valueFromStorage,
-	defaultValue,
-	schema,
-}: {
-	key: string;
-	valueFromStorage: unknown;
-	defaultValue: z.infer<TSchema>;
-	schema: TSchema;
-	error: z.ZodError;
-}): z.infer<TSchema> => {
-	// Attempt to merge the default value with the value from storage if possible
-	const defaultValueMergedOldValues = {
-		...defaultValue,
-		...(valueFromStorage as Record<string, unknown>),
-	};
-
-	const parseMergedValuesResult = schema.safeParse(defaultValueMergedOldValues);
-	if (!parseMergedValuesResult.success) return defaultValue;
-
-	const updatedValue = parseMergedValuesResult.data;
-	return updatedValue;
-};
+type ParseErrorReason<TSchema extends StandardSchemaV1> =
+	| { type: 'storage_empty'; key: string }
+	| { type: 'json_parse_error'; key: string; rawValue: string; error: unknown }
+	| {
+			type: 'schema_validation_async_during_sync';
+			key: string;
+			value: unknown;
+			schema: TSchema;
+	  }
+	| {
+			type: 'schema_validation_failed';
+			key: string;
+			value: unknown;
+			schema: TSchema;
+			issues: ReadonlyArray<StandardSchemaV1.Issue>;
+	  };
 
 /**
  * Creates a persisted state object tied to local storage, accessible through `.value`
+ *
+ * Features:
+ * - Synchronous initialization with immediate access to a valid value
+ * - Automatic validation using the provided schema
+ * - Cross-tab synchronization via storage events
+ * - Graceful error recovery via onParseError handler
+ * - Type-safe getter and setter
+ *
+ * @example
+ * ```ts
+ * const settings = createPersistedState({
+ *   key: 'app-settings',
+ *   schema: settingsSchema,
+ *   onParseError: (error) => {
+ *     console.error('Settings parse error:', error);
+ *     return { theme: 'light', notifications: true }; // return default
+ *   }
+ * });
+ *
+ * // Use in component
+ * $effect(() => {
+ *   console.log('Current settings:', settings.value);
+ * });
+ *
+ * // Update settings
+ * settings.value = { theme: 'dark', notifications: false };
+ * ```
  */
-export function createPersistedState<TSchema extends z.ZodTypeAny>({
+export function createPersistedState<TSchema extends StandardSchemaV1>({
 	key,
 	schema,
-	defaultValue,
-	isBrowser = true,
-	resolveParseErrorStrategy = attemptMergeStrategy,
+	onParseError,
 	onUpdateSuccess,
 	onUpdateError,
 	onUpdateSettled,
@@ -42,110 +62,117 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 	/** The key used to store the value in local storage. */
 	key: string;
 	/**
-	 * The schema is used to validate the value from local storage
-	 * (`defaultValue` will be used if the value from local storage is invalid).
+	 * The schema used to validate the value from local storage.
 	 * */
 	schema: TSchema;
 	/**
-	 * The default value to use if no value is found in local storage or the value
-	 * from local storage fails to pass the schema.
-	 * */
-	defaultValue: z.infer<TSchema>;
-	/**
-	 * If false, disables the use of local storage. In SvelteKit, you set
-	 * this to `browser` because local storage doesn't exist in the server
-	 * context.
+	 * Handler called when the value from storage cannot be parsed or validated.
+	 * This function can perform side effects and must return a valid value.
+	 *
+	 * @param error - A discriminated union describing what went wrong:
+	 *   - `storage_empty`: No value found in storage
+	 *   - `json_parse_error`: Failed to parse JSON from storage
+	 *   - `schema_validation_async_during_sync`: Schema returned a Promise during synchronous parsing
+	 *   - `schema_validation_failed`: Schema validation failed with issues
+	 *
+	 * @returns A valid value that satisfies the schema
 	 *
 	 * @example
-	 *
 	 * ```ts
-	 * import { browser } from '$app/environment';
-	 * ...
-	 * const state = createPersistedState({ ..., disableLocalStorage: !browser })
-	 * ...
+	 * onParseError: (error) => {
+	 *   if (error.type === 'storage_empty') {
+	 *     return { theme: 'light' }; // default value
+	 *   }
+	 *   console.error('Parse error:', error);
+	 *   return { theme: 'light' }; // fallback value
+	 * }
 	 * ```
-	 * */
-	isBrowser?: boolean;
-	/**
-	 * Handler for when the value from storage fails schema validation.
-	 * Return a valid value to use it and save to storage.
-	 * @default `() => defaultValue`
 	 */
-	resolveParseErrorStrategy?: (params: {
-		/** The key used to store the value in local storage. */
-		key: string;
-		/** The value from storage that failed schema validation. */
-		valueFromStorage: unknown;
-		/** The default value to use if the value from storage fails schema validation. */
-		defaultValue: z.infer<TSchema>;
-		/** The schema used to validate the value from storage. */
-		schema: TSchema;
-		/** The error that occurred when parsing the value from storage. */
-		error: z.ZodError;
-	}) => z.infer<TSchema>;
+	onParseError: (
+		error: ParseErrorReason<TSchema>,
+	) => StandardSchemaV1.InferOutput<TSchema>;
 	/**
 	 * Handler for when the value from storage is successfully updated.
-	 * @default `() => {}`
 	 */
-	onUpdateSuccess?: (newValue: z.infer<TSchema>) => void;
+	onUpdateSuccess?: (newValue: StandardSchemaV1.InferOutput<TSchema>) => void;
 	/**
 	 * Handler for when the value from storage fails to update.
-	 * @default `() => {}`
 	 */
 	onUpdateError?: (error: unknown) => void;
 	/**
 	 * Handler for when the value from storage update is settled.
-	 * @default `() => {}`
 	 */
 	onUpdateSettled?: () => void;
 }) {
-	let value = $state(defaultValue);
+	const parseValueFromStorage = (
+		rawValue: string | null,
+	): StandardSchemaV1.InferOutput<TSchema> => {
+		if (rawValue === null) return onParseError({ type: 'storage_empty', key });
 
-	if (isBrowser) {
-		const parseValueFromStorage = (
-			valueFromStorageUnparsed: string | null,
-		): z.infer<TSchema> => {
-			const isEmpty = valueFromStorageUnparsed === null;
-			if (isEmpty) return defaultValue;
-
-			const { data: valueFromStorageJson, error: parseJsonError } = parseJson(
-				valueFromStorageUnparsed,
-			);
-			if (parseJsonError) return defaultValue;
-
-			const valueFromStorageResult = schema.safeParse(valueFromStorageJson);
-			if (valueFromStorageResult.success) return valueFromStorageResult.data;
-
-			const resolvedValue = resolveParseErrorStrategy({
+		const { data: parsedValue, error: parseError } = parseJson(rawValue);
+		if (parseError) {
+			return onParseError({
+				type: 'json_parse_error',
 				key,
-				valueFromStorage: valueFromStorageJson,
-				defaultValue,
-				schema,
-				error: valueFromStorageResult.error,
+				rawValue,
+				error: parseError,
 			});
+		}
 
-			return resolvedValue;
+		const result = schema['~standard'].validate(parsedValue);
+		if (result instanceof Promise) {
+			return onParseError({
+				type: 'schema_validation_async_during_sync',
+				key,
+				value: parsedValue,
+				schema,
+			});
+		}
+
+		if (result.issues) {
+			return onParseError({
+				type: 'schema_validation_failed',
+				key,
+				value: parsedValue,
+				schema,
+				issues: result.issues,
+			});
+		}
+
+		return result.value as StandardSchemaV1.InferOutput<TSchema>;
+	};
+
+	let value = $state(parseValueFromStorage(window.localStorage.getItem(key)));
+
+	const subscribe = createSubscriber((update) => {
+		const storage = on(window, 'storage', (e) => {
+			if (e.key !== key) return;
+			value = parseValueFromStorage(e.newValue);
+			update(); // Notify reactive contexts of state change
+		});
+
+		const focus = on(window, 'focus', () => {
+			value = parseValueFromStorage(window.localStorage.getItem(key));
+			update(); // Notify reactive contexts of state change
+		});
+
+		return () => {
+			storage();
+			focus();
 		};
+	});
 
-		value = parseValueFromStorage(localStorage.getItem(key));
-		window.addEventListener('storage', (event: StorageEvent) => {
-			if (event.key !== key) return;
-			value = parseValueFromStorage(event.newValue);
-		});
-		window.addEventListener('focus', () => {
-			value = parseValueFromStorage(localStorage.getItem(key));
-		});
-	}
+	// No need for initial load in $effect since value is set synchronously above
 
 	return {
 		get value() {
+			subscribe();
 			return value;
 		},
-		set value(newValue: z.infer<TSchema>) {
+		set value(newValue: StandardSchemaV1.InferOutput<TSchema>) {
 			value = newValue;
-			if (!isBrowser) return;
 			try {
-				localStorage.setItem(key, JSON.stringify(newValue));
+				window.localStorage.setItem(key, JSON.stringify(newValue));
 				onUpdateSuccess?.(newValue);
 			} catch (error) {
 				onUpdateError?.(error);
@@ -154,4 +181,19 @@ export function createPersistedState<TSchema extends z.ZodTypeAny>({
 			}
 		},
 	};
+}
+
+const { ParseJsonError } = createTaggedError('ParseJsonError');
+type ParseJsonError = ReturnType<typeof ParseJsonError>;
+
+function parseJson(value: string) {
+	return trySync({
+		try: () => JSON.parse(value) as unknown,
+		mapError: (error) =>
+			ParseJsonError({
+				message: 'Failed to parse JSON',
+				context: { value },
+				cause: error,
+			}),
+	});
 }

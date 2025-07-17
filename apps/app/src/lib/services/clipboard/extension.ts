@@ -1,28 +1,28 @@
-import { tryAsync, trySync } from '@epicenterhq/result';
-import type { ClipboardService, ClipboardServiceError } from './_types';
+import { tryAsync, trySync } from 'wellcrafted/result';
+import { type ClipboardService, ClipboardServiceError } from './types';
 
 export function createClipboardServiceExtension(): ClipboardService {
 	return {
 		setClipboardText: (text) =>
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
-				mapErr: (error): ClipboardServiceError => ({
-					name: 'ClipboardServiceError',
-					message: 'Unable to write to clipboard',
-					context: { text },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ClipboardServiceError({
+						message: 'Unable to write to clipboard',
+						context: { text },
+						cause: error,
+					}),
 			}),
 
 		writeTextToCursor: (text) =>
 			trySync({
 				try: () => writeTextToCursor(text),
-				mapErr: (error): ClipboardServiceError => ({
-					name: 'ClipboardServiceError',
-					message: 'Unable to paste text to cursor',
-					context: { text },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ClipboardServiceError({
+						message: 'Unable to paste text to cursor',
+						context: { text },
+						cause: error,
+					}),
 			}),
 	};
 }

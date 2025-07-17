@@ -1,79 +1,160 @@
 name: 'Publish Tauri Build to GitHub Releases 🛠️'
 
+# This workflow triggers in two ways:
+# 1. Manual trigger via GitHub UI (workflow_dispatch)
+# 2. Automatically when you push a version tag like v7.0.0
 on:
   workflow_dispatch:
   push:
     tags:
+      # Matches semantic version tags: v1.0.0, v2.1.3, v10.0.0, etc.
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   publish-tauri:
+    # Required permissions to create releases and upload assets
     permissions:
       contents: write
+    
+    # Build strategy: create separate jobs for each platform
     strategy:
-      fail-fast: false
+      fail-fast: false  # Continue building other platforms even if one fails
       matrix:
         include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
+          # macOS Apple Silicon (M1, M2, M3, etc.)
+          - platform: 'macos-latest'
             args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
+          
+          # macOS Intel-based
+          - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'
+          
+          # Linux (Ubuntu)
           - platform: 'ubuntu-22.04'
-            args: ''
+            args: ''  # No specific target needed for Linux
+          
+          # Windows
           - platform: 'windows-latest'
-            args: ''
+            args: ''  # No specific target needed for Windows
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
+      # Ubuntu/Linux specific: Install system dependencies required by Tauri
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
+          # Dependencies explanation:
+          # - libwebkit2gtk-4.1-dev: WebKit engine for Tauri v2 (4.0 was for v1)
+          # - libappindicator3-dev: System tray support
+          # - librsvg2-dev: SVG rendering
+          # - patchelf: Required for AppImage packaging
+          # - libxdo-dev: Keyboard/mouse automation
+          # - libasound2-dev: Audio support
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libxdo-dev libasound2-dev
 
+      # Install pnpm package manager
       - name: install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0  # Match package.json packageManager version
 
+      # Setup Node.js with caching for faster builds
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: 'pnpm' # Set this to npm, yarn or pnpm.
+          node-version: lts/*  # Use latest LTS version
+          cache: 'pnpm'        # Cache pnpm dependencies
 
+      # Install Rust toolchain required for building Tauri
       - name: install Rust stable
-        uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@stable
         with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          # For macOS: specify both Intel and ARM targets
+          # For other platforms: empty string (uses default target)
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      # Cache Rust dependencies for faster builds
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './src-tauri -> target'
+          # Point to the Rust project directory
+          workspaces: './apps/app/src-tauri -> target'
 
+      # Install all JavaScript dependencies
       - name: install frontend dependencies
-        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-        run: pnpm install # change this to npm or pnpm depending on which one you use.
+        run: pnpm install
 
+      # Build the frontend (SvelteKit app) before Tauri packaging
+      - name: Build frontend
+        run: pnpm --filter @repo/app build  # Targets the specific workspace package
+
+      # Read and process release notes from the release-notes directory
+      - name: Process release notes
+        id: release_notes
+        shell: bash
+        run: |
+          # Look for release notes file matching the tag name (e.g., v7.0.0 -> docs/release-notes/v7.0.0.md)
+          RELEASE_FILE="docs/release-notes/${{ github.ref_name }}.md"
+          
+          if [ -f "$RELEASE_FILE" ]; then
+            echo "Found release notes file: $RELEASE_FILE"
+            
+            # Get full content for GitHub release page
+            RELEASE_NOTES=$(cat "$RELEASE_FILE")
+          else
+            echo "No release notes file found at $RELEASE_FILE, using fallback"
+            # Fallback message if no release file exists
+            RELEASE_NOTES="Whispering ${{ github.ref_name }} is now available. Check GitHub for the full changelog."
+          fi
+          
+          # Save output for use in later steps
+          # Using EOF delimiter to handle multi-line content
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # Main Tauri build and release action
       - uses: tauri-apps/tauri-action@v0
         env:
+          # Required: GitHub token for creating releases and uploading assets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Tauri code signing (optional but recommended)
+          # These enable automatic updates without security warnings
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          
+          # macOS code signing and notarization (required for distribution)
+          # Without these, macOS users will see security warnings
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}  # App-specific password
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
         with:
-          projectPath: './apps/app'
-          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'Full installation instructions can be found [here](https://github.com/braden-w/whispering?tab=readme-ov-file#desktop-app).'
+          # Path to the Tauri project (where tauri.conf.json is located)
+          projectPath: 'apps/app'
+          
+          # Use the actual git tag as the release tag (e.g., v7.0.0)
+          tagName: ${{ github.ref_name }}
+          
+          # Release title shown on GitHub
+          releaseName: 'Whispering ${{ github.ref_name }}'
+          
+          # Release description from our processed release notes
+          # Full release notes for GitHub release page
+          releaseBody: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          
+          # Create as draft so you can review before publishing
           releaseDraft: true
+          
+          # Set to true for beta/RC releases
           prerelease: false
+          
+          # Platform-specific build arguments (e.g., --target for macOS)
           args: ${{ matrix.args }}

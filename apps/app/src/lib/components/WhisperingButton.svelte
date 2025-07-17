@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, type Props } from '$lib/components/ui/button/index.js';
+	import { Button, type Props } from '@repo/ui/button';
 	import { mergeProps } from 'bits-ui';
 	import { nanoid } from 'nanoid/non-secure';
 	import type { Snippet } from 'svelte';

@@ -33,13 +33,23 @@ pub enum AudioCommand {
     StopRecording,
 }
 
+/// Audio recording data with metadata - matches TypeScript interface
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AudioRecording {
+    pub audio_data: Vec<f32>,
+    pub sample_rate: u32,
+    pub channels: u16,
+    pub duration_seconds: f32,
+}
+
 /// Responses from the audio thread
 #[derive(Debug)]
 pub enum AudioResponse {
     /// List of available recording devices
     RecordingDeviceList(Vec<String>),
-    /// Recorded audio data
-    AudioData(Vec<f32>),
+    /// Recorded audio data with metadata
+    AudioData(AudioRecording),
     /// Error message
     Error(String),
     /// Success message
@@ -125,8 +135,10 @@ pub fn spawn_audio_thread(
                         let config = match get_optimal_config(&device) {
                             Ok(config) => config,
                             Err(e) => {
-                                error!("Failed to get device config: {}", e);
-                                response_tx.send(AudioResponse::Error(e))?;
+                                error!("Failed to get device config for '{}': {}", device_name, e);
+                                response_tx.send(AudioResponse::Error(format!(
+                                    "Device '{}' configuration error: {}", device_name, e
+                                )))?;
                                 continue;
                             }
                         };
@@ -141,7 +153,7 @@ pub fn spawn_audio_thread(
                             channels,
                             sample_rate: cpal::SampleRate(sample_rate),
                             buffer_size: match config.buffer_size() {
-                                cpal::SupportedBufferSize::Range { min, max } => {
+                                cpal::SupportedBufferSize::Range { min: _, max: _ } => {
                                     cpal::BufferSize::Default
                                 }
                                 cpal::SupportedBufferSize::Unknown => cpal::BufferSize::Default,
@@ -214,7 +226,7 @@ pub fn spawn_audio_thread(
                         debug!("Audio thread: Getting recorder state");
                         let state = if let Some(session) = &current_session {
                             if session.is_recording.load(Ordering::Acquire) {
-                                "SESSION+RECORDING"
+                                "RECORDING"
                             } else {
                                 "SESSION"
                             }
@@ -264,7 +276,14 @@ pub fn spawn_audio_thread(
                             // First stop recording to prevent new data from coming in
                             session.is_recording.store(false, Ordering::Release);
 
-                            // Get a copy of all recorded audio data
+                            // Pause the stream immediately to stop audio callback
+                            if let Err(e) = session.stream.pause() {
+                                warn!("Error pausing stream: {}", e);
+                            }
+
+                            // The atomic store above prevents new data from being written
+                            // Safe to read buffer now that stream is paused
+
                             let audio_data = if let Ok(buffer) = session.audio_buffer.lock() {
                                 buffer.clone()
                             } else {
@@ -283,12 +302,15 @@ pub fn spawn_audio_thread(
                                 session.channels
                             );
 
-                            // Properly stop the stream - first pause it
-                            if let Err(e) = session.stream.pause() {
-                                warn!("Error pausing stream: {}", e);
-                            }
+                            // Create complete AudioRecording object with metadata
+                            let audio_recording = AudioRecording {
+                                audio_data,
+                                sample_rate: session.sample_rate,
+                                channels: session.channels,
+                                duration_seconds: duration_secs,
+                            };
 
-                            response_tx.send(AudioResponse::AudioData(audio_data))?;
+                            response_tx.send(AudioResponse::AudioData(audio_recording))?;
                         } else {
                             error!("Cannot stop recording: no active session");
                             response_tx
@@ -341,8 +363,8 @@ fn build_stream_f32(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     let err_fn = |err| error!("Error in audio stream: {}", err);
 
@@ -359,13 +381,6 @@ fn build_stream_f32(
 
                     // Directly extend with f32 data
                     buffer.extend_from_slice(data);
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
@@ -380,8 +395,8 @@ fn build_stream_i16(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     use cpal::Sample; // Bring Sample trait into scope
     let err_fn = |err| error!("Error in audio stream: {}", err);
@@ -399,13 +414,6 @@ fn build_stream_i16(
 
                     // Convert i16 to f32 and store
                     buffer.extend(data.iter().map(|&s| f32::from_sample(s)));
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
@@ -420,8 +428,8 @@ fn build_stream_u16(
     config: &cpal::StreamConfig,
     is_recording: Arc<AtomicBool>,
     audio_buffer: Arc<Mutex<Vec<f32>>>,
-    sample_rate: u32,
-    channels: u16,
+    _sample_rate: u32,
+    _channels: u16,
 ) -> Result<Stream, cpal::BuildStreamError> {
     use cpal::Sample; // Bring Sample trait into scope
     let err_fn = |err| error!("Error in audio stream: {}", err);
@@ -439,13 +447,6 @@ fn build_stream_u16(
 
                     // Convert u16 to f32 and store
                     buffer.extend(data.iter().map(|&s| f32::from_sample(s)));
-
-                    debug!(
-                        "Recorded {} samples, total length: {} ({:.2} seconds)",
-                        new_samples,
-                        buffer.len(),
-                        buffer.len() as f32 / (sample_rate as f32 * channels as f32)
-                    );
                 }
             }
         },
@@ -456,16 +457,6 @@ fn build_stream_u16(
 
 /// Find a recording device by name
 fn find_device(host: &cpal::Host, device_name: &str) -> Result<cpal::Device, String> {
-    // First try exact match
-    let exact_match = host
-        .input_devices()
-        .map_err(|e| e.to_string())?
-        .find(|d| matches!(d.name(), Ok(name) if name == device_name));
-
-    if let Some(device) = exact_match {
-        return Ok(device);
-    }
-
     // If "default" is requested, return default device
     if device_name.to_lowercase() == "default" {
         return host
@@ -473,8 +464,37 @@ fn find_device(host: &cpal::Host, device_name: &str) -> Result<cpal::Device, Str
             .ok_or_else(|| "No default input device available".to_string());
     }
 
-    // Otherwise, error
-    Err(format!("Device '{}' not found", device_name))
+    // Get all available devices
+    let devices: Vec<_> = host
+        .input_devices()
+        .map_err(|e| e.to_string())?
+        .collect();
+
+    if devices.is_empty() {
+        return Err("No recording devices available".to_string());
+    }
+
+    // Try exact match
+    for device in &devices {
+        if let Ok(name) = device.name() {
+            if name == device_name {
+                info!("Found exact device match: '{}'", name);
+                return Ok(device.clone());
+            }
+        }
+    }
+
+    // List available devices in error message for better debugging
+    let available_devices: Vec<String> = devices
+        .iter()
+        .filter_map(|d| d.name().ok())
+        .collect();
+
+    Err(format!(
+        "Device '{}' not found. Available devices: [{}]",
+        device_name,
+        available_devices.join(", ")
+    ))
 }
 
 /// Get an optimal audio configuration for voice recording

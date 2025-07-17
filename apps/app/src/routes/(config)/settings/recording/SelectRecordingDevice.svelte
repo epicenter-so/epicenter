@@ -1,28 +1,34 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { useGetMediaDevices } from '$lib/query/audio/queries';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { toast } from '$lib/services/toast';
+	import { rpc } from '$lib/query';
+	import type { DeviceEnumerationStrategy } from '$lib/query/device';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
+		deviceEnumerationStrategy,
 		selected,
 		onSelectedChange,
 	}: {
+		deviceEnumerationStrategy: DeviceEnumerationStrategy;
 		selected: string;
 		onSelectedChange: (selected: string) => void;
 	} = $props();
 
-	const manualRecorder = getManualRecorderFromContext();
-	const { getMediaDevicesQuery } = useGetMediaDevices();
+	const getDevicesQuery = createQuery(
+		rpc.device.getDevices(deviceEnumerationStrategy).options,
+	);
 
 	$effect(() => {
-		if (getMediaDevicesQuery.isError) {
-			toast.warning(getMediaDevicesQuery.error);
+		if (getDevicesQuery.isError) {
+			rpc.notify.warning.execute({
+				title: 'Error loading devices',
+				description: getDevicesQuery.error.message,
+			});
 		}
 	});
 </script>
 
-{#if getMediaDevicesQuery.isPending}
+{#if getDevicesQuery.isPending}
 	<LabeledSelect
 		id="recording-device"
 		label="Recording Device"
@@ -32,12 +38,12 @@
 		onSelectedChange={() => {}}
 		disabled
 	/>
-{:else if getMediaDevicesQuery.isError}
+{:else if getDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getMediaDevicesQuery.error.title}: {getMediaDevicesQuery.error.description}
+		{getDevicesQuery.error.message}
 	</p>
 {:else}
-	{@const items = getMediaDevicesQuery.data.map((device) => ({
+	{@const items = getDevicesQuery.data.map((device) => ({
 		value: device.deviceId,
 		label: device.label,
 	}))}
@@ -46,10 +52,7 @@
 		label="Recording Device"
 		{items}
 		{selected}
-		onSelectedChange={(selected) => {
-			manualRecorder.closeRecordingSessionSilent();
-			onSelectedChange(selected);
-		}}
+		{onSelectedChange}
 		placeholder="Select a device"
 	/>
 {/if}

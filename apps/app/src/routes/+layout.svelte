@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onNavigate } from '$app/navigation';
-	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import '../app.css';
-	import { queryClient } from '$lib/query';
+	import { queryClient } from '$lib/query/_client';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
+	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
+	import '@repo/ui/app.css';
+	import * as services from '$lib/services';
 	import AppShell from './+layout/AppShell.svelte';
-	import GlobalSingletonsContext from './+layout/GlobalSingletonsContext.svelte';
 
 	let { children } = $props();
 
@@ -19,6 +19,11 @@
 			});
 		});
 	});
+
+	$effect(() => {
+		const unlisten = services.localShortcutManager.listen();
+		return () => unlisten();
+	});
 </script>
 
 <svelte:head>
@@ -26,10 +31,8 @@
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
-	<GlobalSingletonsContext>
-		<AppShell>
-			{@render children()}
-		</AppShell>
-	</GlobalSingletonsContext>
+	<AppShell>
+		{@render children()}
+	</AppShell>
 	<SvelteQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
 </QueryClientProvider>

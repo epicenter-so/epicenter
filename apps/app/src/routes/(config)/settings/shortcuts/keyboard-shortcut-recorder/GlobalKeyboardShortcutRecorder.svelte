@@ -1,119 +1,131 @@
 <script lang="ts">
-	import { getShortcutsRegisterFromContext } from '$lib/query/singletons/shortcutsRegister';
-	import { toast } from '$lib/services/toast';
+	import type { Command } from '$lib/commands';
+	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
+	import { rpc } from '$lib/query';
+	import {
+		type Accelerator,
+		pressedKeysToTauriAccelerator,
+	} from '$lib/services/global-shortcut-manager';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { tryAsync } from '@epicenterhq/result';
-	import { type Command, WhisperingError } from '@repo/shared';
+	import { type PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 	import KeyboardShortcutRecorder from './KeyboardShortcutRecorder.svelte';
-	import { createKeyRecorder } from './index.svelte';
-	import { createGlobalKeyMapper } from './key-mappers';
+	import { createKeyRecorder } from './create-key-recorder.svelte';
 
 	const {
 		command,
 		placeholder,
-		autoFocus = false,
+		autoFocus = true,
+		pressedKeys,
 	}: {
 		command: Command;
 		placeholder?: string;
 		autoFocus?: boolean;
+		pressedKeys: PressedKeys;
 	} = $props();
 
-	const shortcutsRegister = getShortcutsRegisterFromContext();
-	let isPopoverOpen = $state(false);
-
-	// Get the current key combination from settings
-	const keyCombination = $derived(
+	const shortcutValue = $derived(
 		settings.value[`shortcuts.global.${command.id}`],
 	);
 
-	// Create a key mapper for global shortcuts
-	const keyMapper = createGlobalKeyMapper();
-
-	// Create the key recorder with callbacks
-	const keyRecorder = createKeyRecorder(
-		{
-			onUnregister: async () => {
-				const oldShortcutKey = settings.value[`shortcuts.global.${command.id}`];
-				if (!oldShortcutKey) return;
-
-				const { error: unregisterError } = await tryAsync({
-					try: async () => {
-						if (!window.__TAURI_INTERNALS__) return;
-						const { unregister } = await import(
-							'@tauri-apps/plugin-global-shortcut'
-						);
-						return await unregister(oldShortcutKey);
-					},
-					mapErr: (error) =>
-						WhisperingError({
-							title: `Error unregistering command with id ${command.id} globally`,
-							description: 'Please try again.',
-							action: { type: 'more-details', error },
-						}),
-				});
-
-				if (unregisterError) {
-					toast.error(unregisterError);
-				}
-			},
-			onRegister: async (keyCombination) => {
-				const { error: registerError } =
-					await shortcutsRegister.registerCommandGlobally({
-						command,
-						keyCombination,
+	const keyRecorder = createKeyRecorder({
+		pressedKeys,
+		onRegister: async (keyCombination: KeyboardEventSupportedKey[]) => {
+			if (shortcutValue) {
+				const { error: unregisterError } =
+					await rpc.shortcuts.unregisterCommandGlobally.execute({
+						accelerator: shortcutValue as Accelerator,
 					});
 
-				if (registerError) {
-					toast.error(registerError);
-					return;
+				if (unregisterError) {
+					rpc.notify.error.execute({
+						title: 'Failed to unregister shortcut',
+						description:
+							'Could not unregister the global shortcut. It may already be in use by another application.',
+						action: { type: 'more-details', error: unregisterError },
+					});
 				}
+			}
 
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: keyCombination,
-				};
+			const { data: accelerator, error: acceleratorError } =
+				pressedKeysToTauriAccelerator(keyCombination);
 
-				toast.success({
-					title: `Global shortcut set to ${keyCombination}`,
-					description: `Press the shortcut to trigger "${command.title}"`,
+			if (acceleratorError) {
+				rpc.notify.error.execute({
+					title: 'Invalid shortcut combination',
+					description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
+					action: { type: 'more-details', error: acceleratorError },
+				});
+				return;
+			}
+
+			const { error: registerError } =
+				await rpc.shortcuts.registerCommandGlobally.execute({
+					command,
+					accelerator,
 				});
 
-				isPopoverOpen = false;
-			},
-			onClear: async () => {
-				settings.value = {
-					...settings.value,
-					[`shortcuts.global.${command.id}`]: null,
-				};
+			if (registerError) {
+				switch (registerError.name) {
+					case 'InvalidAcceleratorError':
+						rpc.notify.error.execute({
+							title: 'Invalid shortcut combination',
+							description: `The key combination "${keyCombination.join('+')}" is not valid. Please try a different combination.`,
+							action: { type: 'more-details', error: registerError },
+						});
+						break;
+					default:
+						rpc.notify.error.execute({
+							title: 'Failed to register shortcut',
+							description:
+								'Could not register the global shortcut. It may already be in use by another application.',
+							action: { type: 'more-details', error: registerError },
+						});
+						break;
+				}
+				return;
+			}
 
-				toast.success({
-					title: 'Global shortcut cleared',
-					description: `Please set a new shortcut to trigger "${command.title}"`,
-				});
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: accelerator,
+			};
 
-				isPopoverOpen = false;
-			},
-			onEscape: () => {
-				isPopoverOpen = false;
-			},
+			rpc.notify.success.execute({
+				title: `Global shortcut set to ${accelerator}`,
+				description: `Press the shortcut to trigger "${command.title}"`,
+			});
 		},
-		{ mapKeyboardEvent: keyMapper.mapKeyboardEvent },
-	);
+		onClear: async () => {
+			const { error: unregisterError } =
+				await rpc.shortcuts.unregisterCommandGlobally.execute({
+					accelerator: shortcutValue as Accelerator,
+				});
 
-	// Handle popover open/close
-	function handleOpenChange(isOpen: boolean) {
-		isPopoverOpen = isOpen;
-		if (!isOpen) keyRecorder.stop();
-	}
+			if (unregisterError) {
+				rpc.notify.error.execute({
+					title: 'Error clearing global shortcut',
+					description: unregisterError.message,
+					action: { type: 'more-details', error: unregisterError },
+				});
+			}
+
+			settings.value = {
+				...settings.value,
+				[`shortcuts.global.${command.id}`]: null,
+			};
+
+			rpc.notify.success.execute({
+				title: 'Global shortcut cleared',
+				description: `Please set a new shortcut to trigger "${command.title}"`,
+			});
+		},
+	});
 </script>
 
 <KeyboardShortcutRecorder
-	{command}
+	title={command.title}
 	{placeholder}
 	{autoFocus}
-	{keyCombination}
-	isListening={keyRecorder.isListening}
-	onOpenChange={handleOpenChange}
-	onStartListening={() => keyRecorder.start()}
-	onClear={() => keyRecorder.clear()}
+	rawKeyCombination={shortcutValue}
+	{keyRecorder}
 />

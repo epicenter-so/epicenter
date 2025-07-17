@@ -1,6 +1,8 @@
-import { Err, extractErrorMessage, tryAsync } from '@epicenterhq/result';
 import { fetch } from '@tauri-apps/plugin-http';
-import type { HttpService, ConnectionError, ParseError } from './_types';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, tryAsync } from 'wellcrafted/result';
+import type { HttpService } from '.';
+import { ConnectionError, ParseError, ResponseError } from './types';
 
 export function createHttpServiceDesktop(): HttpService {
 	return {
@@ -12,23 +14,24 @@ export function createHttpServiceDesktop(): HttpService {
 						body,
 						headers: headers,
 					}),
-				mapErr: (error): ConnectionError => ({
-					name: 'ConnectionError',
-					message: 'Failed to establish connection',
-					context: { url, body, headers },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ConnectionError({
+						message: 'Failed to establish connection',
+						context: { url, body, headers },
+						cause: error,
+					}),
 			});
 			if (responseError) return Err(responseError);
 
 			if (!response.ok) {
-				return Err({
-					name: 'ResponseError',
-					status: response.status,
-					message: extractErrorMessage(await response.json()),
-					context: { url, body, headers },
-					cause: responseError,
-				});
+				return Err(
+					ResponseError({
+						status: response.status,
+						message: extractErrorMessage(await response.json()),
+						context: { url, body, headers },
+						cause: responseError,
+					}),
+				);
 			}
 
 			const parseResult = await tryAsync({
@@ -36,12 +39,12 @@ export function createHttpServiceDesktop(): HttpService {
 					const json = await response.json();
 					return schema.parse(json);
 				},
-				mapErr: (error): ParseError => ({
-					name: 'ParseError',
-					message: 'Failed to parse response',
-					context: { url, body, headers },
-					cause: error,
-				}),
+				mapError: (error) =>
+					ParseError({
+						message: 'Failed to parse response',
+						context: { url, body, headers },
+						cause: error,
+					}),
 			});
 			return parseResult;
 		},

@@ -1,48 +1,74 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { ClipboardIcon } from '$lib/components/icons';
-	import type { Props } from '$lib/components/ui/button';
-	import {
-		type CopyToClipboardLabel,
-		copyTextToClipboardWithToast,
-	} from '$lib/query/clipboard/mutations';
+	import type { Props } from '@repo/ui/button';
+	import { rpc } from '$lib/query';
+	import { createMutation } from '@tanstack/svelte-query';
 	import { CheckIcon } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
+	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
+
 	let {
-		label,
-		copyableText,
+		children,
+		copiedContent,
+		textToCopy,
+		contentDescription,
 		viewTransitionName,
-		copyIcon: providedCopyIcon,
 		class: className,
 		size = 'icon',
 		variant = 'ghost',
 		disabled,
 	}: {
-		label: CopyToClipboardLabel;
-		copyableText: string;
+		/**
+		 * The content to display in the button's default state.
+		 * This is mandatory and can contain any combination of text, icons, or other elements.
+		 */
+		children: Snippet;
+		/**
+		 * The content to display when the copy operation succeeds.
+		 * Defaults to a check icon if not provided.
+		 */
+		copiedContent?: Snippet;
+		/**
+		 * The text that will be copied to the clipboard when the button is clicked.
+		 */
+		textToCopy: string;
+		/**
+		 * A description of the content being copied (e.g., "transcribed text", "API key").
+		 * Used in tooltips and toast messages to provide context to the user.
+		 */
+		contentDescription: string;
 		viewTransitionName?: string;
-		copyIcon?: Snippet;
 		class?: string;
 	} & Pick<Props, 'disabled' | 'variant' | 'size'> = $props();
 
 	let hasCopied = $state(false);
-
-	$effect(() => {
-		if (hasCopied) {
-			setTimeout(() => {
-				hasCopied = false;
-			}, 2000);
-		}
-	});
 </script>
 
 <WhisperingButton
-	tooltipContent="Copy {label} to clipboard"
+	tooltipContent="Copy {contentDescription} to clipboard"
 	onclick={() =>
-		copyTextToClipboardWithToast(
-			{ label, text: copyableText },
-			{ onSuccess: () => (hasCopied = true) },
+		copyToClipboard.mutate(
+			{ text: textToCopy },
+			{
+				onSuccess: () => {
+					hasCopied = true;
+					setTimeout(() => {
+						hasCopied = false;
+					}, 2000);
+					rpc.notify.success.execute({
+						title: `Copied ${contentDescription} to clipboard!`,
+						description: textToCopy,
+					});
+				},
+				onError: (error) => {
+					rpc.notify.error.execute({
+						title: `Error copying ${contentDescription} to clipboard`,
+						description: error.message,
+						action: { type: 'more-details', error },
+					});
+				},
+			},
 		)}
 	style={viewTransitionName
 		? `view-transition-name: ${viewTransitionName};`
@@ -54,16 +80,12 @@
 >
 	<span class="sr-only">Copy</span>
 	{#if hasCopied}
-		<CheckIcon class="size-4" />
+		{#if copiedContent}
+			{@render copiedContent()}
+		{:else}
+			<CheckIcon class="size-4" />
+		{/if}
 	{:else}
-		{@render copyIcon()}
+		{@render children()}
 	{/if}
 </WhisperingButton>
-
-{#snippet copyIcon()}
-	{#if providedCopyIcon}
-		{@render providedCopyIcon()}
-	{:else}
-		<ClipboardIcon class="size-4" />
-	{/if}
-{/snippet}

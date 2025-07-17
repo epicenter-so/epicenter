@@ -1,8 +1,9 @@
-import { getExtensionFromAudioBlob } from '$lib/utils';
-import { Err, Ok, tryAsync } from '@epicenterhq/result';
+import { getExtensionFromAudioBlob } from '$lib/services/_utils';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
-import type { DownloadService, DownloadServiceError } from './_types';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import type { DownloadService } from '.';
+import { DownloadServiceError } from './types';
 
 export function createDownloadServiceDesktop(): DownloadService {
 	return {
@@ -15,35 +16,36 @@ export function createDownloadServiceDesktop(): DownloadService {
 					});
 					return path;
 				},
-				mapErr: (error): DownloadServiceError => ({
-					name: 'DownloadServiceError',
-					message:
-						'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
-					context: { name, blob },
-					cause: error,
-				}),
+				mapError: (error) =>
+					DownloadServiceError({
+						message:
+							'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
+						context: { name, blob },
+						cause: error,
+					}),
 			});
 			if (saveError) return Err(saveError);
 			if (path === null) {
-				return Err({
-					name: 'DownloadServiceError',
-					message: 'Please specify a path to save the recording.',
-					context: { name, blob },
-					cause: undefined,
-				} satisfies DownloadServiceError);
+				return Err(
+					DownloadServiceError({
+						message: 'Please specify a path to save the recording.',
+						context: { name, blob },
+						cause: undefined,
+					}),
+				);
 			}
 			const { error: writeError } = await tryAsync({
 				try: async () => {
 					const contents = new Uint8Array(await blob.arrayBuffer());
 					await writeFile(path, contents);
 				},
-				mapErr: (error): DownloadServiceError => ({
-					name: 'DownloadServiceError',
-					message:
-						'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
-					context: { name, blob, path },
-					cause: error,
-				}),
+				mapError: (error) =>
+					DownloadServiceError({
+						message:
+							'There was an error saving the recording using the Tauri Filesystem API. Please try again.',
+						context: { name, blob, path },
+						cause: error,
+					}),
 			});
 			if (writeError) return Err(writeError);
 			return Ok(undefined);

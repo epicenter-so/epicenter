@@ -1,6 +1,7 @@
-import { tryAsync } from '@epicenterhq/result';
-import type { PlaySoundService, PlaySoundServiceError } from './_types';
-import { audioElements } from './_audioElements';
+import { tryAsync } from 'wellcrafted/result';
+import type { PlaySoundService } from '.';
+import { audioElements } from './assets';
+import { PlaySoundServiceError } from './types';
 
 export function createPlaySoundServiceDesktop(): PlaySoundService {
 	return {
@@ -9,12 +10,12 @@ export function createPlaySoundServiceDesktop(): PlaySoundService {
 				try: async () => {
 					await audioElements[soundName].play();
 				},
-				mapErr: (error): PlaySoundServiceError => ({
-					name: 'PlaySoundServiceError',
-					message: 'Failed to play sound',
-					context: { soundName },
-					cause: error,
-				}),
+				mapError: (error) =>
+					PlaySoundServiceError({
+						message: 'Failed to play sound',
+						context: { soundName },
+						cause: error,
+					}),
 			}),
 	};
 }

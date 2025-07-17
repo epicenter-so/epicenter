@@ -1,47 +1,63 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { commandCallbacks } from '$lib/commands';
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
-	import FasterRerecordExplainedDialog from '$lib/components/FasterRerecordExplainedDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import { getCommandsFromContext } from '$lib/query/singletons/commands';
-	import { getManualRecorderFromContext } from '$lib/query/singletons/manualRecorder';
-	import { getVadRecorderFromContext } from '$lib/query/singletons/vadRecorder';
-	import { DbRecordingsService } from '$lib/services';
-	import { extension } from '@repo/extension';
+	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
+	import { rpc } from '$lib/query';
+	import * as services from '$lib/services';
+	import { settings } from '$lib/stores/settings.svelte';
+	// import { extension } from '@repo/extension';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
-	import { bindKeyboardShortcutsOnLoad } from './bindKeyboardShortcutsOnLoad';
-	import { closeToTrayIfEnabled } from './closeToTrayIfEnabled';
+	import { checkForUpdates } from './check-for-updates';
+	import {
+		resetGlobalShortcutsToDefaultIfDuplicates,
+		resetLocalShortcutsToDefaultIfDuplicates,
+		syncGlobalShortcutsWithSettings,
+		syncLocalShortcutsWithSettings,
+	} from './register-commands';
+	import { registerOnboarding } from './register-onboarding';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
-	const manualRecorder = getManualRecorderFromContext();
-	const vadRecorder = getVadRecorderFromContext();
-	const commands = getCommandsFromContext();
+	const getRecorderStateQuery = createQuery(
+		rpc.manualRecorder.getRecorderState.options,
+	);
+	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
+
+	onMount(() => {
+		window.commands = commandCallbacks;
+		window.goto = goto;
+		syncLocalShortcutsWithSettings();
+		resetLocalShortcutsToDefaultIfDuplicates();
+		registerOnboarding();
+		if (window.__TAURI_INTERNALS__) {
+			syncGlobalShortcutsWithSettings();
+			resetGlobalShortcutsToDefaultIfDuplicates();
+			checkForUpdates();
+		} else {
+			// const _notifyWhisperingTabReadyResult =
+			// await extension.notifyWhisperingTabReady(undefined);
+		}
+	});
 
 	if (window.__TAURI_INTERNALS__) {
 		syncWindowAlwaysOnTopWithRecorderState();
 		syncIconWithRecorderState();
-		closeToTrayIfEnabled();
 	}
 
-	bindKeyboardShortcutsOnLoad();
-
 	$effect(() => {
-		manualRecorder.recorderState;
-		vadRecorder.vadState;
-		void DbRecordingsService.cleanupExpiredRecordings();
-	});
-
-	onMount(async () => {
-		window.commands = commands;
-		window.goto = goto;
-		if (!window.__TAURI_INTERNALS__) {
-			const _notifyWhisperingTabReadyResult =
-				await extension.notifyWhisperingTabReady(undefined);
-		}
+		getRecorderStateQuery.data;
+		getVadStateQuery.data;
+		services.db.cleanupExpiredRecordings({
+			recordingRetentionStrategy:
+				settings.value['database.recordingRetentionStrategy'],
+			maxRecordingCount: settings.value['database.maxRecordingCount'],
+		});
 	});
 
 	const TOASTER_SETTINGS = {
@@ -49,6 +65,14 @@
 		richColors: true,
 		duration: 5000,
 		visibleToasts: 5,
+		toastOptions: {
+			classes: {
+				toast: 'flex flex-wrap *:data-content:flex-1',
+				icon: 'shrink-0',
+				actionButton: 'w-full mt-3 inline-flex justify-center',
+				closeButton: 'w-full mt-3 inline-flex justify-center',
+			},
+		},
 	} satisfies ToasterProps;
 
 	let { children } = $props();
@@ -56,13 +80,13 @@
 
 <button
 	class="xxs:hidden hover:bg-accent hover:text-accent-foreground h-screen w-screen transform duration-300 ease-in-out"
-	onclick={commands.toggleManualRecording}
+	onclick={commandCallbacks.toggleManualRecording}
 >
 	<span
 		style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));"
 		class="text-[48px] leading-none"
 	>
-		{#if manualRecorder.recorderState === 'SESSION+RECORDING'}
+		{#if getRecorderStateQuery.data === 'RECORDING'}
 			⏹️
 		{:else}
 			🎙️
@@ -81,7 +105,7 @@
 	{...TOASTER_SETTINGS}
 />
 <ModeWatcher />
-<FasterRerecordExplainedDialog />
 <ConfirmationDialog />
 <MoreDetailsDialog />
 <NotificationLog />
+<UpdateDialog />

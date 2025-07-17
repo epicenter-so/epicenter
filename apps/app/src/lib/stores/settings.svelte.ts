@@ -1,51 +1,46 @@
-import { toast } from '$lib/services/toast';
-import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
+import { rpc } from '$lib/query';
 import {
-	getDefaultSettingsV1,
-	migrateV1ToV2,
-	migrateV2ToV3,
-	migrateV3ToV4,
-	migrateV4ToV5,
-	settingsV1Schema,
-	settingsV2Schema,
-	settingsV3Schema,
-	settingsV4Schema,
-	settingsV5Schema,
-} from '@repo/shared/settings';
-
-const settingsV1 = createPersistedState({
-	key: 'whispering-settings',
-	schema: settingsV1Schema,
-	defaultValue: getDefaultSettingsV1(),
-});
-
-export const settingsV2 = createPersistedState({
-	key: 'whispering-settings',
-	schema: settingsV2Schema,
-	defaultValue: migrateV1ToV2(settingsV1.value),
-});
-
-export const settingsV3 = createPersistedState({
-	key: 'whispering-settings',
-	schema: settingsV3Schema,
-	defaultValue: migrateV2ToV3(settingsV2.value),
-});
-
-export const settingsV4 = createPersistedState({
-	key: 'whispering-settings',
-	schema: settingsV4Schema,
-	defaultValue: migrateV3ToV4(settingsV3.value),
-});
+	type Settings,
+	getDefaultSettings,
+	parseStoredSettings,
+	settingsSchema,
+} from '$lib/settings/settings';
+import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 
 export const settings = createPersistedState({
 	key: 'whispering-settings',
-	schema: settingsV5Schema,
-	defaultValue: migrateV4ToV5(settingsV4.value),
+	schema: settingsSchema,
+	onParseError: (error) => {
+		// For empty storage, return defaults
+		if (error.type === 'storage_empty') {
+			return getDefaultSettings();
+		}
+
+		// For JSON parse errors, return defaults
+		if (error.type === 'json_parse_error') {
+			console.error('Failed to parse settings JSON:', error.error);
+			return getDefaultSettings();
+		}
+
+		// For schema validation failures, use our progressive validation
+		if (error.type === 'schema_validation_failed') {
+			return parseStoredSettings(error.value);
+		}
+
+		// For async validation (shouldn't happen with our schemas)
+		if (error.type === 'schema_validation_async_during_sync') {
+			console.warn('Unexpected async validation for settings');
+			return parseStoredSettings(error.value);
+		}
+
+		// Fallback - should never reach here
+		return getDefaultSettings();
+	},
 	onUpdateSuccess: () => {
-		toast.success({ title: 'Settings updated!', description: '' });
+		rpc.notify.success.execute({ title: 'Settings updated!', description: '' });
 	},
 	onUpdateError: (err) => {
-		toast.error({
+		rpc.notify.error.execute({
 			title: 'Error updating settings',
 			description: err instanceof Error ? err.message : 'Unknown error',
 		});

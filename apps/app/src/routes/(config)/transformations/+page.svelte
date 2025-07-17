@@ -2,24 +2,23 @@
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-	import SelectAllPopover from '$lib/components/ui/table/SelectAllPopover.svelte';
-	import SortableTableHeader from '$lib/components/ui/table/SortableTableHeader.svelte';
-	import * as Table from '$lib/components/ui/table/index.js';
-	import { useDeleteTransformationsWithToast } from '$lib/query/transformations/mutations';
-	import { useTransformationsQuery } from '$lib/query/transformations/queries';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import { Checkbox } from '@repo/ui/checkbox';
+	import { Input } from '@repo/ui/input';
+	import { Skeleton } from '@repo/ui/skeleton';
+	import { SelectAllPopover, SortableTableHeader } from '@repo/ui/table';
+	import * as Table from '@repo/ui/table';
+	import { rpc } from '$lib/query';
 	import { type Transformation } from '$lib/services/db';
 	import { createPersistedState } from '$lib/utils/createPersistedState.svelte';
 	import { createTransformationViewTransitionName } from '$lib/utils/createTransformationViewTransitionName';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
 		FlexRender,
-		createSvelteTable,
+		createTable as createSvelteTable,
 		renderComponent,
-	} from '$lib/components/ui/data-table/index.js';
+	} from '@tanstack/svelte-table';
 	import type {
 		ColumnDef,
 		ColumnFiltersState,
@@ -37,9 +36,12 @@
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 	import TransformationRowActions from './TransformationRowActions.svelte';
 
-	const { transformationsQuery } = useTransformationsQuery();
-	const { deleteTransformationsWithToast } =
-		useDeleteTransformationsWithToast();
+	const transformationsQuery = createQuery(
+		rpc.transformations.queries.getAllTransformations.options,
+	);
+	const deleteTransformations = createMutation(
+		rpc.transformations.mutations.deleteTransformations.options,
+	);
 
 	const columns: ColumnDef<Transformation>[] = [
 		{
@@ -107,13 +109,13 @@
 
 	let sorting = createPersistedState({
 		key: 'whispering-transformations-data-table-sorting',
-		defaultValue: [{ id: 'title', desc: false }],
+		onParseError: (error) => [{ id: 'title', desc: false }],
 		schema: z.array(z.object({ desc: z.boolean(), id: z.string() })),
 	});
 	let columnFilters = $state<ColumnFiltersState>([]);
 	let rowSelection = createPersistedState({
 		key: 'whispering-transformations-data-table-row-selection',
-		defaultValue: {},
+		onParseError: (error) => ({}),
 		schema: z.record(z.string(), z.boolean()),
 	});
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -190,7 +192,7 @@
 	<title>All Transformations</title>
 </svelte:head>
 
-<main class="flex w-full flex-1 flex-col gap-2 px-4 py-4 md:px-8">
+<main class="flex w-full flex-1 flex-col gap-2 px-4 py-4 sm:px-8 mx-auto">
 	<h1 class="scroll-m=20 text-4xl font-bold tracking-tight lg:text-5xl">
 		Transformations
 	</h1>
@@ -217,8 +219,24 @@
 						subtitle: 'Are you sure you want to delete these transformations?',
 						confirmText: 'Delete',
 						onConfirm: () => {
-							deleteTransformationsWithToast.mutate(
+							deleteTransformations.mutate(
 								selectedTransformationRows.map(({ original }) => original),
+								{
+									onSuccess: () => {
+										rpc.notify.success.execute({
+											title: 'Deleted transformations!',
+											description:
+												'Your transformations have been deleted successfully.',
+										});
+									},
+									onError: (error) => {
+										rpc.notify.error.execute({
+											title: 'Failed to delete transformations!',
+											description: 'Your transformations could not be deleted.',
+											action: { type: 'more-details', error: error },
+										});
+									},
+								},
 							);
 						},
 					});
