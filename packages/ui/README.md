@@ -44,11 +44,7 @@ Our `package.json` uses a pattern-based export system with subpath imports:
 		"./app.css": "./src/app.css"
 	},
 	"imports": {
-		"#*": [
-			"./src/*",
-			"./src/*.ts",
-			"./src/*/index.ts"
-		]
+		"#*": ["./src/*", "./src/*.ts", "./src/*/index.ts"]
 	}
 }
 ```

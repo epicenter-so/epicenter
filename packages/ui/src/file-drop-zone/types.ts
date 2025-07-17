@@ -35,7 +35,7 @@ export type FileDropZonePropsWithoutHTML = WithChildren<{
 	/** The maximum size of a file in bytes */
 	maxFileSize?: number;
 	/** Called when a file does not meet the upload criteria (size, or type) */
-	onFileRejected?: (opts: { file: File; reason: FileRejectedReason; }) => void;
+	onFileRejected?: (opts: { file: File; reason: FileRejectedReason }) => void;
 	/** Called with the uploaded files when the user drops or clicks and selects their files.
 	 *
 	 * @param files

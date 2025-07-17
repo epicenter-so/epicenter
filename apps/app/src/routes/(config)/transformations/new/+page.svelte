@@ -28,12 +28,12 @@
 				onclick={() =>
 					createTransformation.mutate($state.snapshot(transformation), {
 						onSuccess: () => {
-							goto('/transformations'),
-								rpc.notify.success.execute({
-									title: 'Created transformation!',
-									description:
-										'Your transformation has been created successfully.',
-								});
+							goto('/transformations');
+							rpc.notify.success.execute({
+								title: 'Created transformation!',
+								description:
+									'Your transformation has been created successfully.',
+							});
 						},
 						onError: (error) => {
 							rpc.notify.error.execute({

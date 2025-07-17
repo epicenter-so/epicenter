@@ -6,7 +6,8 @@ The query layer is the reactive bridge between your UI components and the isolat
 import { createQueryFactories } from 'wellcrafted/query';
 import { queryClient } from './_client';
 
-export const { defineQuery, defineMutation } = createQueryFactories(queryClient);
+export const { defineQuery, defineMutation } =
+	createQueryFactories(queryClient);
 ```
 
 These factory functions `defineQuery` and `defineMutations` take in query options with result query functions, you get two ways to use it:
@@ -557,7 +558,10 @@ Or imperatively in an event handler:
 async function handleDelete(id: string) {
 	const { error } = await rpc.recordings.deleteRecording.execute(id);
 	if (error) {
-		notify.error.execute({ title: 'Failed to delete', description: error.message });
+		notify.error.execute({
+			title: 'Failed to delete',
+			description: error.message,
+		});
 	}
 }
 ```
@@ -569,10 +573,12 @@ WellCrafted handles the `Result<T, E>` unwrapping, so TanStack Query gets regula
 ### `defineQuery` and `defineMutation`
 
 These factory functions (`defineQuery` and `defineMutation`) take query options with result functions - functions that return `Result<T, E>`. From there, you get two ways to use it:
+
 - `.options()` - Returns query/mutation options to pass into TanStack Query hooks
 - `.fetchCached()` / `.execute()` - Direct execution methods
 
 **`defineQuery`** - For data fetching:
+
 ```typescript
 // Your service returns Result<T, E>
 const userQuery = defineQuery({
@@ -594,17 +600,21 @@ const { data, error } = await userQuery.fetchCached();
 ```
 
 **`defineMutation`** - For data modifications:
+
 ```typescript
 const createRecording = defineMutation({
 	mutationKey: ['recordings', 'create'],
 	resultMutationFn: async (recording) => {
 		const result = await services.db.createRecording(recording);
 		if (result.error) return Err(result.error);
-		
+
 		// Update cache on success
-		queryClient.setQueryData(['recordings'], old => [...(old || []), recording]);
+		queryClient.setQueryData(['recordings'], (old) => [
+			...(old || []),
+			recording,
+		]);
 		return Ok(result.data);
-	}
+	},
 });
 
 // ✅ Reactive interface - creates mutation observer

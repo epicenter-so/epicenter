@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	import { cn, type WithElementRef, type WithoutChildren } from '#/utils/utils.js';
+	import {
+		cn,
+		type WithElementRef,
+		type WithoutChildren,
+	} from '#/utils/utils.js';
 
 	let {
 		class: className,
