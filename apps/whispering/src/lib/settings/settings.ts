@@ -89,6 +89,45 @@ export const settingsSchema = z.object({
 		z.ZodDefault<ZodBoolean>
 	>),
 
+	// Individual volume controls for each sound (0.0 to 1.0)
+	...({
+		'sound.volume.manual-start': z.number().min(0).max(1).default(0.5),
+		'sound.volume.manual-stop': z.number().min(0).max(1).default(0.5),
+		'sound.volume.manual-cancel': z.number().min(0).max(1).default(0.5),
+		'sound.volume.cpal-start': z.number().min(0).max(1).default(0.5),
+		'sound.volume.cpal-stop': z.number().min(0).max(1).default(0.5),
+		'sound.volume.cpal-cancel': z.number().min(0).max(1).default(0.5),
+		'sound.volume.vad-start': z.number().min(0).max(1).default(0.5),
+		'sound.volume.vad-capture': z.number().min(0).max(1).default(0.5),
+		'sound.volume.vad-stop': z.number().min(0).max(1).default(0.5),
+		'sound.volume.transcriptionComplete': z.number().min(0).max(1).default(0.5),
+		'sound.volume.transformationComplete': z.number().min(0).max(1).default(0.5),
+	} satisfies Record<
+		`sound.volume.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`,
+		z.ZodDefault<z.ZodNumber>
+	>),
+
+	// Global sound volume setting (0.0 to 1.0) - for quick adjustments
+	'sound.volume': z.number().min(0).max(1).default(0.5),
+
+	// Custom sound file paths (optional - empty string means use default)
+	...({
+		'sound.custom.manual-start': z.string().default(''),
+		'sound.custom.manual-stop': z.string().default(''),
+		'sound.custom.manual-cancel': z.string().default(''),
+		'sound.custom.cpal-start': z.string().default(''),
+		'sound.custom.cpal-stop': z.string().default(''),
+		'sound.custom.cpal-cancel': z.string().default(''),
+		'sound.custom.vad-start': z.string().default(''),
+		'sound.custom.vad-capture': z.string().default(''),
+		'sound.custom.vad-stop': z.string().default(''),
+		'sound.custom.transcriptionComplete': z.string().default(''),
+		'sound.custom.transformationComplete': z.string().default(''),
+	} satisfies Record<
+		`sound.custom.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`,
+		z.ZodDefault<ZodString>
+	>),
+
 	'transcription.clipboard.copyOnSuccess': z.boolean().default(true),
 	'transcription.clipboard.pasteOnSuccess': z.boolean().default(false),
 	'transformation.clipboard.copyOnSuccess': z.boolean().default(true),
@@ -156,6 +195,8 @@ export const settingsSchema = z.object({
 
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable().default(' '),
+		'shortcuts.local.startManualRecording': z.string().nullable().default(null),
+		'shortcuts.local.stopManualRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelManualRecording': z.string().nullable().default('c'),
 		'shortcuts.local.toggleCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelCpalRecording': z.string().nullable().default(null),
@@ -171,6 +212,8 @@ export const settingsSchema = z.object({
 			.string()
 			.nullable()
 			.default(`${CommandOrControl}+Shift+;`),
+		'shortcuts.global.startManualRecording': z.string().nullable().default(null),
+		'shortcuts.global.stopManualRecording': z.string().nullable().default(null),
 		'shortcuts.global.cancelManualRecording': z
 			.string()
 			.nullable()
