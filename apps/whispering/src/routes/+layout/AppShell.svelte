@@ -94,7 +94,7 @@
 	</span>
 </button>
 
-<div class="xxs:flex hidden min-h-screen flex-col items-center gap-2">
+<div class="xxs:flex hidden flex-col items-center gap-2">
 	{@render children()}
 </div>
 
@@ -109,3 +109,11 @@
 <MoreDetailsDialog />
 <NotificationLog />
 <UpdateDialog />
+
+<style>
+   :global(body) {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+   }
+</style>
