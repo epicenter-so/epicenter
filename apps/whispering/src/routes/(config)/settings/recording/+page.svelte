@@ -28,10 +28,7 @@
 		items={RECORDING_MODE_OPTIONS}
 		selected={settings.value['recording.mode']}
 		onSelectedChange={(selected) => {
-			settings.value = {
-				...settings.value,
-				'recording.mode': selected,
-			};
+			settings.updateKey('recording.mode', selected);
 		}}
 		placeholder="Select a recording mode"
 		description={`Choose how you want to activate recording: ${RECORDING_MODE_OPTIONS.map(
@@ -50,13 +47,9 @@
 			</div>
 
 			<SelectRecordingDevice
-				deviceEnumerationStrategy="navigator"
-				selected={settings.value['recording.navigator.selectedDeviceId'] ?? ''}
+				selected={settings.value['recording.selectedDeviceId'] ?? asDeviceIdentifier('')}
 				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.navigator.selectedDeviceId': selected,
-					};
+					settings.updateKey('recording.selectedDeviceId', selected);
 				}}
 			></SelectRecordingDevice>
 

@@ -99,10 +99,7 @@ export const transformations = {
 					transformation.id ===
 					settings.value['transformations.selectedTransformationId']
 				) {
-					settings.value = {
-						...settings.value,
-						'transformations.selectedTransformationId': null,
-					};
+					settings.updateKey('transformations.selectedTransformationId', null);
 				}
 
 				return Ok(undefined);
@@ -136,10 +133,7 @@ export const transformations = {
 							settings.value['transformations.selectedTransformationId'],
 					)
 				) {
-					settings.value = {
-						...settings.value,
-						'transformations.selectedTransformationId': null,
-					};
+					settings.updateKey('transformations.selectedTransformationId', null);
 				}
 
 				return Ok(undefined);

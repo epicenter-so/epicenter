@@ -56,11 +56,7 @@
 				return;
 			}
 
-			settings.value = {
-				...settings.value,
-				[`shortcuts.local.${command.id}`]:
-					arrayToShortcutString(keyCombination),
-			};
+			settings.updateKey(`shortcuts.local.${command.id}`, arrayToShortcutString(keyCombination));
 
 			rpc.notify.success.execute({
 				title: `Local shortcut set to ${keyCombination}`,
@@ -79,10 +75,7 @@
 					action: { type: 'more-details', error: unregisterError },
 				});
 			}
-			settings.value = {
-				...settings.value,
-				[`shortcuts.local.${command.id}`]: null,
-			};
+			settings.updateKey(`shortcuts.local.${command.id}`, null);
 
 			rpc.notify.success.execute({
 				title: 'Local shortcut cleared',

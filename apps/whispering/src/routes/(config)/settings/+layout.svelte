@@ -5,7 +5,7 @@
 	import { rpc } from '$lib/query';
 	import { RotateCcw } from '@lucide/svelte';
 	import SidebarNav from './SidebarNav.svelte';
-	import { resetAllSettingsToDefaults } from './reset-all-settings-to-defaults';
+	import { settings } from '$lib/stores/settings.svelte';
 
 	let { children } = $props();
 
@@ -78,7 +78,7 @@
 						'This will reset all settings to their default values. This action cannot be undone.',
 					confirmText: 'Reset Settings',
 					onConfirm: () => {
-						resetAllSettingsToDefaults();
+						settings.reset();
 						rpc.notify.success.execute({
 							title: 'Settings reset',
 							description: 'All settings have been reset to defaults.',

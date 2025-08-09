@@ -33,15 +33,9 @@
 	class={className}
 	onclick={() => {
 		if (isTransformationActive) {
-			settings.value = {
-				...settings.value,
-				'transformations.selectedTransformationId': null,
-			};
+			settings.updateKey('transformations.selectedTransformationId', null);
 		} else {
-			settings.value = {
-				...settings.value,
-				'transformations.selectedTransformationId': transformation.id,
-			};
+			settings.updateKey('transformations.selectedTransformationId', transformation.id);
 		}
 	}}
 >

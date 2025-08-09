@@ -8,7 +8,6 @@
 		TransformationSelector,
 	} from '$lib/components/settings';
 	import {
-		cpalStateToIcons,
 		recorderStateToIcons,
 		vadStateToIcons,
 	} from '$lib/constants/audio';
@@ -19,10 +18,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.manualRecorder.getRecorderState.options,
-	);
-	const getCpalStateQuery = createQuery(
-		rpc.cpalRecorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
@@ -60,7 +56,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector strategy="navigator" />
+			<DeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -75,36 +71,9 @@
 		>
 			{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
-	{:else if settings.value['recording.mode'] === 'cpal'}
-		{#if getCpalStateQuery.data === 'RECORDING'}
-			<WhisperingButton
-				tooltipContent="Cancel CPAL recording"
-				onclick={commandCallbacks.cancelCpalRecording}
-				variant="ghost"
-				size="icon"
-				style="view-transition-name: cancel-icon;"
-			>
-				🚫
-			</WhisperingButton>
-		{:else}
-			<DeviceSelector strategy="cpal" />
-			<TranscriptionSelector />
-			<TransformationSelector />
-		{/if}
-		<WhisperingButton
-			tooltipContent={getCpalStateQuery.data === 'RECORDING'
-				? 'Stop CPAL recording'
-				: 'Start CPAL recording'}
-			onclick={commandCallbacks.toggleCpalRecording}
-			variant="ghost"
-			size="icon"
-			style="view-transition-name: microphone-icon"
-		>
-			{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
-		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector strategy="navigator" />
+			<DeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -119,7 +88,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
-			<DeviceSelector strategy="navigator" />
+			<DeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}

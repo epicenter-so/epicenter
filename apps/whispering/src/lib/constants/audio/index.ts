@@ -13,7 +13,6 @@ export {
 export {
 	recordingStateSchema,
 	recorderStateToIcons,
-	cpalStateToIcons,
 	vadStateSchema,
 	vadStateToIcons,
 	type WhisperingRecordingState,

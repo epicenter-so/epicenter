@@ -1,22 +1,18 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
-	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import { createQuery } from '@tanstack/svelte-query';
+	import type { DeviceIdentifier } from '$lib/services/types';
 
 	let {
-		deviceEnumerationStrategy,
 		selected,
 		onSelectedChange,
 	}: {
-		deviceEnumerationStrategy: DeviceEnumerationStrategy;
-		selected: string;
-		onSelectedChange: (selected: string) => void;
+		selected: DeviceIdentifier;
+		onSelectedChange: (selected: DeviceIdentifier) => void;
 	} = $props();
 
-	const getDevicesQuery = createQuery(
-		rpc.device.getDevices(deviceEnumerationStrategy).options,
-	);
+	const getDevicesQuery = createQuery(rpc.recorder.enumerateDevices.options);
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
@@ -33,8 +29,8 @@
 		id="recording-device"
 		label="Recording Device"
 		placeholder="Loading devices..."
-		items={[]}
-		selected=""
+		items={[{ value: '', label: 'Loading devices...' }]}
+		selected={''}
 		onSelectedChange={() => {}}
 		disabled
 	/>
@@ -43,9 +39,9 @@
 		{getDevicesQuery.error.message}
 	</p>
 {:else}
-	{@const items = getDevicesQuery.data.map((device) => ({
-		value: device.deviceId,
-		label: device.label,
+	{@const items = getDevicesQuery.data.map((deviceId) => ({
+		value: deviceId,
+		label: deviceId,
 	}))}
 	<LabeledSelect
 		id="recording-device"

@@ -1,61 +1,55 @@
-// import { extension } from '@repo/extension';
-import {
-	type CancelRecordingResult,
-	TIMESLICE_MS,
-	type WhisperingRecordingState,
-} from '$lib/constants/audio';
-import { createTaggedError } from 'wellcrafted/error';
+import { TIMESLICE_MS } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
-	type DeviceAcquisitionOutcome,
-	type UpdateStatusMessageFn,
 	cleanupRecordingStream,
-	enumerateRecordingDevices,
+	enumerateRecordingDeviceIds,
 	getRecordingStream,
-} from './device-stream';
-
-const { ManualRecorderServiceError, ManualRecorderServiceErr } =
-	createTaggedError('ManualRecorderServiceError');
-export type ManualRecorderServiceError = ReturnType<
-	typeof ManualRecorderServiceError
->;
+} from '../device-stream';
+import type { RecorderService, RecorderServiceError, StartRecordingParams } from './types';
+import { RecorderServiceErr } from './types';
+import type { CancelRecordingResult } from '$lib/constants/audio';
+import type { DeviceIdentifier, DeviceAcquisitionOutcome, UpdateStatusMessageFn } from '../types';
 
 type ActiveRecording = {
-	selectedDeviceId: string | null;
+	recordingId: string;
+	selectedDeviceId: DeviceIdentifier | null;
 	bitrateKbps: string;
 	stream: MediaStream;
 	mediaRecorder: MediaRecorder;
 	recordedChunks: Blob[];
 };
 
-export function createManualRecorderService() {
+export function createWebRecorderService(): RecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
-		getRecorderState: (): Result<
-			WhisperingRecordingState,
-			ManualRecorderServiceError
+		getCurrentRecordingId: async (): Promise<
+			Result<string | null, RecorderServiceError>
 		> => {
-			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
+			return Ok(activeRecording?.recordingId || null);
 		},
 
-		enumerateRecordingDevices,
+		enumerateRecordingDeviceIds,
 
 		startRecording: async (
-			{
-				selectedDeviceId,
-				bitrateKbps,
-			}: {
-				selectedDeviceId: string | null;
-				bitrateKbps: string;
-			},
-			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
+			params: StartRecordingParams,
+			{ sendStatus },
 		): Promise<
-			Result<DeviceAcquisitionOutcome, ManualRecorderServiceError>
+			Result<DeviceAcquisitionOutcome, RecorderServiceError>
 		> => {
+			// Web implementation only handles web params
+			if (params.platform !== 'web') {
+				return RecorderServiceErr({
+					message: 'Web recorder received non-web parameters',
+					context: { platform: (params as any).platform },
+					cause: undefined,
+				});
+			}
+			
+			const { selectedDeviceId, recordingId, bitrateKbps } = params;
 			// Ensure we're not already recording
 			if (activeRecording) {
-				return ManualRecorderServiceErr({
+				return RecorderServiceErr({
 					message:
 						'A recording is already in progress. Please stop the current recording before starting a new one.',
 					context: { activeRecording },
@@ -72,7 +66,7 @@ export function createManualRecorderService() {
 			const { data: streamResult, error: acquireStreamError } =
 				await getRecordingStream(selectedDeviceId, sendStatus);
 			if (acquireStreamError) {
-				return ManualRecorderServiceErr({
+				return RecorderServiceErr({
 					message: acquireStreamError.message,
 					context: acquireStreamError.context,
 					cause: acquireStreamError,
@@ -87,7 +81,7 @@ export function createManualRecorderService() {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
 					}),
 				mapErr: (error) =>
-					ManualRecorderServiceErr({
+					RecorderServiceErr({
 						message:
 							'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
 						context: { selectedDeviceId, bitrateKbps },
@@ -106,6 +100,7 @@ export function createManualRecorderService() {
 
 			// Store active recording state
 			activeRecording = {
+				recordingId,
 				selectedDeviceId,
 				bitrateKbps,
 				stream,
@@ -127,11 +122,9 @@ export function createManualRecorderService() {
 
 		stopRecording: async ({
 			sendStatus,
-		}: {
-			sendStatus: UpdateStatusMessageFn;
-		}): Promise<Result<Blob, ManualRecorderServiceError>> => {
+		}): Promise<Result<Blob, RecorderServiceError>> => {
 			if (!activeRecording) {
-				return ManualRecorderServiceErr({
+				return RecorderServiceErr({
 					message:
 						'Cannot stop recording because no active recording session was found. Make sure you have started recording before attempting to stop it.',
 					context: { activeRecording },
@@ -160,7 +153,7 @@ export function createManualRecorderService() {
 						recording.mediaRecorder.stop();
 					}),
 				mapErr: (error) =>
-					ManualRecorderServiceErr({
+					RecorderServiceErr({
 						message:
 							'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
 						context: {
@@ -186,9 +179,7 @@ export function createManualRecorderService() {
 
 		cancelRecording: async ({
 			sendStatus,
-		}: {
-			sendStatus: UpdateStatusMessageFn;
-		}): Promise<Result<CancelRecordingResult, ManualRecorderServiceError>> => {
+		}): Promise<Result<CancelRecordingResult, RecorderServiceError>> => {
 			if (!activeRecording) {
 				return Ok({ status: 'no-recording' });
 			}
@@ -217,4 +208,4 @@ export function createManualRecorderService() {
 	};
 }
 
-export const NavigatorRecorderServiceLive = createManualRecorderService();
+export const WebRecorderServiceLive = createWebRecorderService();

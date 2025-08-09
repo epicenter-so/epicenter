@@ -45,10 +45,7 @@
 		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		selected={settings.value['transcription.selectedTranscriptionService']}
 		onSelectedChange={(selected) => {
-			settings.value = {
-				...settings.value,
-				'transcription.selectedTranscriptionService': selected,
-			};
+			settings.updateKey('transcription.selectedTranscriptionService', selected);
 		}}
 		placeholder="Select a transcription service"
 	/>
@@ -64,9 +61,7 @@
 			}))}
 			selected={settings.value['transcription.openai.model']}
 			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'transcription.openai.model': selected,
+				settings.updateKey('transcription.openai.model', selected);
 				};
 			}}
 			renderOption={renderModelOption}
@@ -95,10 +90,7 @@
 			}))}
 			selected={settings.value['transcription.groq.model']}
 			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'transcription.groq.model': selected,
-				};
+				settings.updateKey('transcription.groq.model', selected);
 			}}
 			renderOption={renderModelOption}
 		>
@@ -126,10 +118,7 @@
 			}))}
 			selected={settings.value['transcription.elevenlabs.model']}
 			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'transcription.elevenlabs.model': selected,
-				};
+				settings.updateKey('transcription.elevenlabs.model', selected);
 			}}
 			renderOption={renderModelOption}
 		>
@@ -264,10 +253,7 @@
 			placeholder="http://localhost:8000"
 			value={settings.value['transcription.speaches.baseUrl']}
 			oninput={({ currentTarget: { value } }) => {
-				settings.value = {
-					...settings.value,
-					'transcription.speaches.baseUrl': value,
-				};
+				settings.updateKey('transcription.speaches.baseUrl', value);
 			}}
 		>
 			{#snippet description()}
@@ -298,10 +284,7 @@
 			placeholder="Systran/faster-distil-whisper-small.en"
 			value={settings.value['transcription.speaches.modelId']}
 			oninput={({ currentTarget: { value } }) => {
-				settings.value = {
-					...settings.value,
-					'transcription.speaches.modelId': value,
-				};
+				settings.updateKey('transcription.speaches.modelId', value);
 			}}
 		>
 			{#snippet description()}
@@ -331,10 +314,7 @@
 		items={SUPPORTED_LANGUAGES_OPTIONS}
 		selected={settings.value['transcription.outputLanguage']}
 		onSelectedChange={(selected) => {
-			settings.value = {
-				...settings.value,
-				'transcription.outputLanguage': selected,
-			};
+			settings.updateKey('transcription.outputLanguage', selected);
 		}}
 		placeholder="Select a language"
 	/>
@@ -349,10 +329,7 @@
 		placeholder="0"
 		value={settings.value['transcription.temperature']}
 		oninput={({ currentTarget: { value } }) => {
-			settings.value = {
-				...settings.value,
-				'transcription.temperature': value,
-			};
+			settings.updateKey('transcription.temperature', value);
 		}}
 		description="Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."
 	/>
@@ -363,10 +340,7 @@
 		placeholder="e.g., This is an academic lecture about quantum physics with technical terms like 'eigenvalue' and 'Schrödinger'"
 		value={settings.value['transcription.prompt']}
 		oninput={({ currentTarget: { value } }) => {
-			settings.value = {
-				...settings.value,
-				'transcription.prompt': value,
-			};
+			settings.updateKey('transcription.prompt', value);
 		}}
 		description="Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules."
 	/>

@@ -3,6 +3,7 @@ import { MicVAD, utils } from '@ricky0123/vad-web';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
 import { cleanupRecordingStream, getRecordingStream } from './device-stream';
+import type { DeviceIdentifier } from './types';
 
 const { VadRecorderServiceError, VadRecorderServiceErr } = createTaggedError(
 	'VadRecorderServiceError',
@@ -28,7 +29,7 @@ export function createVadService() {
 		}: {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
-			deviceId: string | null;
+			deviceId: DeviceIdentifier | null;
 		}) => {
 			// Always start fresh - no reuse
 			if (maybeVad) {

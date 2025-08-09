@@ -4,38 +4,19 @@
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
 	import { rpc } from '$lib/query';
-	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
 	const combobox = useCombobox();
-
-	let {
-		strategy,
-	}: {
-		strategy: 'navigator' | 'cpal';
-	} = $props();
-
-	const settingsKey = $derived(
-		strategy === 'navigator'
-			? 'recording.navigator.selectedDeviceId'
-			: 'recording.cpal.selectedDeviceId',
-	);
-	const deviceEnumerationStrategy = $derived(strategy);
-	const selectedDeviceId = $derived(settings.value[settingsKey]);
-	function setSelectedDeviceId(deviceId: string | null) {
-		settings.value = {
-			...settings.value,
-			[settingsKey]: deviceId,
-		};
-	}
+	
+	const selectedDeviceId = $derived(settings.value['recording.selectedDeviceId']);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...rpc.device.getDevices(deviceEnumerationStrategy).options(),
+		...rpc.recorder.enumerateDevices.options(),
 		enabled: combobox.open,
 	}));
 
@@ -84,13 +65,14 @@
 						{getDevicesQuery.error.message}
 					</div>
 				{:else}
-					{#each getDevicesQuery.data as device (device.deviceId)}
+					{#each getDevicesQuery.data as deviceId (deviceId)}
 						<Command.Item
-							value={device.label}
+							value={deviceId}
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
-								setSelectedDeviceId(
-									currentDeviceId === device.deviceId ? null : device.deviceId,
+								settings.updateKey(
+									'recording.selectedDeviceId',
+									currentDeviceId === deviceId ? null : deviceId,
 								);
 								combobox.closeAndFocusTrigger();
 							}}
@@ -99,12 +81,12 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									selectedDeviceId !== device.deviceId && 'text-transparent',
+									selectedDeviceId !== deviceId && 'text-transparent',
 								)}
 							/>
 							<div class="flex flex-col min-w-0">
 								<span class="font-medium truncate">
-									{device.label}
+									{deviceId}
 								</span>
 							</div>
 						</Command.Item>

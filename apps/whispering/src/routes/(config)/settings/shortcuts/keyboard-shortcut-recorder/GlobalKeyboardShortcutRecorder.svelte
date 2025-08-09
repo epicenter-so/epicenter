@@ -86,10 +86,7 @@
 				return;
 			}
 
-			settings.value = {
-				...settings.value,
-				[`shortcuts.global.${command.id}`]: accelerator,
-			};
+			settings.updateKey(`shortcuts.global.${command.id}`, accelerator);
 
 			rpc.notify.success.execute({
 				title: `Global shortcut set to ${accelerator}`,
@@ -110,10 +107,7 @@
 				);
 			}
 
-			settings.value = {
-				...settings.value,
-				[`shortcuts.global.${command.id}`]: null,
-			};
+			settings.updateKey(`shortcuts.global.${command.id}`, null);
 
 			rpc.notify.success.execute({
 				title: 'Global shortcut cleared',

@@ -11,7 +11,7 @@
 	placeholder="Your Google API Key"
 	value={settings.value['apiKeys.google']}
 	oninput={({ currentTarget: { value } }) => {
-		settings.value = { ...settings.value, 'apiKeys.google': value };
+		settings.updateKey('apiKeys.google', value);
 	}}
 >
 	{#snippet description()}

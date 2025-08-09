@@ -4,9 +4,8 @@ import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok } from 'wellcrafted/result';
 import { defineMutation } from './_client';
-import { cpalRecorder } from './cpal-recorder';
 import { delivery } from './delivery';
-import { manualRecorder } from './manual-recorder';
+import { recorder } from './recorder';
 import { notify } from './notify';
 import { recordings } from './recordings';
 import { sound } from './sound';
@@ -26,7 +25,7 @@ const startManualRecording = defineMutation({
 			description: 'Setting up your recording environment...',
 		});
 		const { data: deviceAcquisitionOutcome, error: startRecordingError } =
-			await manualRecorder.startRecording.execute({ toastId });
+			await recorder.startRecording.execute({ toastId });
 
 		if (startRecordingError) {
 			notify.error.execute({ id: toastId, ...startRecordingError });
@@ -43,11 +42,10 @@ const startManualRecording = defineMutation({
 				break;
 			}
 			case 'fallback': {
-				settings.value = {
-					...settings.value,
-					'recording.navigator.selectedDeviceId':
-						deviceAcquisitionOutcome.fallbackDeviceId,
-				};
+				settings.updateKey(
+					'recording.selectedDeviceId',
+					deviceAcquisitionOutcome.fallbackDeviceId,
+				);
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
 						notify.info.execute({
@@ -96,7 +94,7 @@ const stopManualRecording = defineMutation({
 			description: 'Finalizing your audio capture...',
 		});
 		const { data: blob, error: stopRecordingError } =
-			await manualRecorder.stopRecording.execute({ toastId });
+			await recorder.stopRecording.execute({ toastId });
 		if (stopRecordingError) {
 			notify.error.execute({ id: toastId, ...stopRecordingError });
 			return Err(stopRecordingError);
@@ -121,73 +119,6 @@ const stopManualRecording = defineMutation({
 	},
 });
 
-// Internal mutations for CPAL recording
-const startCpalRecording = defineMutation({
-	mutationKey: ['commands', 'startCpalRecording'] as const,
-	resultMutationFn: async () => {
-		const toastId = nanoid();
-		notify.loading.execute({
-			id: toastId,
-			title: '🔊 Preparing CPAL recording...',
-			description: 'Setting up native audio recording...',
-		});
-		const { error: startRecordingError } =
-			await cpalRecorder.startRecording.execute({
-				toastId,
-				selectedDeviceId: settings.value['recording.cpal.selectedDeviceId'],
-			});
-
-		if (startRecordingError) {
-			notify.error.execute({ id: toastId, ...startRecordingError });
-			return Err(startRecordingError);
-		}
-
-		notify.success.execute({
-			id: toastId,
-			title: '🔊 CPAL is recording...',
-			description: 'Speak now and stop recording when done',
-		});
-		console.info('CPAL Recording started');
-		sound.playSoundIfEnabled.execute('cpal-start');
-		return Ok(undefined);
-	},
-});
-
-const stopCpalRecording = defineMutation({
-	mutationKey: ['commands', 'stopCpalRecording'] as const,
-	resultMutationFn: async () => {
-		const toastId = nanoid();
-		notify.loading.execute({
-			id: toastId,
-			title: '⏸️ Stopping CPAL recording...',
-			description: 'Finalizing your audio capture...',
-		});
-		const { data: blob, error: stopRecordingError } =
-			await cpalRecorder.stopRecording.execute({ toastId });
-		if (stopRecordingError) {
-			notify.error.execute({ id: toastId, ...stopRecordingError });
-			return Err(stopRecordingError);
-		}
-
-		notify.success.execute({
-			id: toastId,
-			title: '🔊 CPAL Recording stopped',
-			description: 'Your recording has been saved',
-		});
-		console.info('CPAL Recording stopped');
-		sound.playSoundIfEnabled.execute('cpal-stop');
-
-		await processRecordingPipeline({
-			blob,
-			toastId,
-			completionTitle: '✨ CPAL Recording Complete!',
-			completionDescription: 'Recording saved and session closed successfully',
-		});
-
-		return Ok(undefined);
-	},
-});
-
 export const commands = {
 	startManualRecording,
 	stopManualRecording,
@@ -197,7 +128,7 @@ export const commands = {
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
 			const { data: recorderState, error: getRecorderStateError } =
-				await manualRecorder.getRecorderState.fetch();
+				await recorder.getRecorderState.fetch();
 			if (getRecorderStateError) {
 				const whisperingError = fromTaggedError(getRecorderStateError, {
 					title:
@@ -225,7 +156,7 @@ export const commands = {
 				description: 'Cleaning up recording session...',
 			});
 			const { data: cancelRecordingResult, error: cancelRecordingError } =
-				await manualRecorder.cancelRecording.execute({ toastId });
+				await recorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				notify.error.execute({ id: toastId, ...cancelRecordingError });
 				return Err(cancelRecordingError);
@@ -334,11 +265,10 @@ export const commands = {
 					break;
 				}
 				case 'fallback': {
-					settings.value = {
-						...settings.value,
-						'recording.navigator.selectedDeviceId':
-							deviceAcquisitionOutcome.fallbackDeviceId,
-					};
+					settings.updateKey(
+						'recording.selectedDeviceId',
+						deviceAcquisitionOutcome.fallbackDeviceId,
+					);
 					switch (deviceAcquisitionOutcome.reason) {
 						case 'no-device-selected': {
 							notify.info.execute({
@@ -376,67 +306,6 @@ export const commands = {
 			return Ok(undefined);
 		},
 	}),
-
-	// CPAL commands (conditionally included)
-	...(window.__TAURI_INTERNALS__
-		? {
-				toggleCpalRecording: defineMutation({
-					mutationKey: ['commands', 'toggleCpalRecording'] as const,
-					resultMutationFn: async () => {
-						const { data: recorderState, error: getRecorderStateError } =
-							await cpalRecorder.getRecorderState.fetch();
-						if (getRecorderStateError) {
-							notify.error.execute(getRecorderStateError);
-							return Err(getRecorderStateError);
-						}
-						if (recorderState === 'RECORDING') {
-							return await stopCpalRecording.execute(undefined);
-						}
-						return await startCpalRecording.execute(undefined);
-					},
-				}),
-
-				cancelCpalRecording: defineMutation({
-					mutationKey: ['commands', 'cancelCpalRecording'] as const,
-					resultMutationFn: async () => {
-						const toastId = nanoid();
-						notify.loading.execute({
-							id: toastId,
-							title: '⏸️ Canceling CPAL recording...',
-							description: 'Cleaning up recording session...',
-						});
-						const { data: cancelRecordingResult, error: cancelRecordingError } =
-							await cpalRecorder.cancelRecording.execute({ toastId });
-						if (cancelRecordingError) {
-							notify.error.execute({ id: toastId, ...cancelRecordingError });
-							return Err(cancelRecordingError);
-						}
-						switch (cancelRecordingResult.status) {
-							case 'no-recording': {
-								notify.info.execute({
-									id: toastId,
-									title: 'No active recording',
-									description:
-										'There is no CPAL recording in progress to cancel.',
-								});
-								break;
-							}
-							case 'cancelled': {
-								notify.success.execute({
-									id: toastId,
-									title: '✅ All Done!',
-									description: 'CPAL recording cancelled successfully',
-								});
-								sound.playSoundIfEnabled.execute('cpal-cancel');
-								console.info('CPAL Recording cancelled');
-								break;
-							}
-						}
-						return Ok(undefined);
-					},
-				}),
-			}
-		: {}),
 
 	// Upload recordings (supports multiple files)
 	uploadRecordings: defineMutation({
@@ -605,10 +474,7 @@ async function processRecordingPipeline({
 	}
 
 	if (transformationNoLongerExists) {
-		settings.value = {
-			...settings.value,
-			'transformations.selectedTransformationId': null,
-		};
+		settings.updateKey('transformations.selectedTransformationId', null);
 		notify.warning.execute({
 			title: '⚠️ No matching transformation found',
 			description:

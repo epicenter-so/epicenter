@@ -28,10 +28,7 @@
 		label="Copy text to clipboard on successful transcription"
 		checked={settings.value['transcription.clipboard.copyOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'transcription.clipboard.copyOnSuccess': v,
-			};
+			settings.updateKey('transcription.clipboard.copyOnSuccess', v);
 		}}
 	/>
 
@@ -40,10 +37,7 @@
 		label="Paste contents from clipboard after successful transcription"
 		checked={settings.value['transcription.clipboard.pasteOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'transcription.clipboard.pasteOnSuccess': v,
-			};
+			settings.updateKey('transcription.clipboard.pasteOnSuccess', v);
 		}}
 		disabled={!settings.value['transcription.clipboard.copyOnSuccess']}
 	/>
@@ -55,10 +49,7 @@
 		label="Copy text to clipboard on successful transformation"
 		checked={settings.value['transformation.clipboard.copyOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'transformation.clipboard.copyOnSuccess': v,
-			};
+			settings.updateKey('transformation.clipboard.copyOnSuccess', v);
 		}}
 	/>
 
@@ -67,10 +58,7 @@
 		label="Paste contents from clipboard after successful transformation"
 		checked={settings.value['transformation.clipboard.pasteOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.value = {
-				...settings.value,
-				'transformation.clipboard.pasteOnSuccess': v,
-			};
+			settings.updateKey('transformation.clipboard.pasteOnSuccess', v);
 		}}
 		disabled={!settings.value['transformation.clipboard.copyOnSuccess']}
 	/>
@@ -86,10 +74,7 @@
 		] as const}
 		selected={settings.value['database.recordingRetentionStrategy']}
 		onSelectedChange={(selected) => {
-			settings.value = {
-				...settings.value,
-				'database.recordingRetentionStrategy': selected,
-			};
+			settings.updateKey('database.recordingRetentionStrategy', selected);
 		}}
 		placeholder="Select retention strategy"
 	/>
@@ -107,10 +92,7 @@
 			]}
 			selected={settings.value['database.maxRecordingCount']}
 			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'database.maxRecordingCount': selected,
-				};
+				settings.updateKey('database.maxRecordingCount', selected);
 			}}
 			placeholder="Select maximum recordings"
 		/>
@@ -123,10 +105,7 @@
 			items={ALWAYS_ON_TOP_OPTIONS}
 			selected={settings.value['system.alwaysOnTop']}
 			onSelectedChange={async (selected) => {
-				settings.value = {
-					...settings.value,
-					'system.alwaysOnTop': selected,
-				};
+				settings.updateKey('system.alwaysOnTop', selected);
 			}}
 			placeholder="Select a language"
 		/>

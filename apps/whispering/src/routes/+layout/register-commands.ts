@@ -8,7 +8,6 @@ import {
 import type { Settings } from '$lib/settings';
 import { settings } from '$lib/stores/settings.svelte';
 import { partitionResults } from 'wellcrafted/result';
-import { resetShortcutsToDefaults } from '../(config)/settings/shortcuts/reset-shortcuts-to-defaults';
 
 /**
  * Synchronizes local keyboard shortcuts with the current settings.
@@ -87,7 +86,7 @@ export function resetLocalShortcutsToDefaultIfDuplicates(): boolean {
 		if (shortcut) {
 			if (localShortcuts.has(shortcut)) {
 				// If duplicates found, reset all local shortcuts to defaults
-				resetShortcutsToDefaults('local');
+				settings.resetShortcuts('local');
 				rpc.notify.success.execute({
 					title: 'Shortcuts reset',
 					description:
@@ -120,7 +119,7 @@ export function resetGlobalShortcutsToDefaultIfDuplicates(): boolean {
 		if (shortcut) {
 			if (globalShortcuts.has(shortcut)) {
 				// If duplicates found, reset all global shortcuts to defaults
-				resetShortcutsToDefaults('global');
+				settings.resetShortcuts('global');
 				rpc.notify.success.execute({
 					title: 'Shortcuts reset',
 					description:

@@ -11,7 +11,7 @@
 	placeholder="Your OpenAI API Key"
 	value={settings.value['apiKeys.openai']}
 	oninput={({ currentTarget: { value } }) => {
-		settings.value = { ...settings.value, 'apiKeys.openai': value };
+		settings.updateKey('apiKeys.openai', value);
 	}}
 >
 	{#snippet description()}

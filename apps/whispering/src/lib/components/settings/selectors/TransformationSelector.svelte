@@ -93,14 +93,12 @@
 					<Command.Item
 						value="${transformation.id} - ${transformation.title} - ${transformation.description}"
 						onSelect={() => {
-							settings.value = {
-								...settings.value,
-								'transformations.selectedTransformationId':
-									settings.value['transformations.selectedTransformationId'] ===
-									transformation.id
-										? null
-										: transformation.id,
-							};
+							settings.updateKey(
+								'transformations.selectedTransformationId',
+								settings.value['transformations.selectedTransformationId'] === transformation.id
+									? null
+									: transformation.id
+							);
 							combobox.closeAndFocusTrigger();
 						}}
 						class="flex items-center gap-2 p-2"

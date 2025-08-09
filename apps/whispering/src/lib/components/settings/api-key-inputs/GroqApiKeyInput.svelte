@@ -11,7 +11,7 @@
 	placeholder="Your Groq API Key"
 	value={settings.value['apiKeys.groq']}
 	oninput={({ currentTarget: { value } }) => {
-		settings.value = { ...settings.value, 'apiKeys.groq': value };
+		settings.updateKey('apiKeys.groq', value);
 	}}
 >
 	{#snippet description()}

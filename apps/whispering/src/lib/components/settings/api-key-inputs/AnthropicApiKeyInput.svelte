@@ -11,7 +11,7 @@
 	placeholder="Your Anthropic API Key"
 	value={settings.value['apiKeys.anthropic']}
 	oninput={({ currentTarget: { value } }) => {
-		settings.value = { ...settings.value, 'apiKeys.anthropic': value };
+		settings.updateKey('apiKeys.anthropic', value);
 	}}
 >
 	{#snippet description()}

@@ -109,11 +109,10 @@
 							<Command.Item
 								value="{service.id}-{model.name}"
 								onSelect={() => {
-									settings.value = {
-										...settings.value,
+									settings.update({
 										'transcription.selectedTranscriptionService': service.id,
 										[service.modelSettingKey]: model.name,
-									};
+									});
 									combobox.closeAndFocusTrigger();
 								}}
 								class="flex items-center gap-2 p-2"
@@ -149,10 +148,7 @@
 						<Command.Item
 							value={service.id}
 							onSelect={() => {
-								settings.value = {
-									...settings.value,
-									'transcription.selectedTranscriptionService': service.id,
-								};
+								settings.updateKey('transcription.selectedTranscriptionService', service.id);
 								combobox.closeAndFocusTrigger();
 							}}
 							class="flex items-center gap-2 p-2"

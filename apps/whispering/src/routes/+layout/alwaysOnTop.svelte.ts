@@ -5,7 +5,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function syncWindowAlwaysOnTopWithRecorderState() {
 	const getRecorderStateQuery = createQuery(() => ({
-		...rpc.manualRecorder.getRecorderState.options(),
+		...rpc.recorder.getRecorderState.options(),
 		enabled: settings.value['recording.mode'] === 'manual',
 	}));
 

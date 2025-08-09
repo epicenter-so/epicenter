@@ -11,7 +11,7 @@
 	placeholder="Your ElevenLabs API Key"
 	value={settings.value['apiKeys.elevenlabs']}
 	oninput={({ currentTarget: { value } }) => {
-		settings.value = { ...settings.value, 'apiKeys.elevenlabs': value };
+		settings.updateKey('apiKeys.elevenlabs', value);
 	}}
 >
 	{#snippet description()}

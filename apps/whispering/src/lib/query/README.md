@@ -547,10 +547,8 @@ async function stopAndTranscribe() {
 
 ```typescript
 // From: /routes/(config)/settings/recording/SelectRecordingDevice.svelte
-const deviceStrategy = $derived(settings.value['recording.device.strategy']);
-
-// Query automatically re-runs when deviceStrategy changes
-const devices = createQuery(rpc.device.getDevices(deviceStrategy).options);
+// Enumerate available recording devices
+const devices = createQuery(rpc.recorder.enumerateDevices.options);
 ```
 
 ### 5. Options Factory Pattern for Conditional Queries

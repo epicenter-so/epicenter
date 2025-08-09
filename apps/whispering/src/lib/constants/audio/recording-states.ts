@@ -16,11 +16,6 @@ export const recorderStateToIcons = {
 	RECORDING: '⏹️',
 } as const satisfies Record<WhisperingRecordingState, string>;
 
-export const cpalStateToIcons = {
-	IDLE: '🎙️',
-	RECORDING: '⏹️',
-} as const satisfies Record<WhisperingRecordingState, string>;
-
 export const vadStateSchema = z.enum(['IDLE', 'LISTENING', 'SPEECH_DETECTED']);
 
 export type VadState = z.infer<typeof vadStateSchema>;

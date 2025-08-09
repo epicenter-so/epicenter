@@ -8,13 +8,14 @@ use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
 pub mod recorder;
 use recorder::commands::{
-    cancel_recording, close_recording_session, enumerate_recording_devices, get_recorder_state,
-    init_recording_session, start_recording, stop_recording, AppData,
+    cancel_recording, close_recording_session, enumerate_recording_devices,
+    get_current_recording_id, init_recording_session, start_recording,
+    stop_recording, AppData,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -36,7 +37,7 @@ pub fn run() {
         open_apple_accessibility,
         is_macos_accessibility_enabled,
         // Audio recorder commands
-        get_recorder_state,
+        get_current_recording_id,
         enumerate_recording_devices,
         init_recording_session,
         close_recording_session,
@@ -50,7 +51,7 @@ pub fn run() {
         write_text,
         paste,
         // Audio recorder commands
-        get_recorder_state,
+        get_current_recording_id,
         enumerate_recording_devices,
         init_recording_session,
         close_recording_session,

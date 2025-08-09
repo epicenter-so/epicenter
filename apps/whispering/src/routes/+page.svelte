@@ -12,7 +12,6 @@
 	import {
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,
-		cpalStateToIcons,
 		recorderStateToIcons,
 		vadStateToIcons,
 	} from '$lib/constants/audio';
@@ -35,10 +34,7 @@
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.manualRecorder.getRecorderState.options,
-	);
-	const getCpalStateQuery = createQuery(
-		rpc.cpalRecorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 	const latestRecordingQuery = createQuery(
@@ -279,42 +275,7 @@
 							🚫
 						</WhisperingButton>
 					{:else}
-						<DeviceSelector strategy="navigator" />
-						<TranscriptionSelector />
-						<TransformationSelector />
-					{/if}
-				</div>
-			{:else if settings.value['recording.mode'] === 'cpal' && window.__TAURI_INTERNALS__}
-				<!-- Center column: Recording button -->
-				<WhisperingButton
-					tooltipContent={getCpalStateQuery.data === 'IDLE'
-						? 'Start CPAL recording'
-						: 'Stop CPAL recording'}
-					onclick={commandCallbacks.toggleCpalRecording}
-					variant="ghost"
-					class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
-				>
-					<span
-						style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-						class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
-					>
-						{cpalStateToIcons[getCpalStateQuery.data ?? 'IDLE']}
-					</span>
-				</WhisperingButton>
-				<!-- Right column: Selectors -->
-				<div class="flex justify-end items-center gap-1.5 mb-2">
-					{#if getCpalStateQuery.data === 'RECORDING'}
-						<WhisperingButton
-							tooltipContent="Cancel CPAL recording"
-							onclick={commandCallbacks.cancelCpalRecording}
-							variant="ghost"
-							size="icon"
-							style="view-transition-name: cancel-icon;"
-						>
-							🚫
-						</WhisperingButton>
-					{:else}
-						<DeviceSelector strategy="cpal" />
+						<DeviceSelector />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
@@ -339,7 +300,7 @@
 				<!-- Right column: Selectors -->
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
-						<DeviceSelector strategy="navigator" />
+						<DeviceSelector />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
