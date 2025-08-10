@@ -17,11 +17,15 @@ if ! grep -q 'eval "$(mise activate bash)"' ~/.bashrc; then
     echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 fi
 
-# 3. Install dependencies
+# 3. Fix node_modules permissions (prevents EACCES errors)
+echo "🔧 Fixing node_modules permissions..."
+sudo chown -R vscode:vscode /workspaces/epicenter/node_modules 2>/dev/null || true
+
+# 4. Install dependencies
 echo "📥 Installing dependencies..."
 bun install
 
-# 4. Copy environment examples if missing
+# 5. Copy environment examples if missing
 echo "⚙️  Setting up environment files..."
 
 # Copy mise.local.toml.example if it doesn't exist
@@ -36,7 +40,7 @@ if [ ! -f apps/api/.dev.vars ] && [ -f apps/api/.dev.vars.example ]; then
     echo "✅ Copied apps/api/.dev.vars.example to apps/api/.dev.vars"
 fi
 
-# 5. Optional database bootstrap
+# 6. Optional database bootstrap
 if [ "$DB_BOOTSTRAP" = "1" ]; then
     echo "🗄️  Bootstrapping database..."
     bun run -w packages/db db:generate
@@ -44,13 +48,13 @@ if [ "$DB_BOOTSTRAP" = "1" ]; then
     echo "✅ Database bootstrapped"
 fi
 
-# 6. Print wrangler login guidance
+# 7. Print wrangler login guidance
 echo "🔐 Checking Wrangler authentication..."
 if ! wrangler whoami > /dev/null 2>&1; then
     echo "⚠️  Run 'wrangler login' to authenticate with Cloudflare"
 fi
 
-# 7. Optional Infisical setup for team members
+# 8. Optional Infisical setup for team members
 echo ""
 echo "🔑 Optional: Infisical setup for team members"
 echo "   If you have access to the Infisical project, you can use:"
