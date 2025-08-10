@@ -2,7 +2,9 @@
 	"name": "@epicenter/api",
 	"type": "module",
 	"scripts": {
-		"dev": "infisical export > .dev.vars && wrangler dev",
+		"dev": "bun run dev:local",
+		"dev:local": "[ -f .dev.vars ] || cp .dev.vars.example .dev.vars && wrangler dev",
+		"dev:infisical": "infisical export > .dev.vars && wrangler dev",
 		"deploy": "wrangler deploy --minify",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"format": "prettier --write .",

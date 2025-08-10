@@ -18,7 +18,9 @@
 		"epicenter": "src/index.ts"
 	},
 	"scripts": {
-		"dev": "infisical run -- bun run src/index.ts",
+		"dev": "bun run dev:local",
+		"dev:local": "bun run src/index.ts",
+		"dev:infisical": "infisical run -- bun run src/index.ts",
 		"typecheck": "tsc --noEmit"
 	},
 	"files": ["src", "README.md", "package.json"],

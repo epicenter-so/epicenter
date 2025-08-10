@@ -1,0 +1,20 @@
+# Cloudflare Workers Environment Variables for API
+# Copy this file to .dev.vars and fill in your values
+# This file is used by wrangler dev for local development
+
+# Environment
+NODE_ENV=development
+
+# Database (Neon PostgreSQL)
+# Sign up for free at https://neon.tech
+DATABASE_URL=postgresql://user:password@host.neon.tech/database?sslmode=require
+
+# Authentication
+BETTER_AUTH_URL=http://localhost:8787
+# Generate a random secret: openssl rand -base64 32
+BETTER_AUTH_SECRET=your-random-secret-here-change-this
+
+# GitHub OAuth
+# Create a new OAuth App at https://github.com/settings/applications/new
+GITHUB_CLIENT_ID=your-github-oauth-app-client-id
+GITHUB_CLIENT_SECRET=your-github-oauth-app-client-secret
