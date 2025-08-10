@@ -3,8 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "bun run dev:local",
-		"dev:local": "[ -f .dev.vars ] || cp .dev.vars.example .dev.vars && wrangler dev",
-		"dev:infisical": "infisical export > .dev.vars && wrangler dev",
+		"dev:local": "[ -f .dev.vars ] || cp .dev.vars.example .dev.vars && wrangler dev --port 8787",
+		"dev:infisical": "infisical export > .dev.vars && wrangler dev --port 8787",
 		"deploy": "wrangler deploy --minify",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"format": "prettier --write .",

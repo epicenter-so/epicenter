@@ -39,3 +39,4 @@ yarn-error.log*
 .opencode
 
 # Env
+mise.local.toml

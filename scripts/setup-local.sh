@@ -9,6 +9,10 @@ echo "======================================"
 echo "🚀 Epicenter Local Development Setup"
 echo "======================================"
 echo ""
+echo "💡 Tip: For the fastest setup, consider using VS Code Dev Containers!"
+echo "   Just open this repo in VS Code and click 'Reopen in Container'"
+echo "   This script is for manual local setup."
+echo ""
 
 # Check prerequisites
 echo "📋 Checking prerequisites..."

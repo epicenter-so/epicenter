@@ -2,3 +2,9 @@
 bun = "1.2.19"
 node = "20"
 rust = "1.72.0"
+
+[env]
+# Default environment variables
+# Override these in mise.local.toml for local development
+DATABASE_URL = "postgresql://epicenter:epicenter@postgres:5432/epicenter"
+NODE_ENV = "development"

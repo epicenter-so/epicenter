@@ -75,6 +75,25 @@ Our vision is to build a personal workspace where you own your data, choose your
 
 ### 🚀 Quick Start for Contributors
 
+#### Option 1: Dev Containers (Recommended)
+
+The fastest way to get started is with VS Code Dev Containers:
+
+1. **Prerequisites**: [VS Code](https://code.visualstudio.com/) + [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+2. **Clone and open**: `git clone https://github.com/epicenter-so/epicenter.git`
+3. **Open in container**: VS Code will prompt to "Reopen in Container" (or use Command Palette → "Dev Containers: Reopen in Container")
+4. **Start developing**: Run `bunx turbo run dev` to start all services
+
+**What you get:**
+- ✅ All tools pre-installed (Node, Bun, Rust, etc.)
+- ✅ Local PostgreSQL database ready to use
+- ✅ Consistent environment across all contributors
+- ✅ Zero manual setup required
+
+**Note**: Whispering (Tauri desktop app) runs on your host machine, not in the container.
+
+#### Option 2: Local Setup
+
 ```bash
 # Clone and setup
 git clone https://github.com/epicenter-so/epicenter.git
@@ -82,7 +101,7 @@ cd epicenter
 ./scripts/setup-local.sh
 
 # Configure your environment
-# Edit .env and apps/api/.dev.vars with your values
+# Edit mise.local.toml and apps/api/.dev.vars with your values
 
 # Start development
 bun dev
