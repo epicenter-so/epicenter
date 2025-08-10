@@ -42,6 +42,24 @@ epicenter/
 - **Auth**: Better Auth with GitHub OAuth
 - **Deployment**: Cloudflare (Workers & Pages)
 
+### Top-level Dependencies
+
+This project references the following top-level developer tools and platform services that must be installed explicitly on a developer machine or in CI:
+
+- bun (primary package manager / runtime)
+- node (fallback runtime; Node.js)
+- rust (toolchain for Tauri / desktop builds) — includes cargo
+- tauri (desktop application framework / tooling invoked via Rust + bun)
+- wrangler (Cloudflare Workers / Pages CLI) — Cloudflare CLI for local dev and deploys
+- Cloudflare (Workers, Pages, CDN, KV) — platform services used for deployment
+- PostgreSQL (database) — Neon (hosted PostgreSQL) as the recommended provider
+- Drizzle ORM / Drizzle Kit (DB migrations & types) — dev tooling invoked via bun scripts
+- Infisical CLI (optional) — for team secrets sync
+
+Notes:
+- Tools that are delivered/installed via other toolchains are intentionally omitted (e.g., cargo is part of Rust; Turbo/Biome/turborepo CLI are typically installed via bun and so are not listed as separate top-level installs here).
+- Frameworks and libraries used by the code (Svelte, Tailwind, tRPC, etc.) are installed as project dependencies via bun and do not require separate system-level installs.
+- Versions are hinted in mise.toml and docs (e.g., bun 1.2.19, node 18/20, rust 1.72.0).
 ## Environment Setup
 
 ### Understanding Environment Files
