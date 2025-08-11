@@ -12,6 +12,8 @@ DATABASE_URL = ""
 DB_BOOTSTRAP = ""
 
 # Development Environment
+# NODE_ENV controls the runtime environment.
+# Set to "development" for local development or "production" for production builds.
 NODE_ENV = "development"
 
 # Add other local environment variables as needed

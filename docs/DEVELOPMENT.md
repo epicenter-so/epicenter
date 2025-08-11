@@ -114,7 +114,7 @@ The project uses different environment files for different contexts:
 
 ```bash
 # NODE_ENV - Controls development/production behavior
-NODE_ENV=development  # or "production"
+NODE_ENV=development  # Controls the runtime environment. Set to "development" for local development or "production" for production builds.
 
 # DATABASE_URL - PostgreSQL connection string
 # Format: postgresql://[user]:[password]@[host]/[database]?sslmode=require

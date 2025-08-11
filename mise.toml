@@ -7,4 +7,6 @@ rust = "1.72.0"
 # Default environment variables
 # Override these in mise.local.toml for local development
 DATABASE_URL = "postgresql://epicenter:epicenter@postgres:5432/epicenter"
+# NODE_ENV controls the runtime environment.
+# Set to "development" for local development or "production" for production builds.
 NODE_ENV = "development"

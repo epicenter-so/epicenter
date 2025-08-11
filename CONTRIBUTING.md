@@ -45,6 +45,7 @@ cd epicenter
 
 # 3. Configure environment variables
 # Edit .env and apps/api/.dev.vars with your values
+# Ensure NODE_ENV is set to "development" for local development or "production" for production builds.
 
 # 4. Start development
 bun dev
