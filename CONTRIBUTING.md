@@ -2,6 +2,35 @@
 
 Thank you for your interest in contributing to Epicenter! We're building an ecosystem of open-source, local-first apps where you own your data and choose your models.
 
+## 🚀 Quick Start (Using Dev Containers)
+
+The easiest way to get started with Epicenter is by using dev containers. This setup ensures a consistent development environment with all required tools pre-installed.
+
+### Prerequisites
+- **Docker**: Install Docker Desktop or Docker Engine ([Download](https://www.docker.com/products/docker-desktop/)).
+- **VS Code**: Install Visual Studio Code ([Download](https://code.visualstudio.com/)).
+- **Dev Containers Extension**: Install the "Dev Containers" extension in VS Code ([Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)).
+
+### Steps to Get Started
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/epicenter-so/epicenter.git
+   cd epicenter
+   ```
+2. Open the project in VS Code:
+   ```bash
+   code .
+   ```
+3. Reopen the project in the dev container:
+   - Press `F1` in VS Code.
+   - Select "Dev Containers: Reopen in Container".
+
+4. Wait for the container to build and start. This may take a few minutes on the first run.
+
+5. Once the container is ready, you can start development using the pre-installed tools and dependencies.
+
+---
+
 ## 🚀 Quick Start (Without Infisical)
 
 New contributors can get started without any special access or tools:

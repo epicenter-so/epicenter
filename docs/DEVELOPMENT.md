@@ -62,6 +62,40 @@ Notes:
 - Versions are hinted in mise.toml and docs (e.g., bun 1.2.19, node 18/20, rust 1.72.0).
 ## Environment Setup
 
+### Using Dev Containers (Recommended)
+
+Epicenter now supports development using dev containers, which provide a pre-configured environment for all required tools and dependencies. This is the recommended setup for contributors.
+
+#### Prerequisites
+- **Docker**: Install Docker Desktop or Docker Engine ([Download](https://www.docker.com/products/docker-desktop/)).
+- **VS Code**: Install Visual Studio Code ([Download](https://code.visualstudio.com/)).
+- **Dev Containers Extension**: Install the "Dev Containers" extension in VS Code ([Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)).
+
+#### Steps to Get Started
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/epicenter-so/epicenter.git
+   cd epicenter
+   ```
+2. Open the project in VS Code:
+   ```bash
+   code .
+   ```
+3. Reopen the project in the dev container:
+   - Press `F1` in VS Code.
+   - Select "Dev Containers: Reopen in Container".
+
+4. Wait for the container to build and start. This may take a few minutes on the first run.
+
+5. Once the container is ready, you can start development using the pre-installed tools and dependencies.
+
+#### Benefits of Using Dev Containers
+- Consistent development environment across all contributors.
+- Pre-installed tools like Bun, Rust, PostgreSQL, and more.
+- Simplified setup with no need to manually configure environment variables or dependencies.
+
+---
+
 ### Understanding Environment Files
 
 The project uses different environment files for different contexts:
