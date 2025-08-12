@@ -44,6 +44,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
+		"dev:all": "turbo run dev --filter=@epicenter/api --filter=epicenter --filter=@epicenter/posthog-reverse-proxy --filter=@epicenter/sh",
 		"format": "concurrently \"biome format --write .\" \"turbo run format\"",
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint\"",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",

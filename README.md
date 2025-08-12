@@ -39,6 +39,7 @@
 <p align="center">
   <a href="#current-tools">Tools</a> •
   <a href="#where-were-headed">Vision</a> •
+  <a href="#development">Development</a> •
   <a href="#join-us">Contributing</a> •
   <a href="https://go.epicenter.so/discord">Discord</a> •
 </p>
@@ -48,8 +49,6 @@
 ## What is Epicenter?
 
 Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is to store all of your data—notes, transcripts, chat histories—in a single folder of plain text and SQLite. Every tool we build shares this memory. It's open, tweakable, and yours. Grep it, open it in Obsidian, host it wherever you like. The choice is yours.
-
-
 
 ## Current Tools
 
@@ -72,6 +71,58 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
 
 Our vision is to build a personal workspace where you own your data, choose your models, and replace siloed apps with open, interoperable alternatives. All while preserving authenticity and being free and open source.
 
+## Development
+
+### 🚀 Quick Start for Contributors
+
+#### Option 1: Dev Containers (Recommended)
+
+The fastest way to get started is with VS Code Dev Containers:
+
+1. **Prerequisites**: [VS Code](https://code.visualstudio.com/) + [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+2. **Clone and open**: `git clone https://github.com/epicenter-so/epicenter.git`
+3. **Open in container**: VS Code will prompt to "Reopen in Container" (or use Command Palette → "Dev Containers: Reopen in Container")
+4. **Start developing**: Run `bunx turbo run dev` to start all services
+
+**What you get:**
+- ✅ All tools pre-installed (Node, Bun, Rust, etc.)
+- ✅ Local PostgreSQL database ready to use
+- ✅ Consistent environment across all contributors
+- ✅ Zero manual setup required
+
+**Note**: Whispering (Tauri desktop app) runs on your host machine, not in the container.
+
+#### Option 2: Local Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/epicenter-so/epicenter.git
+cd epicenter
+./scripts/setup-local.sh
+
+# Configure your environment
+# Edit mise.local.toml and apps/api/.dev.vars with your values
+
+# Start development
+bun dev
+```
+
+**No special access required!** We've made it easy for new contributors to get started without needing Infisical or other team-specific tools.
+
+### 📚 Documentation
+
+- [**CONTRIBUTING.md**](CONTRIBUTING.md) - Contribution guidelines and setup instructions
+- [**Development Guide**](docs/DEVELOPMENT.md) - Detailed development documentation
+- [**Architecture**](docs/specs/) - Technical specifications and design decisions
+
+### 🛠️ Prerequisites
+
+- Node.js 18+ and [Bun](https://bun.sh)
+- PostgreSQL ([Neon](https://neon.tech) free tier works great)
+- GitHub OAuth App (for authentication)
+- Rust (optional, only for Whispering desktop app)
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions.
 
 ## Join Us
 

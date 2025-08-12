@@ -1,0 +1,61 @@
+{
+	"name": "Epicenter Development",
+	"dockerComposeFile": "../docker-compose.yml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspaces/epicenter",
+
+	"forwardPorts": [8787, 5173, 4321, 8791, 5432],
+	"portsAttributes": {
+		"8787": {
+			"label": "API (Wrangler)",
+			"onAutoForward": "notify"
+		},
+		"5173": {
+			"label": "SH (SvelteKit)",
+			"onAutoForward": "notify"
+		},
+		"4321": {
+			"label": "Epicenter (Astro)",
+			"onAutoForward": "notify"
+		},
+		"8791": {
+			"label": "PostHog Reverse Proxy",
+			"onAutoForward": "notify"
+		},
+		"5432": {
+			"label": "PostgreSQL",
+			"onAutoForward": "silent"
+		}
+	},
+
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+
+	"postCreateCommand": ".devcontainer/post-create.sh",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.vscode-typescript-next",
+				"bradlc.vscode-tailwindcss",
+				"svelte.svelte-vscode",
+				"astro-build.astro-vscode",
+				"ms-vscode.vscode-json",
+				"esbenp.prettier-vscode"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash",
+						"args": ["-l"]
+					}
+				}
+			}
+		}
+	},
+
+	"remoteUser": "vscode"
+}

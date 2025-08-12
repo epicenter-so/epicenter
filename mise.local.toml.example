@@ -1,0 +1,20 @@
+# Local environment configuration for mise
+# Copy this file to mise.local.toml and fill in your values
+# This file is gitignored and should contain your local secrets and overrides
+
+[env]
+# Database Configuration
+# Default: Uses local PostgreSQL in dev container
+# Override: Set to your Neon database URL for cloud database
+DATABASE_URL = ""
+
+# Optional: Set to "1" to bootstrap database during container setup
+DB_BOOTSTRAP = ""
+
+# Development Environment
+# NODE_ENV controls the runtime environment.
+# Set to "development" for local development or "production" for production builds.
+NODE_ENV = "development"
+
+# Add other local environment variables as needed
+# These will override any values set in mise.toml

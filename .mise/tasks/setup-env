@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#MISE description="Set up environment files and configuration"
+
+set -e
+
+echo "⚙️  Setting up environment files..."
+
+# Copy mise.local.toml.example if it doesn't exist
+if [ ! -f mise.local.toml ] && [ -f mise.local.toml.example ]; then
+    cp mise.local.toml.example mise.local.toml
+    echo "✅ Copied mise.local.toml.example to mise.local.toml"
+fi
+
+# Copy .dev.vars example for API
+if [ ! -f apps/api/.dev.vars ] && [ -f apps/api/.dev.vars.example ]; then
+    cp apps/api/.dev.vars.example apps/api/.dev.vars
+    echo "✅ Copied apps/api/.dev.vars.example to apps/api/.dev.vars"
+fi
+
+# Check for required environment variables
+echo "🔍 Checking environment configuration..."
+missing_vars=()
+
+if [ ! -f "apps/api/.dev.vars" ]; then
+    echo "❌ Missing apps/api/.dev.vars file"
+    missing_vars+=("api-dev-vars")
+fi
+
+if [ -z "${DATABASE_URL:-}" ]; then
+    echo "⚠️  DATABASE_URL not set (will use default from mise.toml)"
+else
+    echo "✅ DATABASE_URL is configured"
+fi
+
+if [ ${#missing_vars[@]} -eq 0 ]; then
+    echo "✅ Environment setup complete!"
+else
+    echo "⚠️  Some configurations may need manual setup"
+fi
