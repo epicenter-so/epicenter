@@ -5,7 +5,7 @@
 	"description": "PostHog reverse proxy for epicenter.so",
 	"type": "module",
 	"scripts": {
-		"dev": "wrangler dev --port 8791",
+		"dev": "wrangler dev --port 8791 --inspector-port 9230",
 		"deploy": "wrangler deploy --minify",
 		"tail": "wrangler tail",
 		"format": "prettier --write .",

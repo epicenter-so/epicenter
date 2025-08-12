@@ -48,7 +48,7 @@ cd epicenter
 # Ensure NODE_ENV is set to "development" for local development or "production" for production builds.
 
 # 4. Start development
-bun dev
+mise dev-all  # Starts all apps simultaneously
 ```
 
 ## 📋 Prerequisites
@@ -137,10 +137,13 @@ bun run --filter @repo/db db:studio
 ### Step 5: Start Development
 
 ```bash
-# Start all applications
+# Start all applications (recommended)
+mise dev-all  # Starts API, PostHog proxy, SH, and Epicenter apps
+
+# Alternative: Start all applications using Turbo
 bun dev
 
-# Or start specific apps
+# Or start specific apps individually
 bun run --filter whispering dev  # Whispering desktop app
 bun run --filter @epicenter/api dev  # API server
 bun run --filter sh dev  # epicenter.sh web app
@@ -266,9 +269,18 @@ source ~/.bashrc  # or ~/.zshrc
 **Port already in use**
 ```bash
 # Find and kill the process using the port
-lsof -i :8787  # or :5173, :1420
+lsof -i :8787  # API server
+lsof -i :5173  # SH (SvelteKit)
+lsof -i :4321  # Epicenter (Astro)
+lsof -i :8791  # PostHog Reverse Proxy
+lsof -i :9229  # API inspector port
+lsof -i :9230  # PostHog inspector port
 kill -9 <PID>
 ```
+
+**Multiple wrangler processes failing**
+- Use `mise dev-all` instead of starting services individually
+- Inspector port conflicts have been resolved with different ports (9229, 9230)
 
 **Missing environment variables**
 - Double-check `.env` and `.dev.vars` files

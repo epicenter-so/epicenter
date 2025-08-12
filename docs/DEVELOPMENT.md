@@ -255,6 +255,34 @@ The project uses Better Auth with the following configuration:
 5. User session created in database
 6. Cookie set for authentication
 
+## Running All Applications
+
+### Using mise dev-all (Recommended)
+
+The fastest way to start all applications at once:
+
+```bash
+# Start all apps simultaneously
+mise dev-all
+
+# This starts:
+# - API server on http://localhost:8787
+# - PostHog Reverse Proxy on http://localhost:8791  
+# - SH (SvelteKit) on http://localhost:5173
+# - Epicenter (Astro) on http://localhost:4321
+```
+
+The `mise dev-all` command uses Turbo to orchestrate multiple development servers with proper port management to avoid conflicts.
+
+### Inspector Port Configuration
+
+To prevent debugging port conflicts when running multiple Cloudflare Workers simultaneously, the project uses different inspector ports:
+
+- **API**: Inspector port 9229
+- **PostHog Reverse Proxy**: Inspector port 9230
+
+This configuration is set in the respective `package.json` files and allows both wrangler processes to run without port conflicts.
+
 ## Working with Apps
 
 ### Whispering (Desktop App)
@@ -454,6 +482,11 @@ bun run --filter @repo/db db:generate
 - Check wrangler.jsonc configuration
 - Verify all environment variables are set
 - Check build output size (<1MB for Workers)
+
+**Multiple wrangler processes failing to start**
+- Inspector port conflicts resolved by using different ports (9229, 9230)
+- Use `mise dev-all` instead of running services individually
+- Kill existing processes if ports are still in use: `lsof -i :9229`
 
 ### Debug Mode
 
