@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#MISE description="Set up database and run migrations"
+
+set -e
+
+echo "🗄️  Setting up database..."
+
+# Check if database should be bootstrapped
+if [ "$DB_BOOTSTRAP" = "1" ]; then
+    echo "📊 Bootstrapping database schema..."
+    
+    # Check if packages/db exists and has the scripts
+    if [ -d "packages/db" ]; then
+        if [ -f "packages/db/package.json" ]; then
+            echo "🔄 Generating database types..."
+            bun run -w packages/db db:generate
+            
+            echo "🚀 Running database migrations..."
+            bun run -w packages/db db:migrate:dev
+            
+            echo "✅ Database bootstrapped successfully!"
+        else
+            echo "⚠️  packages/db/package.json not found - skipping database setup"
+        fi
+    else
+        echo "⚠️  packages/db directory not found - skipping database setup"
+    fi
+else
+    echo "ℹ️  Database bootstrap skipped (set DB_BOOTSTRAP=1 to enable)"
+    echo "   You can manually run database setup later if needed"
+fi
+
+# Check database connection if possible
+echo "🔍 Checking database connection..."
+if command -v psql >/dev/null 2>&1 && [ -n "${DATABASE_URL:-}" ]; then
+    if psql "${DATABASE_URL}" -c '\q' >/dev/null 2>&1; then
+        echo "✅ Database connection successful"
+    else
+        echo "⚠️  Could not connect to database (this may be expected in some setups)"
+    fi
+else
+    echo "ℹ️  Database connection check skipped (psql not available or DATABASE_URL not set)"
+fi
+
+echo "✅ Database setup complete!"

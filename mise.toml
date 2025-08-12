@@ -10,3 +10,11 @@ DATABASE_URL = "postgresql://epicenter:epicenter@postgres:5432/epicenter"
 # NODE_ENV controls the runtime environment.
 # Set to "development" for local development or "production" for production builds.
 NODE_ENV = "development"
+
+[tasks.dev-all]
+description = "Start all apps except whispering"
+run = "bun run dev:all"
+
+[tasks.install-deps]
+description = "Install all project dependencies"  
+run = "bun install"

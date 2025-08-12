@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#MISE description="Install dependencies and tools"
+
+set -e
+
+echo "📦 Installing mise tools..."
+mise install
+
+echo "🔧 Fixing node_modules permissions..."
+sudo chown -R vscode:vscode /workspaces/epicenter/node_modules 2>/dev/null || true
+
+echo "📥 Installing dependencies..."
+bun install
+
+echo "✅ Dependencies setup complete!"

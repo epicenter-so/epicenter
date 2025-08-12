@@ -7,54 +7,25 @@ echo "🚀 Starting post-create setup..."
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 eval "$(mise activate bash)"
 
-# 1. Install mise tools (idempotent)
-echo "📦 Installing mise tools..."
-mise install
-
-# 2. Ensure shell auto-activation is set up
+# 1. Ensure shell auto-activation is set up
 echo "🐚 Setting up shell activation..."
 if ! grep -q 'eval "$(mise activate bash)"' ~/.bashrc; then
     echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 fi
 
-# 3. Fix node_modules permissions (prevents EACCES errors)
-echo "🔧 Fixing node_modules permissions..."
-sudo chown -R vscode:vscode /workspaces/epicenter/node_modules 2>/dev/null || true
+# 2. Run mise setup tasks
+echo "🛠️  Running setup tasks..."
+mise run setup-deps
+mise run setup-env
+mise run setup-db
 
-# 4. Install dependencies
-echo "📥 Installing dependencies..."
-bun install
-
-# 5. Copy environment examples if missing
-echo "⚙️  Setting up environment files..."
-
-# Copy mise.local.toml.example if it doesn't exist
-if [ ! -f mise.local.toml ] && [ -f mise.local.toml.example ]; then
-    cp mise.local.toml.example mise.local.toml
-    echo "✅ Copied mise.local.toml.example to mise.local.toml"
-fi
-
-# Copy .dev.vars example for API
-if [ ! -f apps/api/.dev.vars ] && [ -f apps/api/.dev.vars.example ]; then
-    cp apps/api/.dev.vars.example apps/api/.dev.vars
-    echo "✅ Copied apps/api/.dev.vars.example to apps/api/.dev.vars"
-fi
-
-# 6. Optional database bootstrap
-if [ "$DB_BOOTSTRAP" = "1" ]; then
-    echo "🗄️  Bootstrapping database..."
-    bun run -w packages/db db:generate
-    bun run -w packages/db db:migrate:dev
-    echo "✅ Database bootstrapped"
-fi
-
-# 7. Print wrangler login guidance
+# 3. Print wrangler login guidance
 echo "🔐 Checking Wrangler authentication..."
 if ! wrangler whoami > /dev/null 2>&1; then
-    echo "⚠️  Run 'wrangler login' to authenticate with Cloudflare"
+    echo "⚠️  Run 'npx wrangler login' to authenticate with Cloudflare"
 fi
 
-# 8. Optional Infisical setup for team members
+# 4. Optional Infisical setup for team members
 echo ""
 echo "🔑 Optional: Infisical setup for team members"
 echo "   If you have access to the Infisical project, you can use:"
@@ -64,7 +35,7 @@ echo "   • See CONTRIBUTING.md for Infisical setup instructions"
 echo "✨ Post-create setup complete!"
 echo ""
 echo "🎯 Quick start:"
-echo "  • Run 'bunx turbo run dev' to start all development servers"
+echo "  • Run 'bun run dev:all' to start all development servers"
 echo "  • API will be available at http://localhost:8787"
 echo "  • SH (SvelteKit) at http://localhost:5173"
 echo "  • Epicenter (Astro) at http://localhost:4321"
