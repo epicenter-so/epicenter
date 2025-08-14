@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import { Label } from '@repo/ui/label';
-	import { UploadIcon, PlayIcon, RepeatIcon } from 'lucide-svelte';
+	import { UploadIcon, PlayIcon, RepeatIcon } from '@lucide/svelte';
 
 	interface Props {
 		id: string;

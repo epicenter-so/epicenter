@@ -2,7 +2,7 @@
 	import {  LabeledSlider, LabeledSwitch } from '$lib/components/labeled';
 	import { Separator } from '@repo/ui/separator';
 	import { Button } from '@repo/ui/button';
-	import { PlayIcon, UploadIcon, XIcon } from 'lucide-svelte';
+	import { PlayIcon, UploadIcon, XIcon } from '@lucide/svelte';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { type WhisperingSoundNames } from '$lib/constants/sounds';
 	import { rpc } from '$lib/query';
