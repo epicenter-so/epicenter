@@ -2,7 +2,7 @@
   <a href="https://whispering.epicenter.so">
     <img width="180" src="./src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
-  <h1 align="center">Whispering</h1>
+  <h1 align="center">Epicenter Whispering</h1>
   <p align="center">Press shortcut → speak → get text. Free and open source ❤️</p>
 </p>
 
@@ -55,7 +55,13 @@ I built this because I was tired of paying monthly subscriptions for transcripti
 
 The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
-> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+> [!TIP]
+> Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
+> [!NOTE]
+> The terms **Epicenter Whispering** and **Whispering** are interchangeable and refer to the same app.
+> - *Epicenter Whispering* emphasizes the app's place in the larger ecosystem.
+> - *Whispering* may be used for brevity and/or to focus on the standalone app.
 
 ## Demo
 
@@ -66,6 +72,7 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
 </div>
 
+> [!TIP]
 > **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
 ## Key Features
@@ -94,6 +101,7 @@ Choose your operating system below and click the download link:
 | **Apple Silicon** | [Whispering_7.2.1_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
 | **Intel** | [Whispering_7.2.1_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_x64.dmg) | Intel-based Macs |
 
+> [!TIP]
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
@@ -165,6 +173,7 @@ sudo rpm -i Whispering-7.2.1-1.x86_64.rpm
 
 </details>
 
+> [!TIP]
 > **Links not working?** Find all downloads at [GitHub Releases](https://github.com/epicenter-so/epicenter/releases/latest)
 
 <details>
@@ -184,7 +193,8 @@ No installation needed! Works in any modern browser.
 
 Right now, I personally use **Groq** for almost all my transcriptions.
 
-> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
+> [!TIP]
+> **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
 2. Sign up → Create API key → Copy it
@@ -432,7 +442,7 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
-## Why Whispering Exists
+## Why Epicenter Whispering Exists
 
 I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
 
