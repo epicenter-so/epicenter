@@ -12,6 +12,7 @@
 		defaultVariants: {
 			size: 'default',
 			variant: 'default',
+			only: 'default',
 		},
 		variants: {
 			size: {
@@ -34,6 +35,11 @@
 				secondary:
 					'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
 			},
+			only: {
+				default: '',
+				mobile: 'md:hidden',
+				desktop: 'hidden md:flex'
+			}
 		},
 	});
 
@@ -57,6 +63,7 @@
 		size = 'default',
 		type = 'button',
 		variant = 'default',
+		only = 'default',
 		...restProps
 	}: ButtonProps = $props();
 </script>
@@ -65,7 +72,7 @@
 	<a
 		bind:this={ref}
 		data-slot="button"
-		class={cn(buttonVariants({ size, variant }), className)}
+		class={cn(buttonVariants({ size, variant, only }), className)}
 		href={disabled ? undefined : href}
 		aria-disabled={disabled}
 		role={disabled ? 'link' : undefined}
@@ -78,7 +85,7 @@
 	<button
 		bind:this={ref}
 		data-slot="button"
-		class={cn(buttonVariants({ size, variant }), className)}
+		class={cn(buttonVariants({ size, variant, only }), className)}
 		{type}
 		{disabled}
 		{...restProps}

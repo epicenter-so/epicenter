@@ -106,6 +106,7 @@
 				tooltipContent="Edit recording"
 				variant="ghost"
 				size="icon"
+				only="desktop"
 				{...props}
 			>
 				<EditIcon class="size-4" />

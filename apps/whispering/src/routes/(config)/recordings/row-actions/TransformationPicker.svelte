@@ -49,6 +49,7 @@
 				aria-expanded={combobox.open}
 				variant="ghost"
 				size="icon"
+				only="desktop"
 			>
 				<LayersIcon class="size-4" />
 			</WhisperingButton>

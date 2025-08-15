@@ -223,6 +223,7 @@
 				})}
 			variant="ghost"
 			size="icon"
+			only="desktop"
 		>
 			{#if downloadRecording.isPending}
 				<Loader2Icon class="size-4 animate-spin" />
@@ -260,6 +261,18 @@
 			size="icon"
 		>
 			<TrashIcon class="size-4" />
+		</WhisperingButton>
+
+		<WhisperingButton
+			tooltipContent="Overflow Menu"
+			onclick={() => {
+				
+			}}
+			variant="ghost"
+			size="icon"
+			only="mobile"
+		>
+			<EllipsisIcon class="size-4" />
 		</WhisperingButton>
 	{/if}
 </div>

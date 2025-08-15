@@ -24,6 +24,7 @@
 				{...props}
 				variant="ghost"
 				size="icon"
+				only="desktop"
 				tooltipContent="View Transformation Runs"
 			>
 				<HistoryIcon class="size-4" />
