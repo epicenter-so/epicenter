@@ -1,4 +1,4 @@
-# Adapters
+# Vault Core
 
 This package houses the interfaces & supporting code for Epicenter's upcoming adapter ecosystem.
 

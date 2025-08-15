@@ -1,5 +1,5 @@
 import { type } from 'arktype';
-import { defineAdapter } from '@repo/mcp-core/types';
+import { defineAdapter } from '@repo/vault-core';
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 import * as tables from './schema';
 import { metadata } from './metadata';
