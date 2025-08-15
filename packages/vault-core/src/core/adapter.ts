@@ -1,6 +1,7 @@
 import { type Type, type } from 'arktype';
 import type { defineConfig } from 'drizzle-kit';
 import type { ColumnsSelection } from 'drizzle-orm';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
 	type BaseSQLiteDatabase,
 	type SQLiteTable,
@@ -10,9 +11,18 @@ import {
 	text,
 } from 'drizzle-orm/sqlite-core';
 
+type ExtractedResult<T> = T extends BaseSQLiteDatabase<'async', infer R>
+	? R
+	: never;
+type ResultSet = ExtractedResult<LibSQLDatabase>;
+
+// Bootstrapped type to represent compatible Drizzle database types across the codebase
+export type CompatibleDB<TSchema = Record<string, SQLiteTable>> =
+	BaseSQLiteDatabase<'sync' | 'async', TSchema | ResultSet>;
+
 type DrizzleConfig = ReturnType<typeof defineConfig>;
 
-type ColumnDescriptions<T extends Record<string, SQLiteTable>> = {
+export type ColumnDescriptions<T extends Record<string, SQLiteTable>> = {
 	[K in keyof T]: {
 		[C in keyof T[K]['_']['columns']]: string;
 	};
@@ -22,21 +32,27 @@ type View<
 	T extends string,
 	TSelection extends ColumnsSelection,
 	TSchema extends Record<string, SQLiteTable>,
-	TDatabase extends BaseSQLiteDatabase<'sync' | 'async', TSchema>,
+	TDatabase extends CompatibleDB<TSchema>,
 > = {
 	name: T;
 	definition: (db: TDatabase) => SubqueryWithSelection<TSelection, string>;
 };
 
 export interface Adapter<
+	TID extends string = string,
 	TSchema extends Record<string, SQLiteTable> = Record<string, SQLiteTable>,
-	TDatabase extends BaseSQLiteDatabase<
-		'sync' | 'async',
-		TSchema
-	> = BaseSQLiteDatabase<'sync' | 'async', TSchema>,
+	TDatabase extends CompatibleDB<TSchema> = CompatibleDB<TSchema>,
 	TParserShape extends Type = Type,
 	TParsed = TParserShape['infer'],
 > {
+	/**
+	 * Unique identifier for the adapter
+	 *
+	 * Should be lowercase, no spaces, alpha-numeric.
+	 * @example "twitter"
+	 */
+	id: TID;
+
 	/**
 	 * User-facing name
 	 * @example "Reddit Adapter"
@@ -54,7 +70,7 @@ export interface Adapter<
 	 *
 	 * This will be used by the MCP server to validate data returned from the `parse` method.
 	 */
-	parseSchema: TParserShape;
+	validator: TParserShape;
 
 	/**
 	 * Predefined views/CTEs
@@ -100,14 +116,20 @@ export interface Adapter<
 	upsert: (db: TDatabase, data: TParsed) => Promise<void>;
 }
 
+// Note: If a generic only appears in a function parameter position, TS won't infer it and will fall back to the constraint (e.g. `object`).
+// These overloads infer the full function type `F` instead, preserving the args type.
 export function defineAdapter<
-	TDatabase extends BaseSQLiteDatabase<'sync' | 'async', TSchema>,
-	TSchema extends Record<string, SQLiteTable>,
-	TParserShape extends Type,
-	TParsed = TParserShape['infer'],
->(
-	adapter: Adapter<TSchema, TDatabase, TParserShape, TParsed>,
-): Adapter<TSchema, TDatabase, TParserShape, TParsed> {
+	// biome-ignore lint/suspicious/noExplicitAny: Variance-friendly identity for adapter factories
+	F extends () => Adapter<string, any, any, any, any>,
+>(adapter: F): F;
+export function defineAdapter<
+	// biome-ignore lint/suspicious/noExplicitAny: Variance-friendly identity for adapter factories
+	F extends (args: any) => Adapter<string, any, any, any, any>,
+>(adapter: F): F;
+// Implementation signature can be broad; overloads provide strong typing to callers
+export function defineAdapter<F extends (...args: unknown[]) => unknown>(
+	adapter: F,
+): F {
 	return adapter;
 }
 
@@ -122,9 +144,10 @@ const songs = sqliteTable('songs', {
 	year: integer('year'),
 });
 
-const testAdapter = defineAdapter({
+const testAdapter = defineAdapter(() => ({
+	id: 'test',
 	name: 'Test Adapter',
-	parseSchema: type({
+	validator: type({
 		id: 'number',
 		title: 'string',
 		artist: 'string',
@@ -168,4 +191,4 @@ const testAdapter = defineAdapter({
 			year: 'Year of release',
 		},
 	},
-});
+}));
