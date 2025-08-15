@@ -1,13 +1,13 @@
-import type { SQL } from 'drizzle-orm';
 import type {
+	AnySQLiteColumn,
 	BaseSQLiteDatabase,
 	SQLiteTable,
-	AnySQLiteColumn,
 } from 'drizzle-orm/sqlite-core';
+import type { ParsedRedditExport } from '.';
 import {
 	reddit_account_gender,
-	reddit_approved_submitter_subreddits,
 	reddit_announcements,
+	reddit_approved_submitter_subreddits,
 	reddit_birthdate,
 	reddit_chat_history,
 	reddit_checkfile,
@@ -38,15 +38,14 @@ import {
 	reddit_saved_comments,
 	reddit_saved_posts,
 	reddit_scheduled_posts,
+	reddit_sensitive_ads_preferences,
 	reddit_statistics,
 	reddit_stripe,
 	reddit_subscribed_subreddits,
 	reddit_subscriptions,
 	reddit_twitter,
 	reddit_user_preferences,
-	reddit_sensitive_ads_preferences,
 } from './schema';
-import type { ParsedRedditExport } from 'src';
 // Parser now emits Date objects for all timestamp fields per parseSchema; no extra coercion needed here.
 
 /**
