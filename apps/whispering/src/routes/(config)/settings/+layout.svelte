@@ -36,7 +36,7 @@
 	})();
 </script>
 
-<main class="sm:container flex w-full flex-1 flex-col pb-4 pt-2 px-4 mx-auto">
+<main class="flex w-full flex-1 flex-col pb-4 pt-2 px-4 mx-auto max-w-6xl">
 	<div
 		class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
 	>
