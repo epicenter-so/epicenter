@@ -10,7 +10,6 @@
 		"serve": "bun run src/cli.ts serve"
 	},
 	"dependencies": {
-		"@epicenter/mcp-adapter-reddit": "workspace:*",
 		"@libsql/client": "^0.11.0",
 		"drizzle-orm": "catalog:"
 	}
