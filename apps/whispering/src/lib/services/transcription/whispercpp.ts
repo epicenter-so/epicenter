@@ -3,6 +3,13 @@ import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists } from '@tauri-apps/plugin-fs';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { type } from 'arktype';
+
+const WhisperCppErrorType = type({
+	kind: "'audioFormatNotSupported' | 'audioReadError' | 'modelLoadError' | 'gpuError' | 'transcriptionError' | 'stateCreationError' | 'segmentError'",
+	message: 'string',
+});
 
 export function createWhisperCppTranscriptionService() {
 	return {
@@ -47,15 +54,14 @@ export function createWhisperCppTranscriptionService() {
 				});
 			}
 
-			try {
-				// Convert audio blob to byte array (like Handy's approach)
-				const arrayBuffer = await audioBlob.arrayBuffer();
-				const audioData = Array.from(new Uint8Array(arrayBuffer));
+			// Convert audio blob to byte array
+			const arrayBuffer = await audioBlob.arrayBuffer();
+			const audioData = Array.from(new Uint8Array(arrayBuffer));
 
-				// Call Tauri command to transcribe with whisper-cpp
-				const transcribedText = await invoke<string>(
-					'transcribe_with_whisper_cpp',
-					{
+			// Call Tauri command to transcribe with whisper-cpp
+			const result = await tryAsync({
+				try: () =>
+					invoke<string>('transcribe_with_whisper_cpp', {
 						audioData: audioData,
 						modelPath: options.modelPath,
 						language:
@@ -63,50 +69,86 @@ export function createWhisperCppTranscriptionService() {
 						useGpu: options.useGpu,
 						prompt: options.prompt,
 						temperature: Number.parseFloat(options.temperature),
-					},
-				);
+					}),
+				mapErr: (unknownError) => {
+					const result = WhisperCppErrorType(unknownError);
+					if (result instanceof type.errors) {
+						return WhisperingErr({
+							title: '❌ Unexpected Whisper C++ Error',
+							description: extractErrorMessage(unknownError),
+							action: { type: 'more-details', error: unknownError },
+						});
+					}
+					const error = result;
+					switch (error.kind) {
+						case 'audioFormatNotSupported':
+							return WhisperingErr({
+								title: '🎵 Audio Format Not Supported',
+								description: error.message,
+								action: {
+									type: 'link',
+									label: 'Configure recording',
+									href: '/settings/recording',
+								},
+							});
 
-				return Ok(transcribedText);
-			} catch (error) {
-				console.error('Whisper C++ transcription error:', error);
+						case 'modelLoadError':
+							return WhisperingErr({
+								title: '🤖 Model Loading Error',
+								description: error.message,
+								action: {
+									type: 'more-details',
+									error: new Error(error.message),
+								},
+							});
 
-				// Parse error message for better user feedback
-				const errorMessage =
-					error instanceof Error ? error.message : String(error);
+						case 'gpuError':
+							return WhisperingErr({
+								title: '🎮 GPU Error',
+								description: error.message,
+								action: {
+									type: 'link',
+									label: 'Configure settings',
+									href: '/settings/transcription',
+								},
+							});
 
-				if (errorMessage.includes('model') || errorMessage.includes('load')) {
-					return WhisperingErr({
-						title: '🤖 Model Loading Error',
-						description:
-							'Failed to load the Whisper model. The file may be corrupted or incompatible.',
-						action: { type: 'more-details', error: error as Error },
-					});
-				}
+						case 'audioReadError':
+							return WhisperingErr({
+								title: '🔊 Audio Read Error',
+								description: error.message,
+								action: {
+									type: 'more-details',
+									error: new Error(error.message),
+								},
+							});
 
-				if (
-					errorMessage.includes('GPU') ||
-					errorMessage.includes('CUDA') ||
-					errorMessage.includes('Metal')
-				) {
-					return WhisperingErr({
-						title: '🎮 GPU Error',
-						description:
-							'GPU acceleration failed. Try disabling GPU in settings.',
-						action: {
-							type: 'link',
-							label: 'Configure settings',
-							href: '/settings/transcription',
-						},
-					});
-				}
+						case 'transcriptionError':
+						case 'stateCreationError':
+						case 'segmentError':
+							return WhisperingErr({
+								title: '❌ Transcription Error',
+								description: error.message,
+								action: {
+									type: 'more-details',
+									error: new Error(error.message),
+								},
+							});
 
-				return WhisperingErr({
-					title: '❌ Whisper C++ Error',
-					description:
-						'An error occurred while processing your audio with Whisper C++.',
-					action: { type: 'more-details', error: error as Error },
-				});
-			}
+						default:
+							return WhisperingErr({
+								title: '❌ Whisper C++ Error',
+								description: 'An unexpected error occurred.',
+								action: {
+									type: 'more-details',
+									error: new Error(String(error)),
+								},
+							});
+					}
+				},
+			});
+
+			return result;
 		},
 	};
 }
