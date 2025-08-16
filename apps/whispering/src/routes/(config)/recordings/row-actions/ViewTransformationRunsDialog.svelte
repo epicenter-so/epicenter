@@ -7,7 +7,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { HistoryIcon } from '@lucide/svelte';
 
-	let { recordingId }: { recordingId: string } = $props();
+	let { recordingId, only }: { recordingId: string; only: string } = $props();
 
 	const transformationRunsByRecordingIdQuery = createQuery(
 		rpc.transformationRuns.getTransformationRunsByRecordingId(() => recordingId)
@@ -24,7 +24,7 @@
 				{...props}
 				variant="ghost"
 				size="icon"
-				only="desktop"
+				{only}
 				tooltipContent="View Transformation Runs"
 			>
 				<HistoryIcon class="size-4" />

@@ -21,7 +21,7 @@
 		rpc.recordings.deleteRecording.options,
 	);
 
-	let { recording }: { recording: Recording } = $props();
+	let { recording, only }: { recording: Recording; only: string } = $props();
 
 	let isDialogOpen = $state(false);
 
@@ -106,7 +106,7 @@
 				tooltipContent="Edit recording"
 				variant="ghost"
 				size="icon"
-				only="desktop"
+				{only}
 				{...props}
 			>
 				<EditIcon class="size-4" />
