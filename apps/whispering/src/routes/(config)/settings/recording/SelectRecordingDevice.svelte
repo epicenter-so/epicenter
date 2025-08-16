@@ -26,9 +26,9 @@
 	);
 
 	const getDevicesQuery = createQuery(
-		isUsingBrowserBackend 
-			? rpc.vadRecorder.enumerateDevices.options
-			: rpc.recorder.enumerateDevices.options
+		() => isUsingBrowserBackend 
+			? rpc.vadRecorder.enumerateDevices.options()
+			: rpc.recorder.enumerateDevices.options()
 	);
 
 	$effect(() => {

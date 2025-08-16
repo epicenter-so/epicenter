@@ -27,6 +27,8 @@
 				return settings.value[service.modelSettingKey];
 			case 'server':
 				return settings.value[service.serverUrlField];
+			case 'local':
+				return settings.value[service.modelPathField];
 		}
 	}
 
@@ -36,6 +38,10 @@
 
 	const serverServices = $derived(
 		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'server'),
+	);
+
+	const localServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'local'),
 	);
 
 	const combobox = useCombobox();
@@ -163,6 +169,38 @@
 								{#if !isConfigured}
 									<span class="text-sm text-amber-600 ml-6">
 										Server URL required
+									</span>
+								{/if}
+							</div>
+						</Command.Item>
+					</Command.Group>
+				{/each}
+
+				{#each localServices as service (service.id)}
+					{@const isSelected =
+						settings.value['transcription.selectedTranscriptionService'] ===
+						service.id}
+					{@const isConfigured = isTranscriptionServiceConfigured(service)}
+
+					<Command.Group heading={service.name}>
+						<Command.Item
+							value={service.id}
+							onSelect={() => {
+								settings.updateKey('transcription.selectedTranscriptionService', service.id);
+								combobox.closeAndFocusTrigger();
+							}}
+							class="flex items-center gap-2 p-2"
+						>
+							<CheckIcon
+								class={cn('size-4 shrink-0 ml-2', {
+									'text-transparent': !isSelected,
+								})}
+							/>
+							<div class="flex flex-col min-w-0">
+								{@render renderServiceDisplay(service)}
+								{#if !isConfigured}
+									<span class="text-sm text-amber-600 ml-6">
+										Model file required
 									</span>
 								{/if}
 							</div>

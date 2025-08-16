@@ -15,14 +15,17 @@ use recorder::commands::{
     get_current_recording_id, init_recording_session, start_recording, stop_recording, AppData,
 };
 
+pub mod whisper_cpp;
+use whisper_cpp::transcribe_with_whisper_cpp;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
     let mut builder = tauri::Builder::default();
-    
+
     // Try to get APTABASE_KEY from environment, use empty string if not found
     let aptabase_key = option_env!("APTABASE_KEY").unwrap_or("");
-    
+
     // Only add Aptabase plugin if key is not empty
     if !aptabase_key.is_empty() {
         println!("Aptabase analytics enabled");
@@ -30,8 +33,9 @@ pub async fn run() {
     } else {
         println!("Warning: APTABASE_KEY not found, analytics disabled");
     }
-    
+
     builder = builder
+        .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -69,6 +73,8 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
+        // Whisper transcription
+        transcribe_with_whisper_cpp,
     ]);
 
     #[cfg(not(target_os = "macos"))]
@@ -83,12 +89,13 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
+        transcribe_with_whisper_cpp,
     ]);
 
     let app = builder
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
-    
+
     app.run(|handler, event| {
         // Only track events if Aptabase is enabled (key is not empty)
         if !aptabase_key.is_empty() {

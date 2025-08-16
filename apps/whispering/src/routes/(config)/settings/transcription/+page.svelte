@@ -15,6 +15,8 @@
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
+	import { Checkbox } from '@repo/ui/checkbox';
+	import { Input } from '@repo/ui/input';
 	import { Separator } from '@repo/ui/separator';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
@@ -323,6 +325,139 @@
 				</p>
 			{/snippet}
 		</LabeledInput>
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'whispercpp'}
+		<div class="space-y-4">
+			<Card.Root>
+				<Card.Header>
+					<Card.Title class="text-lg">Whisper C++ Setup</Card.Title>
+					<Card.Description>
+						Use local Whisper models for private, offline transcription. Whisper C++
+						provides fast CPU/GPU inference with no API costs or data sharing.
+					</Card.Description>
+				</Card.Header>
+				<Card.Content class="space-y-6">
+					<div class="flex gap-3">
+						<Button
+							href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Download Models
+						</Button>
+						<Button
+							variant="outline"
+							href="https://github.com/ggerganov/whisper.cpp#quick-start"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Documentation
+						</Button>
+					</div>
+
+					<div class="space-y-4">
+						<div>
+							<p class="text-sm font-medium">
+								<span class="text-muted-foreground">Step 1:</span> Download a Whisper
+								model
+							</p>
+							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
+								<li class="list-disc">
+									Visit the <Button
+										variant="link"
+										size="sm"
+										class="px-0 h-auto underline"
+										href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										model repository
+									</Button>
+								</li>
+								<li class="list-disc">
+									Download a model file (e.g., ggml-base.en.bin for English)
+								</li>
+								<li class="list-disc">
+									Larger models are more accurate but slower
+								</li>
+							</ul>
+						</div>
+
+						<div>
+							<p class="text-sm font-medium">
+								<span class="text-muted-foreground">Step 2:</span> Select the model
+								file below
+							</p>
+							<ul class="ml-6 mt-2 space-y-1 text-sm text-muted-foreground">
+								<li class="list-disc">Click "Browse" to select your downloaded model</li>
+								<li class="list-disc">The model will be used for all transcriptions</li>
+							</ul>
+						</div>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		</div>
+
+		<div class="space-y-4">
+			<div>
+				<label for="whispercpp-model-path" class="block text-sm font-medium mb-2">
+					Model File Path
+				</label>
+				<div class="flex items-center gap-2">
+					<Input
+						id="whispercpp-model-path"
+						type="text"
+						value={settings.value['transcription.whispercpp.modelPath']}
+						readonly
+						placeholder="No model selected"
+						class="flex-1"
+					/>
+					<Button
+						variant="outline"
+						size="icon"
+						onclick={async () => {
+							if (!window.__TAURI_INTERNALS__) return;
+							const { open } = await import('@tauri-apps/plugin-dialog');
+							const selected = await open({
+								multiple: false,
+								filters: [{
+									name: 'Whisper Models',
+									extensions: ['bin', 'gguf', 'ggml']
+								}],
+								title: 'Select Whisper Model File',
+							});
+							if (selected) {
+								settings.updateKey('transcription.whispercpp.modelPath', selected);
+							}
+						}}
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M20 7h-9" />
+							<path d="M14 17H5" />
+							<circle cx="17" cy="17" r="3" />
+							<circle cx="7" cy="7" r="3" />
+						</svg>
+					</Button>
+				</div>
+				{#if settings.value['transcription.whispercpp.modelPath']}
+					<p class="text-xs text-muted-foreground mt-1">
+						Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+					</p>
+				{/if}
+			</div>
+
+			<div class="flex items-center space-x-2">
+				<Checkbox
+					id="whispercpp-use-gpu"
+					checked={settings.value['transcription.whispercpp.useGpu']}
+					onCheckedChange={(checked) => {
+						settings.updateKey('transcription.whispercpp.useGpu', checked);
+					}}
+				/>
+				<label for="whispercpp-use-gpu" class="text-sm font-medium">
+					Use GPU acceleration (if available)
+				</label>
+			</div>
+		</div>
 	{/if}
 
 	<LabeledSelect

@@ -2,7 +2,13 @@
  * Transcription service configurations
  */
 import type { Settings } from '$lib/settings';
-import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from '@lucide/svelte';
+import {
+	CloudIcon,
+	HexagonIcon,
+	PauseIcon,
+	ServerIcon,
+	CpuIcon,
+} from '@lucide/svelte';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
@@ -17,7 +23,11 @@ import {
 	type DeepgramModel,
 } from '$lib/services/transcription/deepgram';
 
-type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel | DeepgramModel;
+type TranscriptionModel =
+	| OpenAIModel
+	| GroqModel
+	| ElevenLabsModel
+	| DeepgramModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'OpenAI',
@@ -25,6 +35,8 @@ export const TRANSCRIPTION_SERVICE_IDS = [
 	'speaches',
 	'ElevenLabs',
 	'Deepgram',
+	'owhisper',
+	'whispercpp',
 ] as const;
 
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -48,9 +60,15 @@ type ServerTranscriptionService = BaseTranscriptionService & {
 	serverUrlField: keyof Settings;
 };
 
+type LocalTranscriptionService = BaseTranscriptionService & {
+	type: 'local';
+	modelPathField: keyof Settings;
+};
+
 type SatisfiedTranscriptionService =
 	| ApiTranscriptionService
-	| ServerTranscriptionService;
+	| ServerTranscriptionService
+	| LocalTranscriptionService;
 
 export const TRANSCRIPTION_SERVICES = [
 	{
@@ -84,13 +102,6 @@ export const TRANSCRIPTION_SERVICES = [
 		type: 'api',
 	},
 	{
-		id: 'speaches',
-		name: 'Speaches',
-		icon: ServerIcon,
-		serverUrlField: 'transcription.speaches.baseUrl',
-		type: 'server',
-	},
-	{
 		id: 'Deepgram',
 		name: 'Deepgram',
 		icon: ServerIcon,
@@ -99,6 +110,27 @@ export const TRANSCRIPTION_SERVICES = [
 		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
 		type: 'api',
+	},
+	{
+		id: 'speaches',
+		name: 'Speaches',
+		icon: ServerIcon,
+		serverUrlField: 'transcription.speaches.baseUrl',
+		type: 'server',
+	},
+	{
+		id: 'owhisper',
+		name: 'Owhisper',
+		icon: ServerIcon,
+		serverUrlField: 'transcription.owhisper.baseUrl',
+		type: 'server',
+	},
+	{
+		id: 'whispercpp',
+		name: 'Whisper C++',
+		icon: CpuIcon,
+		modelPathField: 'transcription.whispercpp.modelPath',
+		type: 'local',
 	},
 ] as const satisfies SatisfiedTranscriptionService[];
 
