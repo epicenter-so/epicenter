@@ -64,7 +64,6 @@
 		"@tauri-apps/plugin-os": "^2.3.0",
 		"@tauri-apps/plugin-process": "^2.3.0",
 		"@tauri-apps/plugin-updater": "^2.9.0",
-		"@tauri-apps/plugin-websocket": "^2.4.0",
 		"arktype": "catalog:",
 		"audio-recorder-polyfill": "^0.4.1",
 		"date-fns": "catalog:",

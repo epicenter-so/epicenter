@@ -45,7 +45,6 @@ thiserror = "2.0.12"
 whisper-rs = { version = "0.13.2", features = ["whisper-cpp-log"] }
 hound = "3.5"
 lazy_static = "1.4"
-tauri-plugin-websocket = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 accessibility-sys =  "0.1.3"
