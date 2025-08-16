@@ -114,7 +114,7 @@
 			{/if}
 		</WhisperingButton>
 
-		{#snippet transformationPickerButton(only = 'default')}
+		{#snippet transformationPickerSnippet(only = 'default')}
 			<TransformationPicker
 				onSelect={(transformation) => {
 					const toastId = nanoid();
@@ -154,12 +154,12 @@
 				{only}
 			/>
 		{/snippet}
-		{@render transformationPickerButton('desktop')}
+		{@render transformationPickerSnippet('desktop')}
 
-		{#snippet editRecordingButton(only = 'default')}
+		{#snippet editRecordingModalSnippet(only = 'default')}
 			<EditRecordingModal {recording} {only} />
 		{/snippet}
-		{@render editRecordingButton('default')}
+		{@render editRecordingModalSnippet('default')}
 
 		<CopyToClipboardButton
 			contentDescription="transcribed text"
@@ -172,7 +172,7 @@
 			<ClipboardIcon class="size-4" />
 		</CopyToClipboardButton>
 
-		{#snippet copyTransformationButton(only = 'default')}
+		{#snippet copyTransformationButtonSnippet(only = 'default')}
 			{#if latestTransformationRunByRecordingIdQuery.isPending}
 				<Loader2Icon class="size-4 animate-spin" />
 			{:else if latestTransformationRunByRecordingIdQuery.isError}
@@ -207,14 +207,14 @@
 				</CopyToClipboardButton>
 			{/if}
 		{/snippet}
-		{@render copyTransformationButton('desktop')}
+		{@render copyTransformationButtonSnippet('desktop')}
 
-		{#snippet viewTransformationRunsDialogButton(only = 'default')}
+		{#snippet viewTransformationRunsDialogSnippet(only = 'default')}
 			<ViewTransformationRunsDialog {recordingId} {only} />
 		{/snippet}
-		{@render viewTransformationRunsDialogButton('desktop')}
+		{@render viewTransformationRunsDialogSnippet('desktop')}
 
-		{#snippet downloadRecordingButton(only = 'default')}
+		{#snippet downloadRecordingButtonSnippet(only = 'default')}
 			<WhisperingButton
 				tooltipContent="Download recording"
 				onclick={() =>
@@ -248,7 +248,7 @@
 				{/if}
 			</WhisperingButton>
 		{/snippet}
-		{@render downloadRecordingButton('desktop')}
+		{@render downloadRecordingButtonSnippet('desktop')}
 
 		<WhisperingButton
 			tooltipContent="Delete recording"
@@ -282,11 +282,11 @@
 		</WhisperingButton>
 
 		<RowActionsOverflowMenu>
-			{@render transformationPickerButton()}
-			{@render editRecordingButton()}
-			{@render copyTransformationButton()}
-			{@render viewTransformationRunsDialogButton()}
-			{@render downloadRecordingButton()}
+			{@render transformationPickerSnippet()}
+			{@render editRecordingModalSnippet()}
+			{@render copyTransformationButtonSnippet()}
+			{@render viewTransformationRunsDialogSnippet()}
+			{@render downloadRecordingButtonSnippet()}
 		</RowActionsOverflowMenu>
 	{/if}
 </div>
