@@ -415,28 +415,19 @@
 				</p>
 			{/if}
 			<p class="text-muted-foreground text-center text-sm font-light">
-				Check out the {' '}<WhisperingButton
-					tooltipContent="Check out the Chrome Extension"
-					href="https://chromewebstore.google.com/detail/whispering/oilbfihknpdbpfkcncojikmooipnlglo"
-					target="_blank"
-					rel="noopener noreferrer"
-					variant="link"
-					size="inline"
-				>
-					extension
-				</WhisperingButton>{' '}
 				{#if !window.__TAURI_INTERNALS__}
-					and {' '}<WhisperingButton
-						tooltipContent="Check out the desktop app"
-						href="https://github.com/epicenter-so/epicenter/releases"
+					Get Whispering for desktop from the 
+					<WhisperingButton
+						tooltipContent="Get Whispering for desktop"
+						href="https://epicenter.so/whispering"
 						target="_blank"
 						rel="noopener noreferrer"
 						variant="link"
 						size="inline"
 					>
-						app
-					</WhisperingButton>{' '}
-				{/if} for more integrations!
+						app page
+					</WhisperingButton>
+				{/if}
 			</p>
 		</div>
 	</div>
