@@ -114,43 +114,47 @@
 			{/if}
 		</WhisperingButton>
 
-		<TransformationPicker
-			onSelect={(transformation) => {
-				const toastId = nanoid();
-				rpc.notify.loading.execute({
-					id: toastId,
-					title: '🔄 Running transformation...',
-					description:
-						'Applying your selected transformation to the transcribed text...',
-				});
-				transformRecording.mutate(
-					{ recordingId: recording.id, transformation },
-					{
-						onError: (error) => rpc.notify.error.execute(error),
-						onSuccess: (transformationRun) => {
-							if (transformationRun.status === 'failed') {
-								rpc.notify.error.execute({
-									title: '⚠️ Transformation error',
-									description: transformationRun.error,
-									action: {
-										type: 'more-details',
-										error: transformationRun.error,
-									},
+		{#snippet transformationPickerButton(only = 'default')}
+			<TransformationPicker
+				onSelect={(transformation) => {
+					const toastId = nanoid();
+					rpc.notify.loading.execute({
+						id: toastId,
+						title: '🔄 Running transformation...',
+						description:
+							'Applying your selected transformation to the transcribed text...',
+					});
+					transformRecording.mutate(
+						{ recordingId: recording.id, transformation },
+						{
+							onError: (error) => rpc.notify.error.execute(error),
+							onSuccess: (transformationRun) => {
+								if (transformationRun.status === 'failed') {
+									rpc.notify.error.execute({
+										title: '⚠️ Transformation error',
+										description: transformationRun.error,
+										action: {
+											type: 'more-details',
+											error: transformationRun.error,
+										},
+									});
+									return;
+								}
+
+								rpc.sound.playSoundIfEnabled.execute('transformationComplete');
+
+								rpc.delivery.deliverTransformationResult.execute({
+									text: transformationRun.output,
+									toastId,
 								});
-								return;
-							}
-
-							rpc.sound.playSoundIfEnabled.execute('transformationComplete');
-
-							rpc.delivery.deliverTransformationResult.execute({
-								text: transformationRun.output,
-								toastId,
-							});
+							},
 						},
-					},
-				);
-			}}
-		/>
+					);
+				}}
+				{only}
+			/>
+		{/snippet}
+		{@render transformationPickerButton('desktop')}
 
 		{#snippet editRecordingButton(only = 'default')}
 			<EditRecordingModal {recording} {only} />
@@ -278,6 +282,7 @@
 		</WhisperingButton>
 
 		<RowActionsOverflowMenu>
+			{@render transformationPickerButton()}
 			{@render editRecordingButton()}
 			{@render copyTransformationButton()}
 			{@render viewTransformationRunsDialogButton()}

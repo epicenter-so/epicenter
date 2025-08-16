@@ -21,9 +21,11 @@
 	let {
 		class: className,
 		onSelect,
+		only,
 	}: {
 		class?: string;
 		onSelect: (transformation: Transformation) => void;
+		only: string;
 	} = $props();
 </script>
 
@@ -49,7 +51,7 @@
 				aria-expanded={combobox.open}
 				variant="ghost"
 				size="icon"
-				only="desktop"
+				{only}
 			>
 				<LayersIcon class="size-4" />
 			</WhisperingButton>
