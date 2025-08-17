@@ -36,6 +36,10 @@ export function isTranscriptionServiceConfigured(
 			const url = settings.value[service.serverUrlField];
 			return url !== '';
 		}
+		case 'local': {
+			const modelPath = settings.value[service.modelPathField];
+			return modelPath !== '';
+		}
 		default: {
 			return true;
 		}

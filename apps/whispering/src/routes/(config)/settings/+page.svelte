@@ -24,43 +24,41 @@
 	<Separator />
 
 	<LabeledSwitch
-		id="transcription.clipboard.copyOnSuccess"
-		label="Copy text to clipboard on successful transcription"
-		checked={settings.value['transcription.clipboard.copyOnSuccess']}
+		id="transcription.copyToClipboardOnSuccess"
+		label="Copy to clipboard on success"
+		checked={settings.value['transcription.copyToClipboardOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.updateKey('transcription.clipboard.copyOnSuccess', v);
+			settings.updateKey('transcription.copyToClipboardOnSuccess', v);
 		}}
 	/>
 
 	<LabeledSwitch
-		id="transcription.clipboard.pasteOnSuccess"
-		label="Paste contents from clipboard after successful transcription"
-		checked={settings.value['transcription.clipboard.pasteOnSuccess']}
+		id="transcription.writeToCursorOnSuccess"
+		label="Write to cursor on success"
+		checked={settings.value['transcription.writeToCursorOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.updateKey('transcription.clipboard.pasteOnSuccess', v);
+			settings.updateKey('transcription.writeToCursorOnSuccess', v);
 		}}
-		disabled={!settings.value['transcription.clipboard.copyOnSuccess']}
 	/>
 
 	<Separator />
 
 	<LabeledSwitch
-		id="transformation.clipboard.copyOnSuccess"
-		label="Copy text to clipboard on successful transformation"
-		checked={settings.value['transformation.clipboard.copyOnSuccess']}
+		id="transformation.copyToClipboardOnSuccess"
+		label="Copy to clipboard on success"
+		checked={settings.value['transformation.copyToClipboardOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.updateKey('transformation.clipboard.copyOnSuccess', v);
+			settings.updateKey('transformation.copyToClipboardOnSuccess', v);
 		}}
 	/>
 
 	<LabeledSwitch
-		id="transformation.clipboard.pasteOnSuccess"
-		label="Paste contents from clipboard after successful transformation"
-		checked={settings.value['transformation.clipboard.pasteOnSuccess']}
+		id="transformation.writeToCursorOnSuccess"
+		label="Write to cursor on success"
+		checked={settings.value['transformation.writeToCursorOnSuccess']}
 		onCheckedChange={(v) => {
-			settings.updateKey('transformation.clipboard.pasteOnSuccess', v);
+			settings.updateKey('transformation.writeToCursorOnSuccess', v);
 		}}
-		disabled={!settings.value['transformation.clipboard.copyOnSuccess']}
 	/>
 
 	<Separator />

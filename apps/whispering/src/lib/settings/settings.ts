@@ -43,7 +43,7 @@ import type { ElevenLabsModel } from '$lib/services/transcription/elevenlabs';
 import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
-import { type DeviceIdentifier, asDeviceIdentifier } from '$lib/services/types';
+import { asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
 
@@ -88,10 +88,10 @@ export const settingsSchema = z.object({
 		z.ZodDefault<ZodBoolean>
 	>),
 
-	'transcription.clipboard.copyOnSuccess': z.boolean().default(true),
-	'transcription.clipboard.pasteOnSuccess': z.boolean().default(false),
-	'transformation.clipboard.copyOnSuccess': z.boolean().default(true),
-	'transformation.clipboard.pasteOnSuccess': z.boolean().default(false),
+	'transcription.copyToClipboardOnSuccess': z.boolean().default(true),
+	'transcription.writeToCursorOnSuccess': z.boolean().default(true),
+	'transformation.copyToClipboardOnSuccess': z.boolean().default(true),
+	'transformation.writeToCursorOnSuccess': z.boolean().default(false),
 
 	'system.alwaysOnTop': z.enum(ALWAYS_ON_TOP_VALUES).default('Never'),
 
@@ -175,6 +175,12 @@ export const settingsSchema = z.object({
 	'transcription.speaches.modelId': z
 		.string()
 		.default('Systran/faster-distil-whisper-small.en'),
+	'transcription.owhisper.baseUrl': z.string().default('http://localhost:8080'),
+	'transcription.owhisper.modelId': z
+		.string()
+		.default('whisper-cpp-base-q8-en'),
+	'transcription.whispercpp.modelPath': z.string().default(''),
+	'transcription.whispercpp.useGpu': z.boolean().default(true),
 
 	'transformations.selectedTransformationId': z
 		.string()
@@ -316,6 +322,35 @@ export function getDefaultSettings(): Settings {
  * // All return getDefaultSettings()
  */
 export function parseStoredSettings(storedValue: unknown): Settings {
+	// Migrate old settings keys to new ones
+	if (typeof storedValue === 'object' && storedValue !== null) {
+		const migrated = { ...storedValue } as Record<string, unknown>;
+
+		// Migrate clipboard settings to new names
+		if ('transcription.clipboard.copyOnSuccess' in migrated) {
+			migrated['transcription.copyToClipboardOnSuccess'] =
+				migrated['transcription.clipboard.copyOnSuccess'];
+			delete migrated['transcription.clipboard.copyOnSuccess'];
+		}
+		if ('transcription.clipboard.pasteOnSuccess' in migrated) {
+			migrated['transcription.writeToCursorOnSuccess'] =
+				migrated['transcription.clipboard.pasteOnSuccess'];
+			delete migrated['transcription.clipboard.pasteOnSuccess'];
+		}
+		if ('transformation.clipboard.copyOnSuccess' in migrated) {
+			migrated['transformation.copyToClipboardOnSuccess'] =
+				migrated['transformation.clipboard.copyOnSuccess'];
+			delete migrated['transformation.clipboard.copyOnSuccess'];
+		}
+		if ('transformation.clipboard.pasteOnSuccess' in migrated) {
+			migrated['transformation.writeToCursorOnSuccess'] =
+				migrated['transformation.clipboard.pasteOnSuccess'];
+			delete migrated['transformation.clipboard.pasteOnSuccess'];
+		}
+
+		storedValue = migrated;
+	}
+
 	// First, try to parse the entire value
 	const fullResult = settingsSchema.safeParse(storedValue);
 	if (fullResult.success) {

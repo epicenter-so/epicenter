@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { invoke } from '@tauri-apps/api/core';
+	import { Command } from '@tauri-apps/plugin-shell';
 	import { SettingsIcon } from '@lucide/svelte';
+	
+	async function openAccessibilitySettings() {
+		const command = Command.create('open', [
+			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'
+		]);
+		await command.execute();
+	}
 </script>
 
 <svelte:head>
@@ -65,7 +72,7 @@
 		</Card.Content>
 		<Card.Footer>
 			<Button
-				onclick={() => invoke('open_apple_accessibility')}
+				onclick={() => openAccessibilitySettings()}
 				variant="default"
 				size="sm"
 				class="w-full text-sm"

@@ -59,7 +59,7 @@
 	const deleteRecordings = createMutation(
 		rpc.recordings.deleteRecordings.options,
 	);
-	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
+	const copyToClipboard = createMutation(rpc.text.copyToClipboard.options);
 
 	const columns: ColumnDef<Recording>[] = [
 		{

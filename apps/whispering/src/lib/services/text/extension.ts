@@ -1,28 +1,30 @@
 import { tryAsync } from 'wellcrafted/result';
-import { type ClipboardService, ClipboardServiceErr } from './types';
+import { type TextService, TextServiceErr } from './types';
 
-export function createClipboardServiceExtension(): ClipboardService {
+export function createTextServiceExtension(): TextService {
 	return {
 		copyToClipboard: (text) =>
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapErr: (error) =>
-					ClipboardServiceErr({
+					TextServiceErr({
 						message: 'Unable to copy to clipboard',
 						context: { text },
 						cause: error,
 					}),
 			}),
 
-		pasteFromClipboard: () =>
+		writeToCursor: (text) =>
 			tryAsync({
 				try: async () => {
-					const text = await navigator.clipboard.readText();
+					// Copy to clipboard and insert at cursor
+					await navigator.clipboard.writeText(text);
 					return writeTextToCursor(text);
 				},
 				mapErr: (error) =>
-					ClipboardServiceErr({
-						message: 'Unable to paste from clipboard at cursor position',
+					TextServiceErr({
+						message: 'Unable to write text at cursor position',
+						context: { text },
 						cause: error,
 					}),
 			}),

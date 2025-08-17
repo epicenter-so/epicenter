@@ -6,7 +6,7 @@
 	import { CheckIcon } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 
-	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
+	const copyToClipboard = createMutation(rpc.text.copyToClipboard.options);
 
 	let {
 		children,

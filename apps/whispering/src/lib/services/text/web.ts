@@ -1,16 +1,14 @@
 import { Ok, tryAsync } from 'wellcrafted/result';
-// import { extension } from '@repo/extension';
-import type { ClipboardService } from '.';
-import { ClipboardServiceErr } from './types';
-// import { WhisperingErr } from '$lib/result';
+import type { TextService } from './types';
+import { TextServiceErr } from './types';
 
-export function createClipboardServiceWeb(): ClipboardService {
+export function createTextServiceWeb(): TextService {
 	return {
 		copyToClipboard: async (text) => {
 			const { error: copyError } = await tryAsync({
 				try: () => navigator.clipboard.writeText(text),
 				mapErr: (error) =>
-					ClipboardServiceErr({
+					TextServiceErr({
 						message:
 							'There was an error copying to the clipboard using the browser Clipboard API. Please try again.',
 						context: { text },
@@ -26,12 +24,14 @@ export function createClipboardServiceWeb(): ClipboardService {
 			return Ok(undefined);
 		},
 
-		pasteFromClipboard: async () => {
+		writeToCursor: async (text) => {
 			// In web browsers, we cannot programmatically paste for security reasons
-			// The user must manually paste with Cmd/Ctrl+V
-			return ClipboardServiceErr({
+			// We can copy the text to clipboard but the user must manually paste with Cmd/Ctrl+V
+			await navigator.clipboard.writeText(text);
+			return TextServiceErr({
 				message:
-					'Automatic paste is not supported in web browsers for security reasons. Please paste manually using Cmd/Ctrl+V.',
+					'Text copied to clipboard. Automatic paste is not supported in web browsers for security reasons. Please paste manually using Cmd/Ctrl+V.',
+				context: { text },
 				cause: undefined,
 			});
 		},

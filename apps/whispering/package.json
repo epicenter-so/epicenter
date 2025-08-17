@@ -72,6 +72,7 @@
 		"groq-sdk": "^0.25.0",
 		"nanoid": "catalog:",
 		"openai": "^5.7.0",
+		"tauri-plugin-macos-permissions-api": "^2.3.0",
 		"wellcrafted": "catalog:",
 		"zod": "catalog:"
 	}
