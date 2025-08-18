@@ -23,9 +23,9 @@
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
 	import { checkFfmpeg } from './check-ffmpeg';
-	import { 
+	import {
 		registerAccessibilityPermission,
-		registerMicrophonePermission 
+		registerMicrophonePermission,
 	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
@@ -52,7 +52,7 @@
 			// await extension.notifyWhisperingTabReady(undefined);
 		}
 		registerOnboarding();
-		
+
 		// Register permission checkers separately
 		cleanupAccessibilityPermission = registerAccessibilityPermission();
 		cleanupMicrophonePermission = registerMicrophonePermission();
@@ -134,5 +134,12 @@
 		min-height: 100vh;
 		display: grid;
 		grid-template-rows: 1fr auto;
+	}
+
+	/* Hide scrollbars when in minimized mode (xxs breakpoint) */
+	@media (width < 196px) {
+		:global(html, body) {
+			overflow: hidden;
+		}
 	}
 </style>

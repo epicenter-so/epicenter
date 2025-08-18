@@ -47,7 +47,7 @@
 		{#snippet child({ props })}
 			<WhisperingButton
 				tooltipContent="Notification History"
-				class="fixed bottom-4 right-4 z-50 hidden xs:inline-flex"
+				class="fixed bottom-4 right-4 z-50"
 				variant="outline"
 				size="icon"
 				{...props}
@@ -126,7 +126,14 @@
 </Popover.Root>
 
 <style>
-   :global([data-slot="popover-content"] [data-sonner-toast]) {
-      position: relative;
-   }
+	:global([data-slot='popover-content'] [data-sonner-toast]) {
+		position: relative;
+	}
+
+	/* Hide notification button when in minimized mode */
+	@media (max-width: 195px) {
+		:global(button[data-popover-trigger]) {
+			display: none !important;
+		}
+	}
 </style>
