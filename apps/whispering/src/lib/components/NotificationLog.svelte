@@ -45,15 +45,16 @@
 <Popover.Root bind:open={notificationLog.isOpen}>
 	<Popover.Trigger>
 		{#snippet child({ props })}
-			<WhisperingButton
-				tooltipContent="Notification History"
-				class="fixed bottom-4 right-4 z-50"
-				variant="outline"
-				size="icon"
-				{...props}
-			>
-				<LogsIcon class="size-4" />
-			</WhisperingButton>
+			<div class="fixed bottom-4 left-4 z-50 hidden xs:inline-flex">
+				<WhisperingButton
+					tooltipContent="Notification History"
+					variant="outline"
+					size="icon"
+					{...props}
+				>
+					<LogsIcon class="size-4" />
+				</WhisperingButton>
+			</div>
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content
@@ -128,12 +129,5 @@
 <style>
 	:global([data-slot='popover-content'] [data-sonner-toast]) {
 		position: relative;
-	}
-
-	/* Hide notification button when in minimized mode */
-	@media (max-width: 195px) {
-		:global(button[data-popover-trigger]) {
-			display: none !important;
-		}
 	}
 </style>
