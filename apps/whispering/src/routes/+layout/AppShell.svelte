@@ -135,11 +135,4 @@
 		display: grid;
 		grid-template-rows: 1fr auto;
 	}
-
-	/* Hide scrollbars when in minimized mode (xxs breakpoint) */
-	@media (width < 196px) {
-		:global(html, body) {
-			overflow: hidden;
-		}
-	}
 </style>
