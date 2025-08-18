@@ -17,6 +17,7 @@
 		class: className,
 		size = 'icon',
 		variant = 'ghost',
+		only = 'default',
 		disabled,
 	}: {
 		/**
@@ -41,7 +42,7 @@
 		contentDescription: string;
 		viewTransitionName?: string;
 		class?: string;
-	} & Pick<Props, 'disabled' | 'variant' | 'size'> = $props();
+	} & Pick<Props, 'disabled' | 'variant' | 'size' | 'only' > = $props();
 
 	let hasCopied = $state(false);
 </script>
@@ -77,6 +78,7 @@
 	class={className}
 	{size}
 	{variant}
+	{only}
 	{disabled}
 >
 	<span class="sr-only">Copy</span>

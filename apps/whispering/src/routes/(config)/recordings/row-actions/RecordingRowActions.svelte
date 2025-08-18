@@ -21,6 +21,7 @@
 	import EditRecordingModal from './EditRecordingModal.svelte';
 	import TransformationPicker from './TransformationPicker.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
+	import RowActionsOverflowMenu from './RowActionsOverflowMenu.svelte';
 
 	const transcribeRecording = createMutation(
 		rpc.transcription.transcribeRecording.options,
@@ -113,45 +114,52 @@
 			{/if}
 		</WhisperingButton>
 
-		<TransformationPicker
-			onSelect={(transformation) => {
-				const toastId = nanoid();
-				rpc.notify.loading.execute({
-					id: toastId,
-					title: '🔄 Running transformation...',
-					description:
-						'Applying your selected transformation to the transcribed text...',
-				});
-				transformRecording.mutate(
-					{ recordingId: recording.id, transformation },
-					{
-						onError: (error) => rpc.notify.error.execute(error),
-						onSuccess: (transformationRun) => {
-							if (transformationRun.status === 'failed') {
-								rpc.notify.error.execute({
-									title: '⚠️ Transformation error',
-									description: transformationRun.error,
-									action: {
-										type: 'more-details',
-										error: transformationRun.error,
-									},
+		{#snippet transformationPickerSnippet(only = 'default')}
+			<TransformationPicker
+				onSelect={(transformation) => {
+					const toastId = nanoid();
+					rpc.notify.loading.execute({
+						id: toastId,
+						title: '🔄 Running transformation...',
+						description:
+							'Applying your selected transformation to the transcribed text...',
+					});
+					transformRecording.mutate(
+						{ recordingId: recording.id, transformation },
+						{
+							onError: (error) => rpc.notify.error.execute(error),
+							onSuccess: (transformationRun) => {
+								if (transformationRun.status === 'failed') {
+									rpc.notify.error.execute({
+										title: '⚠️ Transformation error',
+										description: transformationRun.error,
+										action: {
+											type: 'more-details',
+											error: transformationRun.error,
+										},
+									});
+									return;
+								}
+
+								rpc.sound.playSoundIfEnabled.execute('transformationComplete');
+
+								rpc.delivery.deliverTransformationResult.execute({
+									text: transformationRun.output,
+									toastId,
 								});
-								return;
-							}
-
-							rpc.sound.playSoundIfEnabled.execute('transformationComplete');
-
-							rpc.delivery.deliverTransformationResult.execute({
-								text: transformationRun.output,
-								toastId,
-							});
+							},
 						},
-					},
-				);
-			}}
-		/>
+					);
+				}}
+				{only}
+			/>
+		{/snippet}
+		{@render transformationPickerSnippet('desktop')}
 
-		<EditRecordingModal {recording} />
+		{#snippet editRecordingModalSnippet(only = 'default')}
+			<EditRecordingModal {recording} {only} />
+		{/snippet}
+		{@render editRecordingModalSnippet('default')}
 
 		<CopyToClipboardButton
 			contentDescription="transcribed text"
@@ -164,72 +172,83 @@
 			<ClipboardIcon class="size-4" />
 		</CopyToClipboardButton>
 
-		{#if latestTransformationRunByRecordingIdQuery.isPending}
-			<Loader2Icon class="size-4 animate-spin" />
-		{:else if latestTransformationRunByRecordingIdQuery.isError}
-			<WhisperingTooltip
-				id={getRecordingTransitionId({
-					recordingId,
-					propertyName: 'latestTransformationRunOutput',
-				})}
-				tooltipContent="Error fetching latest transformation run output"
-			>
-				{#snippet trigger({ tooltip, tooltipProps })}
-					<AlertCircleIcon class="text-red-500" {...tooltipProps} />
-					<span class="sr-only">
-						{@render tooltip()}
-					</span>
-				{/snippet}
-			</WhisperingTooltip>
-		{:else}
-			<CopyToClipboardButton
-				contentDescription="latest transformation run output"
-				textToCopy={latestTransformationRunByRecordingIdQuery.data?.status ===
-				'completed'
-					? latestTransformationRunByRecordingIdQuery.data.output
-					: ''}
-				viewTransitionName={getRecordingTransitionId({
-					recordingId,
-					propertyName: 'latestTransformationRunOutput',
-				})}
-			>
-				<FileStackIcon class="size-4" />
-			</CopyToClipboardButton>
-		{/if}
-
-		<ViewTransformationRunsDialog {recordingId} />
-
-		<WhisperingButton
-			tooltipContent="Download recording"
-			onclick={() =>
-				downloadRecording.mutate(recording, {
-					onError: (error) => {
-						if (error.name === 'WhisperingError') {
-							rpc.notify.error.execute(error);
-							return;
-						}
-						rpc.notify.error.execute({
-							title: 'Failed to download recording!',
-							description: 'Your recording could not be downloaded.',
-							action: { type: 'more-details', error },
-						});
-					},
-					onSuccess: () => {
-						rpc.notify.success.execute({
-							title: 'Recording downloaded!',
-							description: 'Your recording has been downloaded.',
-						});
-					},
-				})}
-			variant="ghost"
-			size="icon"
-		>
-			{#if downloadRecording.isPending}
+		{#snippet copyTransformationButtonSnippet(only = 'default')}
+			{#if latestTransformationRunByRecordingIdQuery.isPending}
 				<Loader2Icon class="size-4 animate-spin" />
+			{:else if latestTransformationRunByRecordingIdQuery.isError}
+				<WhisperingTooltip
+					id={getRecordingTransitionId({
+						recordingId,
+						propertyName: 'latestTransformationRunOutput',
+					})}
+					tooltipContent="Error fetching latest transformation run output"
+				>
+					{#snippet trigger({ tooltip, tooltipProps })}
+						<AlertCircleIcon class="text-red-500" {...tooltipProps} />
+						<span class="sr-only">
+							{@render tooltip()}
+						</span>
+					{/snippet}
+				</WhisperingTooltip>
 			{:else}
-				<DownloadIcon class="size-4" />
+				<CopyToClipboardButton
+					contentDescription="latest transformation run output"
+					textToCopy={latestTransformationRunByRecordingIdQuery.data?.status ===
+					'completed'
+						? latestTransformationRunByRecordingIdQuery.data.output
+						: ''}
+					viewTransitionName={getRecordingTransitionId({
+						recordingId,
+						propertyName: 'latestTransformationRunOutput',
+					})}
+					{only}
+				>
+					<FileStackIcon class="size-4" />
+				</CopyToClipboardButton>
 			{/if}
-		</WhisperingButton>
+		{/snippet}
+		{@render copyTransformationButtonSnippet('desktop')}
+
+		{#snippet viewTransformationRunsDialogSnippet(only = 'default')}
+			<ViewTransformationRunsDialog {recordingId} {only} />
+		{/snippet}
+		{@render viewTransformationRunsDialogSnippet('desktop')}
+
+		{#snippet downloadRecordingButtonSnippet(only = 'default')}
+			<WhisperingButton
+				tooltipContent="Download recording"
+				onclick={() =>
+					downloadRecording.mutate(recording, {
+						onError: (error) => {
+							if (error.name === 'WhisperingError') {
+								rpc.notify.error.execute(error);
+								return;
+							}
+							rpc.notify.error.execute({
+								title: 'Failed to download recording!',
+								description: 'Your recording could not be downloaded.',
+								action: { type: 'more-details', error },
+							});
+						},
+						onSuccess: () => {
+							rpc.notify.success.execute({
+								title: 'Recording downloaded!',
+								description: 'Your recording has been downloaded.',
+							});
+						},
+					})}
+				variant="ghost"
+				size="icon"
+				{only}
+			>
+				{#if downloadRecording.isPending}
+					<Loader2Icon class="size-4 animate-spin" />
+				{:else}
+					<DownloadIcon class="size-4" />
+				{/if}
+			</WhisperingButton>
+		{/snippet}
+		{@render downloadRecordingButtonSnippet('desktop')}
 
 		<WhisperingButton
 			tooltipContent="Delete recording"
@@ -261,5 +280,13 @@
 		>
 			<TrashIcon class="size-4" />
 		</WhisperingButton>
+
+		<RowActionsOverflowMenu>
+			{@render transformationPickerSnippet()}
+			{@render editRecordingModalSnippet()}
+			{@render copyTransformationButtonSnippet()}
+			{@render viewTransformationRunsDialogSnippet()}
+			{@render downloadRecordingButtonSnippet()}
+		</RowActionsOverflowMenu>
 	{/if}
 </div>
