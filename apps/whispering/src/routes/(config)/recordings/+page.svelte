@@ -571,7 +571,17 @@
 					{#each table.getHeaderGroups() as headerGroup}
 						<Table.Row>
 							{#each headerGroup.headers as header}
-								<Table.Head colspan={header.colSpan}>
+								<Table.Head
+									colspan={header.colSpan}
+									class={[
+										'Audio',
+										'Actions',
+										'Transcribed Text',
+										'Latest Transformation Run Output',
+									].includes(header.column.id)
+										? 'hidden xl:table-cell'
+										: ''}
+								>
 									{#if !header.isPlaceholder}
 										<FlexRender
 											content={header.column.columnDef.header}
@@ -597,15 +607,134 @@
 						{/each}
 					{:else if table.getRowModel().rows?.length}
 						{#each table.getRowModel().rows as row (row.id)}
-							<Table.Row>
+							<!-- Row 1: Basic info columns -->
+							<Table.Row
+								class="main-row"
+								data-record-id={row.id}
+								onmouseenter={() => {
+									document
+										.querySelectorAll(`[data-record-id="${row.id}"]`)
+										.forEach((el) => el.classList.add('record-hover'));
+								}}
+								onmouseleave={() => {
+									document
+										.querySelectorAll(`[data-record-id="${row.id}"]`)
+										.forEach((el) => el.classList.remove('record-hover'));
+								}}
+							>
 								{#each row.getVisibleCells() as cell}
-									<Table.Cell>
-										<FlexRender
-											content={cell.column.columnDef.cell}
-											context={cell.getContext()}
-										/>
-									</Table.Cell>
+									{#if !['Audio', 'Actions', 'Transcribed Text', 'Latest Transformation Run Output'].includes(cell.column.id)}
+										<Table.Cell>
+											<FlexRender
+												content={cell.column.columnDef.cell}
+												context={cell.getContext()}
+											/>
+										</Table.Cell>
+									{:else}
+										<Table.Cell class="hidden xl:table-cell">
+											<FlexRender
+												content={cell.column.columnDef.cell}
+												context={cell.getContext()}
+											/>
+										</Table.Cell>
+									{/if}
 								{/each}
+							</Table.Row>
+
+							<!-- Row 2: Combined text and overlay controls -->
+							<Table.Row
+								class="xl:hidden text-row"
+								data-record-id={row.id}
+								onmouseenter={() => {
+									document
+										.querySelectorAll(`[data-record-id="${row.id}"]`)
+										.forEach((el) => el.classList.add('record-hover'));
+								}}
+								onmouseleave={() => {
+									document
+										.querySelectorAll(`[data-record-id="${row.id}"]`)
+										.forEach((el) => el.classList.remove('record-hover'));
+								}}
+							>
+								<Table.Cell class="w-0"></Table.Cell>
+								<Table.Cell
+									colspan={row
+										.getVisibleCells()
+										.filter(
+											(c) =>
+												![
+													'Audio',
+													'Actions',
+													'Transcribed Text',
+													'Latest Transformation Run Output',
+												].includes(c.column.id),
+										).length - 1}
+									class="pt-0"
+								>
+									<!-- Text content filling full vertical space -->
+									<div class="flex gap-4 text-sm h-full min-h-20 relative">
+										{#each row.getVisibleCells() as cell}
+											{#if cell.column.id === 'Transcribed Text'}
+												{@const transcribedText = cell.getValue()}
+												{#if transcribedText}
+													<div class="flex-1 text-sm">
+														<FlexRender
+															content={cell.column.columnDef.cell}
+															context={cell.getContext()}
+														/>
+													</div>
+												{/if}
+											{:else if cell.column.id === 'Latest Transformation Run Output'}
+												<div class="flex-1 text-sm">
+													<FlexRender
+														content={cell.column.columnDef.cell}
+														context={cell.getContext()}
+													/>
+												</div>
+											{/if}
+										{/each}
+
+										<!-- Text fade overlay -->
+										<div
+											class="absolute -bottom-px left-0 right-0 h-16 pointer-events-none gradient-overlay"
+										></div>
+
+										<!-- Subrow 3: Overlay controls positioned at bottom of text area -->
+										<div
+											class="absolute -bottom-px left-0 right-0 h-8 {row.getIsSelected()
+												? 'opacity-100'
+												: 'opacity-0'} transition-opacity duration-200 z-10 overlay-controls"
+										>
+											<div class="flex items-center h-full gap-4">
+												<!-- Audio matching text area width -->
+												<div class="flex-1 flex items-center">
+													{#each row.getVisibleCells() as cell}
+														{#if cell.column.id === 'Audio'}
+															<div class="w-full mx-2">
+																<FlexRender
+																	content={cell.column.columnDef.cell}
+																	context={cell.getContext()}
+																/>
+															</div>
+														{/if}
+													{/each}
+												</div>
+
+												<!-- Actions matching text area width -->
+												<div class="flex-1 flex items-center">
+													{#each row.getVisibleCells() as cell}
+														{#if cell.column.id === 'Actions'}
+															<FlexRender
+																content={cell.column.columnDef.cell}
+																context={cell.getContext()}
+															/>
+														{/if}
+													{/each}
+												</div>
+											</div>
+										</div>
+									</div>
+								</Table.Cell>
 							</Table.Row>
 						{/each}
 					{:else}
@@ -649,3 +778,72 @@
 		</div>
 	</Card>
 </main>
+
+<style>
+	/* Remove borders between related rows on small screens */
+	/* Remove borders between related rows on small screens */
+	@media (max-width: 1279px) {
+		:global(.main-row) {
+			border-bottom: none !important;
+		}
+
+		:global(.text-row) {
+			border-top: none !important;
+			border-bottom: 1px solid var(--color-border) !important;
+		}
+
+		/* Hide scrollbars in text areas */
+		:global(.text-row *) {
+			scrollbar-width: none; /* Firefox */
+			-ms-overflow-style: none; /* Internet Explorer 10+ */
+		}
+
+		:global(.text-row *::-webkit-scrollbar) {
+			display: none; /* WebKit */
+		}
+		/* Make audio fill width in overlay */
+		:global(.text-row .w-full audio) {
+			width: 100% !important;
+		}
+	}
+
+	/* Unified hover state for all rows of the same record - exclude buttons */
+	:global(.record-hover:not(button):not(.btn):not([role='button'])) {
+		background-color: var(--color-muted) !important;
+	}
+
+	/* Text fade gradient - normal state */
+	.gradient-overlay {
+		background: linear-gradient(
+			to top,
+			var(--color-background),
+			var(--color-background) 20%,
+			transparent
+		);
+	}
+
+	/* Text fade gradient - hover state */
+	:global(.record-hover) .gradient-overlay {
+		background: linear-gradient(
+			to top,
+			var(--color-muted),
+			var(--color-muted) 20%,
+			transparent
+		);
+	}
+
+	/* Show overlay controls when record is hovered */
+	:global(.record-hover) .overlay-controls {
+		opacity: 1;
+	}
+
+	/* Overlay controls background - default normal bg */
+	.overlay-controls {
+		background: var(--color-background);
+	}
+
+	/* Overlay controls background - blue when hovered */
+	:global(.record-hover) .overlay-controls {
+		background: var(--color-muted);
+	}
+</style>
