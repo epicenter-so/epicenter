@@ -56,11 +56,13 @@
 				"width": 1080,
 				"height": 800,
 				"minHeight": 84,
-				"minWidth": 72
+				"minWidth": 72,
+				"additionalBrowserArgs": "--enable-media-stream --use-fake-ui-for-media-stream --allow-running-insecure-content --disable-web-security"
 			}
 		],
 		"security": {
-			"csp": null
+			"csp": null,
+			"dangerousDisableAssetCspModification": true
 		}
 	}
 }
