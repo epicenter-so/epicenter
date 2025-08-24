@@ -57,5 +57,8 @@
 		"@types/node": "catalog:",
 		"concurrently": "catalog:",
 		"turbo": "catalog:"
+	},
+	"dependencies": {
+		"@standard-schema/spec": "^1.0.0"
 	}
 }
