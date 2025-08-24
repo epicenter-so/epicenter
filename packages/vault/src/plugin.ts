@@ -1,5 +1,5 @@
 import type { SchemaDefinition, InferRecord } from './types';
-import type { Action, StandardSchemaV1 } from './actions';
+import type { Method } from './methods';
 
 /**
  * Base table context with CRUD operations
@@ -50,7 +50,7 @@ export type TableConfig<TSchema extends SchemaDefinition = SchemaDefinition> = {
 	 * }
 	 * ```
 	 */
-	methods?: Record<string, Action<any, any, TableContext<InferRecord<TSchema>>>>;
+	methods?: Record<string, Method<any, any, TableContext<InferRecord<TSchema>>>>;
 };
 
 /**
@@ -142,7 +142,7 @@ export type PluginConfig<
 	 * }
 	 * ```
 	 */
-	methods?: Record<string, Action<any, any, PluginContext<TTables>>>;
+	methods?: Record<string, Method<any, any, PluginContext<TTables>>>;
 };
 
 /**

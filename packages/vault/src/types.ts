@@ -1,5 +1,6 @@
 import type { PluginConfig, TableConfig } from './plugin';
-import type { Action, StandardSchemaV1 } from './actions';
+import type { Method } from './methods';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 // Field type definitions
 export type FieldType =
@@ -166,7 +167,7 @@ export type ExtractTableMethods<
 	P extends PluginConfig,
 	TName extends keyof P['tables'],
 > = P['tables'][TName] extends TableConfig
-	? P['tables'][TName]['methods'] extends Record<string, Action>
+	? P['tables'][TName]['methods'] extends Record<string, Method>
 		? {
 				[K in keyof P['tables'][TName]['methods']]: P['tables'][TName]['methods'][K] extends {
 					input: infer I;
@@ -183,7 +184,7 @@ export type ExtractTableMethods<
 // Helper type to extract plugin-level methods
 type ExtractPluginMethods<P extends PluginConfig> = P['methods'] extends Record<
 	string,
-	Action
+	Method
 >
 	? {
 			[K in keyof P['methods']]: P['methods'][K] extends {

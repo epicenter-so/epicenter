@@ -12,7 +12,7 @@ import type {
 	VaultCoreMethods,
 	ExtractTableMethods,
 } from './types';
-import { validateWithSchema } from './actions';
+import { validateWithSchema } from './methods';
 import {
 	getPluginPath,
 	getTablePath,
