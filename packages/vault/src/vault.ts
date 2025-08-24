@@ -4,11 +4,13 @@ import matter from 'gray-matter';
 import type { PluginConfig, TableConfig } from './plugin';
 import type {
 	BuildVaultType,
+	BuildPluginType,
 	VaultConfig,
 	BaseTableMethods,
 	InferRecord,
 	SchemaDefinition,
 	VaultCoreMethods,
+	ExtractTableMethods,
 } from './types';
 import { validateWithSchema } from './actions';
 import {
@@ -25,6 +27,7 @@ import {
  * Define a vault with plugins using clean architecture
  * 
  * No redundant data structures - everything is derived from config
+ * Type-safe construction ensures proper types throughout the building process
  */
 export function defineVault<const TPlugins extends readonly PluginConfig[]>(
 	config: VaultConfig<TPlugins>,
@@ -34,10 +37,41 @@ export function defineVault<const TPlugins extends readonly PluginConfig[]>(
 		mkdirSync(config.path, { recursive: true });
 	}
 
-	// Build vault with nested structure
-	const vault: any = {};
+	// Build vault with type-safe accumulator pattern
+	const vault = createTypeSafeVault(config);
 
-	// Process each plugin
+	return vault;
+}
+
+/**
+ * Create a type-safe vault by accumulating plugins with proper typing
+ */
+function createTypeSafeVault<const TPlugins extends readonly PluginConfig[]>(
+	config: VaultConfig<TPlugins>,
+): BuildVaultType<TPlugins> {
+	// Start with core vault methods as the base
+	type VaultBase = VaultCoreMethods;
+	const vaultBase = {} as VaultBase;
+	
+	// Build plugins with proper typing
+	const pluginsObject = buildPluginsObject(config);
+	
+	// Combine core methods with plugins
+	const coreVaultMethods = createCoreVaultMethods(config, pluginsObject);
+	const vault = { ...pluginsObject, ...coreVaultMethods } as BuildVaultType<TPlugins>;
+	
+	return vault;
+}
+
+/**
+ * Build all plugins with type-safe accumulation
+ */
+function buildPluginsObject<const TPlugins extends readonly PluginConfig[]>(
+	config: VaultConfig<TPlugins>,
+): { [P in TPlugins[number] as P['id']]: BuildPluginType<P> } {
+	const pluginsObj = {} as { [P in TPlugins[number] as P['id']]: BuildPluginType<P> };
+	
+	// Process each plugin with type safety
 	for (const plugin of config.plugins) {
 		const pluginPath = getPluginPath(config.path, plugin.id);
 		
@@ -46,57 +80,76 @@ export function defineVault<const TPlugins extends readonly PluginConfig[]>(
 			mkdirSync(pluginPath, { recursive: true });
 		}
 
-		// Create plugin object
-		const pluginObj: any = {};
-
-		// Create table methods for each table in the plugin
-		for (const [tableName, tableConfig] of Object.entries(plugin.tables)) {
-			const tablePath = getTablePath(config.path, plugin.id, tableName);
-			const sqliteTableName = getSQLiteTableName(plugin.id, tableName);
-			
-			// Ensure table directory exists synchronously
-			if (!existsSync(tablePath)) {
-				mkdirSync(tablePath, { recursive: true });
-			}
-
-			// Create base CRUD methods for this table
-			const baseMethods = createTableMethods(
-				config.path,
-				plugin.id,
-				tableName,
-				tableConfig.schema
-			);
-			
-			// Add table-level methods if defined
-			if (tableConfig.methods) {
-				const tableMethods = createMethodsForTable(
-					tableConfig.methods,
-					baseMethods
-				);
-				pluginObj[tableName] = { ...baseMethods, ...tableMethods };
-			} else {
-				pluginObj[tableName] = baseMethods;
-			}
-		}
-
-		// Add plugin-level methods if defined
-		if (plugin.methods) {
-			const pluginMethods = createMethodsForPlugin(
-				plugin.methods,
-				pluginObj
-			);
-			Object.assign(pluginObj, pluginMethods);
-		}
-
-		// Add plugin to vault
-		vault[plugin.id] = pluginObj;
+		// Build plugin with proper typing
+		const pluginObj = buildSinglePlugin(config, plugin);
+		
+		// Add to plugins object with proper key typing
+		(pluginsObj as any)[plugin.id] = pluginObj;
 	}
-
-	// Add core vault methods
-	Object.assign(vault, createCoreVaultMethods(config, vault));
-
-	return vault as BuildVaultType<TPlugins>;
+	
+	return pluginsObj;
 }
+
+/**
+ * Build a single plugin with type-safe table and method construction
+ */
+function buildSinglePlugin<P extends PluginConfig>(
+	config: VaultConfig<any>,
+	plugin: P,
+): BuildPluginType<P> {
+	// Build tables first
+	const tablesObj = buildPluginTables(config, plugin);
+	
+	// Add plugin-level methods if defined
+	const pluginMethods = plugin.methods 
+		? createMethodsForPlugin(plugin.methods, tablesObj)
+		: {};
+	
+	// Combine tables and plugin methods
+	const pluginObj = { ...tablesObj, ...pluginMethods } as BuildPluginType<P>;
+	
+	return pluginObj;
+}
+
+/**
+ * Build all tables for a plugin with proper typing
+ */
+function buildPluginTables<P extends PluginConfig>(
+	config: VaultConfig<any>,
+	plugin: P,
+): { [TName in keyof P['tables']]: P['tables'][TName] extends TableConfig ? BaseTableMethods<P['tables'][TName]['schema']> & ExtractTableMethods<P, TName> : never } {
+	const tablesObj = {} as { [TName in keyof P['tables']]: P['tables'][TName] extends TableConfig ? BaseTableMethods<P['tables'][TName]['schema']> & ExtractTableMethods<P, TName> : never };
+	
+	// Create table methods for each table in the plugin
+	for (const [tableName, tableConfig] of Object.entries(plugin.tables)) {
+		const tablePath = getTablePath(config.path, plugin.id, tableName);
+		const sqliteTableName = getSQLiteTableName(plugin.id, tableName);
+		
+		// Ensure table directory exists synchronously
+		if (!existsSync(tablePath)) {
+			mkdirSync(tablePath, { recursive: true });
+		}
+
+		// Create base CRUD methods for this table
+		const baseMethods = createTableMethods(
+			config.path,
+			plugin.id,
+			tableName,
+			tableConfig.schema
+		);
+		
+		// Add table-level methods if defined
+		const tableWithMethods = tableConfig.methods 
+			? { ...baseMethods, ...createMethodsForTable(tableConfig.methods, baseMethods) }
+			: baseMethods;
+		
+		// Add to tables object
+		(tablesObj as any)[tableName] = tableWithMethods;
+	}
+	
+	return tablesObj;
+}
+
 
 /**
  * Create standard CRUD methods for a table
@@ -210,9 +263,9 @@ function createTableMethods<TSchema extends SchemaDefinition>(
 /**
  * Create core vault methods - simplified without redundant Map
  */
-function createCoreVaultMethods(
-	config: VaultConfig<any>,
-	vault: any,
+function createCoreVaultMethods<TPlugins extends readonly PluginConfig[]>(
+	config: VaultConfig<TPlugins>,
+	pluginsObj: { [P in TPlugins[number] as P['id']]: BuildPluginType<P> },
 ): VaultCoreMethods {
 	return {
 		async sync() {
@@ -252,7 +305,7 @@ function createCoreVaultMethods(
 					result[plugin.id] = {};
 					
 					for (const tableName of Object.keys(plugin.tables)) {
-						const table = vault[plugin.id][tableName];
+						const table = pluginsObj[plugin.id][tableName];
 						if (table && typeof table.list === 'function') {
 							result[plugin.id][tableName] = await table.list();
 						}
@@ -291,7 +344,7 @@ function createCoreVaultMethods(
 					output += `## Plugin: ${plugin.name} (${plugin.id})\n\n`;
 					
 					for (const tableName of Object.keys(plugin.tables)) {
-						const table = vault[plugin.id][tableName];
+						const table = pluginsObj[plugin.id][tableName];
 						if (table && typeof table.list === 'function') {
 							const records = await table.list();
 							output += `### Table: ${tableName} (${records.length} records)\n\n`;
@@ -316,7 +369,7 @@ function createCoreVaultMethods(
 			// Simple iteration of config - derive everything else
 			for (const plugin of config.plugins) {
 				for (const tableName of Object.keys(plugin.tables)) {
-					const table = vault[plugin.id][tableName];
+					const table = pluginsObj[plugin.id][tableName];
 					if (table && typeof table.count === 'function') {
 						const count = await table.count();
 						const key = `${plugin.id}.${tableName}`;

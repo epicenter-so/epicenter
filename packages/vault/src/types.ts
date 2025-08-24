@@ -162,11 +162,11 @@ export type VaultCoreMethods = {
 };
 
 // Helper type to extract table methods from plugin
-type ExtractTableMethods<
+export type ExtractTableMethods<
 	P extends PluginConfig,
 	TName extends keyof P['tables'],
 > = P['tables'][TName] extends TableConfig
-	? P['tables'][TName]['methods'] extends Record<string, ActionDefinition>
+	? P['tables'][TName]['methods'] extends Record<string, Action>
 		? {
 				[K in keyof P['tables'][TName]['methods']]: P['tables'][TName]['methods'][K] extends {
 					input: infer I;
@@ -183,7 +183,7 @@ type ExtractTableMethods<
 // Helper type to extract plugin-level methods
 type ExtractPluginMethods<P extends PluginConfig> = P['methods'] extends Record<
 	string,
-	ActionDefinition
+	Action
 >
 	? {
 			[K in keyof P['methods']]: P['methods'][K] extends {
