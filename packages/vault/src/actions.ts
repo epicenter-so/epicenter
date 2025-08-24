@@ -48,116 +48,31 @@ export namespace StandardSchemaV1 {
 		Schema extends StandardSchemaV1<any, infer O> ? O : never;
 }
 
-export type QueryHandler<TInput, TOutput, TContext = any> = (
-	input: TInput,
-	context: TContext
-) => Promise<TOutput> | TOutput;
-
-export type MutationHandler<TInput, TOutput, TContext = any> = (
-	input: TInput,
-	context: TContext
-) => Promise<TOutput> | TOutput;
-
-export type QueryDefinition<
-	TSchema extends StandardSchemaV1 = StandardSchemaV1,
-	TOutput = any,
-	TContext = any
-> = {
+/**
+ * Query action - for read operations
+ */
+export type QueryAction<TInput = any, TOutput = any, TContext = any> = {
 	type: 'query';
-	input: TSchema;
-	handler: QueryHandler<StandardSchemaV1.InferInput<TSchema>, TOutput, TContext>;
+	input: StandardSchemaV1<TInput>;
+	handler: (input: TInput, context: TContext) => Promise<TOutput> | TOutput;
 };
 
-export type MutationDefinition<
-	TSchema extends StandardSchemaV1 = StandardSchemaV1,
-	TOutput = any,
-	TContext = any
-> = {
+/**
+ * Mutation action - for write operations
+ */
+export type MutationAction<TInput = any, TOutput = any, TContext = any> = {
 	type: 'mutation';
-	input: TSchema;
-	handler: MutationHandler<StandardSchemaV1.InferInput<TSchema>, TOutput, TContext>;
+	input: StandardSchemaV1<TInput>;
+	handler: (input: TInput, context: TContext) => Promise<TOutput> | TOutput;
 };
 
-export type ActionDefinition = QueryDefinition | MutationDefinition;
-
 /**
- * Define a query action with StandardSchema validation
- * 
- * @example
- * ```typescript
- * import { z } from 'zod';
- * 
- * const getPostsQuery = defineQuery({
- *   input: z.object({
- *     limit: z.number().min(1).max(100),
- *     offset: z.number().min(0).default(0)
- *   }),
- *   handler: async ({ limit, offset }, context) => {
- *     const posts = await context.list();
- *     return posts.slice(offset, offset + limit);
- *   }
- * });
- * ```
+ * Union type for all action types
  */
-export function defineQuery<
-	TSchema extends StandardSchemaV1,
-	TOutput,
-	TContext = any
->({
-	input,
-	handler,
-}: {
-	input: TSchema;
-	handler: QueryHandler<StandardSchemaV1.InferInput<TSchema>, TOutput, TContext>;
-}): QueryDefinition<TSchema, TOutput, TContext> {
-	return {
-		type: 'query',
-		input,
-		handler,
-	};
-}
+export type Action<TInput = any, TOutput = any, TContext = any> = 
+	| QueryAction<TInput, TOutput, TContext>
+	| MutationAction<TInput, TOutput, TContext>;
 
-/**
- * Define a mutation action with StandardSchema validation
- * 
- * @example
- * ```typescript
- * import { type } from 'arktype';
- * 
- * const createPostMutation = defineMutation({
- *   input: type({
- *     title: 'string',
- *     content: 'string',
- *     published: 'boolean = false'
- *   }),
- *   handler: async ({ title, content, published }, context) => {
- *     return await context.create({
- *       title,
- *       content,
- *       published,
- *       createdAt: new Date()
- *     });
- *   }
- * });
- * ```
- */
-export function defineMutation<
-	TSchema extends StandardSchemaV1,
-	TOutput,
-	TContext = any
->({
-	input,
-	handler,
-}: {
-	input: TSchema;
-	handler: MutationHandler<StandardSchemaV1.InferInput<TSchema>, TOutput, TContext>;
-}): MutationDefinition<TSchema, TOutput, TContext> {
-	return {
-		type: 'mutation',
-		input,
-		handler,
-	};
-}
 
 /**
  * Validate data against a StandardSchema
@@ -171,7 +86,7 @@ export async function validateWithSchema<T extends StandardSchemaV1>(
 	const result = schema['~standard'].validate(data);
 	const validationResult = result instanceof Promise ? await result : result;
 	
-	if (validationResult.issues) {
+	if ('issues' in validationResult && validationResult.issues) {
 		const messages = validationResult.issues.map(issue => {
 			if (issue.path && issue.path.length > 0) {
 				const path = issue.path
@@ -189,5 +104,5 @@ export async function validateWithSchema<T extends StandardSchemaV1>(
 		throw new Error(`Validation failed:\n${messages.join('\n')}`);
 	}
 	
-	return validationResult.value as StandardSchemaV1.InferOutput<T>;
+	return (validationResult as StandardSchemaV1.SuccessResult<StandardSchemaV1.InferOutput<T>>).value;
 }

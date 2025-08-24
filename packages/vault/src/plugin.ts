@@ -1,34 +1,56 @@
-import type { SchemaDefinition } from './types';
-import type { ActionDefinition } from './actions';
+import type { SchemaDefinition, InferRecord } from './types';
+import type { Action, StandardSchemaV1 } from './actions';
+
+/**
+ * Base table context with CRUD operations
+ */
+export type TableContext<TRecord> = {
+	list(): Promise<TRecord[]>;
+	get(id: string): Promise<TRecord | null>;
+	create(data: Omit<TRecord, 'id'>): Promise<TRecord>;
+	update(id: string, updates: Partial<TRecord>): Promise<TRecord>;
+	delete(id: string): Promise<boolean>;
+	exists(id: string): Promise<boolean>;
+	count(): Promise<number>;
+};
+
+/**
+ * Plugin context with all tables
+ */
+export type PluginContext<TTables extends Record<string, TableConfig>> = {
+	[K in keyof TTables]: TableContext<InferRecord<TTables[K]['schema']>>;
+};
 
 /**
  * Table configuration with schema and methods
  */
-export type TableConfig = {
+export type TableConfig<TSchema extends SchemaDefinition = SchemaDefinition> = {
 	/**
 	 * Schema definition for the table
 	 */
-	schema: SchemaDefinition;
+	schema: TSchema;
 	
 	/**
 	 * Table-level methods (queries and mutations)
+	 * Context provides access to this table's operations
 	 * 
 	 * @example
 	 * ```typescript
 	 * import { type } from 'arktype';
 	 * 
 	 * methods: {
-	 *   getTopPosts: defineQuery({
-	 *     input: type({ limit: 'number' }),
+	 *   getTopPosts: {
+	 *     type: 'query',
+	 *     input: type({ limit: 'number = 10' }),
 	 *     handler: async ({ limit }, context) => {
 	 *       const posts = await context.list();
 	 *       return posts.sort((a, b) => b.score - a.score).slice(0, limit);
 	 *     }
-	 *   })
+	 *   }
 	 * }
 	 * ```
 	 */
-	methods?: Record<string, ActionDefinition>;
+	methods?: Record<string, Action<any, any, TableContext<InferRecord<TSchema>>>>;
 };
 
 /**
@@ -93,31 +115,34 @@ export type PluginConfig<
 
 	/**
 	 * Plugin-level methods (queries and mutations)
+	 * Context provides access to all plugin tables
 	 * 
 	 * @example
 	 * ```typescript
 	 * import { type } from 'arktype';
 	 * 
 	 * methods: {
-	 *   exportAll: defineQuery({
+	 *   exportAll: {
+	 *     type: 'query',
 	 *     input: type({}),
 	 *     handler: async (_, context) => {
 	 *       const posts = await context.posts.list();
 	 *       const comments = await context.comments.list();
 	 *       return { posts, comments };
 	 *     }
-	 *   }),
-	 *   import: defineMutation({
+	 *   },
+	 *   importData: {
+	 *     type: 'mutation',
 	 *     input: type({ data: 'object' }),
 	 *     handler: async ({ data }, context) => {
 	 *       // Import logic here
 	 *       return { success: true };
 	 *     }
-	 *   })
+	 *   }
 	 * }
 	 * ```
 	 */
-	methods?: Record<string, ActionDefinition>;
+	methods?: Record<string, Action<any, any, PluginContext<TTables>>>;
 };
 
 /**
@@ -138,13 +163,14 @@ export type PluginConfig<
  *         score: { type: 'number', default: 0 }
  *       },
  *       methods: {
- *         getBySubreddit: defineQuery({
+ *         getBySubreddit: {
+ *           type: 'query',
  *           input: type({ subreddit: 'string' }),
  *           handler: async ({ subreddit }, context) => {
  *             const posts = await context.list();
  *             return posts.filter(p => p.subreddit === subreddit);
  *           }
- *         })
+ *         }
  *       }
  *     },
  *     comments: {
@@ -155,14 +181,15 @@ export type PluginConfig<
  *     }
  *   },
  *   methods: {
- *     getStats: defineQuery({
+ *     getStats: {
+ *       type: 'query',
  *       input: type({}),
  *       handler: async (_, context) => {
  *         const postCount = await context.posts.count();
  *         const commentCount = await context.comments.count();
  *         return { posts: postCount, comments: commentCount };
  *       }
- *     })
+ *     }
  *   }
  * });
  * ```

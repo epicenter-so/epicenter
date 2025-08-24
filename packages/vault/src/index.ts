@@ -1,7 +1,7 @@
 // Core exports
 export { definePlugin } from './plugin';
 export { defineVault } from './vault';
-export { defineQuery, defineMutation, validateWithSchema } from './actions';
+export { validateWithSchema } from './actions';
 
 // Type exports
 export type { PluginConfig, TableConfig } from './plugin';
@@ -15,11 +15,9 @@ export type {
 } from './types';
 export type {
   StandardSchemaV1,
-  QueryDefinition,
-  MutationDefinition,
-  ActionDefinition,
-  QueryHandler,
-  MutationHandler
+  QueryAction,
+  MutationAction,
+  Action
 } from './actions';
 
 // Utility exports

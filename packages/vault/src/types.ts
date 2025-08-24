@@ -1,5 +1,5 @@
 import type { PluginConfig, TableConfig } from './plugin';
-import type { ActionDefinition, StandardSchemaV1 } from './actions';
+import type { Action, StandardSchemaV1 } from './actions';
 
 // Field type definitions
 export type FieldType =

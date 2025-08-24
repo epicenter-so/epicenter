@@ -1,6 +1,4 @@
 import { definePlugin } from '../plugin';
-import { defineQuery, defineMutation } from '../actions';
-import type { StandardSchemaV1 } from '../actions';
 import { type } from 'arktype';
 
 /**
@@ -27,7 +25,8 @@ export const redditPlugin = definePlugin({
 			},
 
 			methods: {
-				getTopPosts: defineQuery({
+				getTopPosts: {
+					type: 'query',
 					input: type({
 						limit: 'number = 10',
 					}),
@@ -35,9 +34,10 @@ export const redditPlugin = definePlugin({
 						const posts = await context.list();
 						return posts.sort((a, b) => b.score - a.score).slice(0, limit);
 					},
-				}),
+				},
 
-				getBySubreddit: defineQuery({
+				getBySubreddit: {
+					type: 'query',
 					input: type({
 						subreddit: 'string',
 					}),
@@ -51,9 +51,10 @@ export const redditPlugin = definePlugin({
 									new Date(a.created_at).getTime(),
 							);
 					},
-				}),
+				},
 
-				searchPosts: defineQuery({
+				searchPosts: {
+					type: 'query',
 					input: type({
 						query: 'string',
 					}),
@@ -70,7 +71,7 @@ export const redditPlugin = definePlugin({
 							);
 						});
 					},
-				}),
+				},
 			},
 		},
 
@@ -87,7 +88,8 @@ export const redditPlugin = definePlugin({
 			},
 
 			methods: {
-				getCommentThread: defineQuery({
+				getCommentThread: {
+					type: 'query',
 					input: type({
 						postId: 'string',
 					}),
@@ -113,9 +115,10 @@ export const redditPlugin = definePlugin({
 
 						return buildTree(null);
 					},
-				}),
+				},
 
-				getTopComments: defineQuery({
+				getTopComments: {
+					type: 'query',
 					input: type({
 						limit: 'number = 20',
 					}),
@@ -123,7 +126,7 @@ export const redditPlugin = definePlugin({
 						const comments = await context.list();
 						return comments.sort((a, b) => b.score - a.score).slice(0, limit);
 					},
-				}),
+				},
 			},
 		},
 
@@ -138,7 +141,8 @@ export const redditPlugin = definePlugin({
 			},
 
 			methods: {
-				getTrending: defineQuery({
+				getTrending: {
+					type: 'query',
 					input: type({
 						limit: 'number = 10',
 					}),
@@ -148,14 +152,15 @@ export const redditPlugin = definePlugin({
 							.sort((a, b) => (b.subscribers || 0) - (a.subscribers || 0))
 							.slice(0, limit);
 					},
-				}),
+				},
 			},
 		},
 	},
 
 	// Plugin-level methods
 	methods: {
-		getStats: defineQuery({
+		getStats: {
+			type: 'query',
 			input: type({}),
 			handler: async (_, context) => {
 				const postCount = await context.posts.count();
@@ -177,9 +182,10 @@ export const redditPlugin = definePlugin({
 					topComment,
 				};
 			},
-		}),
+		},
 
-		exportAll: defineQuery({
+		exportAll: {
+			type: 'query',
 			input: type({}),
 			handler: async (_, context) => {
 				const posts = await context.posts.list();
@@ -193,9 +199,10 @@ export const redditPlugin = definePlugin({
 					exported_at: new Date(),
 				};
 			},
-		}),
+		},
 
-		searchAll: defineQuery({
+		searchAll: {
+			type: 'query',
 			input: type({
 				query: 'string',
 			}),
@@ -218,6 +225,6 @@ export const redditPlugin = definePlugin({
 					),
 				};
 			},
-		}),
+		},
 	},
 });
