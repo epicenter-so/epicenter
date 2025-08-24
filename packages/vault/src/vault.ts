@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile, mkdir, unlink } from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
 import matter from 'gray-matter';
-import type { PluginConfig } from './plugin';
+import type { PluginConfig, TableConfig } from './plugin';
 import type {
 	BuildVaultType,
 	VaultConfig,
@@ -10,6 +10,7 @@ import type {
 	SchemaDefinition,
 	VaultCoreMethods,
 } from './types';
+import { validateWithSchema } from './actions';
 import {
 	getPluginPath,
 	getTablePath,
@@ -49,7 +50,7 @@ export function defineVault<const TPlugins extends readonly PluginConfig[]>(
 		const pluginObj: any = {};
 
 		// Create table methods for each table in the plugin
-		for (const [tableName, schema] of Object.entries(plugin.tables)) {
+		for (const [tableName, tableConfig] of Object.entries(plugin.tables)) {
 			const tablePath = getTablePath(config.path, plugin.id, tableName);
 			const sqliteTableName = getSQLiteTableName(plugin.id, tableName);
 			
@@ -59,38 +60,32 @@ export function defineVault<const TPlugins extends readonly PluginConfig[]>(
 			}
 
 			// Create base CRUD methods for this table
-			pluginObj[tableName] = createTableMethods(
+			const baseMethods = createTableMethods(
 				config.path,
 				plugin.id,
 				tableName,
-				schema
+				tableConfig.schema
 			);
+			
+			// Add table-level methods if defined
+			if (tableConfig.methods) {
+				const tableMethods = createMethodsForTable(
+					tableConfig.methods,
+					baseMethods
+				);
+				pluginObj[tableName] = { ...baseMethods, ...tableMethods };
+			} else {
+				pluginObj[tableName] = baseMethods;
+			}
 		}
 
-		// Add custom methods if plugin defines them
+		// Add plugin-level methods if defined
 		if (plugin.methods) {
-			// Build context with access to plugin's tables
-			const vaultContext: Record<string, BaseTableMethods<any>> = {};
-			for (const tableName of Object.keys(plugin.tables)) {
-				vaultContext[tableName] = pluginObj[tableName];
-			}
-
-			// Get custom methods from plugin
-			const customMethods = plugin.methods(vaultContext) || {};
-
-			// Apply table-specific custom methods
-			for (const [tableName, methods] of Object.entries(customMethods)) {
-				if (tableName !== 'plugin' && pluginObj[tableName] && methods) {
-					Object.assign(pluginObj[tableName], methods);
-				}
-			}
-
-			// Apply plugin-level methods
-			if (customMethods.plugin) {
-				for (const [methodName, method] of Object.entries(customMethods.plugin)) {
-					pluginObj[methodName] = method;
-				}
-			}
+			const pluginMethods = createMethodsForPlugin(
+				plugin.methods,
+				pluginObj
+			);
+			Object.assign(pluginObj, pluginMethods);
 		}
 
 		// Add plugin to vault
@@ -347,4 +342,58 @@ function createCoreVaultMethods(
 			return [];
 		},
 	};
+}
+
+/**
+ * Create executable methods from action definitions for a table
+ */
+function createMethodsForTable(
+	methods: Record<string, any>,
+	tableContext: BaseTableMethods<any>
+): Record<string, (...args: any[]) => any> {
+	const executableMethods: Record<string, any> = {};
+	
+	for (const [methodName, methodDef] of Object.entries(methods)) {
+		if (!methodDef || typeof methodDef !== 'object') continue;
+		
+		// Create an executable function from the method definition
+		executableMethods[methodName] = async (input: unknown) => {
+			// Validate input if schema is provided
+			if (methodDef.input && methodDef.input['~standard']) {
+				input = await validateWithSchema(methodDef.input, input);
+			}
+			
+			// Execute the handler with validated input and context
+			return await methodDef.handler(input, tableContext);
+		};
+	}
+	
+	return executableMethods;
+}
+
+/**
+ * Create executable methods from action definitions for a plugin
+ */
+function createMethodsForPlugin(
+	methods: Record<string, any>,
+	pluginContext: any
+): Record<string, (...args: any[]) => any> {
+	const executableMethods: Record<string, any> = {};
+	
+	for (const [methodName, methodDef] of Object.entries(methods)) {
+		if (!methodDef || typeof methodDef !== 'object') continue;
+		
+		// Create an executable function from the method definition
+		executableMethods[methodName] = async (input: unknown) => {
+			// Validate input if schema is provided
+			if (methodDef.input && methodDef.input['~standard']) {
+				input = await validateWithSchema(methodDef.input, input);
+			}
+			
+			// Execute the handler with validated input and context
+			return await methodDef.handler(input, pluginContext);
+		};
+	}
+	
+	return executableMethods;
 }

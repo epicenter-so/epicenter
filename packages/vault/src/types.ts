@@ -1,4 +1,5 @@
-import type { PluginConfig } from './plugin';
+import type { PluginConfig, TableConfig } from './plugin';
+import type { ActionDefinition, StandardSchemaV1 } from './actions';
 
 // Field type definitions
 export type FieldType =
@@ -151,31 +152,40 @@ export type VaultCoreMethods = {
 	query<T = any>(sql: string): Promise<T[]>;
 };
 
-// Helper type to extract custom table methods from plugin
+// Helper type to extract table methods from plugin
 type ExtractTableMethods<
 	P extends PluginConfig,
 	TName extends keyof P['tables']
-> = P['methods'] extends (...args: any[]) => infer R
-	? R extends { [K in TName]: infer M }
-		? M extends Record<string, (...args: any[]) => any>
-			? M
-			: {}
+> = P['tables'][TName] extends TableConfig
+	? P['tables'][TName]['methods'] extends Record<string, ActionDefinition>
+		? {
+			[K in keyof P['tables'][TName]['methods']]: 
+				P['tables'][TName]['methods'][K] extends { input: infer I, handler: (...args: any[]) => infer O }
+					? I extends StandardSchemaV1
+						? (input: StandardSchemaV1.InferInput<I>) => Promise<O>
+						: (input: I) => Promise<O>
+					: never
+		}
 		: {}
 	: {};
 
 // Helper type to extract plugin-level methods
-type ExtractPluginMethods<P extends PluginConfig> = P['methods'] extends (...args: any[]) => infer R
-	? R extends { plugin: infer M }
-		? M extends Record<string, (...args: any[]) => any>
-			? M
-			: {}
-		: {}
+type ExtractPluginMethods<P extends PluginConfig> = P['methods'] extends Record<string, ActionDefinition>
+	? {
+		[K in keyof P['methods']]: 
+			P['methods'][K] extends { input: infer I, handler: (...args: any[]) => infer O }
+				? I extends StandardSchemaV1
+					? (input: StandardSchemaV1.InferInput<I>) => Promise<O>
+					: (input: I) => Promise<O>
+				: never
+	}
 	: {};
 
 // Build the type for a single plugin in the vault
 export type BuildPluginType<P extends PluginConfig> = {
-	[TName in keyof P['tables']]: BaseTableMethods<P['tables'][TName]> & 
-		ExtractTableMethods<P, TName>;
+	[TName in keyof P['tables']]: P['tables'][TName] extends TableConfig
+		? BaseTableMethods<P['tables'][TName]['schema']> & ExtractTableMethods<P, TName>
+		: never;
 } & ExtractPluginMethods<P>;
 
 // Build the complete vault type

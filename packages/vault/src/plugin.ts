@@ -1,15 +1,45 @@
-import type { SchemaDefinition, BaseTableMethods } from './types';
+import type { SchemaDefinition } from './types';
+import type { ActionDefinition } from './actions';
+
+/**
+ * Table configuration with schema and methods
+ */
+export type TableConfig = {
+	/**
+	 * Schema definition for the table
+	 */
+	schema: SchemaDefinition;
+	
+	/**
+	 * Table-level methods (queries and mutations)
+	 * 
+	 * @example
+	 * ```typescript
+	 * import { type } from 'arktype';
+	 * 
+	 * methods: {
+	 *   getTopPosts: defineQuery({
+	 *     input: type({ limit: 'number' }),
+	 *     handler: async ({ limit }, context) => {
+	 *       const posts = await context.list();
+	 *       return posts.sort((a, b) => b.score - a.score).slice(0, limit);
+	 *     }
+	 *   })
+	 * }
+	 * ```
+	 */
+	methods?: Record<string, ActionDefinition>;
+};
 
 /**
  * Plugin configuration for the vault system
  * 
  * Plugins extend the vault with:
- * - Tables (data schemas)
- * - Table-level methods (operate on specific tables)
+ * - Tables (data schemas with methods)
  * - Plugin-level methods (operate across tables or provide utilities)
  */
 export type PluginConfig<
-	TTables extends Record<string, SchemaDefinition> = Record<string, SchemaDefinition>,
+	TTables extends Record<string, TableConfig> = Record<string, TableConfig>,
 > = {
 	/**
 	 * Unique identifier for the plugin
@@ -31,15 +61,30 @@ export type PluginConfig<
 	 * 
 	 * @example
 	 * ```typescript
+	 * import { type } from 'arktype';
+	 * 
 	 * tables: {
 	 *   posts: {
-	 *     title: { type: 'string', required: true },
-	 *     content: { type: 'string' },
-	 *     score: { type: 'number', default: 0 }
+	 *     schema: {
+	 *       title: { type: 'string', required: true },
+	 *       content: { type: 'string' },
+	 *       score: { type: 'number', default: 0 }
+	 *     },
+	 *     methods: {
+	 *       getBySubreddit: defineQuery({
+	 *         input: type({ subreddit: 'string' }),
+	 *         handler: async ({ subreddit }, context) => {
+	 *           const posts = await context.list();
+	 *           return posts.filter(p => p.subreddit === subreddit);
+	 *         }
+	 *       })
+	 *     }
 	 *   },
 	 *   comments: {
-	 *     body: { type: 'string', required: true },
-	 *     post_id: { type: 'string', required: true }
+	 *     schema: {
+	 *       body: { type: 'string', required: true },
+	 *       post_id: { type: 'string', required: true }
+	 *     }
 	 *   }
 	 * }
 	 * ```
@@ -47,42 +92,32 @@ export type PluginConfig<
 	tables: TTables;
 
 	/**
-	 * Custom methods for tables and plugin-level operations
-	 * 
-	 * @param vault - Context object with access to this plugin's tables
-	 * @returns Object with table methods and plugin methods
+	 * Plugin-level methods (queries and mutations)
 	 * 
 	 * @example
 	 * ```typescript
-	 * methods: (vault) => ({
-	 *   // Table-specific methods
-	 *   posts: {
-	 *     getTopPosts: async (limit: number) => {
-	 *       const posts = await vault.posts.list();
-	 *       return posts.sort((a, b) => b.score - a.score).slice(0, limit);
-	 *     }
-	 *   },
-	 *   
-	 *   // Plugin-level methods (accessed via vault.pluginId.methodName)
-	 *   plugin: {
-	 *     exportAll: async () => {
-	 *       const posts = await vault.posts.list();
-	 *       const comments = await vault.comments.list();
+	 * import { type } from 'arktype';
+	 * 
+	 * methods: {
+	 *   exportAll: defineQuery({
+	 *     input: type({}),
+	 *     handler: async (_, context) => {
+	 *       const posts = await context.posts.list();
+	 *       const comments = await context.comments.list();
 	 *       return { posts, comments };
 	 *     }
-	 *   }
-	 * })
+	 *   }),
+	 *   import: defineMutation({
+	 *     input: type({ data: 'object' }),
+	 *     handler: async ({ data }, context) => {
+	 *       // Import logic here
+	 *       return { success: true };
+	 *     }
+	 *   })
+	 * }
 	 * ```
 	 */
-	methods?: (
-		vault: { [K in keyof TTables]: BaseTableMethods<TTables[K]> }
-	) => {
-		// Table-specific custom methods
-		[K in keyof TTables]?: Record<string, (...args: any[]) => any>;
-	} & {
-		// Plugin-level methods
-		plugin?: Record<string, (...args: any[]) => any>;
-	};
+	methods?: Record<string, ActionDefinition>;
 };
 
 /**
@@ -90,33 +125,49 @@ export type PluginConfig<
  * 
  * @example
  * ```typescript
+ * import { type } from 'arktype';
+ * 
  * const redditPlugin = definePlugin({
  *   id: 'reddit',
  *   name: 'Reddit Integration',
  *   tables: {
- *     posts: { ... },
- *     comments: { ... }
- *   },
- *   methods: (vault) => ({
  *     posts: {
- *       getBySubreddit: async (subreddit: string) => {
- *         return vault.posts.list().then(posts => 
- *           posts.filter(p => p.subreddit === subreddit)
- *         );
+ *       schema: {
+ *         title: { type: 'string', required: true },
+ *         subreddit: { type: 'string', required: true },
+ *         score: { type: 'number', default: 0 }
+ *       },
+ *       methods: {
+ *         getBySubreddit: defineQuery({
+ *           input: type({ subreddit: 'string' }),
+ *           handler: async ({ subreddit }, context) => {
+ *             const posts = await context.list();
+ *             return posts.filter(p => p.subreddit === subreddit);
+ *           }
+ *         })
  *       }
  *     },
- *     plugin: {
- *       getStats: async () => {
- *         const postCount = await vault.posts.count();
- *         const commentCount = await vault.comments.count();
- *         return { posts: postCount, comments: commentCount };
+ *     comments: {
+ *       schema: {
+ *         body: { type: 'string', required: true },
+ *         post_id: { type: 'string', required: true }
  *       }
  *     }
- *   })
+ *   },
+ *   methods: {
+ *     getStats: defineQuery({
+ *       input: type({}),
+ *       handler: async (_, context) => {
+ *         const postCount = await context.posts.count();
+ *         const commentCount = await context.comments.count();
+ *         return { posts: postCount, comments: commentCount };
+ *       }
+ *     })
+ *   }
  * });
  * ```
  */
-export function definePlugin<const TTables extends Record<string, SchemaDefinition>>(
+export function definePlugin<const TTables extends Record<string, TableConfig>>(
 	config: PluginConfig<TTables>,
 ): PluginConfig<TTables> {
 	// Validate plugin ID format
