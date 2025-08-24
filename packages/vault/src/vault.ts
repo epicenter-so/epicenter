@@ -174,10 +174,12 @@ function createTableMethods<TSchema extends SchemaDefinition>(
 				throw new Error(`Record ${id} not found in ${sqliteTableName}`);
 			}
 
-			const { content = existing.content, ...frontMatter } = updates as any;
-			const updated = { ...existing, ...frontMatter, content };
+			const { content = existing.content, ...updateFrontMatter } = updates as any;
+			const { content: _, ...existingFrontMatter } = existing as any;
+			const mergedFrontMatter = { ...existingFrontMatter, ...updateFrontMatter };
+			const updated = { ...mergedFrontMatter, id, content };
 
-			const fileContent = matter.stringify(content, { ...frontMatter, id });
+			const fileContent = matter.stringify(content, mergedFrontMatter);
 			const filePath = getRecordPath(vaultPath, pluginId, tableName, id);
 
 			await writeFile(filePath, fileContent);

@@ -1,187 +1,232 @@
 #!/usr/bin/env bun
 
-import { defineVault, redditAdapter, twitterAdapter } from './src';
+import { defineVault } from './src/vault';
+import { redditPlugin } from './src/plugins/reddit';
 
 /**
- * Demo script showing the vault system with full type inference
- * Run with: bun demo.ts
+ * Demo of the vault API with nested structure and methods
+ * 
+ * API Pattern:
+ * - vault.pluginName.tableName.method({params}) - Table operations
+ * - vault.pluginName.method() - Plugin-level operations
+ * - vault.method() - Core vault operations
  */
-
 async function main() {
-  console.log('🗄️  Vault System Demo\n');
-  console.log('====================\n');
+	console.log('🗄️  Vault API Demo\n');
+	console.log('==========================\n');
 
-  // Create a vault with multiple adapters
-  // Notice the 'as const' for better type inference
-  const vault = defineVault({
-    path: './demo-vault',
-    adapters: [redditAdapter, twitterAdapter] as const,
-    sync: {
-      auto: true,
-      strategy: 'batch'
-    },
-    cache: {
-      enabled: true,
-      ttl: 5000
-    }
-  });
+	// Create vault with plugins
+	const vault = defineVault({
+		path: './demo-vault',
+		plugins: [redditPlugin] as const,
+		sqlite: {
+			enabled: true,
+			path: './demo-vault.db',
+			syncInterval: 60000, // Sync every minute
+		},
+	});
 
-  // The magic: TypeScript knows about all subfolders and their methods!
-  // Try hovering over 'vault.' in your IDE to see IntelliSense
+	console.log('📦 Structure Overview:');
+	console.log('  API: vault.reddit.posts.get({id})');
+	console.log('  Filesystem: /demo-vault/reddit/posts/');
+	console.log('  SQLite: reddit_posts table\n');
 
-  console.log('📝 Creating sample data...\n');
+	// ============================================
+	// TABLE-LEVEL OPERATIONS
+	// ============================================
+	
+	console.log('📝 Creating Reddit posts...\n');
 
-  // Create Reddit posts
-  const post1 = await vault.posts.create({
-    title: 'TypeScript Vault System with Markdown Storage',
-    author: 'vault_enthusiast',
-    subreddit: 'typescript',
-    score: 42,
-    num_comments: 7,
-    created_at: new Date(),
-    url: 'https://reddit.com/r/typescript/example',
-    selftext: 'Check out this amazing vault system that uses markdown files as a database!',
-    is_video: false,
-    is_nsfw: false,
-    content: `
-# TypeScript Vault System
+	// Create posts using the new API
+	const post1 = await vault.reddit.posts.create({
+		title: 'Understanding the New Vault Architecture',
+		author: 'vault_architect',
+		subreddit: 'programming',
+		score: 156,
+		num_comments: 23,
+		created_at: new Date(),
+		selftext: 'The new nested API provides better organization...',
+		is_video: false,
+		is_nsfw: false,
+	});
+	console.log(`  ✅ Created post: ${post1.id}`);
 
-This is an amazing system that combines:
-- Markdown files as storage
-- SQLite for querying  
-- Full TypeScript type inference
-- Plugin-based architecture inspired by BetterAuth
+	const post2 = await vault.reddit.posts.create({
+		title: 'TypeScript Plugin System Deep Dive',
+		author: 'ts_expert',
+		subreddit: 'typescript',
+		score: 89,
+		num_comments: 12,
+		created_at: new Date(Date.now() - 3600000),
+		selftext: 'Exploring how plugins extend the vault...',
+		is_video: false,
+		is_nsfw: false,
+	});
+	console.log(`  ✅ Created post: ${post2.id}`);
 
-## Why This Matters
+	// Create comments
+	const comment1 = await vault.reddit.comments.create({
+		body: 'This new structure is so much cleaner!',
+		author: 'happy_dev',
+		post_id: post1.id,
+		parent_id: null,
+		score: 45,
+		created_at: new Date(),
+		edited: false,
+		awards: ['gold'],
+	});
+	console.log(`  ✅ Created comment: ${comment1.id}`);
 
-Instead of complex database setups, you get human-readable markdown files that can be version controlled, edited directly, and queried like a database!
-    `.trim()
-  });
+	console.log('\n🔍 Reading data with new API...\n');
 
-  const post2 = await vault.posts.create({
-    title: 'Understanding Type Inference in Modern TypeScript',
-    author: 'ts_wizard',
-    subreddit: 'programming',
-    score: 156,
-    num_comments: 23,
-    created_at: new Date(Date.now() - 3600000), // 1 hour ago
-    url: 'https://reddit.com/r/programming/example2',
-    selftext: 'Deep dive into advanced TypeScript patterns...',
-    is_video: false,
-    is_nsfw: false,
-  });
+	// Get a single post
+	const retrievedPost = await vault.reddit.posts.get({ id: post1.id });
+	console.log(`  Post by ID: "${retrievedPost?.title}"`);
 
-  // Create Reddit comments
-  const comment1 = await vault.comments.create({
-    body: 'This is brilliant! Exactly what I was looking for.',
-    author: 'happy_developer',
-    post_id: post1.id,
-    parent_id: null,
-    score: 15,
-    created_at: new Date(),
-    edited: false,
-    awards: ['silver'],
-  });
+	// List all posts (simplified - no filters)
+	const allPosts = await vault.reddit.posts.list();
+	console.log(`  All posts: ${allPosts.length} found`);
 
-  // Create Twitter data
-  const tweet1 = await vault.tweets.create({
-    text: 'Just discovered an amazing vault system that uses markdown files as a database! 🚀 #TypeScript #OpenSource',
-    author: 'Tech Enthusiast',
-    author_username: 'tech_enthusiast',
-    likes: 234,
-    retweets: 45,
-    replies: 12,
-    views: 5600,
-    created_at: new Date(),
-    is_reply: false,
-    is_retweet: false,
-    has_media: false,
-    media_urls: [],
-    hashtags: ['TypeScript', 'OpenSource'],
-    mentions: [],
-    thread_id: null,
-    content: 'Check out the GitHub repo for more details!'
-  });
+	// Update a post
+	const updatedPost = await vault.reddit.posts.update({
+		id: post1.id,
+		score: 200,
+	});
+	console.log(`  Updated post score: ${updatedPost.score}`);
 
-  const user1 = await vault.users.create({
-    username: 'tech_enthusiast',
-    display_name: 'Tech Enthusiast',
-    bio: 'Building cool stuff with TypeScript. Open source advocate.',
-    location: 'San Francisco, CA',
-    website: 'https://example.com',
-    followers: 1234,
-    following: 567,
-    tweets_count: 890,
-    created_at: new Date('2020-01-01'),
-    verified: false,
-    profile_image: 'https://example.com/avatar.jpg',
-    banner_image: 'https://example.com/banner.jpg',
-  });
+	// Check if post exists
+	const exists = await vault.reddit.posts.exists({ id: post1.id });
+	console.log(`  Post exists: ${exists}`);
 
-  console.log('✅ Sample data created!\n');
+	// Count posts
+	const postCount = await vault.reddit.posts.count();
+	console.log(`  Total posts: ${postCount}`);
 
-  // Demonstrate type-safe queries with IntelliSense
-  console.log('🔍 Running queries...\n');
+	// ============================================
+	// TABLE CUSTOM METHODS
+	// ============================================
+	
+	console.log('\n🎯 Using table custom methods...\n');
 
-  // Reddit queries - all methods are fully typed!
-  const topPosts = await vault.posts.getTopPosts(5);
-  console.log(`Top ${topPosts.length} Reddit posts:`);
-  topPosts.forEach(post => {
-    console.log(`  - "${post.title}" (score: ${post.score})`);
-  });
+	// Get top posts (custom method)
+	const topPosts = await vault.reddit.posts.getTopPosts({ limit: 3 });
+	console.log(`  Top posts:`);
+	topPosts.forEach(p => console.log(`    - "${p.title}" (score: ${p.score})`));
 
-  const programmingPosts = await vault.posts.getBySubreddit('programming');
-  console.log(`\nPosts in r/programming: ${programmingPosts.length}`);
+	// Get posts by subreddit
+	const programmingPosts = await vault.reddit.posts.getBySubreddit({ subreddit: 'programming' });
+	console.log(`  Posts in r/programming: ${programmingPosts.length}`);
 
-  const searchResults = await vault.posts.searchPosts('TypeScript');
-  console.log(`\nPosts mentioning TypeScript: ${searchResults.length}`);
+	// Search posts
+	const searchResults = await vault.reddit.posts.searchPosts({ query: 'TypeScript' });
+	console.log(`  Posts mentioning TypeScript: ${searchResults.length}`);
 
-  // Twitter queries - also fully typed!
-  const viralTweets = await vault.tweets.getViral(100);
-  console.log(`\nViral tweets (100+ engagement): ${viralTweets.length}`);
+	// Get comment thread
+	const commentThread = await vault.reddit.comments.getCommentThread({ postId: post1.id });
+	console.log(`  Comment thread for post: ${commentThread.length} root comments`);
 
-  const trendingTweets = await vault.tweets.getTrending(24);
-  console.log(`Trending tweets (last 24h): ${trendingTweets.length}`);
+	// ============================================
+	// PLUGIN-LEVEL METHODS
+	// ============================================
+	
+	console.log('\n🔌 Using plugin-level methods...\n');
 
-  // User engagement metrics
-  const userMetrics = await vault.users.getEngagementMetrics('tech_enthusiast');
-  if (userMetrics) {
-    console.log(`\n@${userMetrics.username} metrics:`);
-    console.log(`  - Followers: ${userMetrics.followers}`);
-    console.log(`  - Engagement ratio: ${userMetrics.engagement_ratio.toFixed(2)}`);
-    console.log(`  - Tier: ${userMetrics.follower_tier}`);
-  }
+	// Get Reddit statistics (plugin method)
+	const redditStats = await vault.reddit.getStats({});
+	console.log('  Reddit Statistics:');
+	console.log(`    - Posts: ${redditStats.posts}`);
+	console.log(`    - Comments: ${redditStats.comments}`);
+	console.log(`    - Top post: "${redditStats.topPost?.title || 'N/A'}"`);
 
-  // Cross-adapter queries
-  console.log('\n📊 Vault statistics:');
-  const stats = await vault.$stats();
-  console.log(`  - Subfolders: ${stats.subfolders}`);
-  console.log(`  - Total records: ${stats.totalRecords}`);
+	// Search across all Reddit content
+	const allResults = await vault.reddit.searchAll({ query: 'vault' });
+	console.log(`  Global search for "vault":`);
+	console.log(`    - Posts: ${allResults.posts.length}`);
+	console.log(`    - Comments: ${allResults.comments.length}`);
 
-  // Export data
-  console.log('\n💾 Exporting vault data...');
-  const exported = await vault.$export('json');
-  const data = JSON.parse(exported);
-  console.log(`  - Exported ${Object.keys(data).length} subfolders`);
-  Object.entries(data).forEach(([subfolder, records]) => {
-    console.log(`    - ${subfolder}: ${(records as any[]).length} records`);
-  });
+	// Export all Reddit data
+	const exported = await vault.reddit.exportAll({});
+	console.log(`  Exported data:`);
+	console.log(`    - ${exported.posts.length} posts`);
+	console.log(`    - ${exported.comments.length} comments`);
+	console.log(`    - ${exported.subreddits.length} subreddits`);
 
-  // Demonstrate TypeScript catching errors
-  console.log('\n🔒 TypeScript type safety demo:');
-  console.log('  The following would cause TypeScript errors:');
-  console.log('  ❌ vault.nonexistent.getAll() - Property "nonexistent" does not exist');
-  console.log('  ❌ vault.posts.nonMethod() - Property "nonMethod" does not exist');
-  console.log('  ❌ post1.unknown - Property "unknown" does not exist');
-  
-  // These work because TypeScript knows the types!
-  console.log('\n  ✅ These work with full IntelliSense:');
-  console.log(`  ✅ post1.title = "${post1.title}"`);
-  console.log(`  ✅ tweet1.likes = ${tweet1.likes}`);
-  console.log(`  ✅ user1.followers = ${user1.followers}`);
+	// ============================================
+	// CORE VAULT METHODS
+	// ============================================
+	
+	console.log('\n⚙️  Using core vault methods...\n');
 
-  console.log('\n✨ Demo complete! Check the ./demo-vault folder to see the markdown files.');
-  console.log('   Each record is stored as a markdown file with YAML front matter.');
+	// Get vault statistics
+	const vaultStats = await vault.stats();
+	console.log('  Vault Statistics:');
+	console.log(`    - Plugins: ${vaultStats.plugins}`);
+	console.log(`    - Tables: ${vaultStats.tables}`);
+	console.log(`    - Total records: ${vaultStats.totalRecords}`);
+	console.log('    - Table breakdown:');
+	Object.entries(vaultStats.tableStats).forEach(([table, count]) => {
+		console.log(`      - ${table}: ${count} records`);
+	});
+
+	// Export vault data
+	const jsonExport = await vault.export('json');
+	const exportData = JSON.parse(jsonExport);
+	console.log(`\n  JSON Export: ${Object.keys(exportData).length} plugins`);
+
+	const sqlExport = await vault.export('sql');
+	const tableCount = (sqlExport.match(/CREATE TABLE/g) || []).length;
+	console.log(`  SQL Export: ${tableCount} table definitions`);
+
+	const markdownExport = await vault.export('markdown');
+	const pluginCount = (markdownExport.match(/## Plugin:/g) || []).length;
+	console.log(`  Markdown Export: ${pluginCount} plugins documented`);
+
+	// Sync to SQLite
+	console.log('\n  Syncing to SQLite...');
+	await vault.sync();
+
+	// ============================================
+	// DEMONSTRATE FOLDER STRUCTURE
+	// ============================================
+	
+	console.log('\n📁 Folder Structure Created:');
+	console.log('  demo-vault/');
+	console.log('  └── reddit/              (plugin folder)');
+	console.log('      ├── posts/           (table folder)');
+	console.log('      │   ├── reddit_posts_*.md');
+	console.log('      │   └── ...');
+	console.log('      ├── comments/        (table folder)');
+	console.log('      │   ├── reddit_comments_*.md');
+	console.log('      │   └── ...');
+	console.log('      └── subreddits/      (table folder)');
+
+	console.log('\n💾 SQLite Table Names:');
+	console.log('  - reddit_posts          (flat naming)');
+	console.log('  - reddit_comments       (flat naming)');
+	console.log('  - reddit_subreddits     (flat naming)');
+
+	// ============================================
+	// TYPE SAFETY DEMONSTRATION
+	// ============================================
+	
+	console.log('\n🔒 TypeScript Type Safety:');
+	console.log('  ✅ vault.reddit.posts.get({ id: "123" })');
+	console.log('  ✅ vault.reddit.getStats()');
+	console.log('  ✅ vault.stats()');
+	console.log('  ❌ vault.reddit.nonexistent - Type error');
+	console.log('  ❌ vault.posts.get() - Type error (must use vault.reddit.posts)');
+	console.log('  ❌ vault.reddit.posts.get() - Type error (missing {id} param)');
+
+	// Clean up (delete a post to show delete works)
+	const deleted = await vault.reddit.posts.delete({ id: post2.id });
+	console.log(`\n🗑️  Cleanup: Deleted post2: ${deleted}`);
+
+	console.log('\n✨ Demo complete! The new API provides:');
+	console.log('   - Clear namespace separation (vault.pluginName.tableName)');
+	console.log('   - Plugin-level methods (vault.pluginName.method)');
+	console.log('   - Standardized CRUD ({id} parameter for get/update/delete)');
+	console.log('   - Organized folder structure (/plugin/table/)');
+	console.log('   - Flat SQLite tables (pluginId_tableName)');
 }
 
 // Run the demo
