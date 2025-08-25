@@ -11,6 +11,7 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 		DeepgramApiKeyInput,
+		CartesiaApiKeyInput,
 	} from '$lib/components/settings';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
@@ -29,6 +30,7 @@
 		OPENAI_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
 		DEEPGRAM_TRANSCRIPTION_MODELS,
+		CARTESIA_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
@@ -138,6 +140,34 @@
 			renderOption={renderModelOption}
 		/>
 		<DeepgramApiKeyInput />
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'Cartesia'}
+		<LabeledSelect
+			id="cartesia-model"
+			label="Cartesia Model"
+			items={CARTESIA_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
+			selected={settings.value['transcription.cartesia.model']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('transcription.cartesia.model', selected);
+			}}
+			renderOption={renderModelOption}
+		>
+			{#snippet description()}
+				You can find more details about the models in the <Button
+					variant="link"
+					class="px-0.3 py-0.2 h-fit"
+					href="https://docs.cartesia.ai/getting-started/introduction"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Cartesia docs
+				</Button>.
+			{/snippet}
+		</LabeledSelect>
+		<CartesiaApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
 		<LabeledSelect
 			id="elevenlabs-model"
