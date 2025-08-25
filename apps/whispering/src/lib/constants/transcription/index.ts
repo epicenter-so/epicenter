@@ -16,6 +16,11 @@ export {
 } from '$lib/services/transcription/deepgram';
 
 export {
+	CARTESIA_TRANSCRIPTION_MODELS,
+	type CartesiaModel,
+} from '$lib/services/transcription/cartesia';
+
+export {
 	TRANSCRIPTION_SERVICE_IDS,
 	TRANSCRIPTION_SERVICES,
 	TRANSCRIPTION_SERVICE_OPTIONS,

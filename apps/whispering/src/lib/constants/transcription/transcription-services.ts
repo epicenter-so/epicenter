@@ -10,6 +10,7 @@ import openaiIcon from '$lib/constants/icons/openai.svg?raw';
 import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
 import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
 import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
+import cartesiaIcon from '$lib/constants/icons/cartesia.svg?raw';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
@@ -23,12 +24,17 @@ import {
 	DEEPGRAM_TRANSCRIPTION_MODELS,
 	type DeepgramModel,
 } from '$lib/services/transcription/deepgram';
+import {
+	CARTESIA_TRANSCRIPTION_MODELS,
+	type CartesiaModel,
+} from '$lib/services/transcription/cartesia';
 
 type TranscriptionModel =
 	| OpenAIModel
 	| GroqModel
 	| ElevenLabsModel
-	| DeepgramModel;
+	| DeepgramModel
+	| CartesiaModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'whispercpp',
@@ -37,6 +43,7 @@ export const TRANSCRIPTION_SERVICE_IDS = [
 	'ElevenLabs',
 	'Deepgram',
 	'speaches',
+	'Cartesia',
 	// 'owhisper',
 ] as const;
 
@@ -131,6 +138,18 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
+		location: 'cloud',
+	},
+	{
+		id: 'Cartesia',
+		name: 'Cartesia',
+		icon: cartesiaIcon,
+		invertInDarkMode: false, // Cartesia has a colored logo
+		description: 'High-quality multilingual speech-to-text API',
+		models: CARTESIA_TRANSCRIPTION_MODELS,
+		defaultModel: CARTESIA_TRANSCRIPTION_MODELS[0],
+		modelSettingKey: 'transcription.cartesia.model',
+		apiKeyField: 'apiKeys.cartesia',
 		location: 'cloud',
 	},
 	// Self-hosted services
