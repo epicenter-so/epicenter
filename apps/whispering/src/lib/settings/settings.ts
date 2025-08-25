@@ -182,6 +182,11 @@ export const settingsSchema = z.object({
 		.string()
 		.nullable()
 		.default(null),
+		
+	'completion.openrouter.model': z
+		.string()
+		.default('mistralai/mixtral-8x7b')
+		.describe('OpenRouter model name'),
 
 	'apiKeys.openai': z.string().default(''),
 	'apiKeys.anthropic': z.string().default(''),
@@ -189,6 +194,7 @@ export const settingsSchema = z.object({
 	'apiKeys.google': z.string().default(''),
 	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
+	'apiKeys.openrouter': z.string().default(''),
 
 	// Analytics settings
 	'analytics.enabled': z.boolean().default(true),
