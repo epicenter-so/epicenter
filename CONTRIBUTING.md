@@ -26,6 +26,9 @@ Epicenter is a monorepo containing multiple applications. The main application r
    ```
    
    > **Note**: If you see a version warning, run `bun upgrade` to update to the required version. The repository uses Bun 1.2.19 to ensure consistency across all contributors.
+   
+   > **Note**: Desktop app development requires external tools not installed by the command above. Install these manually.
+   > (For example: [Rust](https://www.rust-lang.org/tools/install) and [CMake](https://cmake.org/download/))
 
 3. **Navigate to the Whispering app**
    ```bash
