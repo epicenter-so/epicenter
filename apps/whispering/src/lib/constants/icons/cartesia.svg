@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="cartesia-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="20" fill="url(#cartesia-gradient)"/>
+  <g fill="#FFFFFF">
+    <!-- Sound waves representing speech -->
+    <path d="M50 100c0-15 12-25 27-25s27 10 27 25-12 25-27 25-27-10-27-25z" opacity="0.8"/>
+    <path d="M35 100c0-25 20-45 42-45s42 20 42 45-20 45-42 45-42-20-42-45z" opacity="0.6" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+    <path d="M25 100c0-35 28-63 52-63s52 28 52 63-28 63-52 63-52-28-52-63z" opacity="0.4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <!-- AI processing symbol -->
+    <g transform="translate(120, 80)">
+      <circle cx="0" cy="0" r="4" fill="#FFFFFF"/>
+      <circle cx="20" cy="0" r="4" fill="#FFFFFF"/>
+      <circle cx="40" cy="0" r="4" fill="#FFFFFF"/>
+      <circle cx="10" cy="15" r="4" fill="#FFFFFF"/>
+      <circle cx="30" cy="15" r="4" fill="#FFFFFF"/>
+      <circle cx="20" cy="30" r="4" fill="#FFFFFF"/>
+      
+      <!-- Connections -->
+      <line x1="0" y1="0" x2="20" y2="0" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="20" y1="0" x2="40" y2="0" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="0" y1="0" x2="10" y2="15" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="20" y1="0" x2="10" y2="15" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="20" y1="0" x2="30" y2="15" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="40" y1="0" x2="30" y2="15" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="10" y1="15" x2="20" y2="30" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <line x1="30" y1="15" x2="20" y2="30" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+    </g>
+    
+    <!-- Text indicator -->
+    <g transform="translate(30, 140)">
+      <rect x="0" y="0" width="30" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9"/>
+      <rect x="0" y="8" width="40" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9"/>
+      <rect x="0" y="16" width="25" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9"/>
+    </g>
+    
+    <!-- Arrow showing conversion -->
+    <path d="M110 120 L130 120 L125 115 M130 120 L125 125" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.8"/>
+  </g>
+</svg>

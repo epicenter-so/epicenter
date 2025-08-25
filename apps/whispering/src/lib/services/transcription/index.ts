@@ -1,3 +1,4 @@
+import { CartesiaTranscriptionServiceLive } from './cartesia';
 import { DeepgramTranscriptionServiceLive } from './deepgram';
 import { ElevenlabsTranscriptionServiceLive } from './elevenlabs';
 import { GroqTranscriptionServiceLive } from './groq';
@@ -6,6 +7,7 @@ import { SpeachesTranscriptionServiceLive } from './speaches';
 import { WhisperCppTranscriptionServiceLive } from './whispercpp';
 
 export {
+	CartesiaTranscriptionServiceLive as cartesia,
 	ElevenlabsTranscriptionServiceLive as elevenlabs,
 	GroqTranscriptionServiceLive as groq,
 	OpenaiTranscriptionServiceLive as openai,
@@ -14,6 +16,7 @@ export {
 	WhisperCppTranscriptionServiceLive as whispercpp,
 };
 
+export type { CartesiaTranscriptionService } from './cartesia';
 export type { ElevenLabsTranscriptionService } from './elevenlabs';
 export type { GroqTranscriptionService } from './groq';
 export type { OpenaiTranscriptionService } from './openai';
