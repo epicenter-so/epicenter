@@ -25,7 +25,7 @@
 
 	<LabeledSwitch
 		id="transcription.copyToClipboardOnSuccess"
-		label="Copy to clipboard on success"
+		label="Copy transcribed text to clipboard"
 		checked={settings.value['transcription.copyToClipboardOnSuccess']}
 		onCheckedChange={(v) => {
 			settings.updateKey('transcription.copyToClipboardOnSuccess', v);
@@ -34,7 +34,7 @@
 
 	<LabeledSwitch
 		id="transcription.writeToCursorOnSuccess"
-		label="Write to cursor on success"
+		label="Paste transcribed text at cursor"
 		checked={settings.value['transcription.writeToCursorOnSuccess']}
 		onCheckedChange={(v) => {
 			settings.updateKey('transcription.writeToCursorOnSuccess', v);
@@ -45,7 +45,7 @@
 
 	<LabeledSwitch
 		id="transformation.copyToClipboardOnSuccess"
-		label="Copy to clipboard on success"
+		label="Copy transformed text to clipboard"
 		checked={settings.value['transformation.copyToClipboardOnSuccess']}
 		onCheckedChange={(v) => {
 			settings.updateKey('transformation.copyToClipboardOnSuccess', v);
@@ -54,7 +54,7 @@
 
 	<LabeledSwitch
 		id="transformation.writeToCursorOnSuccess"
-		label="Write to cursor on success"
+		label="Paste transformed text at cursor"
 		checked={settings.value['transformation.writeToCursorOnSuccess']}
 		onCheckedChange={(v) => {
 			settings.updateKey('transformation.writeToCursorOnSuccess', v);

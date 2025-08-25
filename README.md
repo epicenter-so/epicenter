@@ -7,6 +7,7 @@
   <p align="center">Own your data. Use any model you want. Free and open source ❤️</p>
 </p>
 
+> **🚧 Development Update:** Development on Epicenter will be a bit slower in the coming week while Braden takes some calls and stabilizes a new framework. Updates will resume after!
 
 > **📢 Repository Update:** Whispering has become **Epicenter**! The original repository moved [here](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering). Everything else remains the same—same tools, same philosophy, same team.
 >
@@ -81,7 +82,11 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">View source code</a></strong></p>
     </td>
     <td align="center" width="50%">
-      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Assistant (currently unstable, waiting for [this PR](https://github.com/sst/opencode/pull/1218) in OpenCode to merge).</a></h3>
+      <h3>
+        🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Assistant</a>
+        (currently unstable, waiting for 
+        <a href="https://github.com/sst/opencode/pull/1218">this PR</a> in OpenCode to merge)
+      </h3>
       <p>A local-first assistant you can chat with. It lives in your folder, becoming the access point to everything you've ever written, thought, or built.</p>
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">View source code</a></strong></p>
     </td>
@@ -144,5 +149,5 @@ Contributors coordinate and share ideas in our Discord community.
 </p>
 
 <p align="center">
-  <sub>Built with ❤️ for data ownership, local-first, and open-souce</sub>
+  <sub>Built with ❤️ for data ownership, local-first, and open-source</sub>
 </p>
