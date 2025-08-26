@@ -57,6 +57,7 @@
 		"@biomejs/biome": "catalog:",
 		"@types/node": "catalog:",
 		"concurrently": "catalog:",
+		"prettier-plugin-astro": "^0.14.1",
 		"turbo": "catalog:"
 	}
 }

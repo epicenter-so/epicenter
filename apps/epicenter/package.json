@@ -8,10 +8,12 @@
 		"preview": "astro preview",
 		"astro": "astro",
 		"deploy": "bun run build && wrangler pages deploy",
-		"check": "echo 'skip check'",
-		"lint": "echo 'skip lint'"
+		"lint": "biome lint --write --unsafe .",
+		"check": "astro check && svelte-check",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
+		"@astrojs/check": "^0.9.4",
 		"@astrojs/svelte": "^7.1.0",
 		"@repo/constants": "workspace:*",
 		"@repo/ui": "workspace:*",
