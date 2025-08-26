@@ -5,8 +5,8 @@
 		"dev": "infisical export > .dev.vars && wrangler dev",
 		"deploy": "wrangler deploy --minify",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
-		"format": "prettier --write .",
-		"format:check": "prettier --check .",
+		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
+		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore",
 		"lint": "eslint --fix .",
 		"check": "echo 'skip check'"
 	},

@@ -1,3 +1,13 @@
+# Anything BiomeJS touches
+*.json
+*.jsonc
+*.js
+*.mjs
+*.cjs
+*.ts
+*.d.ts
+*.css
+
 # Dependencies
 node_modules
 

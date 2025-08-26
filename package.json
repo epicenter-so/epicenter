@@ -7,10 +7,7 @@
 	"license": "ISC",
 	"author": "",
 	"workspaces": {
-		"packages": [
-			"apps/*",
-			"packages/*", "packages/*/*"
-		],
+		"packages": ["apps/*", "packages/*", "packages/*/*"],
 		"catalog": {
 			"@types/node": "^22.15.32",
 			"typescript": "^5.8.3",
@@ -47,7 +44,8 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "concurrently \"biome format --write .\" \"turbo run format\"",
+		"format": "biome format --write . && turbo run format",
+		"format:check": "biome format . && turbo run format:check",
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint\"",
 		"check": "turbo run check",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",

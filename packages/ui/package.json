@@ -11,8 +11,8 @@
 		"./app.css": "./src/app.css"
 	},
 	"scripts": {
-		"format": "prettier --write .",
-		"format:check": "prettier --check .",
+		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
+		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore",
 		"lint": "eslint --fix",
 		"check": "svelte-check"
 	},

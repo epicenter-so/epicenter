@@ -8,8 +8,8 @@
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
 		"tail": "wrangler tail",
-		"format": "prettier --write .",
-		"format:check": "prettier --check .",
+		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
+		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore",
 		"lint": "eslint --fix .",
 		"check": "echo 'skip check'"
 	},

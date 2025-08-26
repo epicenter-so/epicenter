@@ -2,6 +2,7 @@
 	"recommendations": [
 		"svelte.svelte-vscode",
 		"astro-build.astro-vscode",
-		"biomejs.biome"
+		"biomejs.biome",
+		"esbenp.prettier-vscode"
 	]
 }
