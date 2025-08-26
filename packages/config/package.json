@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		"./eslint": "./eslint.ts",
+		"./eslint": "./eslint.config.ts",
 		"./prettier": "./prettier.ts"
 	},
 	"peerDependencies": {
@@ -20,5 +20,9 @@
 		"prettier-plugin-svelte": "^3.4.0",
 		"typescript-eslint": "^8.36.0",
 		"prettier": "catalog:"
+	},
+	"scripts": {
+		"lint": "echo 'skip lint'",
+		"check": "echo 'skip check'"
 	}
 }

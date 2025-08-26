@@ -26,3 +26,7 @@ jobs:
           version: 1.9.4
       - name: Run Biome
         run: bunx biome ci .
+      - name: Run workspace checks
+        run: bunx turbo run check
+      - name: Run workspace lint
+        run: bunx turbo run lint

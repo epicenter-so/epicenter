@@ -19,7 +19,9 @@
 	},
 	"scripts": {
 		"dev": "infisical run -- bun run src/index.ts",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
 	},
 	"files": ["src", "README.md", "package.json"],
 	"dependencies": {

@@ -7,7 +7,9 @@
 	"scripts": {
 		"dev": "bun run src/cli.ts import",
 		"import": "bun run src/cli.ts import",
-		"serve": "bun run src/cli.ts serve"
+		"serve": "bun run src/cli.ts serve",
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@epicenter/mcp-adapter-reddit": "workspace:*",

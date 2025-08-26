@@ -9,7 +9,8 @@
 		"deploy": "wrangler deploy --minify",
 		"tail": "wrangler tail",
 		"format": "prettier --write .",
-		"lint": "eslint --fix ."
+		"lint": "eslint --fix .",
+		"check": "echo 'skip check'"
 	},
 	"devDependencies": {
 		"@repo/config": "workspace:*",

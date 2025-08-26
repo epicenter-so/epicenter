@@ -11,6 +11,10 @@
 	"devDependencies": {
 		"typescript": "catalog:"
 	},
+	"scripts": {
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
+	},
 	"dependencies": {
 		"arktype": "catalog:",
 		"drizzle-kit": "catalog:",

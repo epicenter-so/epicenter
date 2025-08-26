@@ -18,5 +18,9 @@
 		"@types/node": "^20.11.5",
 		"typescript": "^5.8.3",
 		"vite": "catalog:"
+	},
+	"scripts": {
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
 	}
 }

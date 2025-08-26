@@ -49,6 +49,7 @@
 		"dev": "turbo run dev",
 		"format": "concurrently \"biome format --write .\" \"turbo run format\"",
 		"lint": "concurrently \"biome lint --write --unsafe .\" \"turbo run lint\"",
+		"check": "turbo run check",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",
 		"bump-version": "bun run scripts/bump-version.ts"
 	},

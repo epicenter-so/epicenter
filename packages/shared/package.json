@@ -11,6 +11,10 @@
 		"@types/node": "catalog:",
 		"typescript": "catalog:"
 	},
+	"scripts": {
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
+	},
 	"dependencies": {
 		"arktype": "catalog:",
 		"@lucide/svelte": "catalog:",

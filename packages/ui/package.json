@@ -12,15 +12,17 @@
 	},
 	"scripts": {
 		"format": "prettier --write .",
-		"lint": "eslint --fix ."
+		"lint": "eslint --fix",
+		"check": "svelte-check"
 	},
 	"dependencies": {
 		"@fontsource-variable/manrope": "^5.2.6",
-		"@tanstack/svelte-table": "catalog:",
-		"paneforge": "^1.0.0-next.5",
 		"@lucide/svelte": "^0.525.0",
+		"@tanstack/svelte-table": "catalog:",
 		"bits-ui": "catalog:",
 		"clsx": "catalog:",
+		"paneforge": "^1.0.0-next.5",
+		"svelte-check": "^4.3.1",
 		"tailwind-merge": "catalog:",
 		"tailwind-variants": "catalog:"
 	},

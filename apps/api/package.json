@@ -6,7 +6,8 @@
 		"deploy": "wrangler deploy --minify",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"format": "prettier --write .",
-		"lint": "eslint --fix ."
+		"lint": "eslint --fix .",
+		"check": "echo 'skip check'"
 	},
 	"dependencies": {
 		"@hono/trpc-server": "^0.4.0",

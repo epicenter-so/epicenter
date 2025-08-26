@@ -11,7 +11,9 @@
 	},
 	"files": ["dist", "migrations"],
 	"scripts": {
-		"migrate": "drizzle-kit generate --config=./src/drizzle.config.ts"
+		"migrate": "drizzle-kit generate --config=./src/drizzle.config.ts",
+		"lint": "echo 'skip lint'",
+		"check": "tsc --noEmit"
 	},
 	"dependencies": {
 		"csv-parse": "^5.5.6",
