@@ -1,6 +1,3 @@
-import type { Config } from 'prettier';
-import svelte from 'prettier-plugin-svelte';
-
 /**
  * Shared Prettier configuration for Svelte applications in the Whispering monorepo.
  *
@@ -10,13 +7,15 @@ import svelte from 'prettier-plugin-svelte';
  * @remarks
  * While Biome handles general TypeScript/JavaScript formatting at the root level,
  * Svelte components require specialized formatting through the prettier-plugin-svelte.
+ * @type import("prettier").Config
  */
 export const prettierConfig = {
 	useTabs: true,
 	singleQuote: true,
 	trailingComma: 'all',
 	printWidth: 80,
-	plugins: [svelte],
+	plugins: ['prettier-plugin-astro', 'prettier-plugin-svelte'],
+
 	overrides: [
 		{
 			files: '*.svelte',
@@ -24,5 +23,11 @@ export const prettierConfig = {
 				parser: 'svelte',
 			},
 		},
+		{
+			files: '*.astro',
+			options: {
+				parser: 'astro',
+			},
+		},
 	],
-} satisfies Config;
+};
