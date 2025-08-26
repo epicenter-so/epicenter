@@ -21,6 +21,8 @@
 	},
 	"scripts": {
 		"lint": "echo 'skip lint'",
+		"format": "echo 'skip format'",
+		"format:check": "echo 'skip format check'",
 		"check": "tsc --noEmit"
 	}
 }

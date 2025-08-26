@@ -10,7 +10,8 @@
 		"deploy": "bun run build && wrangler pages deploy",
 		"lint": "biome lint --write --unsafe .",
 		"check": "astro check && svelte-check",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.4",

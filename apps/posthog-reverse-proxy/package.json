@@ -9,6 +9,7 @@
 		"deploy": "wrangler deploy --minify",
 		"tail": "wrangler tail",
 		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"lint": "eslint --fix .",
 		"check": "echo 'skip check'"
 	},

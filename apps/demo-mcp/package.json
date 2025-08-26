@@ -9,6 +9,8 @@
 		"import": "bun run src/cli.ts import",
 		"serve": "bun run src/cli.ts serve",
 		"lint": "echo 'skip lint'",
+		"format": "echo 'skip format'",
+		"format:check": "echo 'skip format check'",
 		"check": "tsc --noEmit"
 	},
 	"dependencies": {

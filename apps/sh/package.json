@@ -11,6 +11,7 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"lint": "eslint --fix .",
 		"openapi-ts": "openapi-ts",
 		"deploy": "bun run build && wrangler pages deploy"

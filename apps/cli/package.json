@@ -20,6 +20,8 @@
 	"scripts": {
 		"dev": "infisical run -- bun run src/index.ts",
 		"typecheck": "tsc --noEmit",
+		"format": "echo 'skip format'",
+		"format:check": "echo 'skip format check'",
 		"lint": "echo 'skip lint'",
 		"check": "tsc --noEmit"
 	},

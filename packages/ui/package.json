@@ -12,6 +12,7 @@
 	},
 	"scripts": {
 		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"lint": "eslint --fix",
 		"check": "svelte-check"
 	},

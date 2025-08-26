@@ -17,6 +17,10 @@
 			"cache": false,
 			"inputs": ["**/*.{ts,tsx,js,jsx,svelte,md,json}"]
 		},
+		"format:check": {
+			"cache": false,
+			"inputs": ["**/*.{ts,tsx,js,jsx,svelte,md,json}"]
+		},
 		"dev": {
 			"cache": false,
 			"persistent": true

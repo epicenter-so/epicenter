@@ -10,6 +10,8 @@
 		"db:migrate:prod": "infisical run --env=prod -- drizzle-kit migrate",
 		"db:migrate:all": "bun run db:migrate:dev && bun run db:migrate:prod",
 		"lint": "echo 'skip lint'",
+		"format": "echo 'skip format'",
+		"format:check": "echo 'skip format check'",
 		"check": "tsc --noEmit"
 	},
 	"dependencies": {
