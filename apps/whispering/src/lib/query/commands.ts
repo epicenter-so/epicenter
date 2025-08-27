@@ -89,6 +89,9 @@ const startManualRecording = defineMutation({
 		manualRecordingStartTime = Date.now();
 		console.info('Recording started');
 		sound.playSoundIfEnabled.execute('manual-start');
+		
+
+		
 		return Ok(undefined);
 	},
 });
@@ -241,6 +244,9 @@ const startVadRecording = defineMutation({
 		}
 
 		sound.playSoundIfEnabled.execute('vad-start');
+		
+
+		
 		return Ok(undefined);
 	},
 });
@@ -498,6 +504,8 @@ async function processRecordingPipeline({
 		toastId: transcribeToastId,
 	});
 
+
+
 	// Determine if we need to chain to transformation
 	const transformationId =
 		settings.value['transformations.selectedTransformationId'];
@@ -569,4 +577,6 @@ async function processRecordingPipeline({
 		text: transformationRun.output,
 		toastId: transformToastId,
 	});
+	
+
 }

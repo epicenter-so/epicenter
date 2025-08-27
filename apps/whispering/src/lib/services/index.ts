@@ -5,6 +5,7 @@ import { DownloadServiceLive } from './download';
 import { FfmpegServiceLive } from './ffmpeg';
 import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
+
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PermissionsServiceLive } from './permissions';
@@ -32,6 +33,7 @@ export {
 	FfmpegServiceLive as ffmpeg,
 	GlobalShortcutManagerLive as globalShortcutManager,
 	LocalShortcutManagerLive as localShortcutManager,
+
 	NotificationServiceLive as notification,
 	NativeRecorderServiceLive as nativeRecorder,
 	BrowserRecorderServiceLive as browserRecorder,

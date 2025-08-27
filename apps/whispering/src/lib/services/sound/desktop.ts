@@ -1,21 +1,4 @@
-import { tryAsync } from 'wellcrafted/result';
-import type { PlaySoundService } from '.';
-import { audioElements } from './assets';
-import { PlaySoundServiceErr } from './types';
+import { createPlaySoundServiceWebAudio } from './web-audio';
 
-export function createPlaySoundServiceDesktop(): PlaySoundService {
-	return {
-		playSound: async (soundName) =>
-			tryAsync({
-				try: async () => {
-					await audioElements[soundName].play();
-				},
-				mapErr: (error) =>
-					PlaySoundServiceErr({
-						message: 'Failed to play sound',
-						context: { soundName },
-						cause: error,
-					}),
-			}),
-	};
-}
+// Use Web Audio API instead of HTML5 audio elements to avoid media control interference
+export const createPlaySoundServiceDesktop = createPlaySoundServiceWebAudio;

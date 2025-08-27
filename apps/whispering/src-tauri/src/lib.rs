@@ -14,6 +14,8 @@ use whisper_cpp::transcribe_with_whisper_cpp;
 pub mod windows_path;
 use windows_path::fix_windows_path;
 
+
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
@@ -76,6 +78,8 @@ pub async fn run() {
         cancel_recording,
         // Whisper transcription
         transcribe_with_whisper_cpp,
+        // Media control commands
+        
     ]);
 
     let app = builder
