@@ -13,7 +13,7 @@ The issue occurs because HTML5 `<audio>` elements automatically register with ma
 
 ## Solution: Web Audio API Implementation
 
-We replaced HTML5 audio elements with Web Audio API to avoid media control interference.
+We replaced HTML5 audio elements with Web Audio API to avoid media control interference. This solution works for both desktop (Tauri) and web browser environments.
 
 ### Technical Approach
 
@@ -36,53 +36,50 @@ source.start(); // No media control interference!
 
 ### Implementation Details
 
-1. **Web Audio API Service**: Created `src/lib/services/sound/web-audio.ts`
+1. **Unified Web Audio API Service**: Created `src/lib/services/sound/web-audio.ts`
    - Uses `AudioContext` and `AudioBufferSource` for sound playback
    - Caches decoded audio buffers to avoid repeated decoding
    - Handles user interaction requirements (`AudioContext.resume()`)
+   - Reuses existing `audioElements` to avoid code duplication
 
-2. **Updated Sound Service**: Modified `src/lib/services/sound/desktop.ts`
-   - Replaced HTML5 audio elements with Web Audio API
-   - Maintains the same interface for existing code
+2. **Simplified Architecture**: Updated `src/lib/services/sound/index.ts`
+   - Uses Web Audio API for both desktop and web browser environments
+   - Eliminates the need for separate HTML5 audio fallback
 
-### Trade-offs and Considerations
+3. **Clean Implementation**: Removed unnecessary files
+   - Deleted `src/lib/services/sound/web.ts` (HTML5 audio fallback)
+   - Deleted `src/lib/services/sound/desktop.ts` (unnecessary wrapper)
 
-**What We Gained:**
-- ✅ Audio feedback no longer hijacks media controls
-- ✅ Audio buffers are cached after first load (slight performance improvement)
+### Benefits
 
-**What We Lost/Added:**
-- ❌ **Code Duplication**: Sound file imports are now defined in two places
-  - `src/lib/services/sound/assets/index.ts` (original HTML5 audio elements)
-  - `src/lib/services/sound/web-audio.ts` (new Web Audio API mapping)
-- ❌ **More Complex Implementation**: Web Audio API requires more setup than HTML5 audio
-- ❌ **Maintenance Overhead**: Need to keep both sound mappings in sync when adding new sounds
+**✅ Fixed Issues:**
+- Audio feedback no longer hijacks media controls in both desktop and web environments
+- Consistent audio behavior across all platforms
 
-**Technical Debt Created:**
-- The original `audioElements` object in `assets/index.ts` is now unused but still exists
-- Sound file imports are duplicated across two files
-- Future sound additions require updates in both places
+**✅ Improved Architecture:**
+- Single audio implementation for all environments
+- No code duplication
+- Cleaner, more maintainable codebase
+- Audio buffers are cached for better performance
 
 ### Files Modified
 
-- `src/lib/services/sound/web-audio.ts` - New Web Audio API implementation
-- `src/lib/services/sound/desktop.ts` - Updated to use Web Audio API
+- `src/lib/services/sound/web-audio.ts` - Web Audio API implementation
+- `src/lib/services/sound/index.ts` - Updated to use Web Audio API everywhere
 - `docs/specs/20250121T143000-macos-media-control-integration.md` - This specification
 
-### Future Cleanup Needed
+### Files Removed
 
-To properly complete this implementation, we should:
-1. Remove the unused `audioElements` object from `assets/index.ts`
-2. Create a shared sound mapping to eliminate duplication
-3. Consider if the original assets file is still needed
+- `src/lib/services/sound/web.ts` - HTML5 audio fallback (no longer needed)
+- `src/lib/services/sound/desktop.ts` - Unnecessary wrapper (no longer needed)
 
 ### Testing
 
 The solution has been tested and verified to:
-- Play audio feedback sounds correctly
+- Play audio feedback sounds correctly in both desktop and web environments
 - Not interfere with system media controls
-- Maintain the same user experience
+- Maintain the same user experience across platforms
 
 ## Conclusion
 
-This fix resolves the media control hijacking issue but introduces some technical debt through code duplication. The trade-off was acceptable given the user experience improvement, but the implementation should be cleaned up in a future iteration.
+This implementation provides a clean, unified solution that fixes the media control hijacking issue across all environments while eliminating code duplication and improving maintainability.

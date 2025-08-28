@@ -1,27 +1,18 @@
 import { tryAsync } from 'wellcrafted/result';
 import type { PlaySoundService } from '.';
 import { PlaySoundServiceErr } from './types';
-import {
-	default as captureVadSoundSrc,
-	default as stopManualSoundSrc,
-} from './assets/sound_ex_machina_Button_Blip.mp3';
-import startManualSoundSrc from './assets/zapsplat_household_alarm_clock_button_press_12967.mp3';
-import stopVadSoundSrc from './assets/zapsplat_household_alarm_clock_large_snooze_button_press_001_12968.mp3';
-import startVadSoundSrc from './assets/zapsplat_household_alarm_clock_large_snooze_button_press_002_12969.mp3';
-import cancelSoundSrc from './assets/zapsplat_multimedia_click_button_short_sharp_73510.mp3';
-import transformationCompleteSoundSrc from './assets/zapsplat_multimedia_notification_alert_ping_bright_chime_001_93276.mp3';
-import transcriptionCompleteSoundSrc from './assets/zapsplat_multimedia_ui_notification_classic_bell_synth_success_107505.mp3';
+import { audioElements } from './assets';
 
-// Map sound names to their source files
+// Map sound names to their source files using existing audioElements
 const soundSources = {
-	'manual-start': startManualSoundSrc,
-	'manual-cancel': cancelSoundSrc,
-	'manual-stop': stopManualSoundSrc,
-	'vad-start': startVadSoundSrc,
-	'vad-capture': captureVadSoundSrc,
-	'vad-stop': stopVadSoundSrc,
-	transcriptionComplete: transcriptionCompleteSoundSrc,
-	transformationComplete: transformationCompleteSoundSrc,
+	'manual-start': audioElements['manual-start'].src,
+	'manual-cancel': audioElements['manual-cancel'].src,
+	'manual-stop': audioElements['manual-stop'].src,
+	'vad-start': audioElements['vad-start'].src,
+	'vad-capture': audioElements['vad-capture'].src,
+	'vad-stop': audioElements['vad-stop'].src,
+	transcriptionComplete: audioElements.transcriptionComplete.src,
+	transformationComplete: audioElements.transformationComplete.src,
 } as const;
 
 // Create a single AudioContext for all sounds
