@@ -118,6 +118,12 @@ async function transcribeBlob(
 
 	// Log transcription request
 	const startTime = Date.now();
+	console.log('🎙️ Starting transcription with:', {
+		provider: selectedService,
+		blobSize: `${(blob.size / 1024 / 1024).toFixed(2)}MB`,
+		hasBlob: !!blob,
+	});
+	
 	rpc.analytics.logEvent.execute({
 		type: 'transcription_requested',
 		provider: selectedService,
@@ -127,13 +133,26 @@ async function transcribeBlob(
 		await (async () => {
 			switch (selectedService) {
 				case 'OpenAI':
-					return await services.transcriptions.openai.transcribe(blob, {
-						outputLanguage: settings.value['transcription.outputLanguage'],
-						prompt: settings.value['transcription.prompt'],
-						temperature: settings.value['transcription.temperature'],
-						apiKey: settings.value['apiKeys.openai'],
-						modelName: settings.value['transcription.openai.model'],
-					});
+					// Use native HTTP client if custom endpoint is configured (bypasses CORS)
+					if (settings.value['apiEndpoints.openai']) {
+						return await services.transcriptions.nativeOpenai.transcribe(blob, {
+							outputLanguage: settings.value['transcription.outputLanguage'],
+							prompt: settings.value['transcription.prompt'],
+							temperature: settings.value['transcription.temperature'],
+							apiKey: settings.value['apiKeys.openai'],
+							modelName: settings.value['transcription.openai.model'],
+							baseURL: settings.value['apiEndpoints.openai'],
+						});
+					} else {
+						// Use regular OpenAI SDK for official endpoint
+						return await services.transcriptions.openai.transcribe(blob, {
+							outputLanguage: settings.value['transcription.outputLanguage'],
+							prompt: settings.value['transcription.prompt'],
+							temperature: settings.value['transcription.temperature'],
+							apiKey: settings.value['apiKeys.openai'],
+							modelName: settings.value['transcription.openai.model'],
+						});
+					}
 				case 'Groq':
 					return await services.transcriptions.groq.transcribe(blob, {
 						outputLanguage: settings.value['transcription.outputLanguage'],
@@ -141,6 +160,9 @@ async function transcribeBlob(
 						temperature: settings.value['transcription.temperature'],
 						apiKey: settings.value['apiKeys.groq'],
 						modelName: settings.value['transcription.groq.model'],
+						...(settings.value['apiEndpoints.groq'] && {
+							baseURL: settings.value['apiEndpoints.groq'],
+						}),
 					});
 				case 'speaches':
 					return await services.transcriptions.speaches.transcribe(blob, {
@@ -185,6 +207,11 @@ async function transcribeBlob(
 	// Log transcription result
 	const duration = Date.now() - startTime;
 	if (transcriptionResult.error) {
+		console.error('❌ Transcription failed:', {
+			provider: selectedService,
+			duration: `${duration}ms`,
+			error: transcriptionResult.error,
+		});
 		rpc.analytics.logEvent.execute({
 			type: 'transcription_failed',
 			provider: selectedService,
@@ -192,6 +219,11 @@ async function transcribeBlob(
 			error_description: transcriptionResult.error.description,
 		});
 	} else {
+		console.log('✅ Transcription completed:', {
+			provider: selectedService,
+			duration: `${duration}ms`,
+			textLength: transcriptionResult.data.length,
+		});
 		rpc.analytics.logEvent.execute({
 			type: 'transcription_completed',
 			provider: selectedService,

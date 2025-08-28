@@ -43,6 +43,7 @@ export function createOpenaiTranscriptionService() {
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
 				modelName: (string & {}) | OpenAIModel['name'];
+				baseURL?: string;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
@@ -59,7 +60,8 @@ export function createOpenaiTranscriptionService() {
 				});
 			}
 
-			if (!options.apiKey.startsWith('sk-')) {
+			// Only validate API key format for official OpenAI endpoint
+			if (!options.baseURL && !options.apiKey.startsWith('sk-')) {
 				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
@@ -100,12 +102,21 @@ export function createOpenaiTranscriptionService() {
 			if (fileError) return Err(fileError);
 
 			// Call OpenAI API
+			const clientConfig = {
+				apiKey: options.apiKey,
+				dangerouslyAllowBrowser: true,
+				...(options.baseURL && { baseURL: options.baseURL }),
+			};
+			
+			console.log('🔗 OpenAI API Call:', {
+				baseURL: clientConfig.baseURL || 'https://api.openai.com/v1 (default)',
+				model: options.modelName,
+				hasCustomEndpoint: !!options.baseURL,
+			});
+			
 			const { data: transcription, error: openaiApiError } = await tryAsync({
 				try: () =>
-					new OpenAI({
-						apiKey: options.apiKey,
-						dangerouslyAllowBrowser: true,
-					}).audio.transcriptions.create({
+					new OpenAI(clientConfig).audio.transcriptions.create({
 						file,
 						model: options.modelName,
 						language:
@@ -129,6 +140,14 @@ export function createOpenaiTranscriptionService() {
 			});
 
 			if (openaiApiError) {
+				console.error('🚫 OpenAI API Error Details:', {
+					name: openaiApiError.name,
+					message: openaiApiError.message,
+					status: openaiApiError.status,
+					baseURL: clientConfig.baseURL || 'https://api.openai.com/v1 (default)',
+					cause: openaiApiError.cause,
+				});
+				
 				// Error handling follows https://www.npmjs.com/package/openai#error-handling
 				const { status, name, message, error } = openaiApiError;
 

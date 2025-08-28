@@ -40,6 +40,7 @@ export function createGroqTranscriptionService() {
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
 				modelName: (string & {}) | GroqModel['name'];
+				baseURL?: string;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validate API key
@@ -55,7 +56,8 @@ export function createGroqTranscriptionService() {
 				});
 			}
 
-			if (!options.apiKey.startsWith('gsk_') && !options.apiKey.startsWith('xai-')) {
+			// Only validate API key format for official Groq endpoint
+			if (!options.baseURL && !options.apiKey.startsWith('gsk_') && !options.apiKey.startsWith('xai-')) {
 				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
@@ -97,12 +99,21 @@ export function createGroqTranscriptionService() {
 			if (fileError) return Err(fileError);
 
 			// Make the transcription request
+			const clientConfig = {
+				apiKey: options.apiKey,
+				dangerouslyAllowBrowser: true,
+				...(options.baseURL && { baseURL: options.baseURL }),
+			};
+			
+			console.log('🔗 Groq API Call:', {
+				baseURL: clientConfig.baseURL || 'https://api.groq.com/openai/v1 (default)',
+				model: options.modelName,
+				hasCustomEndpoint: !!options.baseURL,
+			});
+			
 			const { data: transcription, error: groqApiError } = await tryAsync({
 				try: () =>
-					new Groq({
-						apiKey: options.apiKey,
-						dangerouslyAllowBrowser: true,
-					}).audio.transcriptions.create({
+					new Groq(clientConfig).audio.transcriptions.create({
 						file,
 						model: options.modelName,
 						language:
@@ -126,6 +137,14 @@ export function createGroqTranscriptionService() {
 			});
 
 			if (groqApiError) {
+				console.error('🚫 Groq API Error Details:', {
+					name: groqApiError.name,
+					message: groqApiError.message,
+					status: groqApiError.status,
+					baseURL: clientConfig.baseURL || 'https://api.groq.com/openai/v1 (default)',
+					cause: groqApiError.cause,
+				});
+				
 				// Error handling follows https://www.npmjs.com/package/groq-sdk#error-handling
 				const { status, name, message, error } = groqApiError;
 
