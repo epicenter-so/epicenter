@@ -5,7 +5,7 @@ export function getExtensionFromAudioBlob(blob: Blob) {
 	if (mimeIncludes('mp4', 'mpeg', 'mp4a')) return 'mp4';
 	if (mimeIncludes('ogg', 'opus')) return 'ogg';
 	if (mimeIncludes('wav', 'wave')) return 'wav';
-	if (mimeIncludes('aac')) return 'aac';
+	if (mimeIncludes('aac')) return 'm4a';
 	if (mimeIncludes('flac')) return 'flac';
 	return 'mp3';
 }

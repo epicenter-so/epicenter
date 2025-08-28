@@ -56,6 +56,14 @@ export function createNativeOpenaiTranscriptionService() {
 				});
 			}
 
+			// Validate minimum file size (empty or very small recordings)
+			if (audioBlob.size < 1000) { // Less than 1KB
+				return WhisperingErr({
+					title: '🎙️ Recording Too Short',
+					description: 'The recording is too short or empty. Please record at least a few seconds of audio.',
+				});
+			}
+
 
 			// Convert blob to array buffer
 			const { data: audioBuffer, error: bufferError } = await tryAsync({
