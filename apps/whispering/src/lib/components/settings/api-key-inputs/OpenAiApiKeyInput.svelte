@@ -4,7 +4,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
-<div class="space-y-4">
+<fieldset class="space-y-4">
 	<LabeledInput
 		id="openai-api-key"
 		label="OpenAI API Key"
@@ -56,4 +56,4 @@
 			</p>
 		{/snippet}
 	</LabeledInput>
-</div>
+</fieldset>
