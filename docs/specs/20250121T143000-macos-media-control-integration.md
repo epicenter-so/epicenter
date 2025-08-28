@@ -36,19 +36,15 @@ source.start(); // No media control interference!
 
 ### Implementation Details
 
-1. **Unified Web Audio API Service**: Created `src/lib/services/sound/web-audio.ts`
+1. **Web Audio API Service**: Created `src/lib/services/sound/web-audio.ts`
    - Uses `AudioContext` and `AudioBufferSource` for sound playback
    - Caches decoded audio buffers to avoid repeated decoding
    - Handles user interaction requirements (`AudioContext.resume()`)
-   - Reuses existing `audioElements` to avoid code duplication
+   - Reuses existing sound file mappings to avoid duplication
 
-2. **Simplified Architecture**: Updated `src/lib/services/sound/index.ts`
+2. **Unified Architecture**: Updated `src/lib/services/sound/index.ts`
    - Uses Web Audio API for both desktop and web browser environments
-   - Eliminates the need for separate HTML5 audio fallback
-
-3. **Clean Implementation**: Removed unnecessary files
-   - Deleted `src/lib/services/sound/web.ts` (HTML5 audio fallback)
-   - Deleted `src/lib/services/sound/desktop.ts` (unnecessary wrapper)
+   - Single implementation for all platforms
 
 ### Benefits
 
@@ -68,11 +64,6 @@ source.start(); // No media control interference!
 - `src/lib/services/sound/index.ts` - Updated to use Web Audio API everywhere
 - `docs/specs/20250121T143000-macos-media-control-integration.md` - This specification
 
-### Files Removed
-
-- `src/lib/services/sound/web.ts` - HTML5 audio fallback (no longer needed)
-- `src/lib/services/sound/desktop.ts` - Unnecessary wrapper (no longer needed)
-
 ### Testing
 
 The solution has been tested and verified to:
@@ -82,4 +73,4 @@ The solution has been tested and verified to:
 
 ## Conclusion
 
-This implementation provides a clean, unified solution that fixes the media control hijacking issue across all environments while eliminating code duplication and improving maintainability.
+This implementation provides a clean, unified solution that fixes the media control hijacking issue across all environments while improving code maintainability.
