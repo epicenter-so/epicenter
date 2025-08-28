@@ -108,11 +108,6 @@ export function createOpenaiTranscriptionService() {
 				...(options.baseURL && { baseURL: options.baseURL }),
 			};
 			
-			console.log('🔗 OpenAI API Call:', {
-				baseURL: clientConfig.baseURL || 'https://api.openai.com/v1 (default)',
-				model: options.modelName,
-				hasCustomEndpoint: !!options.baseURL,
-			});
 			
 			const { data: transcription, error: openaiApiError } = await tryAsync({
 				try: () =>
@@ -140,13 +135,6 @@ export function createOpenaiTranscriptionService() {
 			});
 
 			if (openaiApiError) {
-				console.error('🚫 OpenAI API Error Details:', {
-					name: openaiApiError.name,
-					message: openaiApiError.message,
-					status: openaiApiError.status,
-					baseURL: clientConfig.baseURL || 'https://api.openai.com/v1 (default)',
-					cause: openaiApiError.cause,
-				});
 				
 				// Error handling follows https://www.npmjs.com/package/openai#error-handling
 				const { status, name, message, error } = openaiApiError;

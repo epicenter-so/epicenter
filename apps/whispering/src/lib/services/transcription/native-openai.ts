@@ -56,12 +56,6 @@ export function createNativeOpenaiTranscriptionService() {
 				});
 			}
 
-			console.log('🔗 Native OpenAI API Call:', {
-				baseURL: options.baseURL || 'https://api.openai.com/v1 (default)',
-				model: options.modelName,
-				hasCustomEndpoint: !!options.baseURL,
-				blobSize: `${blobSizeInMb.toFixed(2)}MB`,
-			});
 
 			// Convert blob to array buffer
 			const { data: audioBuffer, error: bufferError } = await tryAsync({
@@ -104,13 +98,8 @@ export function createNativeOpenaiTranscriptionService() {
 			});
 
 			if (nativeApiError) {
-				console.error('🚫 Native OpenAI API Error:', nativeApiError);
 				return Err(nativeApiError);
 			}
-
-			console.log('✅ Native transcription completed:', {
-				textLength: transcription.length,
-			});
 
 			return Ok(transcription.trim());
 		},

@@ -105,11 +105,6 @@ export function createGroqTranscriptionService() {
 				...(options.baseURL && { baseURL: options.baseURL }),
 			};
 			
-			console.log('🔗 Groq API Call:', {
-				baseURL: clientConfig.baseURL || 'https://api.groq.com/openai/v1 (default)',
-				model: options.modelName,
-				hasCustomEndpoint: !!options.baseURL,
-			});
 			
 			const { data: transcription, error: groqApiError } = await tryAsync({
 				try: () =>
@@ -137,13 +132,6 @@ export function createGroqTranscriptionService() {
 			});
 
 			if (groqApiError) {
-				console.error('🚫 Groq API Error Details:', {
-					name: groqApiError.name,
-					message: groqApiError.message,
-					status: groqApiError.status,
-					baseURL: clientConfig.baseURL || 'https://api.groq.com/openai/v1 (default)',
-					cause: groqApiError.cause,
-				});
 				
 				// Error handling follows https://www.npmjs.com/package/groq-sdk#error-handling
 				const { status, name, message, error } = groqApiError;
