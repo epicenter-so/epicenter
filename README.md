@@ -103,7 +103,11 @@ Our vision is to build a personal workspace where you own your data, choose your
 Epicenter will have more apps in the future, but for now, the best way to get started is to run Whispering locally:
 
 ```bash
-# Prerequisites: Install Bun from https://bun.sh (run bun upgrade if there's issues)
+# Prerequisites: 
+# - Install Bun from https://bun.sh (run bun upgrade if there's issues)
+# - Install Rust and Cargo from https://www.rust-lang.org/tools/install (brew install rustup)
+
+
 git clone https://github.com/epicenter-so/epicenter.git
 cd epicenter
 bun install  # Will prompt to upgrade if your Bun version is too old
