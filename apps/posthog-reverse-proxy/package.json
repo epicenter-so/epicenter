@@ -7,17 +7,11 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
-		"tail": "wrangler tail",
-		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
-		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore",
-		"lint": "eslint --fix .",
-		"check": "echo 'skip check'"
+		"tail": "wrangler tail"
 	},
 	"devDependencies": {
 		"@repo/config": "workspace:*",
 		"@cloudflare/workers-types": "^4.20250803.0",
-		"eslint": "^9.32.0",
-		"prettier": "^3.6.2",
 		"typescript": "^5.9.2",
 		"wrangler": "^4.28.0"
 	}

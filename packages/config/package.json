@@ -20,11 +20,5 @@
 		"prettier-plugin-svelte": "^3.4.0",
 		"typescript-eslint": "^8.36.0",
 		"prettier": "catalog:"
-	},
-	"scripts": {
-		"lint": "echo 'skip lint'",
-		"format": "echo 'skip format'",
-		"format:check": "echo 'skip format check'",
-		"check": "echo 'skip check'"
 	}
 }

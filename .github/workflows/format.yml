@@ -17,18 +17,12 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version-file: 'package.json'
+          bun-version-file: "package.json"
       - name: Install dependencies
         run: bun install
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: 1.9.4
-      - name: Run Biome
-        run: bunx biome ci .
-      - name: Run workspace format checks
-        run: bunx turbo run format:check
-      - name: Run workspace code checks
-        run: bunx turbo run check
-      - name: Run workspace lint checks
-        run: bunx turbo run lint
+      - name: Format check
+        run: bun run format:check
+      - name: Lint
+        run: bun run lint
+      - name: Code check
+        run: bun run check

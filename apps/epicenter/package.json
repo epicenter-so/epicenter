@@ -8,10 +8,8 @@
 		"preview": "astro preview",
 		"astro": "astro",
 		"deploy": "bun run build && wrangler pages deploy",
-		"lint": "biome lint --write --unsafe .",
-		"check": "astro check && svelte-check",
-		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
-		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore"
+		"lint": "eslint .",
+		"check": "astro check && svelte-check"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.4",

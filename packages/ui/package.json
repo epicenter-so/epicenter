@@ -11,9 +11,7 @@
 		"./app.css": "./src/app.css"
 	},
 	"scripts": {
-		"format": "prettier --write . --ignore-path ../../packages/config/.prettierignore",
-		"format:check": "prettier --check . --ignore-path ../../packages/config/.prettierignore",
-		"lint": "eslint --fix",
+		"lint": "eslint .",
 		"check": "svelte-check"
 	},
 	"dependencies": {
@@ -34,10 +32,8 @@
 		"@internationalized/date": "^3.8.1",
 		"@repo/config": "workspace:*",
 		"@types/node": "catalog:",
-		"eslint": "catalog:",
 		"mode-watcher": "catalog:",
 		"package-manager-detector": "^1.3.0",
-		"prettier": "catalog:",
 		"runed": "^0.31.1",
 		"svelte": "catalog:",
 		"svelte-sonner": "catalog:",
