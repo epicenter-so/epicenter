@@ -57,6 +57,30 @@ export const commands = [
 		on: 'Pressed',
 		callback: () => rpc.commands.toggleVadRecording.execute(undefined),
 	},
+	{
+		id: 'toggleOutputLanguage',
+		title: 'Cycle through favorite output languages',
+		on: 'Pressed',
+		callback: () => rpc.commands.toggleOutputLanguage.execute(undefined),
+	},
+	{
+		id: 'setOutputLanguageSlot1',
+		title: 'Switch to favorite language #1',
+		on: 'Pressed',
+		callback: () => rpc.commands.setOutputLanguageSlot.execute({ slot: 1 }),
+	},
+	{
+		id: 'setOutputLanguageSlot2',
+		title: 'Switch to favorite language #2',
+		on: 'Pressed',
+		callback: () => rpc.commands.setOutputLanguageSlot.execute({ slot: 2 }),
+	},
+	{
+		id: 'setOutputLanguageSlot3',
+		title: 'Switch to favorite language #3',
+		on: 'Pressed',
+		callback: () => rpc.commands.setOutputLanguageSlot.execute({ slot: 3 }),
+	},
 ] as const satisfies SatisfiedCommand[];
 
 export type Command = (typeof commands)[number];

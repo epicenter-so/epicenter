@@ -151,6 +151,17 @@ export const settingsSchema = z.object({
 		.default('whispercpp'),
 	// Shared settings in transcription
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES).default('auto'),
+	'transcription.favoriteLanguages': z
+		.array(z.enum(SUPPORTED_LANGUAGES))
+		.min(1)
+		.max(3)
+		.default(['en', 'ja', 'zh'])
+		.refine((langs) => new Set(langs).size === langs.length, {
+			message: 'Favorite languages must be unique',
+		}),
+	'transcription.languageToggleMode': z
+		.enum(['cycle', 'direct'])
+		.default('cycle'),
 	'transcription.prompt': z.string().default(''),
 	'transcription.temperature': z.string().default('0.0'),
 

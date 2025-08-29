@@ -20,12 +20,14 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		ACCEPT_AUDIO,
 		ACCEPT_VIDEO,
 		FileDropZone,
 		MEGABYTE,
 	} from '@repo/ui/file-drop-zone';
+	import { Badge } from '@repo/ui/badge';
 	import * as ToggleGroup from '@repo/ui/toggle-group';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { UnlistenFn } from '@tauri-apps/api/event';
@@ -40,6 +42,12 @@
 	const latestRecordingQuery = createQuery(
 		rpc.recordings.getLatestRecording.options,
 	);
+
+	// Helper function to get language label from code
+	function getLanguageLabel(langCode: string): string {
+		const option = SUPPORTED_LANGUAGES_OPTIONS.find(opt => opt.value === langCode);
+		return option?.label || langCode;
+	}
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {
@@ -275,6 +283,11 @@
 							🚫
 						</WhisperingButton>
 					{:else}
+						{#if (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']).length > 1}
+							<Badge variant="secondary" class="text-xs">
+								{getLanguageLabel(settings.value['transcription.outputLanguage'])}
+							</Badge>
+						{/if}
 						<DeviceSelector mode="manual" />
 						<TranscriptionSelector />
 						<TransformationSelector />
@@ -300,6 +313,11 @@
 				<!-- Right column: Selectors -->
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
+						{#if (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']).length > 1}
+							<Badge variant="secondary" class="text-xs">
+								{getLanguageLabel(settings.value['transcription.outputLanguage'])}
+							</Badge>
+						{/if}
 						<DeviceSelector mode="vad" />
 						<TranscriptionSelector />
 						<TransformationSelector />
@@ -326,6 +344,11 @@
 						class="h-32 sm:h-36 lg:h-40 xl:h-44 w-full"
 					/>
 					<div class="flex items-center gap-1.5">
+						{#if (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']).length > 1}
+							<Badge variant="secondary" class="text-xs">
+								{getLanguageLabel(settings.value['transcription.outputLanguage'])}
+							</Badge>
+						{/if}
 						<TranscriptionSelector />
 						<TransformationSelector />
 					</div>
