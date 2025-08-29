@@ -1,9 +1,9 @@
-import { DeepgramTranscriptionServiceLive } from './deepgram';
-import { ElevenlabsTranscriptionServiceLive } from './elevenlabs';
-import { GroqTranscriptionServiceLive } from './groq';
-import { OpenaiTranscriptionServiceLive } from './openai';
-import { SpeachesTranscriptionServiceLive } from './speaches';
-import { WhisperCppTranscriptionServiceLive } from './whispercpp';
+import { DeepgramTranscriptionServiceLive } from '$lib/services/transcription/deepgram';
+import { ElevenlabsTranscriptionServiceLive } from '$lib/services/transcription/elevenlabs';
+import { GroqTranscriptionServiceLive } from '$lib/services/transcription/groq';
+import { OpenaiTranscriptionServiceLive } from '$lib/services/transcription/openai';
+import { SpeachesTranscriptionServiceLive } from '$lib/services/transcription/speaches';
+import { WhisperCppTranscriptionServiceLive } from '$lib/services/transcription/whispercpp';
 
 export {
 	ElevenlabsTranscriptionServiceLive as elevenlabs,

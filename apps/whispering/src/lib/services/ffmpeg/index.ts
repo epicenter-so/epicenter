@@ -1,6 +1,6 @@
-export type { FfmpegService } from './types';
-import { createFfmpegService } from './desktop';
-import { createFfmpegServiceWeb } from './web';
+export type { FfmpegService } from '$lib/services/ffmpeg/types';
+import { createFfmpegService } from '$lib/services/ffmpeg/desktop';
+import { createFfmpegServiceWeb } from '$lib/services/ffmpeg/web';
 
 export const FfmpegServiceLive = window.__TAURI_INTERNALS__
 	? createFfmpegService()

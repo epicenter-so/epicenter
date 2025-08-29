@@ -36,7 +36,7 @@
 	import {
 		isUsingWhisperCppWithBrowserBackend,
 		isUsingNativeBackendAtWrongSampleRate,
-	} from '../../../+layout/check-ffmpeg';
+	} from '$lib/utils/check-ffmpeg';
 </script>
 
 <svelte:head>
