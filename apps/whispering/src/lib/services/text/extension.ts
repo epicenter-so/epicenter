@@ -1,5 +1,5 @@
 import { tryAsync } from 'wellcrafted/result';
-import { type TextService, TextServiceErr } from './types';
+import { type TextService, TextServiceErr } from '$lib/services/text/types';
 
 export function createTextServiceExtension(): TextService {
 	return {

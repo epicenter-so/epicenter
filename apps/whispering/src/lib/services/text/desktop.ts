@@ -3,8 +3,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { type } from '@tauri-apps/plugin-os';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
-import type { TextService } from './types';
-import { TextServiceErr } from './types';
+import type { TextService } from '$lib/services/text/types';
+import { TextServiceErr } from '$lib/services/text/types';
 
 export function createTextServiceDesktop(): TextService {
 	return {

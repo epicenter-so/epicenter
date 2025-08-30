@@ -6,7 +6,7 @@ import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
 import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
-import { rpc } from './';
+import { rpc } from '$lib/query';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,

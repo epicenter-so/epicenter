@@ -10,7 +10,7 @@ import { createPersistedState } from '@repo/svelte-utils';
 import {
 	syncGlobalShortcutsWithSettings,
 	syncLocalShortcutsWithSettings,
-} from '../../routes/+layout/register-commands';
+} from '$lib/utils/register-commands';
 import { extractErrorMessage } from 'wellcrafted/error';
 
 /**

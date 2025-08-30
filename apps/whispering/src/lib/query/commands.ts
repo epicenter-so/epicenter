@@ -14,7 +14,7 @@ import { transcription } from './transcription';
 import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
-import { rpc } from './';
+import { rpc } from '$lib/query';
 
 // Track manual recording start time for duration calculation
 let manualRecordingStartTime: number | null = null;
@@ -387,7 +387,7 @@ export const commands = {
 				validFiles.map(async (file) => {
 					const arrayBuffer = await file.arrayBuffer();
 					const audioBlob = new Blob([arrayBuffer], { type: file.type });
-					
+
 					// Log file upload event
 					rpc.analytics.logEvent.execute({
 						type: 'file_uploaded',

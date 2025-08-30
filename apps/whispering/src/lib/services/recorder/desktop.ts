@@ -1,14 +1,14 @@
 import type { CancelRecordingResult } from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import type { Device, DeviceAcquisitionOutcome } from '../types';
-import { asDeviceIdentifier } from '../types';
+import type { Device, DeviceAcquisitionOutcome } from '$lib/services/types';
+import { asDeviceIdentifier } from '$lib/services/types';
 import type {
 	RecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
-} from './types';
-import { RecorderServiceErr } from './types';
+} from '$lib/services/recorder/types';
+import { RecorderServiceErr } from '$lib/services/recorder/types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { remove } from '@tauri-apps/plugin-fs';
 

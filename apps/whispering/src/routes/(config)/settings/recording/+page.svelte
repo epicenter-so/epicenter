@@ -14,7 +14,7 @@
 	import {
 		isUsingNativeBackendWithCloudTranscription,
 		isUsingNativeBackendAtWrongSampleRate,
-	} from '../../../+layout/check-ffmpeg';
+	} from '$lib/utils/check-ffmpeg';
 	import { IS_MACOS } from '$lib/constants/platform';
 
 	const { data } = $props();

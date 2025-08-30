@@ -20,12 +20,12 @@
 		resetLocalShortcutsToDefaultIfDuplicates,
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
-	} from './register-commands';
+	} from '$lib/utils/register-commands';
 	import { registerOnboarding } from './register-onboarding';
-	import { checkFfmpeg } from './check-ffmpeg';
-	import { 
+	import { checkFfmpeg } from '$lib/utils/check-ffmpeg';
+	import {
 		registerAccessibilityPermission,
-		registerMicrophonePermission 
+		registerMicrophonePermission,
 	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
@@ -52,7 +52,7 @@
 			// await extension.notifyWhisperingTabReady(undefined);
 		}
 		registerOnboarding();
-		
+
 		// Register permission checkers separately
 		cleanupAccessibilityPermission = registerAccessibilityPermission();
 		cleanupMicrophonePermission = registerMicrophonePermission();
