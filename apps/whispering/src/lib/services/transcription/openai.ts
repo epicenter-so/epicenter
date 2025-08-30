@@ -43,6 +43,7 @@ export function createOpenaiTranscriptionService() {
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
 				modelName: (string & {}) | OpenAIModel['name'];
+				baseURL?: string;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation: Check API key
@@ -59,7 +60,8 @@ export function createOpenaiTranscriptionService() {
 				});
 			}
 
-			if (!options.apiKey.startsWith('sk-')) {
+			// Only validate API key format for official OpenAI endpoint
+			if (!options.baseURL && !options.apiKey.startsWith('sk-')) {
 				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
@@ -78,6 +80,14 @@ export function createOpenaiTranscriptionService() {
 				return WhisperingErr({
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
+				});
+			}
+
+			// Validate minimum file size (empty or very small recordings)
+			if (audioBlob.size < 1000) { // Less than 1KB
+				return WhisperingErr({
+					title: '🎙️ Recording Too Short',
+					description: 'The recording is too short or empty. Please record at least a few seconds of audio.',
 				});
 			}
 
@@ -100,12 +110,16 @@ export function createOpenaiTranscriptionService() {
 			if (fileError) return Err(fileError);
 
 			// Call OpenAI API
+			const clientConfig = {
+				apiKey: options.apiKey,
+				dangerouslyAllowBrowser: true,
+				...(options.baseURL && { baseURL: options.baseURL }),
+			};
+			
+			
 			const { data: transcription, error: openaiApiError } = await tryAsync({
 				try: () =>
-					new OpenAI({
-						apiKey: options.apiKey,
-						dangerouslyAllowBrowser: true,
-					}).audio.transcriptions.create({
+					new OpenAI(clientConfig).audio.transcriptions.create({
 						file,
 						model: options.modelName,
 						language:
@@ -129,6 +143,7 @@ export function createOpenaiTranscriptionService() {
 			});
 
 			if (openaiApiError) {
+				
 				// Error handling follows https://www.npmjs.com/package/openai#error-handling
 				const { status, name, message, error } = openaiApiError;
 

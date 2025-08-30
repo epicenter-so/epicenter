@@ -76,6 +76,8 @@ pub async fn run() {
         cancel_recording,
         // Whisper transcription
         transcribe_with_whisper_cpp,
+        // Native HTTP transcription (bypasses CORS)
+        native_openai_transcribe,
     ]);
 
     let app = builder
@@ -163,5 +165,88 @@ async fn write_text(app: tauri::AppHandle, text: String) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+/// Native HTTP transcription that bypasses CORS restrictions
+/// Uses Tauri's native HTTP client instead of browser fetch
+#[tauri::command]
+async fn native_openai_transcribe(
+    api_key: String,
+    base_url: Option<String>,
+    model: String,
+    audio_blob: Vec<u8>,
+    language: Option<String>,
+    prompt: Option<String>,
+    temperature: Option<f32>,
+) -> Result<String, String> {
+    use tauri_plugin_http::reqwest;
+    
+    // Use custom base URL or default OpenAI endpoint
+    let url = match base_url {
+        Some(custom_url) => format!("{}/audio/transcriptions", custom_url.trim_end_matches('/')),
+        None => "https://api.openai.com/v1/audio/transcriptions".to_string(),
+    };
+    
+    // Create multipart form
+    let form = reqwest::multipart::Form::new()
+        .text("model", model)
+        .part(
+            "file",
+            reqwest::multipart::Part::bytes(audio_blob)
+                .file_name("recording.webm")
+                .mime_str("audio/webm")
+                .map_err(|e| format!("Invalid MIME type: {}", e))?
+        );
+    
+    // Add optional parameters
+    let form = if let Some(lang) = language {
+        form.text("language", lang)
+    } else {
+        form
+    };
+    
+    let form = if let Some(p) = prompt {
+        if !p.is_empty() {
+            form.text("prompt", p)
+        } else {
+            form
+        }
+    } else {
+        form
+    };
+    
+    let form = if let Some(temp) = temperature {
+        form.text("temperature", temp.to_string())
+    } else {
+        form
+    };
+    
+    // Make the request using Tauri's native HTTP client
+    let client = reqwest::Client::new();
+    let response = client
+        .post(&url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .multipart(form)
+        .send()
+        .await
+        .map_err(|e| format!("HTTP request failed: {}", e))?;
+    
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_default();
+        return Err(format!("API error {}: {}", status, error_text));
+    }
+    
+    let response_json: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse response JSON: {}", e))?;
+    
+    // Extract transcription text
+    response_json
+        .get("text")
+        .and_then(|t| t.as_str())
+        .map(|s| s.trim().to_string())
+        .ok_or_else(|| "No 'text' field in response".to_string())
 }
 

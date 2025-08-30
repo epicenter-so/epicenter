@@ -190,6 +190,10 @@ export const settingsSchema = z.object({
 	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
 
+	// API endpoint overrides (empty string = use default endpoint)
+	'apiEndpoints.openai': z.string().default(''),
+	'apiEndpoints.groq': z.string().default(''),
+
 	// Analytics settings
 	'analytics.enabled': z.boolean().default(true),
 
