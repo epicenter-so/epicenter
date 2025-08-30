@@ -244,8 +244,24 @@ async function handleStep({
 					return Ok(completion);
 				}
 
-				default:
-					return Err(`Unsupported provider: ${provider}`);
+				   case 'OpenRouter': {
+					   const { data: completionResponse, error: completionError } =
+						   await services.completions.openrouter.complete({
+							   apiKey: settings.value['apiKeys.openrouter'],
+							   model: step['prompt_transform.inference.provider.OpenRouter.model'],
+							   systemPrompt,
+							   userPrompt,
+						   });
+
+					   if (completionError) {
+						   return Err(completionError.message);
+					   }
+
+					   return Ok(completionResponse);
+				   }
+
+				   default:
+					   return Err(`Unsupported provider: ${provider}`);
 			}
 		}
 

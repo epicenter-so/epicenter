@@ -11,6 +11,7 @@
 		GoogleApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
+		OpenRouterApiKeyInput,
 	} from '$lib/components/settings';
 	import * as Accordion from '@repo/ui/accordion';
 	import * as Alert from '@repo/ui/alert';
@@ -377,6 +378,27 @@
 												};
 											}}
 										/>
+									{:else if step['prompt_transform.inference.provider'] === 'OpenRouter'}
+										<LabeledInput
+											id="prompt_transform.inference.provider.OpenRouter.model"
+											label="Model"
+											value={step['prompt_transform.inference.provider.OpenRouter.model']}
+											oninput={(e) => {
+												transformation = {
+													...transformation,
+													steps: transformation.steps.map((s, i) =>
+														i === index
+															? {
+																	...s,
+																	'prompt_transform.inference.provider.OpenRouter.model':
+																		e.currentTarget.value,
+																}
+															: s,
+													),
+												};
+											}}
+											placeholder="Enter model name"
+										/>
 									{/if}
 								</div>
 
@@ -443,6 +465,8 @@
 												<AnthropicApiKeyInput />
 											{:else if step['prompt_transform.inference.provider'] === 'Google'}
 												<GoogleApiKeyInput />
+											{:else if step['prompt_transform.inference.provider'] === 'OpenRouter'}
+												<OpenRouterApiKeyInput />
 											{/if}
 										</Accordion.Content>
 									</Accordion.Item>
