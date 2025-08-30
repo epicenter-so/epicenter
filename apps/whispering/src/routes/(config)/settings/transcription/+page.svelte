@@ -22,7 +22,7 @@
 	import { Link } from '@repo/ui/link';
 	import * as Collapsible from '@repo/ui/collapsible';
 	import * as Select from '@repo/ui/select';
-	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
+	import { SUPPORTED_LANGUAGES_OPTIONS, type SupportedLanguage } from '$lib/constants/languages';
 	import {
 		ELEVENLABS_TRANSCRIPTION_MODELS,
 		GROQ_MODELS,
@@ -37,6 +37,71 @@
 		isUsingWhisperCppWithBrowserBackend,
 		isUsingNativeBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
+
+	// Helper function to get human-readable language labels
+	const getLanguageLabel = (langCode: SupportedLanguage): string => {
+		const labels: Record<SupportedLanguage, string> = {
+			auto: 'Auto',
+			af: 'Afrikaans',
+			ar: 'Arabic',
+			hy: 'Armenian',
+			az: 'Azerbaijani',
+			be: 'Belarusian',
+			bs: 'Bosnian',
+			bg: 'Bulgarian',
+			ca: 'Catalan',
+			zh: 'Chinese',
+			hr: 'Croatian',
+			cs: 'Czech',
+			da: 'Danish',
+			nl: 'Dutch',
+			en: 'English',
+			et: 'Estonian',
+			fi: 'Finnish',
+			fr: 'French',
+			gl: 'Galician',
+			de: 'German',
+			el: 'Greek',
+			he: 'Hebrew',
+			hi: 'Hindi',
+			hu: 'Hungarian',
+			is: 'Icelandic',
+			id: 'Indonesian',
+			it: 'Italian',
+			ja: 'Japanese',
+			kn: 'Kannada',
+			kk: 'Kazakh',
+			ko: 'Korean',
+			lv: 'Latvian',
+			lt: 'Lithuanian',
+			mk: 'Macedonian',
+			ms: 'Malay',
+			mr: 'Marathi',
+			mi: 'Maori',
+			ne: 'Nepali',
+			no: 'Norwegian',
+			fa: 'Persian',
+			pl: 'Polish',
+			pt: 'Portuguese',
+			ro: 'Romanian',
+			ru: 'Russian',
+			sr: 'Serbian',
+			sk: 'Slovak',
+			sl: 'Slovenian',
+			es: 'Spanish',
+			sw: 'Swahili',
+			sv: 'Swedish',
+			tl: 'Tagalog',
+			ta: 'Tamil',
+			th: 'Thai',
+			tr: 'Turkish',
+			uk: 'Ukrainian',
+			ur: 'Urdu',
+			vi: 'Vietnamese',
+			cy: 'Welsh',
+		};
+		return labels[langCode] || langCode;
+	};
 </script>
 
 <svelte:head>
@@ -406,6 +471,70 @@
 		}}
 		placeholder="Select a language"
 	/>
+
+	<!-- Favorite Languages Configuration -->
+	<Card.Root>
+		<Card.Header>
+			<Card.Title class="text-base">Language Toggle Shortcuts</Card.Title>
+			<Card.Description>
+				Configure up to 3 favorite languages for quick switching via keyboard shortcuts
+			</Card.Description>
+		</Card.Header>
+		<Card.Content class="space-y-4">
+			{#if (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']).length > 0}
+				{#each (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']) as language, i}
+					{@const slotNumber = i + 1}
+					<div class="flex items-center justify-between p-3 border rounded-lg">
+						<div class="flex items-center gap-3">
+							<Badge variant="outline" class="font-mono text-xs">
+								Slot {slotNumber}
+							</Badge>
+							<div>
+								<p class="font-medium text-sm">
+									{getLanguageLabel(language)}
+								</p>
+								<p class="text-muted-foreground text-xs">
+									Language code: {language}
+								</p>
+							</div>
+						</div>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled
+						>
+							Remove (coming soon)
+						</Button>
+					</div>
+				{/each}
+			{/if}
+
+			{#if (settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh']).length < 3}
+				<div class="text-muted-foreground text-sm p-3 border rounded-lg border-dashed">
+					💡 Tip: You can add more favorite languages by editing the settings manually
+				</div>
+			{/if}
+
+			<div class="flex items-center justify-between">
+				<div class="text-muted-foreground text-xs space-y-1">
+					<p><strong>Keyboard shortcuts:</strong></p>
+					<ul class="list-disc list-inside space-y-0.5 ml-2">
+						<li>Toggle between languages: Configure in Settings → Shortcuts</li>
+						<li>Jump to Slot 1/2/3: Configure in Settings → Shortcuts</li>
+					</ul>
+				</div>
+				<Button
+					variant="outline" 
+					size="sm"
+					onclick={() => {
+						settings.updateKey('transcription.favoriteLanguages', ['en', 'ja', 'zh']);
+					}}
+				>
+					Reset to defaults
+				</Button>
+			</div>
+		</Card.Content>
+	</Card.Root>
 
 	<LabeledInput
 		id="temperature"
