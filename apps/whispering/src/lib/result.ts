@@ -1,5 +1,6 @@
 import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
 import type { TaggedError } from 'wellcrafted/error';
+
 import { Err, type Ok } from 'wellcrafted/result';
 
 /**
@@ -9,7 +10,7 @@ import { Err, type Ok } from 'wellcrafted/result';
  */
 export type WhisperingError = Omit<
 	TaggedError<'WhisperingError'>,
-	'message' | 'cause' | 'context'
+	'cause' | 'context' | 'message'
 > &
 	Omit<UnifiedNotificationOptions, 'variant'> & {
 		severity: 'error' | 'warning';
@@ -49,20 +50,20 @@ export const WhisperingWarningErr = (
 ) => Err(WhisperingWarning(args));
 
 /**
- * Result type for Whispering operations that can fail.
- * Follows the Result pattern where operations return either Ok<T> or Err<WhisperingError>.
- *
- * @template T - The type of the success value
- */
-export type WhisperingResult<T> = Ok<T> | Err<WhisperingError>;
-
-/**
  * Utility type for values that may or may not be wrapped in a Promise.
  * Useful for functions that can be either synchronous or asynchronous.
  *
  * @template T - The type that may or may not be wrapped in a Promise
  */
-export type MaybePromise<T> = T | Promise<T>;
+export type MaybePromise<T> = Promise<T> | T;
+
+/**
+ * Result type for Whispering operations that can fail.
+ * Follows the Result pattern where operations return either Ok<T> or Err<WhisperingError>.
+ *
+ * @template T - The type of the success value
+ */
+export type WhisperingResult<T> = Err<WhisperingError> | Ok<T>;
 
 /**
  * Adapts a TaggedError from lower-level libraries into a WhisperingError for user-facing notifications.

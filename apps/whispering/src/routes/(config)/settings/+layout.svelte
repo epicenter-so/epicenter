@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
+	import { rpc } from '$lib/query';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { RotateCcw } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import { Separator } from '@repo/ui/separator';
-	import { rpc } from '$lib/query';
-	import { RotateCcw } from '@lucide/svelte';
+
 	import SidebarNav from './SidebarNav.svelte';
-	import { settings } from '$lib/stores/settings.svelte';
 
 	let { children } = $props();
 
@@ -28,10 +29,10 @@
 			return { isOutdated: false, version: currentVersion } as const;
 		}
 		return {
-			isOutdated: true,
-			latestVersion,
 			currentVersion,
+			isOutdated: true,
 			latestReleaseUrl,
+			latestVersion,
 		} as const;
 	})();
 </script>
@@ -47,7 +48,7 @@
 					Customize your Whispering experience.
 				{:then v}
 					{#if v.isOutdated}
-						{@const { latestVersion, currentVersion, latestReleaseUrl } = v}
+						{@const { currentVersion, latestReleaseUrl, latestVersion } = v}
 						Customize your experience for Whispering {currentVersion} (latest
 						<Button
 							class="px-0"
@@ -74,8 +75,6 @@
 			onclick={() => {
 				confirmationDialog.open({
 					title: 'Reset All Settings',
-					subtitle:
-						'This will reset all settings to their default values. This action cannot be undone.',
 					confirmText: 'Reset Settings',
 					onConfirm: () => {
 						settings.reset();
@@ -84,6 +83,8 @@
 							description: 'All settings have been reset to defaults.',
 						});
 					},
+					subtitle:
+						'This will reset all settings to their default values. This action cannot be undone.',
 				});
 			}}
 			class="shrink-0"

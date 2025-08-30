@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { LabeledSwitch } from '$lib/components/labeled';
-	import { Separator } from '@repo/ui/separator';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { Separator } from '@repo/ui/separator';
 </script>
 
 <svelte:head>

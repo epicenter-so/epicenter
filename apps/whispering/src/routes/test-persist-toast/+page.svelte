@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '@repo/ui/button';
 	import { notify } from '$lib/query/notify';
+	import { Button } from '@repo/ui/button';
 
 	let persistentToastId: string | undefined;
 
@@ -8,9 +8,7 @@
 		persistentToastId = notify.error.mutate({
 			title: 'Persistent Error',
 			description: 'This toast will stay visible until you dismiss it',
-			persist: true,
 			action: {
-				type: 'button',
 				label: 'Dismiss',
 				onClick: () => {
 					if (persistentToastId) {
@@ -18,7 +16,9 @@
 						persistentToastId = undefined;
 					}
 				},
+				type: 'button',
 			},
+			persist: true,
 		});
 	}
 

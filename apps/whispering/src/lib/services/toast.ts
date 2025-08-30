@@ -2,6 +2,7 @@ import { goto } from '$app/navigation';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { toast as sonnerToast } from 'svelte-sonner';
+
 import type { UnifiedNotificationOptions } from './notifications/types';
 
 /**
@@ -15,6 +16,13 @@ import type { UnifiedNotificationOptions } from './notifications/types';
  */
 export const ToastServiceLive = {
 	/**
+	 * Dismiss a specific toast or all toasts
+	 */
+	dismiss(id?: number | string): void {
+		sonnerToast.dismiss(id);
+	},
+
+	/**
 	 * Show a toast with the specified options
 	 */
 	show(options: UnifiedNotificationOptions): string {
@@ -22,50 +30,34 @@ export const ToastServiceLive = {
 
 		// Use the appropriate Sonner method based on variant
 		sonnerToast[options.variant](options.title, {
-			id: toastId,
 			description: options.description,
+			action: convertActionToSonner(options.action),
 			descriptionClass: 'line-clamp-6',
 			duration: getDuration(options),
-			action: convertActionToSonner(options.action),
+			id: toastId,
 		});
 
 		return toastId;
 	},
-
-	/**
-	 * Dismiss a specific toast or all toasts
-	 */
-	dismiss(id?: string | number): void {
-		sonnerToast.dismiss(id);
-	},
 };
 
-// Helper to determine toast duration
-function getDuration(options: UnifiedNotificationOptions): number {
-	// Persistent toasts use Infinity duration
-	if (options.persist) return Number.POSITIVE_INFINITY;
-
-	if (options.variant === 'loading') return 5000;
-	if (options.variant === 'error' || options.variant === 'warning') return 5000;
-	if (options.action) return 4000;
-	return 3000;
-}
+export type ToastService = typeof ToastServiceLive;
 
 // Helper to convert action to Sonner format
 function convertActionToSonner(action: UnifiedNotificationOptions['action']) {
 	if (!action) return undefined;
 
 	switch (action.type) {
-		case 'link':
-			return {
-				label: action.label,
-				onClick: () => goto(action.href),
-			};
-
 		case 'button':
 			return {
 				label: action.label,
 				onClick: action.onClick,
+			};
+
+		case 'link':
+			return {
+				label: action.label,
+				onClick: () => goto(action.href),
 			};
 
 		case 'more-details':
@@ -81,4 +73,13 @@ function convertActionToSonner(action: UnifiedNotificationOptions['action']) {
 	}
 }
 
-export type ToastService = typeof ToastServiceLive;
+// Helper to determine toast duration
+function getDuration(options: UnifiedNotificationOptions): number {
+	// Persistent toasts use Infinity duration
+	if (options.persist) return Number.POSITIVE_INFINITY;
+
+	if (options.variant === 'loading') return 5000;
+	if (options.variant === 'error' || options.variant === 'warning') return 5000;
+	if (options.action) return 4000;
+	return 3000;
+}

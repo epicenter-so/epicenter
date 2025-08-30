@@ -1,10 +1,9 @@
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 
-export const { CompletionServiceError, CompletionServiceErr } =
-	createTaggedError('CompletionServiceError');
-export type CompletionServiceError = ReturnType<typeof CompletionServiceError>;
+import { createTaggedError } from 'wellcrafted/error';
 
+export const { CompletionServiceErr, CompletionServiceError } =
+	createTaggedError('CompletionServiceError');
 export type CompletionService = {
 	complete: (opts: {
 		apiKey: string;
@@ -13,3 +12,5 @@ export type CompletionService = {
 		userPrompt: string;
 	}) => Promise<Result<string, CompletionServiceError>>;
 };
+
+export type CompletionServiceError = ReturnType<typeof CompletionServiceError>;

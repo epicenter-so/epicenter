@@ -1,7 +1,7 @@
 export function createTransformationViewTransitionName({
 	transformationId,
 }: {
-	transformationId: string | null;
+	transformationId: null | string;
 }): string {
 	return `transformation-${transformationId ?? 'none'}`;
 }

@@ -1,7 +1,9 @@
 import type { WhisperingRecordingState } from '$lib/constants/audio';
+
 import { fromTaggedErr, type WhisperingError } from '$lib/result';
 import * as services from '$lib/services';
 import { Ok, type Result } from 'wellcrafted/result';
+
 import { defineMutation } from './_client';
 
 const setTrayIconKeys = {
@@ -21,7 +23,7 @@ export const tray = {
 			if (error) {
 				return fromTaggedErr(error, {
 					title: '⚠️ Failed to set tray icon',
-					action: { type: 'more-details', error },
+					action: { error, type: 'more-details' },
 				});
 			}
 

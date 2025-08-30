@@ -3,6 +3,12 @@
 		let isOpen = $state(false);
 		let logs = $state<UnifiedNotificationOptions[]>([]);
 		return {
+			addLog: (log: UnifiedNotificationOptions) => {
+				logs.push(log);
+			},
+			clearLogs: () => {
+				logs = [];
+			},
 			get isOpen() {
 				return isOpen;
 			},
@@ -12,12 +18,6 @@
 			get logs() {
 				return logs;
 			},
-			addLog: (log: UnifiedNotificationOptions) => {
-				logs.push(log);
-			},
-			clearLogs: () => {
-				logs = [];
-			},
 		};
 	})();
 
@@ -25,10 +25,8 @@
 </script>
 
 <script lang="ts">
-	import * as Alert from '@repo/ui/alert';
-	import * as Popover from '@repo/ui/popover';
 	import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
-	import { ScrollArea } from '@repo/ui/scroll-area';
+
 	import {
 		AlertCircle,
 		AlertTriangle,
@@ -37,9 +35,13 @@
 		Loader,
 		LogsIcon,
 	} from '@lucide/svelte';
-	import { mode } from 'mode-watcher';
-	import WhisperingButton from './WhisperingButton.svelte';
+	import * as Alert from '@repo/ui/alert';
+	import * as Popover from '@repo/ui/popover';
+	import { ScrollArea } from '@repo/ui/scroll-area';
 	import { cn } from '@repo/ui/utils';
+	import { mode } from 'mode-watcher';
+
+	import WhisperingButton from './WhisperingButton.svelte';
 </script>
 
 <Popover.Root bind:open={notificationLog.isOpen}>

@@ -1,45 +1,46 @@
-import { WhisperingErr, type WhisperingError } from '$lib/result';
-import type { Settings } from '$lib/settings';
 import type { HttpService } from '$lib/services/http';
+import type { Settings } from '$lib/settings';
+
+import { WhisperingErr, type WhisperingError } from '$lib/result';
+import { HttpServiceLive } from '$lib/services/http';
 import { Err, Ok, type Result } from 'wellcrafted/result';
 import { z } from 'zod';
-import { HttpServiceLive } from '$lib/services/http';
 
 export const DEEPGRAM_TRANSCRIPTION_MODELS = [
      {
-        name: 'nova-3',
         description:
             "Deepgram's most advanced speech-to-text model with superior accuracy and speed. Best for high-quality transcription needs.",
         cost: '$0.0043/minute',
+        name: 'nova-3',
     },
     {
-        name: 'nova-2',
         description:
             "Deepgram's previous best speech-to-text model.",
         cost: '$0.0043/minute',
+        name: 'nova-2',
     },
     {
-        name: 'nova',
         description:
             'Deepgram Nova model with excellent accuracy and performance. Good balance of speed and quality.',
         cost: '$0.0043/minute',
+        name: 'nova',
     },
     {
-        name: 'enhanced',
         description:
             'Enhanced general-purpose model with good accuracy for most use cases. Cost-effective option.',
         cost: '$0.0025/minute',
+        name: 'enhanced',
     },
     {
-        name: 'base',
         description:
             'Base model for standard transcription needs. Most cost-effective option with reasonable accuracy.',
         cost: '$0.0020/minute',
+        name: 'base',
     },
 ] as const satisfies {
-    name: string;
-    description: string;
     cost: string;
+    description: string;
+    name: string;
 }[];
 
 export type DeepgramModel = (typeof DEEPGRAM_TRANSCRIPTION_MODELS)[number];
@@ -51,12 +52,16 @@ const deepgramResponseSchema = z.object({
     results: z.object({
         channels: z.array(z.object({
             alternatives: z.array(z.object({
-                transcript: z.string(),
                 confidence: z.number().optional(),
+                transcript: z.string(),
             })),
         })),
     }),
 });
+
+export type DeepgramTranscriptionService = ReturnType<
+    typeof createDeepgramTranscriptionService
+>;
 
 export function createDeepgramTranscriptionService({
     HttpService,
@@ -67,11 +72,11 @@ export function createDeepgramTranscriptionService({
         async transcribe(
             audioBlob: Blob,
             options: {
+                apiKey: string;
+                modelName: DeepgramModel['name'] | (string & {});
+                outputLanguage: Settings['transcription.outputLanguage'];
                 prompt: string;
                 temperature: string;
-                outputLanguage: Settings['transcription.outputLanguage'];
-                apiKey: string;
-                modelName: (string & {}) | DeepgramModel['name'];
             },
         ): Promise<Result<string, WhisperingError>> {
             // Pre-validation: Check API key
@@ -81,9 +86,9 @@ export function createDeepgramTranscriptionService({
                     description:
                         'Please enter your Deepgram API key in settings to use Deepgram transcription.',
                     action: {
-                        type: 'link',
-                        label: 'Add API key',
                         href: '/settings/transcription',
+                        label: 'Add API key',
+                        type: 'link',
                     },
                 });
             }
@@ -100,9 +105,9 @@ export function createDeepgramTranscriptionService({
             // Build query parameters
             const params = new URLSearchParams({
                 model: options.modelName,
-                smart_format: 'true',
-                punctuate: 'true',
                 paragraphs: 'true',
+                punctuate: 'true',
+                smart_format: 'true',
             });
 
             if (options.outputLanguage !== 'auto') {
@@ -115,13 +120,13 @@ export function createDeepgramTranscriptionService({
 
             // Send raw audio data directly as recommended by Deepgram docs
             const { data: deepgramResponse, error: postError } = await HttpService.post({
-                url: `https://api.deepgram.com/v1/listen?${params.toString()}`,
                 body: audioBlob, // Send raw audio blob directly
                 headers: {
                     'Authorization': `Token ${options.apiKey}`,
                     'Content-Type': audioBlob.type || 'audio/*', // Use the blob's mime type or fallback to audio/*
                 },
                 schema: deepgramResponseSchema,
+                url: `https://api.deepgram.com/v1/listen?${params.toString()}`,
             });
 
             if (postError) {
@@ -131,19 +136,27 @@ export function createDeepgramTranscriptionService({
                             title: '🌐 Connection Issue',
                             description:
                                 'Unable to connect to Deepgram service. Please check your internet connection.',
-                            action: { type: 'more-details', error: postError.cause },
+                            action: { error: postError.cause, type: 'more-details' },
                         });
                     }
 
+                    case 'ParseError':
+                        return WhisperingErr({
+                            title: '🔍 Response Error',
+                            description:
+                                'Received an unexpected response from Deepgram service. Please try again.',
+                            action: { error: postError.cause, type: 'more-details' },
+                        });
+
                     case 'ResponseError': {
-                        const { status, message } = postError;
+                        const { message, status } = postError;
 
                         if (status === 400) {
                             return WhisperingErr({
                                 title: '❌ Bad Request',
                                 description:
                                     message || 'Invalid request parameters. Please check your audio file and settings.',
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -153,9 +166,9 @@ export function createDeepgramTranscriptionService({
                                 description:
                                     'Your Deepgram API key is invalid or expired. Please update your API key in settings.',
                                 action: {
-                                    type: 'link',
-                                    label: 'Update API key',
                                     href: '/settings/transcription',
+                                    label: 'Update API key',
+                                    type: 'link',
                                 },
                             });
                         }
@@ -165,7 +178,7 @@ export function createDeepgramTranscriptionService({
                                 title: '⛔ Access Denied',
                                 description:
                                     message || 'Your account does not have access to this feature or model.',
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -174,7 +187,7 @@ export function createDeepgramTranscriptionService({
                                 title: '📦 Audio File Too Large',
                                 description:
                                     'Your audio file exceeds the maximum size limit. Try splitting it into smaller segments.',
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -183,7 +196,7 @@ export function createDeepgramTranscriptionService({
                                 title: '🎵 Unsupported Format',
                                 description:
                                     "This audio format isn't supported. Please convert your file to a supported format.",
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -192,7 +205,7 @@ export function createDeepgramTranscriptionService({
                                 title: '⏱️ Rate Limit Reached',
                                 description:
                                     'Too many requests. Please wait before trying again.',
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -201,7 +214,7 @@ export function createDeepgramTranscriptionService({
                                 title: '🔧 Service Unavailable',
                                 description:
                                     `The Deepgram service is temporarily unavailable (Error ${status}). Please try again later.`,
-                                action: { type: 'more-details', error: postError.cause },
+                                action: { error: postError.cause, type: 'more-details' },
                             });
                         }
 
@@ -209,24 +222,16 @@ export function createDeepgramTranscriptionService({
                             title: '❌ Transcription Failed',
                             description:
                                 message || 'An unexpected error occurred during transcription. Please try again.',
-                            action: { type: 'more-details', error: postError.cause },
+                            action: { error: postError.cause, type: 'more-details' },
                         });
                     }
-
-                    case 'ParseError':
-                        return WhisperingErr({
-                            title: '🔍 Response Error',
-                            description:
-                                'Received an unexpected response from Deepgram service. Please try again.',
-                            action: { type: 'more-details', error: postError.cause },
-                        });
 
                     default:
                         return WhisperingErr({
                             title: '❓ Unexpected Error',
                             description:
                                 'An unexpected error occurred during transcription. Please try again.',
-                            action: { type: 'more-details', error: postError },
+                            action: { error: postError, type: 'more-details' },
                         });
                 }
             }
@@ -245,10 +250,6 @@ export function createDeepgramTranscriptionService({
         },
     };
 }
-
-export type DeepgramTranscriptionService = ReturnType<
-    typeof createDeepgramTranscriptionService
->;
 
 
 export const DeepgramTranscriptionServiceLive =

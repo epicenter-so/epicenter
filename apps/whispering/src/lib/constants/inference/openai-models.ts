@@ -18,7 +18,7 @@ export const OPENAI_INFERENCE_MODELS = [
 
 export const OPENAI_INFERENCE_MODEL_OPTIONS = OPENAI_INFERENCE_MODELS.map(
 	(model) => ({
-		value: model,
 		label: model,
+		value: model,
 	}),
 );

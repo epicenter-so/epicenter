@@ -1,9 +1,9 @@
 <script lang="ts">
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { ChromeWebStoreIcon } from '$lib/components/icons';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { CommandIcon, DownloadIcon, MicIcon, ZapIcon } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import { Card } from '@repo/ui/card';
-	import { CommandIcon, DownloadIcon, MicIcon, ZapIcon } from '@lucide/svelte';
 </script>
 
 <svelte:head>

@@ -1,6 +1,7 @@
 import type { Options as TauriNotificationOptions } from '@tauri-apps/plugin-notification';
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
+
+import { createTaggedError } from 'wellcrafted/error';
 
 /**
  * Platform-Specific Notification Transformations
@@ -15,56 +16,28 @@ import type { Result } from 'wellcrafted/result';
  * - Extension (Future): Chrome extension API, full action support
  */
 
-export const { NotificationServiceError, NotificationServiceErr } =
+export const { NotificationServiceErr, NotificationServiceError } =
 	createTaggedError('NotificationServiceError');
+export type NotificationService = {
+	clear: (id: string) => Promise<Result<void, NotificationServiceError>>;
+	notify: (
+		options: UnifiedNotificationOptions,
+	) => Promise<Result<string, NotificationServiceError>>;
+};
+
 export type NotificationServiceError = ReturnType<
 	typeof NotificationServiceError
 >;
 
-/**
- * Link action for internal navigation
- * @note The href must be a local path within the app, not an external URL
- */
-type LinkAction = {
-	type: 'link';
-	label: string;
-	href: `/${string}`; // Must be a local path like '/settings' or '/recordings/123'
-};
-
-/**
- * Button action for custom callbacks
- */
-type ButtonAction = {
-	type: 'button';
-	label: string;
-	onClick: () => void | Promise<void>;
-};
-
-/**
- * More details action for showing additional information (e.g., error details)
- */
-type MoreDetailsAction = {
-	type: 'more-details';
-	error: unknown; // Can be Error object or any error data
-};
-
-type NotificationAction = LinkAction | ButtonAction | MoreDetailsAction;
-
 export type UnifiedNotificationOptions = {
 	/**
-	 * Unique identifier
-	 * @toast Maps to ExternalToast.id
-	 * @browser Maps to tag
-	 * @extension Used as notificationId
-	 * @tauri Maps to Options.id (as number)
+	 * Interactive action
+	 * @toast Full support via ExternalToast.action (single action only)
+	 * @browser Maps to actions[0] (Service Worker only)
+	 * @extension Maps to buttons[0]
+	 * @tauri Not supported on desktop
 	 */
-	id?: string;
-
-	/**
-	 * Main notification title
-	 * @all Supported on all platforms
-	 */
-	title: string;
+	action?: NotificationAction;
 
 	/**
 	 * Notification body text
@@ -85,6 +58,22 @@ export type UnifiedNotificationOptions = {
 	icon?: string;
 
 	/**
+	 * Unique identifier
+	 * @toast Maps to ExternalToast.id
+	 * @browser Maps to tag
+	 * @extension Used as notificationId
+	 * @tauri Maps to Options.id (as number)
+	 */
+	id?: string;
+
+	/**
+	 * Keep toast visible indefinitely until manually dismissed
+	 * @toast Uses Infinity duration in Sonner
+	 * @note Only applies to toast notifications, not OS notifications
+	 */
+	persist?: boolean;
+
+	/**
 	 * Keep notification visible until dismissed
 	 * @toast Not applicable
 	 * @browser Maps to requireInteraction
@@ -103,123 +92,61 @@ export type UnifiedNotificationOptions = {
 	silent?: boolean;
 
 	/**
-	 * Interactive action
-	 * @toast Full support via ExternalToast.action (single action only)
-	 * @browser Maps to actions[0] (Service Worker only)
-	 * @extension Maps to buttons[0]
-	 * @tauri Not supported on desktop
+	 * Main notification title
+	 * @all Supported on all platforms
 	 */
-	action?: NotificationAction;
+	title: string;
 
 	/**
 	 * Toast-specific variant
 	 * @toast Maps to type via toast[variant]() methods
 	 * @others Ignored
 	 */
-	variant: 'success' | 'error' | 'warning' | 'info' | 'loading';
-
-	/**
-	 * Keep toast visible indefinitely until manually dismissed
-	 * @toast Uses Infinity duration in Sonner
-	 * @note Only applies to toast notifications, not OS notifications
-	 */
-	persist?: boolean;
-};
-
-export type NotificationService = {
-	notify: (
-		options: UnifiedNotificationOptions,
-	) => Promise<Result<string, NotificationServiceError>>;
-	clear: (id: string) => Promise<Result<void, NotificationServiceError>>;
+	variant: 'error' | 'info' | 'loading' | 'success' | 'warning';
 };
 
 /**
- * Transform UnifiedNotificationOptions to Tauri notification options
- *
- * Mappings:
- * - id: String → Number (via hash function)
- * - description → body
- * - requireInteraction → autoCancel (inverted)
- * - actions: Not supported on desktop
- * - variant: Ignored (only for toasts)
+ * Button action for custom callbacks
  */
-export function toTauriNotification(
-	options: UnifiedNotificationOptions,
-): TauriNotificationOptions {
-	return {
-		id: options.id ? hashNanoidToNumber(options.id) : undefined,
-		title: options.title,
-		body: options.description,
-		icon: options.icon,
-		silent: options.silent,
-		autoCancel: !options.requireInteraction,
-	};
-}
-
-/**
- * Transform UnifiedNotificationOptions to browser Notification API options
- *
- * Mappings:
- * - id → tag
- * - description → body
- * - Direct mappings: icon, requireInteraction, silent
- * - actions: Only work in Service Workers (limited support)
- * - variant: Ignored (only for toasts)
- */
-export function toBrowserNotification(
-	options: UnifiedNotificationOptions,
-): NotificationOptions {
-	return {
-		body: options.description,
-		icon: options.icon,
-		tag: options.id,
-		requireInteraction: options.requireInteraction,
-		silent: options.silent,
-	};
-}
-
-/**
- * Transform UnifiedNotificationOptions to Chrome extension notification options
- *
- * Mappings:
- * - description → message
- * - icon → iconUrl (with fallback)
- * - silent → priority (-2 for silent, 0 for normal)
- * - action → buttons[0] (single button, excludes 'more-details')
- * - variant: Ignored (only for toasts)
- *
- * @future This will be implemented when extension support is added
- */
-export function toExtensionNotification(
-	options: UnifiedNotificationOptions,
-): ChromeNotificationOptions {
-	return {
-		type: 'basic',
-		title: options.title,
-		message: options.description,
-		iconUrl: options.icon || '/icon-192.png',
-		requireInteraction: options.requireInteraction,
-		priority: options.silent ? -2 : 0,
-		buttons:
-			options.action && options.action.type !== 'more-details'
-				? [{ title: options.action.label }]
-				: undefined,
-	};
-}
+type ButtonAction = {
+	label: string;
+	onClick: () => Promise<void> | void;
+	type: 'button';
+};
 
 /**
  * Chrome extension notification options type
  * @future This type will be properly imported when extension support is added
  */
 type ChromeNotificationOptions = {
-	type: 'basic' | 'image' | 'list' | 'progress';
-	title: string;
-	message: string;
-	iconUrl: string;
-	requireInteraction?: boolean;
-	priority?: -2 | -1 | 0 | 1 | 2;
 	buttons?: Array<{ title: string }>;
+	iconUrl: string;
+	message: string;
+	priority?: -2 | -1 | 0 | 1 | 2;
+	requireInteraction?: boolean;
+	title: string;
+	type: 'basic' | 'image' | 'list' | 'progress';
 };
+
+/**
+ * Link action for internal navigation
+ * @note The href must be a local path within the app, not an external URL
+ */
+type LinkAction = {
+	href: `/${string}`; // Must be a local path like '/settings' or '/recordings/123'
+	label: string;
+	type: 'link';
+};
+
+/**
+ * More details action for showing additional information (e.g., error details)
+ */
+type MoreDetailsAction = {
+	error: unknown; // Can be Error object or any error data
+	type: 'more-details';
+};
+
+type NotificationAction = ButtonAction | LinkAction | MoreDetailsAction;
 
 /**
  * Converts a nanoid string to a numeric ID for Tauri notifications.
@@ -241,4 +168,78 @@ export function hashNanoidToNumber(str: string): number {
 		hash = hash & hash;
 	}
 	return Math.abs(hash);
+}
+
+/**
+ * Transform UnifiedNotificationOptions to browser Notification API options
+ *
+ * Mappings:
+ * - id → tag
+ * - description → body
+ * - Direct mappings: icon, requireInteraction, silent
+ * - actions: Only work in Service Workers (limited support)
+ * - variant: Ignored (only for toasts)
+ */
+export function toBrowserNotification(
+	options: UnifiedNotificationOptions,
+): NotificationOptions {
+	return {
+		body: options.description,
+		icon: options.icon,
+		requireInteraction: options.requireInteraction,
+		silent: options.silent,
+		tag: options.id,
+	};
+}
+
+/**
+ * Transform UnifiedNotificationOptions to Chrome extension notification options
+ *
+ * Mappings:
+ * - description → message
+ * - icon → iconUrl (with fallback)
+ * - silent → priority (-2 for silent, 0 for normal)
+ * - action → buttons[0] (single button, excludes 'more-details')
+ * - variant: Ignored (only for toasts)
+ *
+ * @future This will be implemented when extension support is added
+ */
+export function toExtensionNotification(
+	options: UnifiedNotificationOptions,
+): ChromeNotificationOptions {
+	return {
+		title: options.title,
+		message: options.description,
+		buttons:
+			options.action && options.action.type !== 'more-details'
+				? [{ title: options.action.label }]
+				: undefined,
+		iconUrl: options.icon || '/icon-192.png',
+		priority: options.silent ? -2 : 0,
+		requireInteraction: options.requireInteraction,
+		type: 'basic',
+	};
+}
+
+/**
+ * Transform UnifiedNotificationOptions to Tauri notification options
+ *
+ * Mappings:
+ * - id: String → Number (via hash function)
+ * - description → body
+ * - requireInteraction → autoCancel (inverted)
+ * - actions: Not supported on desktop
+ * - variant: Ignored (only for toasts)
+ */
+export function toTauriNotification(
+	options: UnifiedNotificationOptions,
+): TauriNotificationOptions {
+	return {
+		title: options.title,
+		autoCancel: !options.requireInteraction,
+		body: options.description,
+		icon: options.icon,
+		id: options.id ? hashNanoidToNumber(options.id) : undefined,
+		silent: options.silent,
+	};
 }

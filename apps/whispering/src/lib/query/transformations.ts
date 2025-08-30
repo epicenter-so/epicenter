@@ -1,8 +1,10 @@
-import * as services from '$lib/services';
 import type { Transformation } from '$lib/services/db/models';
-import { settings } from '$lib/stores/settings.svelte';
 import type { Accessor } from '@tanstack/svelte-query';
+
+import * as services from '$lib/services';
+import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok } from 'wellcrafted/result';
+
 import { defineMutation, defineQuery, queryClient } from './_client';
 
 // Define the query key as a constant array
@@ -12,24 +14,6 @@ export const transformationsKeys = {
 };
 
 export const transformations = {
-	queries: {
-		getAllTransformations: defineQuery({
-			queryKey: transformationsKeys.all,
-			resultQueryFn: () => services.db.getAllTransformations(),
-		}),
-		getTransformationById: (id: Accessor<string>) =>
-			defineQuery({
-				queryKey: transformationsKeys.byId(id()),
-				resultQueryFn: () => services.db.getTransformationById(id()),
-				initialData: () =>
-					queryClient
-						.getQueryData<Transformation[]>(transformationsKeys.all)
-						?.find((t) => t.id === id()),
-				initialDataUpdatedAt: () =>
-					queryClient.getQueryState(transformationsKeys.byId(id()))
-						?.dataUpdatedAt,
-			}),
-	},
 	mutations: {
 		createTransformation: defineMutation({
 			mutationKey: ['transformations', 'createTransformation'] as const,
@@ -43,30 +27,6 @@ export const transformations = {
 					(oldData) => {
 						if (!oldData) return [transformation];
 						return [...oldData, transformation];
-					},
-				);
-				queryClient.setQueryData<Transformation>(
-					transformationsKeys.byId(transformation.id),
-					transformation,
-				);
-
-				return Ok(data);
-			},
-		}),
-		updateTransformation: defineMutation({
-			mutationKey: ['transformations', 'updateTransformation'] as const,
-			resultMutationFn: async (transformation: Transformation) => {
-				const { data, error } =
-					await services.db.updateTransformation(transformation);
-				if (error) return Err(error);
-
-				queryClient.setQueryData<Transformation[]>(
-					transformationsKeys.all,
-					(oldData) => {
-						if (!oldData) return [transformation];
-						return oldData.map((item) =>
-							item.id === transformation.id ? transformation : item,
-						);
 					},
 				);
 				queryClient.setQueryData<Transformation>(
@@ -139,5 +99,47 @@ export const transformations = {
 				return Ok(undefined);
 			},
 		}),
+		updateTransformation: defineMutation({
+			mutationKey: ['transformations', 'updateTransformation'] as const,
+			resultMutationFn: async (transformation: Transformation) => {
+				const { data, error } =
+					await services.db.updateTransformation(transformation);
+				if (error) return Err(error);
+
+				queryClient.setQueryData<Transformation[]>(
+					transformationsKeys.all,
+					(oldData) => {
+						if (!oldData) return [transformation];
+						return oldData.map((item) =>
+							item.id === transformation.id ? transformation : item,
+						);
+					},
+				);
+				queryClient.setQueryData<Transformation>(
+					transformationsKeys.byId(transformation.id),
+					transformation,
+				);
+
+				return Ok(data);
+			},
+		}),
+	},
+	queries: {
+		getAllTransformations: defineQuery({
+			queryKey: transformationsKeys.all,
+			resultQueryFn: () => services.db.getAllTransformations(),
+		}),
+		getTransformationById: (id: Accessor<string>) =>
+			defineQuery({
+				initialData: () =>
+					queryClient
+						.getQueryData<Transformation[]>(transformationsKeys.all)
+						?.find((t) => t.id === id()),
+				initialDataUpdatedAt: () =>
+					queryClient.getQueryState(transformationsKeys.byId(id()))
+						?.dataUpdatedAt,
+				queryKey: transformationsKeys.byId(id()),
+				resultQueryFn: () => services.db.getTransformationById(id()),
+			}),
 	},
 };

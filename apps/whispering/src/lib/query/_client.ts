@@ -10,5 +10,5 @@ export const queryClient = new QueryClient({
 	},
 });
 
-export const { defineQuery, defineMutation } =
+export const { defineMutation, defineQuery } =
 	createQueryFactories(queryClient);

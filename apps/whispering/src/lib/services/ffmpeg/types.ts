@@ -1,9 +1,8 @@
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
+
+import { createTaggedError } from 'wellcrafted/error';
 export const { FfmpegServiceErr, FfmpegServiceError } =
 	createTaggedError('FfmpegServiceError');
-
-type FfmpegServiceError = ReturnType<typeof FfmpegServiceError>;
 
 export type FfmpegService = {
 	/**
@@ -12,3 +11,5 @@ export type FfmpegService = {
 	 */
 	checkInstalled(): Promise<Result<boolean, FfmpegServiceError>>;
 };
+
+type FfmpegServiceError = ReturnType<typeof FfmpegServiceError>;

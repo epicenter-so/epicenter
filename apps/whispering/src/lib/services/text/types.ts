@@ -1,13 +1,11 @@
 import type { MaybePromise, WhisperingError } from '$lib/result';
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 
-const { TextServiceError, TextServiceErr } = createTaggedError(
+import { createTaggedError } from 'wellcrafted/error';
+
+const { TextServiceErr, TextServiceError } = createTaggedError(
 	'TextServiceError',
 );
-type TextServiceError = ReturnType<typeof TextServiceError>;
-export { TextServiceErr, TextServiceError };
-
 export type TextService = {
 	/**
 	 * Copies text to the system clipboard.
@@ -33,3 +31,6 @@ export type TextService = {
 		text: string,
 	) => MaybePromise<Result<void, TextServiceError | WhisperingError>>;
 };
+export { TextServiceErr, TextServiceError };
+
+type TextServiceError = ReturnType<typeof TextServiceError>;

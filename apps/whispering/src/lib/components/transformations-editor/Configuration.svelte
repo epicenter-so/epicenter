@@ -1,5 +1,6 @@
 <script lang="ts">
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import type { Transformation } from '$lib/services/db';
+
 	import {
 		LabeledInput,
 		LabeledSelect,
@@ -12,12 +13,7 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import * as Accordion from '@repo/ui/accordion';
-	import * as Alert from '@repo/ui/alert';
-	import { Button } from '@repo/ui/button';
-	import * as Card from '@repo/ui/card';
-	import * as SectionHeader from '@repo/ui/section-header';
-	import { Separator } from '@repo/ui/separator';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		TRANSFORMATION_STEP_TYPES,
 		TRANSFORMATION_STEP_TYPES_TO_LABELS,
@@ -29,9 +25,14 @@
 		INFERENCE_PROVIDER_OPTIONS,
 		OPENAI_INFERENCE_MODEL_OPTIONS,
 	} from '$lib/constants/inference';
-	import type { Transformation } from '$lib/services/db';
 	import { generateDefaultTransformationStep } from '$lib/services/db';
 	import { CopyIcon, PlusIcon, TrashIcon } from '@lucide/svelte';
+	import * as Accordion from '@repo/ui/accordion';
+	import * as Alert from '@repo/ui/alert';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import * as SectionHeader from '@repo/ui/section-header';
+	import { Separator } from '@repo/ui/separator';
 	import { slide } from 'svelte/transition';
 
 	let { transformation = $bindable() }: { transformation: Transformation } =
@@ -138,8 +139,8 @@
 									items={TRANSFORMATION_STEP_TYPES.map(
 										(type) =>
 											({
-												value: type,
 												label: TRANSFORMATION_STEP_TYPES_TO_LABELS[type],
+												value: type,
 											}) as const,
 									)}
 									onSelectedChange={(value) => {

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { Recording } from '$lib/services/db';
+
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { onDestroy } from 'svelte';
 
-	let { id, blob }: Pick<Recording, 'id' | 'blob'> = $props();
+	let { blob, id }: Pick<Recording, 'blob' | 'id'> = $props();
 
 	const blobUrlManager = createBlobUrlManager();
 
@@ -22,8 +23,8 @@
 	<audio
 		class="h-8"
 		style="view-transition-name: {getRecordingTransitionId({
-			recordingId: id,
 			propertyName: 'blob',
+			recordingId: id,
 		})}"
 		controls
 		src={blobUrl}

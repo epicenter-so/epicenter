@@ -1,23 +1,24 @@
 <script lang="ts">
-	import { Label } from '@repo/ui/label';
-	import { Textarea } from '@repo/ui/textarea';
 	import type { Snippet } from 'svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
+	import { Label } from '@repo/ui/label';
+	import { Textarea } from '@repo/ui/textarea';
+
 	let {
+		description,
+		disabled = false,
 		id,
 		label,
-		value = $bindable(),
 		placeholder = '',
-		disabled = false,
-		description,
+		value = $bindable(),
 		...restProps
 	}: HTMLTextareaAttributes & {
-		label: string;
-		value: string;
-		placeholder?: string;
+		description?: Snippet | string;
 		disabled?: boolean;
-		description?: string | Snippet;
+		label: string;
+		placeholder?: string;
+		value: string;
 	} = $props();
 </script>
 

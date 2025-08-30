@@ -1,20 +1,20 @@
 <script lang="ts">
+	import type { DeviceIdentifier } from '$lib/services/types';
+
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
-	import { createQuery } from '@tanstack/svelte-query';
-	import type { DeviceIdentifier } from '$lib/services/types';
 	import { asDeviceIdentifier } from '$lib/services/types';
-
 	import { settings } from '$lib/stores/settings.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 	
 	let {
-		selected,
+		mode,
 		onSelectedChange,
-		mode 
+		selected 
 	}: {
-		selected: DeviceIdentifier | null;
-		onSelectedChange: (selected: DeviceIdentifier | null) => void;
 		mode: 'manual' | 'vad';
+		onSelectedChange: (selected: DeviceIdentifier | null) => void;
+		selected: DeviceIdentifier | null;
 	} = $props();
 
 	// Determine which backend to use for device enumeration
@@ -45,8 +45,8 @@
 		id="recording-device"
 		label="Recording Device"
 		placeholder="Loading devices..."
-		items={[{ value: '', label: 'Loading devices...' }]}
-		selected={''}
+		items={[{ label: 'Loading devices...', value: '' }]}
+		selected=""
 		onSelectedChange={() => {}}
 		disabled
 	/>
@@ -56,8 +56,8 @@
 	</p>
 {:else}
 	{@const items = getDevicesQuery.data.map((device) => ({
-		value: device.id,
 		label: device.label,
+		value: device.id,
 	}))}
 	<LabeledSelect
 		id="recording-device"

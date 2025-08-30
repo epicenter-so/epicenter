@@ -11,7 +11,7 @@ export const ANTHROPIC_INFERENCE_MODELS = [
 
 export const ANTHROPIC_INFERENCE_MODEL_OPTIONS = ANTHROPIC_INFERENCE_MODELS.map(
 	(model) => ({
-		value: model,
 		label: model,
+		value: model,
 	}),
 );

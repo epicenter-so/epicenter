@@ -1,25 +1,28 @@
 import type { CancelRecordingResult } from '$lib/constants/audio';
+
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
+import { readFile } from '@tauri-apps/plugin-fs';
+import { remove } from '@tauri-apps/plugin-fs';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+
 import type { Device, DeviceAcquisitionOutcome } from '../types';
-import { asDeviceIdentifier } from '../types';
 import type {
 	RecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
 } from './types';
+
+import { asDeviceIdentifier } from '../types';
 import { RecorderServiceErr } from './types';
-import { readFile } from '@tauri-apps/plugin-fs';
-import { remove } from '@tauri-apps/plugin-fs';
 
 /**
  * Audio recording data returned from the Rust backend
  */
 type AudioRecording = {
-	sampleRate: number;
 	channels: number;
 	durationSeconds: number;
 	filePath?: string;
+	sampleRate: number;
 };
 
 export function createDesktopRecorderService(): RecorderService {
@@ -30,8 +33,8 @@ export function createDesktopRecorderService(): RecorderService {
 			await invoke<string[]>('enumerate_recording_devices');
 		if (enumerateRecordingDevicesError) {
 			return RecorderServiceErr({
-				message: 'Failed to enumerate recording devices',
 				cause: enumerateRecordingDevicesError,
+				message: 'Failed to enumerate recording devices',
 			});
 		}
 		// On desktop, device names serve as both ID and label
@@ -44,23 +47,89 @@ export function createDesktopRecorderService(): RecorderService {
 	};
 
 	return {
+		cancelRecording: async ({
+			sendStatus,
+		}): Promise<Result<CancelRecordingResult, RecorderServiceError>> => {
+			// Check current state first
+			const { data: recordingId, error: getRecordingIdError } = await invoke<
+				null | string
+			>('get_current_recording_id');
+			if (getRecordingIdError) {
+				return RecorderServiceErr({
+					cause: getRecordingIdError,
+					context: { operation: 'cancelRecording' },
+					message:
+						'Unable to check recording state. Please try closing the app and starting again.',
+				});
+			}
+
+			if (!recordingId) {
+				return Ok({ status: 'no-recording' });
+			}
+
+			sendStatus({
+				title: '🛑 Cancelling',
+				description:
+					'Safely stopping your recording and cleaning up resources...',
+			});
+
+			// First get the recording data to know if there's a file to delete
+			const { data: audioRecording } =
+				await invoke<AudioRecording>('stop_recording');
+
+			// If there's a file path, delete the file using Tauri FS plugin
+			if (audioRecording?.filePath) {
+				const { filePath } = audioRecording;
+				const { error: removeError } = await tryAsync({
+					mapErr: (error) =>
+						RecorderServiceErr({
+							cause: error,
+							context: { audioRecording },
+							message: 'Failed to delete recording file.',
+						}),
+					try: () => remove(filePath),
+				});
+				if (removeError)
+					sendStatus({
+						title: '❌ Error Deleting Recording File',
+						description:
+							"We couldn't delete the recording file. Continuing with the cancellation process...",
+					});
+			}
+
+			// Close the recording session after cancelling
+			sendStatus({
+				title: '🔄 Closing Session',
+				description: 'Cleaning up recording resources...',
+			});
+			const { error: closeError } = await invoke<void>(
+				'close_recording_session',
+			);
+			if (closeError) {
+				// Log but don't fail the cancel operation
+				console.error('Failed to close recording session:', closeError);
+			}
+
+			return Ok({ status: 'cancelled' });
+		},
+
+		enumerateDevices,
+
 		getCurrentRecordingId: async (): Promise<
-			Result<string | null, RecorderServiceError>
+			Result<null | string, RecorderServiceError>
 		> => {
 			const { data: recordingId, error: getCurrentRecordingIdError } =
-				await invoke<string | null>('get_current_recording_id');
+				await invoke<null | string>('get_current_recording_id');
 			if (getCurrentRecordingIdError)
 				return RecorderServiceErr({
+					cause: getCurrentRecordingIdError,
+					context: { error: getCurrentRecordingIdError },
 					message:
 						'We encountered an issue while getting the current recording. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: { error: getCurrentRecordingIdError },
-					cause: getCurrentRecordingIdError,
 				});
 
 			return Ok(recordingId);
 		},
-
-		enumerateDevices,
 
 		startRecording: async (
 			params: StartRecordingParams,
@@ -69,13 +138,13 @@ export function createDesktopRecorderService(): RecorderService {
 			// Desktop implementation only handles desktop params
 			if (params.platform !== 'desktop') {
 				return RecorderServiceErr({
-					message: 'Desktop recorder received non-desktop parameters',
-					context: { params },
 					cause: undefined,
+					context: { params },
+					message: 'Desktop recorder received non-desktop parameters',
 				});
 			}
 
-			const { selectedDeviceId, recordingId, outputFolder, sampleRate } =
+			const { outputFolder, recordingId, sampleRate, selectedDeviceId } =
 				params;
 			const { data: devices, error: enumerateError } = await enumerateDevices();
 			if (enumerateError) return Err(enumerateError);
@@ -88,11 +157,11 @@ export function createDesktopRecorderService(): RecorderService {
 				const fallbackDeviceId = deviceIds.at(0);
 				if (!fallbackDeviceId) {
 					return RecorderServiceErr({
+						cause: undefined,
+						context: { deviceIds, selectedDeviceId },
 						message: selectedDeviceId
 							? "We couldn't find the selected microphone. Make sure it's connected and try again!"
 							: "We couldn't find any microphones. Make sure they're connected and try again!",
-						context: { selectedDeviceId, deviceIds },
-						cause: undefined,
 					});
 				}
 
@@ -103,9 +172,9 @@ export function createDesktopRecorderService(): RecorderService {
 							"No worries! We'll find the best microphone for you automatically...",
 					});
 					return Ok({
+						fallbackDeviceId,
 						outcome: 'fallback',
 						reason: 'no-device-selected',
-						fallbackDeviceId,
 					});
 				}
 
@@ -121,9 +190,9 @@ export function createDesktopRecorderService(): RecorderService {
 				});
 
 				return Ok({
+					fallbackDeviceId,
 					outcome: 'fallback',
 					reason: 'preferred-device-unavailable',
-					fallbackDeviceId,
 				});
 			};
 
@@ -153,20 +222,20 @@ export function createDesktopRecorderService(): RecorderService {
 				'init_recording_session',
 				{
 					deviceIdentifier,
-					recordingId,
 					outputFolder: outputFolder || undefined,
+					recordingId,
 					sampleRate: sampleRateNum,
 				},
 			);
 			if (initRecordingSessionError)
 				return RecorderServiceErr({
+					cause: initRecordingSessionError,
+					context: {
+						deviceIdentifier,
+						selectedDeviceId,
+					},
 					message:
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: {
-						selectedDeviceId,
-						deviceIdentifier,
-					},
-					cause: initRecordingSessionError,
 				});
 
 			sendStatus({
@@ -178,10 +247,10 @@ export function createDesktopRecorderService(): RecorderService {
 				await invoke<void>('start_recording');
 			if (startRecordingError)
 				return RecorderServiceErr({
+					cause: startRecordingError,
+					context: { deviceIdentifier, deviceOutcome },
 					message:
 						'Unable to start recording. Please check your microphone and try again.',
-					context: { deviceIdentifier, deviceOutcome },
-					cause: startRecordingError,
 				});
 
 			return Ok(deviceOutcome);
@@ -194,9 +263,9 @@ export function createDesktopRecorderService(): RecorderService {
 				await invoke<AudioRecording>('stop_recording');
 			if (stopRecordingError) {
 				return RecorderServiceErr({
-					message: 'Unable to save your recording. Please try again.',
-					context: { operation: 'stopRecording' },
 					cause: stopRecordingError,
+					context: { operation: 'stopRecording' },
+					message: 'Unable to save your recording. Please try again.',
 				});
 			}
 
@@ -204,12 +273,12 @@ export function createDesktopRecorderService(): RecorderService {
 			// Desktop recorder should always write to a file
 			if (!filePath) {
 				return RecorderServiceErr({
-					message: 'Recording file path not provided by backend.',
-					context: {
-						operation: 'stopRecording',
-						audioRecording,
-					},
 					cause: undefined,
+					context: {
+						audioRecording,
+						operation: 'stopRecording',
+					},
+					message: 'Recording file path not provided by backend.',
 				});
 			}
 			// audioRecording is now AudioRecordingWithFile
@@ -221,16 +290,16 @@ export function createDesktopRecorderService(): RecorderService {
 			});
 
 			const { data: blob, error: readRecordingFileError } = await tryAsync({
+				mapErr: (error) =>
+					RecorderServiceErr({
+						cause: error,
+						context: { audioRecording },
+						message: 'Unable to read recording file. Please try again.',
+					}),
 				try: async () => {
 					const fileBytes = await readFile(filePath);
 					return new Blob([fileBytes], { type: 'audio/wav' });
 				},
-				mapErr: (error) =>
-					RecorderServiceErr({
-						message: 'Unable to read recording file. Please try again.',
-						context: { audioRecording },
-						cause: error,
-					}),
 			});
 			if (readRecordingFileError) return Err(readRecordingFileError);
 
@@ -249,79 +318,13 @@ export function createDesktopRecorderService(): RecorderService {
 
 			return Ok(blob);
 		},
-
-		cancelRecording: async ({
-			sendStatus,
-		}): Promise<Result<CancelRecordingResult, RecorderServiceError>> => {
-			// Check current state first
-			const { data: recordingId, error: getRecordingIdError } = await invoke<
-				string | null
-			>('get_current_recording_id');
-			if (getRecordingIdError) {
-				return RecorderServiceErr({
-					message:
-						'Unable to check recording state. Please try closing the app and starting again.',
-					context: { operation: 'cancelRecording' },
-					cause: getRecordingIdError,
-				});
-			}
-
-			if (!recordingId) {
-				return Ok({ status: 'no-recording' });
-			}
-
-			sendStatus({
-				title: '🛑 Cancelling',
-				description:
-					'Safely stopping your recording and cleaning up resources...',
-			});
-
-			// First get the recording data to know if there's a file to delete
-			const { data: audioRecording } =
-				await invoke<AudioRecording>('stop_recording');
-
-			// If there's a file path, delete the file using Tauri FS plugin
-			if (audioRecording?.filePath) {
-				const { filePath } = audioRecording;
-				const { error: removeError } = await tryAsync({
-					try: () => remove(filePath),
-					mapErr: (error) =>
-						RecorderServiceErr({
-							message: 'Failed to delete recording file.',
-							context: { audioRecording },
-							cause: error,
-						}),
-				});
-				if (removeError)
-					sendStatus({
-						title: '❌ Error Deleting Recording File',
-						description:
-							"We couldn't delete the recording file. Continuing with the cancellation process...",
-					});
-			}
-
-			// Close the recording session after cancelling
-			sendStatus({
-				title: '🔄 Closing Session',
-				description: 'Cleaning up recording resources...',
-			});
-			const { error: closeError } = await invoke<void>(
-				'close_recording_session',
-			);
-			if (closeError) {
-				// Log but don't fail the cancel operation
-				console.error('Failed to close recording session:', closeError);
-			}
-
-			return Ok({ status: 'cancelled' });
-		},
 	};
 }
 
 async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	return tryAsync({
-		try: async () => await tauriInvoke<T>(command, args),
 		mapErr: (error) =>
-			Err({ name: 'TauriInvokeError', command, error } as const),
+			Err({ command, error, name: 'TauriInvokeError' } as const),
+		try: async () => await tauriInvoke<T>(command, args),
 	});
 }

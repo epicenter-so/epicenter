@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { TrashIcon } from '$lib/components/icons';
-	import { Skeleton } from '@repo/ui/skeleton';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { rpc } from '$lib/query';
+	import { Skeleton } from '@repo/ui/skeleton';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
+
 	import EditTransformationModal from './EditTransformationModal.svelte';
 
 	let { transformationId }: { transformationId: string } = $props();
@@ -32,10 +33,16 @@
 			onclick={() => {
 				confirmationDialog.open({
 					title: 'Delete transformation',
-					subtitle: 'Are you sure you want to delete this transformation?',
 					confirmText: 'Delete',
 					onConfirm: () =>
 						deleteTransformation.mutate(transformation, {
+							onError: (error) => {
+								rpc.notify.error.execute({
+									title: 'Failed to delete transformation!',
+									description: 'Your transformation could not be deleted.',
+									action: { error, type: 'more-details' },
+								});
+							},
 							onSuccess: () => {
 								rpc.notify.success.execute({
 									title: 'Deleted transformation!',
@@ -43,14 +50,8 @@
 										'Your transformation has been deleted successfully.',
 								});
 							},
-							onError: (error) => {
-								rpc.notify.error.execute({
-									title: 'Failed to delete transformation!',
-									description: 'Your transformation could not be deleted.',
-									action: { type: 'more-details', error },
-								});
-							},
 						}),
+					subtitle: 'Are you sure you want to delete this transformation?',
 				});
 			}}
 			variant="ghost"

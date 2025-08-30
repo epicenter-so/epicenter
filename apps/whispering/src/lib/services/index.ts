@@ -9,8 +9,8 @@ import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
 import { PermissionsServiceLive } from './permissions';
 import {
-	NativeRecorderServiceLive,
 	BrowserRecorderServiceLive,
+	NativeRecorderServiceLive,
 } from './recorder';
 import { PlaySoundServiceLive } from './sound';
 import { TextServiceLive } from './text';
@@ -24,21 +24,21 @@ import { VadServiceLive } from './vad-recorder';
  */
 export {
 	AnalyticsServiceLive as analytics,
-	TextServiceLive as text,
+	BrowserRecorderServiceLive as browserRecorder,
 	completions,
-	TrayIconServiceLive as tray,
 	DbServiceLive as db,
 	DownloadServiceLive as download,
 	FfmpegServiceLive as ffmpeg,
 	GlobalShortcutManagerLive as globalShortcutManager,
 	LocalShortcutManagerLive as localShortcutManager,
-	NotificationServiceLive as notification,
 	NativeRecorderServiceLive as nativeRecorder,
-	BrowserRecorderServiceLive as browserRecorder,
-	PermissionsServiceLive as permissions,
-	ToastServiceLive as toast,
+	NotificationServiceLive as notification,
 	OsServiceLive as os,
+	PermissionsServiceLive as permissions,
 	PlaySoundServiceLive as sound,
+	TextServiceLive as text,
+	ToastServiceLive as toast,
 	transcriptions,
+	TrayIconServiceLive as tray,
 	VadServiceLive as vad,
 };

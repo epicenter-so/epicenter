@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { rpc } from '$lib/query';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { RotateCcw } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import { Separator } from '@repo/ui/separator';
-	import { rpc } from '$lib/query';
-	import { RotateCcw } from '@lucide/svelte';
+
 	import ShortcutFormatHelp from '../keyboard-shortcut-recorder/ShortcutFormatHelp.svelte';
 	import ShortcutTable from '../keyboard-shortcut-recorder/ShortcutTable.svelte';
-	import { settings } from '$lib/stores/settings.svelte';
 </script>
 
 <svelte:head>

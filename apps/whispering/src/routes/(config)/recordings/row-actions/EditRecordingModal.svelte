@@ -1,16 +1,17 @@
 <script lang="ts">
+	import type { Recording } from '$lib/services/db';
+
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { rpc } from '$lib/query';
+	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
+	import { PencilIcon as EditIcon, Loader2Icon } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
-	import * as Modal from '@repo/ui/modal';
 	import { Input } from '@repo/ui/input';
 	import { Label } from '@repo/ui/label';
+	import * as Modal from '@repo/ui/modal';
 	import { Textarea } from '@repo/ui/textarea';
-	import { rpc } from '$lib/query';
-	import type { Recording } from '$lib/services/db';
-	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { PencilIcon as EditIcon, Loader2Icon } from '@lucide/svelte';
 	import { onDestroy } from 'svelte';
 
 	const updateRecording = createMutation(
@@ -82,7 +83,6 @@
 
 		confirmationDialog.open({
 			title: 'Unsaved changes',
-			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
 			confirmText: 'Leave',
 			onConfirm: () => {
 				// Reset working copy and dirty flag
@@ -91,6 +91,7 @@
 
 				isDialogOpen = false;
 			},
+			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
 		});
 	}
 
@@ -196,10 +197,16 @@
 				onclick={() => {
 					confirmationDialog.open({
 						title: 'Delete recording',
-						subtitle: 'Are you sure? This action cannot be undone.',
 						confirmText: 'Delete',
 						onConfirm: () => {
 							deleteRecording.mutate($state.snapshot(recording), {
+								onError: (error) => {
+									rpc.notify.error.execute({
+										title: 'Failed to delete recording!',
+										description: 'Your recording could not be deleted.',
+										action: { error: error, type: 'more-details' },
+									});
+								},
 								onSuccess: () => {
 									isDialogOpen = false;
 									rpc.notify.success.execute({
@@ -208,15 +215,9 @@
 											'Your recording has been deleted successfully.',
 									});
 								},
-								onError: (error) => {
-									rpc.notify.error.execute({
-										title: 'Failed to delete recording!',
-										description: 'Your recording could not be deleted.',
-										action: { type: 'more-details', error: error },
-									});
-								},
 							});
 						},
+						subtitle: 'Are you sure? This action cannot be undone.',
 					});
 				}}
 				variant="destructive"
@@ -233,19 +234,19 @@
 			<Button
 				onclick={() => {
 					updateRecording.mutate($state.snapshot(workingCopy), {
+						onError: (error) => {
+							rpc.notify.error.execute({
+								title: 'Failed to update recording!',
+								description: 'Your recording could not be updated.',
+								action: { error: error, type: 'more-details' },
+							});
+						},
 						onSuccess: () => {
 							rpc.notify.success.execute({
 								title: 'Updated recording!',
 								description: 'Your recording has been updated successfully.',
 							});
 							isDialogOpen = false;
-						},
-						onError: (error) => {
-							rpc.notify.error.execute({
-								title: 'Failed to update recording!',
-								description: 'Your recording could not be updated.',
-								action: { type: 'more-details', error: error },
-							});
 						},
 					});
 				}}

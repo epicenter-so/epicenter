@@ -3,13 +3,17 @@
  */
 import type { Settings } from '$lib/settings';
 
+import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
+import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
+import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
 // Import SVG icons as strings
 import groqIcon from '$lib/constants/icons/groq.svg?raw';
-import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
 import openaiIcon from '$lib/constants/icons/openai.svg?raw';
-import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
 import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
-import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
+import {
+	DEEPGRAM_TRANSCRIPTION_MODELS,
+	type DeepgramModel,
+} from '$lib/services/transcription/deepgram';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
@@ -19,16 +23,12 @@ import {
 	OPENAI_TRANSCRIPTION_MODELS,
 	type OpenAIModel,
 } from '$lib/services/transcription/openai';
-import {
-	DEEPGRAM_TRANSCRIPTION_MODELS,
-	type DeepgramModel,
-} from '$lib/services/transcription/deepgram';
 
 type TranscriptionModel =
-	| OpenAIModel
-	| GroqModel
+	| DeepgramModel
 	| ElevenLabsModel
-	| DeepgramModel;
+	| GroqModel
+	| OpenAIModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'whispercpp',
@@ -40,27 +40,20 @@ export const TRANSCRIPTION_SERVICE_IDS = [
 	// 'owhisper',
 ] as const;
 
-type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
-
 type BaseTranscriptionService = {
-	id: TranscriptionServiceId;
-	name: string;
-	icon: string; // SVG string
-	invertInDarkMode: boolean; // Whether to invert the icon in dark mode
 	description?: string;
+	icon: string; // SVG string
+	id: TranscriptionServiceId;
+	invertInDarkMode: boolean; // Whether to invert the icon in dark mode
+	name: string;
 };
 
 type CloudTranscriptionService = BaseTranscriptionService & {
+	apiKeyField: keyof Settings;
+	defaultModel: TranscriptionModel;
 	location: 'cloud';
 	models: readonly TranscriptionModel[];
-	defaultModel: TranscriptionModel;
 	modelSettingKey: string;
-	apiKeyField: keyof Settings;
-};
-
-type SelfHostedTranscriptionService = BaseTranscriptionService & {
-	location: 'self-hosted';
-	serverUrlField: keyof Settings;
 };
 
 type LocalTranscriptionService = BaseTranscriptionService & {
@@ -70,78 +63,85 @@ type LocalTranscriptionService = BaseTranscriptionService & {
 
 type SatisfiedTranscriptionService =
 	| CloudTranscriptionService
-	| SelfHostedTranscriptionService
-	| LocalTranscriptionService;
+	| LocalTranscriptionService
+	| SelfHostedTranscriptionService;
+
+type SelfHostedTranscriptionService = BaseTranscriptionService & {
+	location: 'self-hosted';
+	serverUrlField: keyof Settings;
+};
+
+type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
 
 export const TRANSCRIPTION_SERVICES = [
 	// Local services first (truly offline)
 	{
-		id: 'whispercpp',
-		name: 'Whisper C++',
-		icon: ggmlIcon,
-		invertInDarkMode: true,
 		description: 'Fast local transcription with no internet required',
-		modelPathField: 'transcription.whispercpp.modelPath',
+		icon: ggmlIcon,
+		id: 'whispercpp',
+		invertInDarkMode: true,
 		location: 'local',
+		modelPathField: 'transcription.whispercpp.modelPath',
+		name: 'Whisper C++',
 	},
 	// Cloud services (API-based)
 	{
-		id: 'Groq',
-		name: 'Groq',
-		icon: groqIcon,
-		invertInDarkMode: false, // Groq has a colored logo that works in both modes
 		description: 'Lightning-fast cloud transcription',
-		models: GROQ_MODELS,
-		defaultModel: GROQ_MODELS[2],
-		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
+		defaultModel: GROQ_MODELS[2],
+		icon: groqIcon,
+		id: 'Groq',
+		invertInDarkMode: false, // Groq has a colored logo that works in both modes
 		location: 'cloud',
+		models: GROQ_MODELS,
+		modelSettingKey: 'transcription.groq.model',
+		name: 'Groq',
 	},
 	{
-		id: 'OpenAI',
-		name: 'OpenAI',
-		icon: openaiIcon,
-		invertInDarkMode: true,
 		description: 'Industry-standard Whisper API',
-		models: OPENAI_TRANSCRIPTION_MODELS,
-		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
-		modelSettingKey: 'transcription.openai.model',
 		apiKeyField: 'apiKeys.openai',
+		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
+		icon: openaiIcon,
+		id: 'OpenAI',
+		invertInDarkMode: true,
 		location: 'cloud',
+		models: OPENAI_TRANSCRIPTION_MODELS,
+		modelSettingKey: 'transcription.openai.model',
+		name: 'OpenAI',
 	},
 	{
-		id: 'ElevenLabs',
-		name: 'ElevenLabs',
-		icon: elevenlabsIcon,
-		invertInDarkMode: true,
 		description: 'Voice AI platform with transcription',
-		models: ELEVENLABS_TRANSCRIPTION_MODELS,
-		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
-		modelSettingKey: 'transcription.elevenlabs.model',
 		apiKeyField: 'apiKeys.elevenlabs',
+		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
+		icon: elevenlabsIcon,
+		id: 'ElevenLabs',
+		invertInDarkMode: true,
 		location: 'cloud',
+		models: ELEVENLABS_TRANSCRIPTION_MODELS,
+		modelSettingKey: 'transcription.elevenlabs.model',
+		name: 'ElevenLabs',
 	},
 	{
-		id: 'Deepgram',
-		name: 'Deepgram',
-		icon: deepgramIcon,
-		invertInDarkMode: true,
 		description: 'Real-time speech recognition API',
-		models: DEEPGRAM_TRANSCRIPTION_MODELS,
-		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
-		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
+		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
+		icon: deepgramIcon,
+		id: 'Deepgram',
+		invertInDarkMode: true,
 		location: 'cloud',
+		models: DEEPGRAM_TRANSCRIPTION_MODELS,
+		modelSettingKey: 'transcription.deepgram.model',
+		name: 'Deepgram',
 	},
 	// Self-hosted services
 	{
-		id: 'speaches',
-		name: 'Speaches',
-		icon: speachesIcon,
-		invertInDarkMode: false, // Speaches has a colored logo
 		description: 'Self-hosted transcription server',
-		serverUrlField: 'transcription.speaches.baseUrl',
+		icon: speachesIcon,
+		id: 'speaches',
+		invertInDarkMode: false, // Speaches has a colored logo
 		location: 'self-hosted',
+		name: 'Speaches',
+		serverUrlField: 'transcription.speaches.baseUrl',
 	},
 	// {
 	// 	id: 'owhisper',

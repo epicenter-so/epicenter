@@ -22,7 +22,7 @@ export const GROQ_INFERENCE_MODELS = [
 
 export const GROQ_INFERENCE_MODEL_OPTIONS = GROQ_INFERENCE_MODELS.map(
 	(model) => ({
-		value: model,
 		label: model,
+		value: model,
 	}),
 );

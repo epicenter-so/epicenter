@@ -1,14 +1,16 @@
+import type { Brand } from 'wellcrafted/brand';
+
 import {
+	isSupportedKey,
 	type KeyboardEventPossibleKey,
 	type KeyboardEventSupportedKey,
-	isSupportedKey,
 	normalizeOptionKeyCharacter,
 } from '$lib/constants/keyboard';
 import { IS_MACOS } from '$lib/constants/platform';
 import { on } from 'svelte/events';
-import type { Brand } from 'wellcrafted/brand';
 import { createTaggedError } from 'wellcrafted/error';
 import { Ok, type Result } from 'wellcrafted/result';
+
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
 /**
@@ -17,19 +19,45 @@ import type { ShortcutTriggerState } from './_shortcut-trigger-state';
  * local shortcut operations fail. Uses a tagged error pattern for type safety
  * and better error discrimination in Result types.
  */
-const { LocalShortcutServiceError, LocalShortcutServiceErr } =
+const { LocalShortcutServiceErr, LocalShortcutServiceError } =
 	createTaggedError('LocalShortcutServiceError');
+export type CommandId = Brand<'CommandId'> & string;
+
+/**
+ * Type representing the local shortcut manager instance.
+ * Provides methods to:
+ * - Listen for keyboard events and trigger registered shortcuts
+ * - Register new keyboard shortcuts with specific key combinations
+ * - Unregister individual shortcuts or all shortcuts at once
+ *
+ * The manager handles the complexity of tracking pressed keys, matching
+ * key combinations, and managing shortcut lifecycles.
+ *
+ * @see {@link createLocalShortcutManager} Factory function to create instances
+ */
+export type LocalShortcutManager = ReturnType<
+	typeof createLocalShortcutManager
+>;
+
 type LocalShortcutServiceError = ReturnType<typeof LocalShortcutServiceError>;
 
-export type CommandId = string & Brand<'CommandId'>;
+/**
+ * Join an array of keys into a shortcut string
+ * @example ["ctrl", "shift", "a"] → "ctrl+shift+a"
+ */
+export function arrayToShortcutString(
+	keys: KeyboardEventSupportedKey[],
+): string {
+	return keys.map((key) => key.toLowerCase()).join('+');
+}
 
 export function createLocalShortcutManager() {
 	const shortcuts = new Map<
 		CommandId,
 		{
-			on: ShortcutTriggerState;
-			keyCombination: KeyboardEventSupportedKey[];
 			callback: () => void;
+			keyCombination: KeyboardEventSupportedKey[];
+			on: ShortcutTriggerState;
 		}
 	>();
 
@@ -196,17 +224,17 @@ export function createLocalShortcutManager() {
 			};
 		},
 		async register({
+			callback,
 			id,
 			keyCombination,
-			callback,
 			on,
 		}: {
+			callback: () => void;
 			id: CommandId;
 			keyCombination: KeyboardEventSupportedKey[];
-			callback: () => void;
 			on: ShortcutTriggerState;
 		}): Promise<Result<void, LocalShortcutServiceError>> {
-			shortcuts.set(id, { keyCombination, callback, on });
+			shortcuts.set(id, { callback, keyCombination, on });
 			return Ok(undefined);
 		},
 
@@ -235,20 +263,16 @@ export function createLocalShortcutManager() {
 }
 
 /**
- * Type representing the local shortcut manager instance.
- * Provides methods to:
- * - Listen for keyboard events and trigger registered shortcuts
- * - Register new keyboard shortcuts with specific key combinations
- * - Unregister individual shortcuts or all shortcuts at once
- *
- * The manager handles the complexity of tracking pressed keys, matching
- * key combinations, and managing shortcut lifecycles.
- *
- * @see {@link createLocalShortcutManager} Factory function to create instances
+ * Convert a shortcut string to an array of keys
+ * @example "ctrl+shift+a" → ["ctrl", "shift", "a"]
  */
-export type LocalShortcutManager = ReturnType<
-	typeof createLocalShortcutManager
->;
+export function shortcutStringToArray(
+	shortcut: string,
+): KeyboardEventSupportedKey[] {
+	return shortcut
+		.split('+')
+		.map((key) => key.toLowerCase() as KeyboardEventSupportedKey);
+}
 
 /**
  * Checks if two arrays contain the same elements, regardless of order.
@@ -307,28 +331,6 @@ function isTypingInInput(): boolean {
 	if (activeElement.getAttribute('role') === 'textbox') return true;
 
 	return false;
-}
-
-/**
- * Convert a shortcut string to an array of keys
- * @example "ctrl+shift+a" → ["ctrl", "shift", "a"]
- */
-export function shortcutStringToArray(
-	shortcut: string,
-): KeyboardEventSupportedKey[] {
-	return shortcut
-		.split('+')
-		.map((key) => key.toLowerCase() as KeyboardEventSupportedKey);
-}
-
-/**
- * Join an array of keys into a shortcut string
- * @example ["ctrl", "shift", "a"] → "ctrl+shift+a"
- */
-export function arrayToShortcutString(
-	keys: KeyboardEventSupportedKey[],
-): string {
-	return keys.map((key) => key.toLowerCase()).join('+');
 }
 
 export const LocalShortcutManagerLive = createLocalShortcutManager();

@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { rpc } from '$lib/query';
+	import * as services from '$lib/services';
+	import { CheckCircle2, SettingsIcon } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon, CheckCircle2 } from '@lucide/svelte';
-	import * as services from '$lib/services';
-	import { toast } from 'svelte-sonner';
-	import { Command } from '@tauri-apps/plugin-shell';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { rpc } from '$lib/query';
+	import { Command } from '@tauri-apps/plugin-shell';
+	import { toast } from 'svelte-sonner';
+
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

@@ -1,61 +1,48 @@
 import { tryAsync } from 'wellcrafted/result';
+
 import { type TextService, TextServiceErr } from './types';
 
 export function createTextServiceExtension(): TextService {
 	return {
 		copyToClipboard: (text) =>
 			tryAsync({
-				try: () => navigator.clipboard.writeText(text),
 				mapErr: (error) =>
 					TextServiceErr({
-						message: 'Unable to copy to clipboard',
-						context: { text },
 						cause: error,
+						context: { text },
+						message: 'Unable to copy to clipboard',
 					}),
+				try: () => navigator.clipboard.writeText(text),
 			}),
 
 		writeToCursor: (text) =>
 			tryAsync({
+				mapErr: (error) =>
+					TextServiceErr({
+						cause: error,
+						context: { text },
+						message: 'Unable to write text at cursor position',
+					}),
 				try: async () => {
 					// Copy to clipboard and insert at cursor
 					await navigator.clipboard.writeText(text);
 					return writeTextToCursor(text);
 				},
-				mapErr: (error) =>
-					TextServiceErr({
-						message: 'Unable to write text at cursor position',
-						context: { text },
-						cause: error,
-					}),
 			}),
 	};
 }
 
 /**
- * Insert the provided text at the cursor position in the currently active input element or append it
- * to the non-input active element.
+ * Handle the appending of text for non-input and non-textarea elements.
  *
- * @param text - The text to be inserted.
+ * @param element - The non-input element.
+ * @param text - The text to be appended.
  */
-function writeTextToCursor(text: string): void {
-	const activeElement = document.activeElement;
-	if (!isHTMLElement(activeElement)) return;
-
-	if (isInputOrTextareaElement(activeElement)) {
-		insertTextInInputElement(activeElement, text);
-	} else if (activeElement.isContentEditable) {
-		appendTextToContentEditableElement(activeElement, text);
-	}
-}
-
-function isHTMLElement(element: unknown): element is HTMLElement {
-	return element instanceof HTMLElement;
-}
-
-function isInputOrTextareaElement(
+function appendTextToContentEditableElement(
 	element: HTMLElement,
-): element is HTMLInputElement | HTMLTextAreaElement {
-	return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA';
+	text: string,
+): void {
+	element.innerHTML += text;
 }
 
 /**
@@ -80,15 +67,29 @@ function insertTextInInputElement(
 	inputElement.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
-/**
- * Handle the appending of text for non-input and non-textarea elements.
- *
- * @param element - The non-input element.
- * @param text - The text to be appended.
- */
-function appendTextToContentEditableElement(
+function isHTMLElement(element: unknown): element is HTMLElement {
+	return element instanceof HTMLElement;
+}
+
+function isInputOrTextareaElement(
 	element: HTMLElement,
-	text: string,
-): void {
-	element.innerHTML += text;
+): element is HTMLInputElement | HTMLTextAreaElement {
+	return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA';
+}
+
+/**
+ * Insert the provided text at the cursor position in the currently active input element or append it
+ * to the non-input active element.
+ *
+ * @param text - The text to be inserted.
+ */
+function writeTextToCursor(text: string): void {
+	const activeElement = document.activeElement;
+	if (!isHTMLElement(activeElement)) return;
+
+	if (isInputOrTextareaElement(activeElement)) {
+		insertTextInInputElement(activeElement, text);
+	} else if (activeElement.isContentEditable) {
+		appendTextToContentEditableElement(activeElement, text);
+	}
 }

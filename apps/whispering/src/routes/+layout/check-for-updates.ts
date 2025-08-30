@@ -1,9 +1,9 @@
 import {
-	type UpdateInfo,
 	updateDialog,
+	type UpdateInfo,
 } from '$lib/components/UpdateDialog.svelte';
 import { rpc } from '$lib/query';
-import { type DownloadEvent, check } from '@tauri-apps/plugin-updater';
+import { check, type DownloadEvent } from '@tauri-apps/plugin-updater';
 import { extractErrorMessage } from 'wellcrafted/error';
 
 export async function checkForUpdates() {
@@ -15,9 +15,9 @@ export async function checkForUpdates() {
 				title: `Update ${update.version} available`,
 				description: 'A new version of Whispering is available.',
 				action: {
-					type: 'button',
 					label: 'View Update',
 					onClick: () => updateDialog.open(update),
+					type: 'button',
 				},
 				persist: true,
 			});
@@ -56,8 +56,6 @@ async function mockCheck(): Promise<UpdateInfo> {
 
 	// Return mock update data that matches the full Update type
 	return {
-		version: '2.0.0',
-		date: new Date().toISOString(),
 		body: `## What's New in v2.0.0
 
 ### 🚀 Features
@@ -82,6 +80,7 @@ async function mockCheck(): Promise<UpdateInfo> {
 ### 📝 Notes
 This is a mock update for testing purposes. The actual update
 process would download and install real application files.`,
+		date: new Date().toISOString(),
 		/**
 		 * Mock download and install function that simulates real update behavior
 		 */
@@ -94,8 +93,8 @@ process would download and install real application files.`,
 
 			// Emit Started event
 			progressCallback?.({
-				event: 'Started',
 				data: { contentLength: totalSize },
+				event: 'Started',
 			});
 
 			// Simulate download in chunks
@@ -108,14 +107,15 @@ process would download and install real application files.`,
 				downloaded += chunkSize;
 
 				progressCallback?.({
-					event: 'Progress',
 					data: { chunkLength: chunkSize },
+					event: 'Progress',
 				});
 			}
 
 			// Emit Finished event
 			progressCallback?.({ event: 'Finished' });
 		},
+		version: '2.0.0',
 	};
 }
 

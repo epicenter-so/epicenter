@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { GithubIcon } from '$lib/components/icons';
-	import * as DropdownMenu from '@repo/ui/dropdown-menu';
-	import { cn } from '@repo/ui/utils';
-	import { LogicalSize, getCurrentWindow } from '@tauri-apps/api/window';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		LayersIcon,
 		ListIcon,
@@ -14,6 +11,9 @@
 		SettingsIcon,
 		SunIcon,
 	} from '@lucide/svelte';
+	import * as DropdownMenu from '@repo/ui/dropdown-menu';
+	import { cn } from '@repo/ui/utils';
+	import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 	import { toggleMode } from 'mode-watcher';
 
 	let {
@@ -23,69 +23,69 @@
 
 	const navItems = [
 		{
-			label: 'Recordings',
-			icon: ListIcon,
-			type: 'anchor',
 			href: '/recordings',
+			icon: ListIcon,
+			label: 'Recordings',
+			type: 'anchor',
 		},
 		{
-			label: 'Transformations',
-			icon: LayersIcon,
-			type: 'anchor',
 			href: '/transformations',
+			icon: LayersIcon,
+			label: 'Transformations',
+			type: 'anchor',
 		},
 		{
-			label: 'Settings',
-			icon: SettingsIcon,
-			type: 'anchor',
-			href: '/settings',
 			activePathPrefix: '/settings',
-		},
-		{
-			label: 'View project on GitHub',
-			icon: GithubIcon,
-			href: 'https://github.com/epicenter-so/epicenter',
+			href: '/settings',
+			icon: SettingsIcon,
+			label: 'Settings',
 			type: 'anchor',
-			external: true,
 		},
 		{
-			label: 'Toggle dark mode',
-			icon: SunIcon,
-			type: 'theme',
+			external: true,
+			href: 'https://github.com/epicenter-so/epicenter',
+			icon: GithubIcon,
+			label: 'View project on GitHub',
+			type: 'anchor',
+		},
+		{
 			action: toggleMode,
+			icon: SunIcon,
+			label: 'Toggle dark mode',
+			type: 'theme',
 		},
 		...(window.__TAURI_INTERNALS__
 			? ([
 					{
-						label: 'Minimize',
-						icon: Minimize2Icon,
-						type: 'button',
 						action: () => getCurrentWindow().setSize(new LogicalSize(72, 84)),
+						icon: Minimize2Icon,
+						label: 'Minimize',
+						type: 'button',
 					},
 				] as const)
 			: []),
 	] satisfies NavItem[];
 
 	type BaseNavItem = {
-		label: string;
 		icon: unknown;
+		label: string;
 	};
 
 	type AnchorItem = BaseNavItem & {
-		type: 'anchor';
-		href: string;
-		external?: boolean;
 		activePathPrefix?: string;
+		external?: boolean;
+		href: string;
+		type: 'anchor';
 	};
 
 	type ButtonItem = BaseNavItem & {
-		type: 'button';
 		action: () => void;
+		type: 'button';
 	};
 
 	type ThemeItem = BaseNavItem & {
-		type: 'theme';
 		action: () => void;
+		type: 'theme';
 	};
 
 	type NavItem = AnchorItem | ButtonItem | ThemeItem;

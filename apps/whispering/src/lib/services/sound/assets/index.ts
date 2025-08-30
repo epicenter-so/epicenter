@@ -1,4 +1,5 @@
 import type { WhisperingSoundNames } from '$lib/constants/sounds';
+
 import {
 	default as captureVadSoundSrc,
 	default as stopManualSoundSrc,
@@ -11,12 +12,12 @@ import transformationCompleteSoundSrc from './zapsplat_multimedia_notification_a
 import transcriptionCompleteSoundSrc from './zapsplat_multimedia_ui_notification_classic_bell_synth_success_107505.mp3';
 
 export const audioElements = {
-	'manual-start': new Audio(startManualSoundSrc),
 	'manual-cancel': new Audio(cancelSoundSrc),
+	'manual-start': new Audio(startManualSoundSrc),
 	'manual-stop': new Audio(stopManualSoundSrc),
-	'vad-start': new Audio(startVadSoundSrc),
-	'vad-capture': new Audio(captureVadSoundSrc),
-	'vad-stop': new Audio(stopVadSoundSrc),
 	transcriptionComplete: new Audio(transcriptionCompleteSoundSrc),
 	transformationComplete: new Audio(transformationCompleteSoundSrc),
+	'vad-capture': new Audio(captureVadSoundSrc),
+	'vad-start': new Audio(startVadSoundSrc),
+	'vad-stop': new Audio(stopVadSoundSrc),
 } satisfies Record<WhisperingSoundNames, HTMLAudioElement>;

@@ -7,11 +7,13 @@ import {
 } from '@tauri-apps/plugin-notification';
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+
 import type { NotificationService, UnifiedNotificationOptions } from './types';
+
 import {
-	type NotificationServiceError,
-	NotificationServiceErr,
 	hashNanoidToNumber,
+	NotificationServiceErr,
+	type NotificationServiceError,
 	toTauriNotification,
 } from './types';
 
@@ -21,13 +23,13 @@ export function createNotificationServiceDesktop(): NotificationService {
 	): Promise<Result<void, NotificationServiceError>> => {
 		const { data: activeNotifications, error: activeNotificationsError } =
 			await tryAsync({
-				try: async () => await active(),
 				mapErr: (error) =>
 					NotificationServiceErr({
-						message: 'Unable to retrieve active desktop notifications.',
-						context: { id },
 						cause: error,
+						context: { id },
+						message: 'Unable to retrieve active desktop notifications.',
 					}),
+				try: async () => await active(),
 			});
 		if (activeNotificationsError) return Err(activeNotificationsError);
 		const matchingActiveNotification = activeNotifications.find(
@@ -35,13 +37,13 @@ export function createNotificationServiceDesktop(): NotificationService {
 		);
 		if (matchingActiveNotification) {
 			const { error: removeActiveError } = await tryAsync({
-				try: async () => await removeActive([matchingActiveNotification]),
 				mapErr: (error) =>
 					NotificationServiceErr({
-						message: `Unable to remove notification with id ${id}.`,
-						context: { id, matchingActiveNotification },
 						cause: error,
+						context: { id, matchingActiveNotification },
+						message: `Unable to remove notification with id ${id}.`,
 					}),
+				try: async () => await removeActive([matchingActiveNotification]),
 			});
 			if (removeActiveError) return Err(removeActiveError);
 		}
@@ -49,6 +51,12 @@ export function createNotificationServiceDesktop(): NotificationService {
 	};
 
 	return {
+		clear: async (idStringified) => {
+			const removeNotificationResult = await removeNotificationById(
+				hashNanoidToNumber(idStringified),
+			);
+			return removeNotificationResult;
+		},
 		async notify(options: UnifiedNotificationOptions) {
 			const idStringified = options.id ?? nanoid();
 			const id = hashNanoidToNumber(idStringified);
@@ -56,6 +64,16 @@ export function createNotificationServiceDesktop(): NotificationService {
 			await removeNotificationById(id);
 
 			const { error: notifyError } = await tryAsync({
+				mapErr: (error) =>
+					NotificationServiceErr({
+						cause: error,
+						context: {
+							title: options.title,
+							description: options.description,
+							idStringified,
+						},
+						message: 'Could not send notification',
+					}),
 				try: async () => {
 					let permissionGranted = await isPermissionGranted();
 					if (!permissionGranted) {
@@ -70,25 +88,9 @@ export function createNotificationServiceDesktop(): NotificationService {
 						});
 					}
 				},
-				mapErr: (error) =>
-					NotificationServiceErr({
-						message: 'Could not send notification',
-						context: {
-							idStringified,
-							title: options.title,
-							description: options.description,
-						},
-						cause: error,
-					}),
 			});
 			if (notifyError) return Err(notifyError);
 			return Ok(idStringified);
-		},
-		clear: async (idStringified) => {
-			const removeNotificationResult = await removeNotificationById(
-				hashNanoidToNumber(idStringified),
-			);
-			return removeNotificationResult;
 		},
 	};
 }

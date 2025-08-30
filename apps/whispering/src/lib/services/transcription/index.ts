@@ -6,11 +6,11 @@ import { SpeachesTranscriptionServiceLive } from './speaches';
 import { WhisperCppTranscriptionServiceLive } from './whispercpp';
 
 export {
+	DeepgramTranscriptionServiceLive as deepgram,
 	ElevenlabsTranscriptionServiceLive as elevenlabs,
 	GroqTranscriptionServiceLive as groq,
 	OpenaiTranscriptionServiceLive as openai,
 	SpeachesTranscriptionServiceLive as speaches,
-	DeepgramTranscriptionServiceLive as deepgram,
 	WhisperCppTranscriptionServiceLive as whispercpp,
 };
 

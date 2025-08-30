@@ -2,39 +2,36 @@
 	import type { Update } from '@tauri-apps/plugin-updater';
 
 	export const updateDialog = createUpdateDialog();
-	export type UpdateInfo = Pick<
+	export type UpdateInfo = null | Pick<
 		Update,
-		'version' | 'date' | 'body' | 'downloadAndInstall'
-	> | null;
+		'body' | 'date' | 'downloadAndInstall' | 'version'
+	>;
 
 	function createUpdateDialog() {
 		let isOpen = $state(false);
-		let update = $state<UpdateInfo | null>(null);
+		let update = $state<null | UpdateInfo>(null);
 		let downloadProgress = $state(0);
 		let downloadTotal = $state(0);
-		let error = $state<string | null>(null);
+		let error = $state<null | string>(null);
 
 		return {
+			close() {
+				isOpen = false;
+			},
+			get error() {
+				return error;
+			},
+			get isDownloadComplete() {
+				return downloadTotal > 0 && downloadProgress >= downloadTotal && !error;
+			},
+			get isDownloading() {
+				return downloadTotal > 0 && downloadProgress < downloadTotal && !error;
+			},
 			get isOpen() {
 				return isOpen;
 			},
 			set isOpen(v) {
 				isOpen = v;
-			},
-			get update() {
-				return update;
-			},
-			get isDownloading() {
-				return downloadTotal > 0 && downloadProgress < downloadTotal && !error;
-			},
-			get isDownloadComplete() {
-				return downloadTotal > 0 && downloadProgress >= downloadTotal && !error;
-			},
-			get progressPercentage() {
-				return downloadTotal > 0 ? (downloadProgress / downloadTotal) * 100 : 0;
-			},
-			get error() {
-				return error;
 			},
 			open(newUpdate: UpdateInfo) {
 				update = newUpdate;
@@ -43,28 +40,31 @@
 				downloadTotal = 0;
 				error = null;
 			},
-			close() {
-				isOpen = false;
+			get progressPercentage() {
+				return downloadTotal > 0 ? (downloadProgress / downloadTotal) * 100 : 0;
+			},
+			setError(err: null | string) {
+				error = err;
+				downloadTotal = 0;
+			},
+			get update() {
+				return update;
 			},
 			updateProgress(progress: number, total: number) {
 				downloadProgress = progress;
 				downloadTotal = total;
-			},
-			setError(err: string | null) {
-				error = err;
-				downloadTotal = 0;
 			},
 		};
 	}
 </script>
 
 <script lang="ts">
-	import * as Dialog from '@repo/ui/dialog';
-	import { Button } from '@repo/ui/button';
-	import { relaunch } from '@tauri-apps/plugin-process';
 	import { rpc } from '$lib/query';
-	import * as Alert from '@repo/ui/alert';
 	import { AlertTriangle } from '@lucide/svelte';
+	import * as Alert from '@repo/ui/alert';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import { relaunch } from '@tauri-apps/plugin-process';
 	import { extractErrorMessage } from 'wellcrafted/error';
 
 	async function handleDownloadAndInstall() {
@@ -78,24 +78,24 @@
 
 			await updateDialog.update.downloadAndInstall((event) => {
 				switch (event.event) {
-					case 'Started':
-						contentLength = event.data.contentLength ?? 0;
-						updateDialog.updateProgress(0, contentLength);
-						break;
-					case 'Progress':
-						downloaded += event.data.chunkLength;
-						updateDialog.updateProgress(downloaded, contentLength);
-						break;
 					case 'Finished':
 						rpc.notify.success.execute({
 							title: 'Update installed successfully!',
 							description: 'Restart Whispering to apply the update.',
 							action: {
-								type: 'button',
 								label: 'Restart Whispering',
 								onClick: () => relaunch(),
+								type: 'button',
 							},
 						});
+						break;
+					case 'Progress':
+						downloaded += event.data.chunkLength;
+						updateDialog.updateProgress(downloaded, contentLength);
+						break;
+					case 'Started':
+						contentLength = event.data.contentLength ?? 0;
+						updateDialog.updateProgress(0, contentLength);
 						break;
 				}
 			});

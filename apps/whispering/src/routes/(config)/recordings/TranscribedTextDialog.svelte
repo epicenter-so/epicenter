@@ -4,17 +4,17 @@
 
 	let {
 		recordingId,
-		transcribedText,
 		rows = 2,
+		transcribedText,
 	}: {
 		recordingId: string;
-		transcribedText: string;
 		rows?: number;
+		transcribedText: string;
 	} = $props();
 
 	const id = getRecordingTransitionId({
-		recordingId,
 		propertyName: 'transcribedText',
+		recordingId,
 	});
 </script>
 

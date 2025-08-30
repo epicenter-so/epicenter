@@ -17,9 +17,9 @@ export function registerOnboarding() {
 			title: 'Welcome to Whispering!',
 			description: 'Please select a transcription service to get started.',
 			action: {
-				type: 'link',
-				label: 'Configure',
 				href: '/settings/transcription',
+				label: 'Configure',
+				type: 'link',
 			},
 			persist: true,
 		});
@@ -30,8 +30,8 @@ export function registerOnboarding() {
 		const missingConfig = (
 			{
 				cloud: `${selectedService.name} API key`,
-				'self-hosted': `${selectedService.name} server URL`,
 				local: `${selectedService.name} model file`,
+				'self-hosted': `${selectedService.name} server URL`,
 			} as const
 		)[selectedService.location];
 
@@ -39,9 +39,9 @@ export function registerOnboarding() {
 			title: 'Welcome to Whispering!',
 			description: `Please configure your ${missingConfig} to get started.`,
 			action: {
-				type: 'link',
-				label: 'Configure',
 				href: '/settings/transcription',
+				label: 'Configure',
+				type: 'link',
 			},
 			persist: true,
 		});

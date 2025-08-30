@@ -1,7 +1,23 @@
 <script lang="ts">
+	import type { Recording } from '$lib/services/db';
+	import type {
+		ColumnDef,
+		ColumnFiltersState,
+		PaginationState,
+	} from '@tanstack/table-core';
+
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { ClipboardIcon, TrashIcon } from '$lib/components/icons';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { rpc } from '$lib/query';
+	import {
+		ChevronDownIcon,
+		EllipsisIcon,
+		EllipsisIcon as LoadingTranscriptionIcon,
+		RepeatIcon as RetryTranscriptionIcon,
+		PlayIcon as StartTranscriptionIcon,
+	} from '@lucide/svelte';
+	import { createPersistedState } from '@repo/svelte-utils';
 	import { Badge } from '@repo/ui/badge';
 	import { Button, buttonVariants } from '@repo/ui/button';
 	import { Card } from '@repo/ui/card';
@@ -14,42 +30,28 @@
 	import { SelectAllPopover, SortableTableHeader } from '@repo/ui/table';
 	import * as Table from '@repo/ui/table';
 	import { Textarea } from '@repo/ui/textarea';
-	import { rpc } from '$lib/query';
-	import type { Recording } from '$lib/services/db';
 	import { cn } from '@repo/ui/utils';
-	import { createPersistedState } from '@repo/svelte-utils';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import {
-		FlexRender,
 		createTable as createSvelteTable,
+		FlexRender,
 		renderComponent,
 	} from '@tanstack/svelte-table';
-	import type {
-		ColumnDef,
-		ColumnFiltersState,
-		PaginationState,
-	} from '@tanstack/table-core';
 	import {
 		getCoreRowModel,
 		getFilteredRowModel,
 		getPaginationRowModel,
 		getSortedRowModel,
 	} from '@tanstack/table-core';
-	import {
-		ChevronDownIcon,
-		EllipsisIcon,
-		EllipsisIcon as LoadingTranscriptionIcon,
-		RepeatIcon as RetryTranscriptionIcon,
-		PlayIcon as StartTranscriptionIcon,
-	} from '@lucide/svelte';
+	import { format } from 'date-fns';
 	import { nanoid } from 'nanoid/non-secure';
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';
+
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
-	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 	import { RecordingRowActions } from './row-actions';
-	import { format } from 'date-fns';
+	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 
 	/**
 	 * Returns a cell renderer for a date/time column using date-fns format.
@@ -85,17 +87,14 @@
 
 	const columns: ColumnDef<Recording>[] = [
 		{
-			id: 'select',
-			header: ({ table }) =>
-				renderComponent(SelectAllPopover<Recording>, { table }),
 			cell: ({ row }) =>
 				renderComponent(Checkbox, {
+					'aria-label': 'Select row',
 					checked: row.getIsSelected(),
 					onCheckedChange: (value) => row.toggleSelected(!!value),
-					'aria-label': 'Select row',
 				}),
-			enableSorting: false,
 			enableHiding: false,
+			enableSorting: false,
 			filterFn: (row, _columnId, filterValue) => {
 				const title = String(row.getValue('title'));
 				const subtitle = String(row.getValue('subtitle'));
@@ -106,78 +105,75 @@
 					transcribedText.toLowerCase().includes(filterValue.toLowerCase())
 				);
 			},
+			header: ({ table }) =>
+				renderComponent(SelectAllPopover<Recording>, { table }),
+			id: 'select',
 		},
 		{
-			id: 'ID',
 			accessorKey: 'id',
-			header: ({ column }) =>
-				renderComponent(SortableTableHeader, { column, headerText: 'ID' }),
 			cell: ({ getValue }) => {
 				const id = getValue<string>();
 				return renderComponent(Badge, {
-					variant: 'id',
 					children: createRawSnippet(() => ({
 						render: () => id,
 					})),
+					variant: 'id',
 				});
 			},
+			header: ({ column }) =>
+				renderComponent(SortableTableHeader, { column, headerText: 'ID' }),
+			id: 'ID',
 		},
 		{
-			id: 'Title',
 			accessorKey: 'title',
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Title',
 				}),
+			id: 'Title',
 		},
 		{
-			id: 'Subtitle',
 			accessorKey: 'subtitle',
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Subtitle',
 				}),
+			id: 'Subtitle',
 		},
 		{
-			id: 'Timestamp',
 			accessorKey: 'timestamp',
+			cell: formattedCell(DATE_FORMAT),
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Timestamp',
 				}),
-			cell: formattedCell(DATE_FORMAT),
+			id: 'Timestamp',
 		},
 		{
-			id: 'Created At',
 			accessorKey: 'createdAt',
+			cell: formattedCell(DATE_FORMAT),
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Created At',
 				}),
-			cell: formattedCell(DATE_FORMAT),
+			id: 'Created At',
 		},
 		{
-			id: 'Updated At',
 			accessorKey: 'updatedAt',
+			cell: formattedCell(DATE_FORMAT),
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Updated At',
 				}),
-			cell: formattedCell(DATE_FORMAT),
+			id: 'Updated At',
 		},
 		{
-			id: 'Transcribed Text',
 			accessorKey: 'transcribedText',
-			header: ({ column }) =>
-				renderComponent(SortableTableHeader, {
-					column,
-					headerText: 'Transcribed Text',
-				}),
 			cell: ({ getValue, row }) => {
 				const transcribedText = getValue<string>();
 				if (!transcribedText) return;
@@ -186,65 +182,71 @@
 					transcribedText,
 				});
 			},
-		},
-		{
-			id: 'Latest Transformation Run Output',
-			accessorFn: ({ id }) => id,
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
-					headerText: 'Latest Transformation Run Output',
+					headerText: 'Transcribed Text',
 				}),
+			id: 'Transcribed Text',
+		},
+		{
+			accessorFn: ({ id }) => id,
 			cell: ({ getValue }) => {
 				const recordingId = getValue<string>();
 				return renderComponent(LatestTransformationRunOutputByRecordingId, {
 					recordingId,
 				});
 			},
+			header: ({ column }) =>
+				renderComponent(SortableTableHeader, {
+					column,
+					headerText: 'Latest Transformation Run Output',
+				}),
+			id: 'Latest Transformation Run Output',
 		},
 		{
-			id: 'Audio',
-			accessorFn: ({ id, blob }) => ({ id, blob }),
+			accessorFn: ({ blob, id }) => ({ blob, id }),
+			cell: ({ getValue }) => {
+				const { blob, id } = getValue<Pick<Recording, 'blob' | 'id'>>();
+				return renderComponent(RenderAudioUrl, { blob, id });
+			},
 			header: ({ column }) =>
 				renderComponent(SortableTableHeader, {
 					column,
 					headerText: 'Audio',
 				}),
-			cell: ({ getValue }) => {
-				const { id, blob } = getValue<Pick<Recording, 'id' | 'blob'>>();
-				return renderComponent(RenderAudioUrl, { id, blob });
-			},
+			id: 'Audio',
 		},
 		{
-			id: 'Actions',
 			accessorFn: (recording) => recording,
-			header: ({ column }) =>
-				renderComponent(SortableTableHeader, {
-					column,
-					headerText: 'Actions',
-				}),
 			cell: ({ getValue }) => {
 				const recording = getValue<Recording>();
 				return renderComponent(RecordingRowActions, {
 					recordingId: recording.id,
 				});
 			},
+			header: ({ column }) =>
+				renderComponent(SortableTableHeader, {
+					column,
+					headerText: 'Actions',
+				}),
+			id: 'Actions',
 		},
 	];
 
 	let sorting = createPersistedState({
 		key: 'whispering-recordings-data-table-sorting',
-		onParseError: (error) => [{ id: 'timestamp', desc: true }],
+		onParseError: (error) => [{ desc: true, id: 'timestamp' }],
 		schema: z.array(z.object({ desc: z.boolean(), id: z.string() })),
 	});
 	let columnFilters = $state<ColumnFiltersState>([]);
 	let columnVisibility = createPersistedState({
 		key: 'whispering-recordings-data-table-column-visibility',
 		onParseError: (error) => ({
-			ID: false,
-			Title: false,
-			Subtitle: false,
 			'Created At': false,
+			ID: false,
+			Subtitle: false,
+			Title: false,
 			'Updated At': false,
 		}),
 		schema: z.record(z.string(), z.boolean()),
@@ -258,22 +260,15 @@
 	let globalFilter = $state('');
 
 	const table = createSvelteTable({
-		getRowId: (originalRow) => originalRow.id,
+		columns,
 		get data() {
 			return getAllRecordingsQuery.data ?? [];
 		},
-		columns,
 		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
-		onSortingChange: (updater) => {
-			if (typeof updater === 'function') {
-				sorting.value = updater(sorting.value);
-			} else {
-				sorting.value = updater;
-			}
-		},
+		getRowId: (originalRow) => originalRow.id,
+		getSortedRowModel: getSortedRowModel(),
 		onColumnFiltersChange: (updater) => {
 			if (typeof updater === 'function') {
 				columnFilters = updater(columnFilters);
@@ -288,11 +283,11 @@
 				columnVisibility.value = updater;
 			}
 		},
-		onRowSelectionChange: (updater) => {
+		onGlobalFilterChange: (updater) => {
 			if (typeof updater === 'function') {
-				rowSelection.value = updater(rowSelection.value);
+				globalFilter = updater(globalFilter);
 			} else {
-				rowSelection.value = updater;
+				globalFilter = updater;
 			}
 		},
 		onPaginationChange: (updater) => {
@@ -302,31 +297,38 @@
 				pagination = updater;
 			}
 		},
-		onGlobalFilterChange: (updater) => {
+		onRowSelectionChange: (updater) => {
 			if (typeof updater === 'function') {
-				globalFilter = updater(globalFilter);
+				rowSelection.value = updater(rowSelection.value);
 			} else {
-				globalFilter = updater;
+				rowSelection.value = updater;
+			}
+		},
+		onSortingChange: (updater) => {
+			if (typeof updater === 'function') {
+				sorting.value = updater(sorting.value);
+			} else {
+				sorting.value = updater;
 			}
 		},
 		state: {
-			get sorting() {
-				return sorting.value;
-			},
 			get columnFilters() {
 				return columnFilters;
 			},
 			get columnVisibility() {
 				return columnVisibility.value;
 			},
-			get rowSelection() {
-				return rowSelection.value;
+			get globalFilter() {
+				return globalFilter;
 			},
 			get pagination() {
 				return pagination;
 			},
-			get globalFilter() {
-				return globalFilter;
+			get rowSelection() {
+				return rowSelection.value;
+			},
+			get sorting() {
+				return sorting.value;
 			},
 		},
 	});
@@ -387,21 +389,21 @@
 						onclick={() => {
 							const toastId = nanoid();
 							rpc.notify.loading.execute({
-								id: toastId,
 								title: 'Transcribing queries.recordings...',
 								description: 'This may take a while.',
+								id: toastId,
 							});
 							transcribeRecordings.mutate(
 								selectedRecordingRows.map(({ original }) => original),
 								{
-									onSuccess: ({ oks, errs }) => {
+									onSuccess: ({ errs, oks }) => {
 										const isAllSuccessful = errs.length === 0;
 										if (isAllSuccessful) {
 											const n = oks.length;
 											rpc.notify.success.execute({
-												id: toastId,
 												title: `Transcribed ${n} recording${n === 1 ? '' : 's'}!`,
 												description: `Your ${n} recording${n === 1 ? ' has' : 's have'} been transcribed successfully.`,
+												id: toastId,
 											});
 											return;
 										}
@@ -409,22 +411,22 @@
 										if (isAllFailed) {
 											const n = errs.length;
 											rpc.notify.error.execute({
-												id: toastId,
 												title: `Failed to transcribe ${n} recording${n === 1 ? '' : 's'}`,
 												description:
 													n === 1
 														? 'Your recording could not be transcribed.'
 														: 'None of your recordings could be transcribed.',
-												action: { type: 'more-details', error: errs },
+												action: { error: errs, type: 'more-details' },
+												id: toastId,
 											});
 											return;
 										}
 										// Mixed results
 										rpc.notify.warning.execute({
-											id: toastId,
 											title: `Transcribed ${oks.length} of ${oks.length + errs.length} recordings`,
 											description: `${oks.length} succeeded, ${errs.length} failed.`,
-											action: { type: 'more-details', error: errs },
+											action: { error: errs, type: 'more-details' },
+											id: toastId,
 										});
 									},
 								},
@@ -500,19 +502,19 @@
 										copyToClipboard.mutate(
 											{ text: joinedTranscriptionsText },
 											{
-												onSuccess: () => {
-													isDialogOpen = false;
-													rpc.notify.success.execute({
-														title: 'Copied transcribed texts to clipboard!',
-														description: joinedTranscriptionsText,
-													});
-												},
 												onError: (error) => {
 													rpc.notify.error.execute({
 														title:
 															'Error copying transcribed texts to clipboard',
 														description: error.message,
-														action: { type: 'more-details', error: error },
+														action: { error: error, type: 'more-details' },
+													});
+												},
+												onSuccess: () => {
+													isDialogOpen = false;
+													rpc.notify.success.execute({
+														title: 'Copied transcribed texts to clipboard!',
+														description: joinedTranscriptionsText,
 													});
 												},
 											},
@@ -533,12 +535,18 @@
 						onclick={() => {
 							confirmationDialog.open({
 								title: 'Delete recordings',
-								subtitle: 'Are you sure you want to delete these recordings?',
 								confirmText: 'Delete',
 								onConfirm: () => {
 									deleteRecordings.mutate(
 										selectedRecordingRows.map(({ original }) => original),
 										{
+											onError: (error) => {
+												rpc.notify.error.execute({
+													title: 'Failed to delete recordings!',
+													description: 'Your recordings could not be deleted.',
+													action: { error: error, type: 'more-details' },
+												});
+											},
 											onSuccess: () => {
 												rpc.notify.success.execute({
 													title: 'Deleted recordings!',
@@ -546,16 +554,10 @@
 														'Your recordings have been deleted successfully.',
 												});
 											},
-											onError: (error) => {
-												rpc.notify.error.execute({
-													title: 'Failed to delete recordings!',
-													description: 'Your recordings could not be deleted.',
-													action: { type: 'more-details', error: error },
-												});
-											},
 										},
 									);
 								},
+								subtitle: 'Are you sure you want to delete these recordings?',
 							});
 						}}
 					>

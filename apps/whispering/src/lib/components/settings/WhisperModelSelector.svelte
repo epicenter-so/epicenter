@@ -1,63 +1,63 @@
 <script lang="ts">
-	import { Button } from '@repo/ui/button';
-	import * as Card from '@repo/ui/card';
-	import * as Tabs from '@repo/ui/tabs';
-	import { Badge } from '@repo/ui/badge';
-	import { Input } from '@repo/ui/input';
-	import { Link } from '@repo/ui/link';
+	import { settings } from '$lib/stores/settings.svelte';
 	import {
-		Download,
 		CheckIcon,
-		Paperclip,
+		Download,
 		LoaderCircle,
+		Paperclip,
 		X,
 	} from '@lucide/svelte';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import { Input } from '@repo/ui/input';
+	import { Link } from '@repo/ui/link';
+	import * as Tabs from '@repo/ui/tabs';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { toast } from 'svelte-sonner';
-	import { settings } from '$lib/stores/settings.svelte';
 	import { appDataDir } from '@tauri-apps/api/path';
 	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
+	import { toast } from 'svelte-sonner';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { extractErrorMessage } from 'wellcrafted/error';
 
 	// Pre-built models configuration
 	const WHISPER_MODELS = [
 		{
+			description: 'Fastest, basic accuracy',
+			filename: 'ggml-tiny.bin',
 			id: 'tiny',
 			name: 'Tiny',
-			description: 'Fastest, basic accuracy',
 			size: '78 MB',
 			sizeBytes: 77_700_000,
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin',
-			filename: 'ggml-tiny.bin',
 		},
 		{
+			description: 'Fast, good accuracy',
+			filename: 'ggml-small.bin',
 			id: 'small',
 			name: 'Small',
-			description: 'Fast, good accuracy',
 			size: '488 MB',
 			sizeBytes: 488_000_000,
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-			filename: 'ggml-small.bin',
 		},
 		{
+			description: 'Balanced speed & accuracy',
+			filename: 'ggml-medium.bin',
 			id: 'medium',
 			name: 'Medium',
-			description: 'Balanced speed & accuracy',
 			size: '1.5 GB',
 			sizeBytes: 1_530_000_000,
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin',
-			filename: 'ggml-medium.bin',
 		},
 		{
+			description: 'Best accuracy, slower',
+			filename: 'ggml-large-v3-turbo.bin',
 			id: 'large-v3-turbo',
 			name: 'Large v3 Turbo',
-			description: 'Best accuracy, slower',
 			size: '1.6 GB',
 			sizeBytes: 1_620_000_000,
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
-			filename: 'ggml-large-v3-turbo.bin',
 		},
 	];
 
@@ -86,7 +86,7 @@
 
 	// Query to check which models are downloaded
 	const downloadedModelsQuery = createQuery(() => ({
-		queryKey: ['whisperModels', 'downloaded'],
+		enabled: !!window.__TAURI_INTERNALS__,
 		queryFn: async () => {
 			if (!window.__TAURI_INTERNALS__) return [];
 
@@ -99,8 +99,8 @@
 			}
 			return downloaded;
 		},
+		queryKey: ['whisperModels', 'downloaded'],
 		staleTime: 5000,
-		enabled: !!window.__TAURI_INTERNALS__,
 	}));
 
 	const downloadedModels = $derived(new Set(downloadedModelsQuery.data || []));
@@ -198,14 +198,14 @@
 
 		const { open } = await import('@tauri-apps/plugin-dialog');
 		const selected = await open({
-			multiple: false,
+			title: 'Select Whisper Model File',
 			filters: [
 				{
-					name: 'Whisper Models',
 					extensions: ['bin', 'gguf', 'ggml'],
+					name: 'Whisper Models',
 				},
 			],
-			title: 'Select Whisper Model File',
+			multiple: false,
 		});
 
 		if (selected) {
@@ -231,18 +231,18 @@
 
 	// Query to check if the manual model file exists
 	const modelFileQuery = createQuery(() => ({
-		queryKey: [
-			'modelFileExists',
-			settings.value['transcription.whispercpp.modelPath'],
-		],
+		enabled:
+			!!settings.value['transcription.whispercpp.modelPath'] &&
+			!!window.__TAURI_INTERNALS__,
 		queryFn: async () => {
 			const modelPath = settings.value['transcription.whispercpp.modelPath'];
 			if (!modelPath || !window.__TAURI_INTERNALS__) return null;
 			return await exists(modelPath);
 		},
-		enabled:
-			!!settings.value['transcription.whispercpp.modelPath'] &&
-			!!window.__TAURI_INTERNALS__,
+		queryKey: [
+			'modelFileExists',
+			settings.value['transcription.whispercpp.modelPath'],
+		],
 		staleTime: 5000,
 	}));
 </script>

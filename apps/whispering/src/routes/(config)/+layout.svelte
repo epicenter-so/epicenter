@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { commandCallbacks } from '$lib/commands';
 	import NavItems from '$lib/components/NavItems.svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		recorderStateToIcons,
 		vadStateToIcons,

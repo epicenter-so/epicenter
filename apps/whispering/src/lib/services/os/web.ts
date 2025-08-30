@@ -1,14 +1,16 @@
 import type { OsType } from '@tauri-apps/plugin-os';
+
 import { type } from 'arktype';
+
 import type { OsService } from '.';
 
 const UserAgentData = type({ platform: 'string' });
-type UserAgentData = typeof UserAgentData.infer;
-
 // Type for navigator with userAgentData support
 type NavigatorWithUAData = Navigator & {
 	userAgentData: UserAgentData;
 };
+
+type UserAgentData = typeof UserAgentData.infer;
 
 export function createOsServiceWeb(): OsService {
 	return {
@@ -26,33 +28,21 @@ export function createOsServiceWeb(): OsService {
 }
 
 /**
- * Type guard to check if navigator supports User-Agent Client Hints
- */
-function hasUserAgentData(
-	navigator: Navigator,
-): navigator is NavigatorWithUAData {
-	return (
-		'userAgentData' in navigator &&
-		UserAgentData.allows(navigator.userAgentData)
-	);
-}
-
-/**
  * Attempts to detect platform using modern User-Agent Client Hints API
  * @returns OsType if detected, null otherwise
  */
 function getPlatformFromClientHints(
 	navigator: NavigatorWithUAData,
-): OsType | null {
+): null | OsType {
 	const platform = navigator.userAgentData.platform.toLowerCase();
 
 	// Direct mapping from client hints to OsType
 	const platformMap: Record<string, OsType> = {
-		windows: 'windows',
-		macos: 'macos',
-		linux: 'linux',
 		android: 'android',
 		ios: 'ios',
+		linux: 'linux',
+		macos: 'macos',
+		windows: 'windows',
 	};
 
 	return platformMap[platform] ?? null;
@@ -92,4 +82,16 @@ function getPlatformFromUserAgent(navigator: Navigator): OsType {
 
 	// Linux detection (default for Unix-like systems)
 	return 'linux';
+}
+
+/**
+ * Type guard to check if navigator supports User-Agent Client Hints
+ */
+function hasUserAgentData(
+	navigator: Navigator,
+): navigator is NavigatorWithUAData {
+	return (
+		'userAgentData' in navigator &&
+		UserAgentData.allows(navigator.userAgentData)
+	);
 }

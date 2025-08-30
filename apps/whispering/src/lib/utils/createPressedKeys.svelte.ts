@@ -1,11 +1,13 @@
 import {
-	type KeyboardEventPossibleKey,
 	isSupportedKey,
+	type KeyboardEventPossibleKey,
 	normalizeOptionKeyCharacter,
 } from '$lib/constants/keyboard';
 import { IS_MACOS } from '$lib/constants/platform';
 import { on } from 'svelte/events';
 import { createSubscriber } from 'svelte/reactivity';
+
+export type PressedKeys = ReturnType<typeof createPressedKeys>;
 
 /**
  * Creates a reactive state manager for tracking pressed keyboard keys.
@@ -34,16 +36,16 @@ import { createSubscriber } from 'svelte/reactivity';
  * ```
  */
 export function createPressedKeys({
-	preventDefault = true,
 	onUnsupportedKey,
+	preventDefault = true,
 }: {
+	onUnsupportedKey?: (key: KeyboardEventPossibleKey) => void;
 	/**
 	 * Whether to call preventDefault() on keydown events.
 	 * - true (default): Blocks browser shortcuts (e.g., Ctrl+S won't save the page)
 	 * - false: Allows browser shortcuts to execute alongside key tracking
 	 */
 	preventDefault?: boolean;
-	onUnsupportedKey?: (key: KeyboardEventPossibleKey) => void;
 }) {
 	/**
 	 * Pressed and normalized keys, internally stored and synced via createSubscriber.
@@ -153,5 +155,3 @@ export function createPressedKeys({
 		},
 	};
 }
-
-export type PressedKeys = ReturnType<typeof createPressedKeys>;

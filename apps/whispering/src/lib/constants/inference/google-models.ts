@@ -11,7 +11,7 @@ export const GOOGLE_INFERENCE_MODELS = [
 
 export const GOOGLE_INFERENCE_MODEL_OPTIONS = GOOGLE_INFERENCE_MODELS.map(
 	(model) => ({
-		value: model,
 		label: model,
+		value: model,
 	}),
 );

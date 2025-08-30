@@ -1,21 +1,21 @@
 import type { Recording, TransformationRun } from '$lib/services/db';
 
 export function getRecordingTransitionId({
-	recordingId,
 	propertyName,
+	recordingId,
 }: {
+	propertyName: 'latestTransformationRunOutput' | keyof Recording;
 	recordingId: string;
-	propertyName: keyof Recording | 'latestTransformationRunOutput';
 }): string {
 	return `recording-${recordingId}-${propertyName}` as const;
 }
 
 export function getTransformationStepRunTransitionId({
-	stepRunId,
 	propertyName,
+	stepRunId,
 }: {
-	stepRunId: string;
 	propertyName: keyof TransformationRun;
+	stepRunId: string;
 }): string {
 	return `transformation-run-${stepRunId}-${propertyName}` as const;
 }

@@ -1,12 +1,14 @@
+import type { Recording } from '$lib/services/db';
+
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import * as services from '$lib/services';
-import type { Recording } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
-import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
+import { Err, Ok, partitionResults, type Result } from 'wellcrafted/result';
+
+import { rpc } from './';
 import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
-import { rpc } from './';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -42,8 +44,8 @@ export const transcription = {
 						'⚠️ Unable to set recording transcription status to transcribing',
 					description: 'Continuing with the transcription process...',
 					action: {
-						type: 'more-details',
 						error: setRecordingTranscribingError,
+						type: 'more-details',
 					},
 				});
 			}
@@ -61,8 +63,8 @@ export const transcription = {
 						description:
 							"Transcription failed but unable to update recording's transcription status in database",
 						action: {
-							type: 'more-details',
 							error: setRecordingTranscribingError,
+							type: 'more-details',
 						},
 					});
 				}
@@ -81,8 +83,8 @@ export const transcription = {
 					description:
 						"Transcription completed but unable to update recording's transcribed text and status in database",
 					action: {
-						type: 'more-details',
 						error: setRecordingTranscribedTextError,
+						type: 'more-details',
 					},
 				});
 			}
@@ -119,59 +121,59 @@ async function transcribeBlob(
 	// Log transcription request
 	const startTime = Date.now();
 	rpc.analytics.logEvent.execute({
-		type: 'transcription_requested',
 		provider: selectedService,
+		type: 'transcription_requested',
 	});
 
 	const transcriptionResult: Result<string, WhisperingError> =
 		await (async () => {
 			switch (selectedService) {
-				case 'OpenAI':
-					return await services.transcriptions.openai.transcribe(blob, {
+				case 'Deepgram':
+					return await services.transcriptions.deepgram.transcribe(blob, {
+						apiKey: settings.value['apiKeys.deepgram'],
+						modelName: settings.value['transcription.deepgram.model'],
 						outputLanguage: settings.value['transcription.outputLanguage'],
 						prompt: settings.value['transcription.prompt'],
 						temperature: settings.value['transcription.temperature'],
-						apiKey: settings.value['apiKeys.openai'],
-						modelName: settings.value['transcription.openai.model'],
-					});
-				case 'Groq':
-					return await services.transcriptions.groq.transcribe(blob, {
-						outputLanguage: settings.value['transcription.outputLanguage'],
-						prompt: settings.value['transcription.prompt'],
-						temperature: settings.value['transcription.temperature'],
-						apiKey: settings.value['apiKeys.groq'],
-						modelName: settings.value['transcription.groq.model'],
-					});
-				case 'speaches':
-					return await services.transcriptions.speaches.transcribe(blob, {
-						outputLanguage: settings.value['transcription.outputLanguage'],
-						prompt: settings.value['transcription.prompt'],
-						temperature: settings.value['transcription.temperature'],
-						modelId: settings.value['transcription.speaches.modelId'],
-						baseUrl: settings.value['transcription.speaches.baseUrl'],
 					});
 				case 'ElevenLabs':
 					return await services.transcriptions.elevenlabs.transcribe(blob, {
-						outputLanguage: settings.value['transcription.outputLanguage'],
-						prompt: settings.value['transcription.prompt'],
-						temperature: settings.value['transcription.temperature'],
 						apiKey: settings.value['apiKeys.elevenlabs'],
 						modelName: settings.value['transcription.elevenlabs.model'],
-					});
-				case 'Deepgram':
-					return await services.transcriptions.deepgram.transcribe(blob, {
 						outputLanguage: settings.value['transcription.outputLanguage'],
 						prompt: settings.value['transcription.prompt'],
 						temperature: settings.value['transcription.temperature'],
-						apiKey: settings.value['apiKeys.deepgram'],
-						modelName: settings.value['transcription.deepgram.model'],
+					});
+				case 'Groq':
+					return await services.transcriptions.groq.transcribe(blob, {
+						apiKey: settings.value['apiKeys.groq'],
+						modelName: settings.value['transcription.groq.model'],
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+					});
+				case 'OpenAI':
+					return await services.transcriptions.openai.transcribe(blob, {
+						apiKey: settings.value['apiKeys.openai'],
+						modelName: settings.value['transcription.openai.model'],
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+					});
+				case 'speaches':
+					return await services.transcriptions.speaches.transcribe(blob, {
+						baseUrl: settings.value['transcription.speaches.baseUrl'],
+						modelId: settings.value['transcription.speaches.modelId'],
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
 					});
 				case 'whispercpp':
 					return await services.transcriptions.whispercpp.transcribe(blob, {
+						modelPath: settings.value['transcription.whispercpp.modelPath'],
 						outputLanguage: settings.value['transcription.outputLanguage'],
 						prompt: settings.value['transcription.prompt'],
 						temperature: settings.value['transcription.temperature'],
-						modelPath: settings.value['transcription.whispercpp.modelPath'],
 						useGpu: settings.value['transcription.whispercpp.useGpu'],
 					});
 				default:
@@ -186,16 +188,16 @@ async function transcribeBlob(
 	const duration = Date.now() - startTime;
 	if (transcriptionResult.error) {
 		rpc.analytics.logEvent.execute({
-			type: 'transcription_failed',
-			provider: selectedService,
-			error_title: transcriptionResult.error.title,
 			error_description: transcriptionResult.error.description,
+			error_title: transcriptionResult.error.title,
+			provider: selectedService,
+			type: 'transcription_failed',
 		});
 	} else {
 		rpc.analytics.logEvent.execute({
-			type: 'transcription_completed',
-			provider: selectedService,
 			duration,
+			provider: selectedService,
+			type: 'transcription_completed',
 		});
 	}
 

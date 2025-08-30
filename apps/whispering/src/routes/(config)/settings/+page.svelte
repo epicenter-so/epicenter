@@ -3,10 +3,10 @@
 		LabeledSelect,
 		LabeledSwitch,
 	} from '$lib/components/labeled/index.js';
-	import { Button } from '@repo/ui/button';
-	import { Separator } from '@repo/ui/separator';
 	import { ALWAYS_ON_TOP_OPTIONS } from '$lib/constants/ui';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { Button } from '@repo/ui/button';
+	import { Separator } from '@repo/ui/separator';
 </script>
 
 <svelte:head>
@@ -67,8 +67,8 @@
 		id="recording-retention-strategy"
 		label="Auto Delete Recordings"
 		items={[
-			{ value: 'keep-forever', label: 'Keep All Recordings' },
-			{ value: 'limit-count', label: 'Keep Limited Number' },
+			{ label: 'Keep All Recordings', value: 'keep-forever' },
+			{ label: 'Keep Limited Number', value: 'limit-count' },
 		] as const}
 		selected={settings.value['database.recordingRetentionStrategy']}
 		onSelectedChange={(selected) => {
@@ -82,12 +82,12 @@
 			id="max-recording-count"
 			label="Maximum Recordings"
 			items={[
-				{ value: '0', label: '0 Recordings (Never Save)' },
-				{ value: '5', label: '5 Recordings' },
-				{ value: '10', label: '10 Recordings' },
-				{ value: '25', label: '25 Recordings' },
-				{ value: '50', label: '50 Recordings' },
-				{ value: '100', label: '100 Recordings' },
+				{ label: '0 Recordings (Never Save)', value: '0' },
+				{ label: '5 Recordings', value: '5' },
+				{ label: '10 Recordings', value: '10' },
+				{ label: '25 Recordings', value: '25' },
+				{ label: '50 Recordings', value: '50' },
+				{ label: '100 Recordings', value: '100' },
 			]}
 			selected={settings.value['database.maxRecordingCount']}
 			onSelectedChange={(selected) => {

@@ -10,10 +10,12 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { ModeWatcher, mode } from 'mode-watcher';
+	import { mode, ModeWatcher } from 'mode-watcher';
 	import { onDestroy, onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
+
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
+	import { checkFfmpeg } from './check-ffmpeg';
 	import { checkForUpdates } from './check-for-updates';
 	import {
 		resetGlobalShortcutsToDefaultIfDuplicates,
@@ -22,7 +24,6 @@
 		syncLocalShortcutsWithSettings,
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
-	import { checkFfmpeg } from './check-ffmpeg';
 	import { 
 		registerAccessibilityPermission,
 		registerMicrophonePermission 
@@ -72,26 +73,26 @@
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
 		services.db.cleanupExpiredRecordings({
+			maxRecordingCount: settings.value['database.maxRecordingCount'],
 			recordingRetentionStrategy:
 				settings.value['database.recordingRetentionStrategy'],
-			maxRecordingCount: settings.value['database.maxRecordingCount'],
 		});
 	});
 
 	const TOASTER_SETTINGS = {
+		closeButton: true,
+		duration: 5000,
 		position: 'bottom-right',
 		richColors: true,
-		duration: 5000,
-		visibleToasts: 5,
 		toastOptions: {
 			classes: {
-				toast: 'flex flex-wrap *:data-content:flex-1',
-				icon: 'shrink-0',
 				actionButton: 'w-full mt-3 inline-flex justify-center',
 				closeButton: 'w-full mt-3 inline-flex justify-center',
+				icon: 'shrink-0',
+				toast: 'flex flex-wrap *:data-content:flex-1',
 			},
 		},
-		closeButton: true,
+		visibleToasts: 5,
 	} satisfies ToasterProps;
 
 	let { children } = $props();

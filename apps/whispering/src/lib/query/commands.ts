@@ -1,89 +1,91 @@
 import type { RecordingMode } from '$lib/constants/audio';
 import type { SupportedLanguage } from '$lib/constants/languages';
+
 import { fromTaggedErr, fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok } from 'wellcrafted/result';
+
+import { rpc } from './';
 import { defineMutation } from './_client';
 import { delivery } from './delivery';
-import { recorder } from './recorder';
 import { notify } from './notify';
+import { recorder } from './recorder';
 import { recordings } from './recordings';
 import { sound } from './sound';
 import { transcription } from './transcription';
 import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
-import { rpc } from './';
 
 // Helper function to get human-readable language labels
 const getLanguageLabel = (langCode: SupportedLanguage): string => {
 	const labels: Record<SupportedLanguage, string> = {
-		auto: 'Auto',
 		af: 'Afrikaans',
 		ar: 'Arabic',
-		hy: 'Armenian',
+		auto: 'Auto',
 		az: 'Azerbaijani',
 		be: 'Belarusian',
-		bs: 'Bosnian',
 		bg: 'Bulgarian',
+		bs: 'Bosnian',
 		ca: 'Catalan',
-		zh: 'Chinese',
-		hr: 'Croatian',
 		cs: 'Czech',
+		cy: 'Welsh',
 		da: 'Danish',
-		nl: 'Dutch',
+		de: 'German',
+		el: 'Greek',
 		en: 'English',
+		es: 'Spanish',
 		et: 'Estonian',
+		fa: 'Persian',
 		fi: 'Finnish',
 		fr: 'French',
 		gl: 'Galician',
-		de: 'German',
-		el: 'Greek',
 		he: 'Hebrew',
 		hi: 'Hindi',
+		hr: 'Croatian',
 		hu: 'Hungarian',
-		is: 'Icelandic',
+		hy: 'Armenian',
 		id: 'Indonesian',
+		is: 'Icelandic',
 		it: 'Italian',
 		ja: 'Japanese',
-		kn: 'Kannada',
 		kk: 'Kazakh',
+		kn: 'Kannada',
 		ko: 'Korean',
-		lv: 'Latvian',
 		lt: 'Lithuanian',
-		mk: 'Macedonian',
-		ms: 'Malay',
-		mr: 'Marathi',
+		lv: 'Latvian',
 		mi: 'Maori',
+		mk: 'Macedonian',
+		mr: 'Marathi',
+		ms: 'Malay',
 		ne: 'Nepali',
+		nl: 'Dutch',
 		no: 'Norwegian',
-		fa: 'Persian',
 		pl: 'Polish',
 		pt: 'Portuguese',
 		ro: 'Romanian',
 		ru: 'Russian',
-		sr: 'Serbian',
 		sk: 'Slovak',
 		sl: 'Slovenian',
-		es: 'Spanish',
-		sw: 'Swahili',
+		sr: 'Serbian',
 		sv: 'Swedish',
-		tl: 'Tagalog',
+		sw: 'Swahili',
 		ta: 'Tamil',
 		th: 'Thai',
+		tl: 'Tagalog',
 		tr: 'Turkish',
 		uk: 'Ukrainian',
 		ur: 'Urdu',
 		vi: 'Vietnamese',
-		cy: 'Welsh',
+		zh: 'Chinese',
 	};
 	return labels[langCode] || langCode;
 };
 
 // Track manual recording start time for duration calculation
-let manualRecordingStartTime: number | null = null;
+let manualRecordingStartTime: null | number = null;
 
 // Internal mutations for manual recording
 const startManualRecording = defineMutation({
@@ -93,9 +95,9 @@ const startManualRecording = defineMutation({
 
 		const toastId = nanoid();
 		notify.loading.execute({
-			id: toastId,
 			title: '🎙️ Preparing to record...',
 			description: 'Setting up your recording environment...',
+			id: toastId,
 		});
 		const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 			await recorder.startRecording.execute({ toastId });
@@ -108,9 +110,9 @@ const startManualRecording = defineMutation({
 		switch (deviceAcquisitionOutcome.outcome) {
 			case 'success': {
 				notify.success.execute({
-					id: toastId,
 					title: '🎙️ Whispering is recording...',
 					description: 'Speak now and stop recording when done',
+					id: toastId,
 				});
 				break;
 			}
@@ -122,29 +124,29 @@ const startManualRecording = defineMutation({
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
 						notify.info.execute({
-							id: toastId,
 							title: '🎙️ Switched to available microphone',
 							description:
 								'No microphone was selected, so we automatically connected to an available one. You can update your selection in settings.',
 							action: {
-								type: 'link',
-								label: 'Open Settings',
 								href: '/settings/recording',
+								label: 'Open Settings',
+								type: 'link',
 							},
+							id: toastId,
 						});
 						break;
 					}
 					case 'preferred-device-unavailable': {
 						notify.info.execute({
-							id: toastId,
 							title: '🎙️ Switched to different microphone',
 							description:
 								"Your previously selected microphone wasn't found, so we automatically connected to an available one.",
 							action: {
-								type: 'link',
-								label: 'Open Settings',
 								href: '/settings/recording',
+								label: 'Open Settings',
+								type: 'link',
 							},
+							id: toastId,
 						});
 						break;
 					}
@@ -164,9 +166,9 @@ const stopManualRecording = defineMutation({
 	resultMutationFn: async () => {
 		const toastId = nanoid();
 		notify.loading.execute({
-			id: toastId,
 			title: '⏸️ Stopping recording...',
 			description: 'Finalizing your audio capture...',
+			id: toastId,
 		});
 		const { data: blob, error: stopRecordingError } =
 			await recorder.stopRecording.execute({ toastId });
@@ -176,9 +178,9 @@ const stopManualRecording = defineMutation({
 		}
 
 		notify.success.execute({
-			id: toastId,
 			title: '🎙️ Recording stopped',
 			description: 'Your recording has been saved',
+			id: toastId,
 		});
 		console.info('Recording stopped');
 		sound.playSoundIfEnabled.execute('manual-stop');
@@ -190,16 +192,16 @@ const stopManualRecording = defineMutation({
 			manualRecordingStartTime = null; // Reset for next recording
 		}
 		rpc.analytics.logEvent.execute({
-			type: 'manual_recording_completed',
 			blob_size: blob.size,
 			duration,
+			type: 'manual_recording_completed',
 		});
 
 		await processRecordingPipeline({
 			blob,
-			toastId,
-			completionTitle: '✨ Recording Complete!',
 			completionDescription: 'Recording saved and session closed successfully',
+			completionTitle: '✨ Recording Complete!',
+			toastId,
 		});
 
 		return Ok(undefined);
@@ -215,41 +217,41 @@ const startVadRecording = defineMutation({
 		const toastId = nanoid();
 		console.info('Starting voice activated capture');
 		notify.loading.execute({
-			id: toastId,
 			title: '🎙️ Starting voice activated capture',
 			description: 'Your voice activated capture is starting...',
+			id: toastId,
 		});
 		const { data: deviceAcquisitionOutcome, error: startActiveListeningError } =
 			await vadRecorder.startActiveListening.execute({
-				onSpeechStart: () => {
-					notify.success.execute({
-						title: '🎙️ Speech started',
-						description: 'Recording started. Speak clearly and loudly.',
-					});
-				},
 				onSpeechEnd: async (blob) => {
 					const toastId = nanoid();
 					notify.success.execute({
-						id: toastId,
 						title: '🎙️ Voice activated speech captured',
 						description: 'Your voice activated speech has been captured.',
+						id: toastId,
 					});
 					console.info('Voice activated speech captured');
 					sound.playSoundIfEnabled.execute('vad-capture');
 
 					// Log VAD recording completion
 					rpc.analytics.logEvent.execute({
-						type: 'vad_recording_completed',
 						blob_size: blob.size,
+						type: 'vad_recording_completed',
 						// VAD doesn't track duration by default
 					});
 
 					await processRecordingPipeline({
 						blob,
-						toastId,
-						completionTitle: '✨ Voice activated capture complete!',
 						completionDescription:
 							'Voice activated capture complete! Ready for another take',
+						completionTitle: '✨ Voice activated capture complete!',
+						toastId,
+					});
+				},
+				onSpeechStart: () => {
+					notify.success.execute({
+						title: '🎙️ Speech started',
+						description: 'Recording started. Speak clearly and loudly.',
 					});
 				},
 			});
@@ -262,9 +264,9 @@ const startVadRecording = defineMutation({
 		switch (deviceAcquisitionOutcome.outcome) {
 			case 'success': {
 				notify.success.execute({
-					id: toastId,
 					title: '🎙️ Voice activated capture started',
 					description: 'Your voice activated capture has been started.',
+					id: toastId,
 				});
 				break;
 			}
@@ -276,29 +278,29 @@ const startVadRecording = defineMutation({
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
 						notify.info.execute({
-							id: toastId,
 							title: '🎙️ VAD started with available microphone',
 							description:
 								'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
 							action: {
-								type: 'link',
-								label: 'Open Settings',
 								href: '/settings/recording',
+								label: 'Open Settings',
+								type: 'link',
 							},
+							id: toastId,
 						});
 						break;
 					}
 					case 'preferred-device-unavailable': {
 						notify.info.execute({
-							id: toastId,
 							title: '🎙️ VAD switched to different microphone',
 							description:
 								"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
 							action: {
-								type: 'link',
-								label: 'Open Settings',
 								href: '/settings/recording',
+								label: 'Open Settings',
+								type: 'link',
 							},
+							id: toastId,
 						});
 						break;
 					}
@@ -317,9 +319,9 @@ const stopVadRecording = defineMutation({
 		const toastId = nanoid();
 		console.info('Stopping voice activated capture');
 		notify.loading.execute({
-			id: toastId,
 			title: '⏸️ Stopping voice activated capture...',
 			description: 'Finalizing your voice activated capture...',
+			id: toastId,
 		});
 		const { error: stopVadError } =
 			await vadRecorder.stopActiveListening.execute(undefined);
@@ -328,9 +330,9 @@ const stopVadRecording = defineMutation({
 			return Err(stopVadError);
 		}
 		notify.success.execute({
-			id: toastId,
 			title: '🎙️ Voice activated capture stopped',
 			description: 'Your voice activated capture has been stopped.',
+			id: toastId,
 		});
 		sound.playSoundIfEnabled.execute('vad-stop');
 		return Ok(undefined);
@@ -338,10 +340,95 @@ const stopVadRecording = defineMutation({
 });
 
 export const commands = {
+	// Cancel manual recording
+	cancelManualRecording: defineMutation({
+		mutationKey: ['commands', 'cancelManualRecording'] as const,
+		resultMutationFn: async () => {
+			const toastId = nanoid();
+			notify.loading.execute({
+				title: '⏸️ Canceling recording...',
+				description: 'Cleaning up recording session...',
+				id: toastId,
+			});
+			const { data: cancelRecordingResult, error: cancelRecordingError } =
+				await recorder.cancelRecording.execute({ toastId });
+			if (cancelRecordingError) {
+				notify.error.execute({ id: toastId, ...cancelRecordingError });
+				return Err(cancelRecordingError);
+			}
+			switch (cancelRecordingResult.status) {
+				case 'cancelled': {
+					// Session cleanup is now handled internally by the recorder service
+					// Reset start time if recording was cancelled
+					manualRecordingStartTime = null;
+					notify.success.execute({
+						title: '✅ All Done!',
+						description: 'Recording cancelled successfully',
+						id: toastId,
+					});
+					sound.playSoundIfEnabled.execute('manual-cancel');
+					console.info('Recording cancelled');
+					break;
+				}
+				case 'no-recording': {
+					notify.info.execute({
+						title: 'No active recording',
+						description: 'There is no recording in progress to cancel.',
+						id: toastId,
+					});
+					break;
+				}
+			}
+			return Ok(undefined);
+		},
+	}),
+	setOutputLanguageSlot: defineMutation({
+		mutationKey: ['commands', 'setOutputLanguageSlot'] as const,
+		resultMutationFn: async ({ slot }: { slot: 1 | 2 | 3 }) => {
+			const favoriteLanguages = settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh'];
+			const targetLanguage = favoriteLanguages[slot - 1];
+			
+			if (!targetLanguage) {
+				return Err(WhisperingErr({
+					title: '❌ Language slot not configured',
+					description: `Favorite language slot ${slot} is not set. Configure it in Settings → Transcription.`,
+					action: { href: '/settings/transcription', label: 'Open settings', type: 'link' },
+				}));
+			}
+			
+			settings.updateKey('transcription.outputLanguage', targetLanguage);
+			
+			await notify.success.execute({
+				title: `Switched to language slot ${slot}`,
+				description: `Now transcribing to: ${getLanguageLabel(targetLanguage)}`,
+			});
+			
+			return Ok(targetLanguage);
+		},
+	}),
 	startManualRecording,
-	stopManualRecording,
 	startVadRecording,
+
+	stopManualRecording,
+
 	stopVadRecording,
+
+	// Toggle manual recording
+	toggleManualRecording: defineMutation({
+		mutationKey: ['commands', 'toggleManualRecording'] as const,
+		resultMutationFn: async () => {
+			const { data: currentRecordingId, error: getRecordingIdError } =
+				await recorder.getCurrentRecordingId.fetch();
+			if (getRecordingIdError) {
+				notify.error.execute(getRecordingIdError);
+				return Err(getRecordingIdError);
+			}
+			if (currentRecordingId) {
+				return await stopManualRecording.execute(undefined);
+			}
+			return await startManualRecording.execute(undefined);
+		},
+	}),
 
 	// Language toggle commands
 	toggleOutputLanguage: defineMutation({
@@ -368,91 +455,6 @@ export const commands = {
 		},
 	}),
 
-	setOutputLanguageSlot: defineMutation({
-		mutationKey: ['commands', 'setOutputLanguageSlot'] as const,
-		resultMutationFn: async ({ slot }: { slot: 1 | 2 | 3 }) => {
-			const favoriteLanguages = settings.value['transcription.favoriteLanguages'] ?? ['en', 'ja', 'zh'];
-			const targetLanguage = favoriteLanguages[slot - 1];
-			
-			if (!targetLanguage) {
-				return Err(WhisperingErr({
-					title: '❌ Language slot not configured',
-					description: `Favorite language slot ${slot} is not set. Configure it in Settings → Transcription.`,
-					action: { type: 'link', href: '/settings/transcription', label: 'Open settings' },
-				}));
-			}
-			
-			settings.updateKey('transcription.outputLanguage', targetLanguage);
-			
-			await notify.success.execute({
-				title: `Switched to language slot ${slot}`,
-				description: `Now transcribing to: ${getLanguageLabel(targetLanguage)}`,
-			});
-			
-			return Ok(targetLanguage);
-		},
-	}),
-
-	// Toggle manual recording
-	toggleManualRecording: defineMutation({
-		mutationKey: ['commands', 'toggleManualRecording'] as const,
-		resultMutationFn: async () => {
-			const { data: currentRecordingId, error: getRecordingIdError } =
-				await recorder.getCurrentRecordingId.fetch();
-			if (getRecordingIdError) {
-				notify.error.execute(getRecordingIdError);
-				return Err(getRecordingIdError);
-			}
-			if (currentRecordingId) {
-				return await stopManualRecording.execute(undefined);
-			}
-			return await startManualRecording.execute(undefined);
-		},
-	}),
-
-	// Cancel manual recording
-	cancelManualRecording: defineMutation({
-		mutationKey: ['commands', 'cancelManualRecording'] as const,
-		resultMutationFn: async () => {
-			const toastId = nanoid();
-			notify.loading.execute({
-				id: toastId,
-				title: '⏸️ Canceling recording...',
-				description: 'Cleaning up recording session...',
-			});
-			const { data: cancelRecordingResult, error: cancelRecordingError } =
-				await recorder.cancelRecording.execute({ toastId });
-			if (cancelRecordingError) {
-				notify.error.execute({ id: toastId, ...cancelRecordingError });
-				return Err(cancelRecordingError);
-			}
-			switch (cancelRecordingResult.status) {
-				case 'no-recording': {
-					notify.info.execute({
-						id: toastId,
-						title: 'No active recording',
-						description: 'There is no recording in progress to cancel.',
-					});
-					break;
-				}
-				case 'cancelled': {
-					// Session cleanup is now handled internally by the recorder service
-					// Reset start time if recording was cancelled
-					manualRecordingStartTime = null;
-					notify.success.execute({
-						id: toastId,
-						title: '✅ All Done!',
-						description: 'Recording cancelled successfully',
-					});
-					sound.playSoundIfEnabled.execute('manual-cancel');
-					console.info('Recording cancelled');
-					break;
-				}
-			}
-			return Ok(undefined);
-		},
-	}),
-
 	// Toggle VAD recording
 	toggleVadRecording: defineMutation({
 		mutationKey: ['commands', 'toggleVadRecording'] as const,
@@ -470,9 +472,9 @@ export const commands = {
 		mutationKey: ['recordings', 'uploadRecordings'] as const,
 		resultMutationFn: async ({ files }: { files: File[] }) => {
 			// Partition files into valid and invalid in a single pass
-			const { valid: validFiles, invalid: invalidFiles } = files.reduce<{
-				valid: File[];
+			const { invalid: invalidFiles, valid: validFiles } = files.reduce<{
 				invalid: File[];
+				valid: File[];
 			}>(
 				(acc, file) => {
 					const isValid =
@@ -480,14 +482,14 @@ export const commands = {
 					acc[isValid ? 'valid' : 'invalid'].push(file);
 					return acc;
 				},
-				{ valid: [], invalid: [] },
+				{ invalid: [], valid: [] },
 			);
 
 			if (validFiles.length === 0) {
 				return DbServiceErr({
-					message: 'No valid audio or video files found.',
-					context: { providedFiles: files.length },
 					cause: undefined,
+					context: { providedFiles: files.length },
+					message: 'No valid audio or video files found.',
 				});
 			}
 
@@ -506,17 +508,17 @@ export const commands = {
 					
 					// Log file upload event
 					rpc.analytics.logEvent.execute({
-						type: 'file_uploaded',
 						blob_size: audioBlob.size,
+						type: 'file_uploaded',
 					});
 
 					// Each file gets its own toast notification
 					const toastId = nanoid();
 					await processRecordingPipeline({
 						blob: audioBlob,
-						toastId,
-						completionTitle: '📁 File uploaded successfully!',
 						completionDescription: file.name,
+						completionTitle: '📁 File uploaded successfully!',
+						toastId,
 					});
 				}),
 			);
@@ -541,53 +543,53 @@ export const commands = {
  */
 async function processRecordingPipeline({
 	blob,
-	toastId,
-	completionTitle,
 	completionDescription,
+	completionTitle,
+	toastId,
 }: {
 	blob: Blob;
-	toastId: string;
-	completionTitle: string;
 	completionDescription: string;
+	completionTitle: string;
+	toastId: string;
 }) {
 	const now = new Date().toISOString();
 	const newRecordingId = nanoid();
 
 	const { data: createdRecording, error: createRecordingError } =
 		await recordings.createRecording.execute({
-			id: newRecordingId,
 			title: '',
-			subtitle: '',
+			blob,
 			createdAt: now,
-			updatedAt: now,
+			id: newRecordingId,
+			subtitle: '',
 			timestamp: now,
 			transcribedText: '',
-			blob,
 			transcriptionStatus: 'UNPROCESSED',
+			updatedAt: now,
 		});
 
 	if (createRecordingError) {
 		notify.error.execute({
-			id: toastId,
 			title:
 				'❌ Your recording was captured but could not be saved to the database.',
 			description: createRecordingError.message,
-			action: { type: 'more-details', error: createRecordingError },
+			action: { error: createRecordingError, type: 'more-details' },
+			id: toastId,
 		});
 		return;
 	}
 
 	notify.success.execute({
-		id: toastId,
 		title: completionTitle,
 		description: completionDescription,
+		id: toastId,
 	});
 
 	const transcribeToastId = nanoid();
 	notify.loading.execute({
-		id: transcribeToastId,
 		title: '📋 Transcribing...',
 		description: 'Your recording is being transcribed...',
+		id: transcribeToastId,
 	});
 
 	const { data: transcribedText, error: transcribeError } =
@@ -599,10 +601,10 @@ async function processRecordingPipeline({
 			return;
 		}
 		notify.error.execute({
-			id: transcribeToastId,
 			title: '❌ Failed to transcribe recording',
 			description: 'Your recording could not be transcribed.',
-			action: { type: 'more-details', error: transcribeError },
+			action: { error: transcribeError, type: 'more-details' },
+			id: transcribeToastId,
 		});
 		return;
 	}
@@ -631,7 +633,7 @@ async function processRecordingPipeline({
 		notify.error.execute(
 			fromTaggedError(getTransformationError, {
 				title: '❌ Failed to get transformation',
-				action: { type: 'more-details', error: getTransformationError },
+				action: { error: getTransformationError, type: 'more-details' },
 			}),
 		);
 		return;
@@ -644,9 +646,9 @@ async function processRecordingPipeline({
 			description:
 				'No matching transformation found. Please select a different transformation.',
 			action: {
-				type: 'link',
-				label: 'Select a different transformation',
 				href: '/transformations',
+				label: 'Select a different transformation',
+				type: 'link',
 			},
 		});
 		return;
@@ -654,10 +656,10 @@ async function processRecordingPipeline({
 
 	const transformToastId = nanoid();
 	notify.loading.execute({
-		id: transformToastId,
 		title: '🔄 Running transformation...',
 		description:
 			'Applying your selected transformation to the transcribed text...',
+		id: transformToastId,
 	});
 	const { data: transformationRun, error: transformError } =
 		await transformer.transformRecording.execute({
@@ -671,10 +673,10 @@ async function processRecordingPipeline({
 
 	if (transformationRun.status === 'failed') {
 		notify.error.execute({
-			id: transformToastId,
 			title: '⚠️ Transformation error',
 			description: transformationRun.error,
-			action: { type: 'more-details', error: transformationRun.error },
+			action: { error: transformationRun.error, type: 'more-details' },
+			id: transformToastId,
 		});
 		return;
 	}

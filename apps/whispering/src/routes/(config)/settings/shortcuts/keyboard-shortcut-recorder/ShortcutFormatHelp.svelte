@@ -1,10 +1,5 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import * as Alert from '@repo/ui/alert';
-	import { Badge } from '@repo/ui/badge';
-	import { Button } from '@repo/ui/button';
-	import * as Dialog from '@repo/ui/dialog';
-	import * as Tooltip from '@repo/ui/tooltip';
 	import {
 		ACCELERATOR_SECTIONS,
 		CommandOrAlt,
@@ -14,8 +9,13 @@
 	} from '$lib/constants/keyboard';
 	import { IS_MACOS } from '$lib/constants/platform';
 	import { AlertTriangle, ExternalLink, HelpCircle } from '@lucide/svelte';
+	import * as Alert from '@repo/ui/alert';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
+	import * as Tooltip from '@repo/ui/tooltip';
 
-	let { type }: { type: 'local' | 'global' } = $props();
+	let { type }: { type: 'global' | 'local' } = $props();
 	let dialogOpen = $state(false);
 
 	const isLocal = $derived(type === 'local');
@@ -24,14 +24,6 @@
 	 * Examples for each shortcut type
 	 */
 	const SHORTCUT_EXAMPLES = {
-		local: [
-			' ',
-			`${CommandOrControl.toLowerCase()}+a`,
-			`${CommandOrControl.toLowerCase()}+shift+p`,
-			`${CommandOrAlt.toLowerCase()}+s`,
-			'f5',
-			`control+${CommandOrAlt.toLowerCase()}+delete`,
-		],
 		global: [
 			'Space',
 			'Control+A',
@@ -39,6 +31,14 @@
 			`${CommandOrAlt}+S`,
 			'F5',
 			`Control+${CommandOrAlt}+Delete`,
+		],
+		local: [
+			' ',
+			`${CommandOrControl.toLowerCase()}+a`,
+			`${CommandOrControl.toLowerCase()}+shift+p`,
+			`${CommandOrAlt.toLowerCase()}+s`,
+			'f5',
+			`control+${CommandOrAlt.toLowerCase()}+delete`,
 		],
 	} as const;
 </script>

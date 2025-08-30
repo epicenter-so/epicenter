@@ -1,104 +1,105 @@
 <script lang="ts">
-	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
+	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import {
 		LabeledInput,
 		LabeledSelect,
 		LabeledTextarea,
 	} from '$lib/components/labeled/index.js';
 	import {
+		DeepgramApiKeyInput,
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
-		DeepgramApiKeyInput,
 	} from '$lib/components/settings';
-	import { Badge } from '@repo/ui/badge';
-	import { Button } from '@repo/ui/button';
-	import * as Card from '@repo/ui/card';
-	import { Checkbox } from '@repo/ui/checkbox';
-	import { Input } from '@repo/ui/input';
-	import { Separator } from '@repo/ui/separator';
-	import * as Alert from '@repo/ui/alert';
-	import { Link } from '@repo/ui/link';
-	import * as Collapsible from '@repo/ui/collapsible';
-	import * as Select from '@repo/ui/select';
+	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import { SUPPORTED_LANGUAGES_OPTIONS, type SupportedLanguage } from '$lib/constants/languages';
 	import {
+		DEEPGRAM_TRANSCRIPTION_MODELS,
 		ELEVENLABS_TRANSCRIPTION_MODELS,
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
-		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
-	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
+	import { CheckIcon, InfoIcon, TriangleAlert } from '@lucide/svelte';
+	import * as Alert from '@repo/ui/alert';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import { Checkbox } from '@repo/ui/checkbox';
+	import * as Collapsible from '@repo/ui/collapsible';
+	import { Input } from '@repo/ui/input';
+	import { Link } from '@repo/ui/link';
+	import * as Select from '@repo/ui/select';
+	import { Separator } from '@repo/ui/separator';
+
 	import {
-		isUsingWhisperCppWithBrowserBackend,
 		isUsingNativeBackendAtWrongSampleRate,
+		isUsingWhisperCppWithBrowserBackend,
 	} from '../../../+layout/check-ffmpeg';
 
 	// Helper function to get human-readable language labels
 	const getLanguageLabel = (langCode: SupportedLanguage): string => {
 		const labels: Record<SupportedLanguage, string> = {
-			auto: 'Auto',
 			af: 'Afrikaans',
 			ar: 'Arabic',
-			hy: 'Armenian',
+			auto: 'Auto',
 			az: 'Azerbaijani',
 			be: 'Belarusian',
-			bs: 'Bosnian',
 			bg: 'Bulgarian',
+			bs: 'Bosnian',
 			ca: 'Catalan',
-			zh: 'Chinese',
-			hr: 'Croatian',
 			cs: 'Czech',
+			cy: 'Welsh',
 			da: 'Danish',
-			nl: 'Dutch',
+			de: 'German',
+			el: 'Greek',
 			en: 'English',
+			es: 'Spanish',
 			et: 'Estonian',
+			fa: 'Persian',
 			fi: 'Finnish',
 			fr: 'French',
 			gl: 'Galician',
-			de: 'German',
-			el: 'Greek',
 			he: 'Hebrew',
 			hi: 'Hindi',
+			hr: 'Croatian',
 			hu: 'Hungarian',
-			is: 'Icelandic',
+			hy: 'Armenian',
 			id: 'Indonesian',
+			is: 'Icelandic',
 			it: 'Italian',
 			ja: 'Japanese',
-			kn: 'Kannada',
 			kk: 'Kazakh',
+			kn: 'Kannada',
 			ko: 'Korean',
-			lv: 'Latvian',
 			lt: 'Lithuanian',
-			mk: 'Macedonian',
-			ms: 'Malay',
-			mr: 'Marathi',
+			lv: 'Latvian',
 			mi: 'Maori',
+			mk: 'Macedonian',
+			mr: 'Marathi',
+			ms: 'Malay',
 			ne: 'Nepali',
+			nl: 'Dutch',
 			no: 'Norwegian',
-			fa: 'Persian',
 			pl: 'Polish',
 			pt: 'Portuguese',
 			ro: 'Romanian',
 			ru: 'Russian',
-			sr: 'Serbian',
 			sk: 'Slovak',
 			sl: 'Slovenian',
-			es: 'Spanish',
-			sw: 'Swahili',
+			sr: 'Serbian',
 			sv: 'Swedish',
-			tl: 'Tagalog',
+			sw: 'Swahili',
 			ta: 'Tamil',
 			th: 'Thai',
+			tl: 'Tagalog',
 			tr: 'Turkish',
 			uk: 'Ukrainian',
 			ur: 'Urdu',
 			vi: 'Vietnamese',
-			cy: 'Welsh',
+			zh: 'Chinese',
 		};
 		return labels[langCode] || langCode;
 	};
@@ -136,8 +137,8 @@
 			id="openai-model"
 			label="OpenAI Model"
 			items={OPENAI_TRANSCRIPTION_MODELS.map((model) => ({
-				value: model.name,
 				label: model.name,
+				value: model.name,
 				...model,
 			}))}
 			selected={settings.value['transcription.openai.model']}
@@ -164,8 +165,8 @@
 			id="groq-model"
 			label="Groq Model"
 			items={GROQ_MODELS.map((model) => ({
-				value: model.name,
 				label: model.name,
+				value: model.name,
 				...model,
 			}))}
 			selected={settings.value['transcription.groq.model']}
@@ -192,8 +193,8 @@
 			id="deepgram-model"
 			label="Deepgram Model"
 			items={DEEPGRAM_TRANSCRIPTION_MODELS.map((model) => ({
-				value: model.name,
 				label: model.name,
+				value: model.name,
 				...model,
 			}))}
 			selected={settings.value['transcription.deepgram.model']}
@@ -208,8 +209,8 @@
 			id="elevenlabs-model"
 			label="ElevenLabs Model"
 			items={ELEVENLABS_TRANSCRIPTION_MODELS.map((model) => ({
-				value: model.name,
 				label: model.name,
+				value: model.name,
 				...model,
 			}))}
 			selected={settings.value['transcription.elevenlabs.model']}
@@ -567,9 +568,9 @@
 	item,
 }: {
 	item: {
-		name: string;
-		description: string;
 		cost: string;
+		description: string;
+		name: string;
 	};
 })}
 	<div class="flex flex-col gap-1 py-1">

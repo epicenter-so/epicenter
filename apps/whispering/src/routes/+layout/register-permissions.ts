@@ -1,8 +1,8 @@
+import { goto } from '$app/navigation';
 import { IS_MACOS } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { nanoid } from 'nanoid/non-secure';
 import { toast } from 'svelte-sonner';
-import { goto } from '$app/navigation';
 
 export function registerAccessibilityPermission() {
 	// Only run on macOS desktop
@@ -23,10 +23,8 @@ export function registerAccessibilityPermission() {
 		if (!isAccessibilityGranted) {
 			// Toast if permission not granted
 			toast.warning('Accessibility Permission Issue', {
-				id: accessibilityToastId,
 				description:
 					'Whispering needs accessibility permissions. This often requires removing and re-adding the app after updates.',
-				duration: Number.POSITIVE_INFINITY,
 				action: {
 					label: 'View Guide',
 					onClick: () => {
@@ -35,6 +33,8 @@ export function registerAccessibilityPermission() {
 						toast.dismiss(accessibilityToastId);
 					},
 				},
+				duration: Number.POSITIVE_INFINITY,
+				id: accessibilityToastId,
 			});
 		}
 	})();
@@ -64,9 +64,7 @@ export function registerMicrophonePermission() {
 		if (!isMicrophoneGranted) {
 			// Toast if permission not granted
 			toast.info('Microphone Permission Required', {
-				id: microphoneToastId,
 				description: 'Whispering needs microphone access to record audio',
-				duration: Number.POSITIVE_INFINITY,
 				action: {
 					label: 'Enable Permission',
 					onClick: async () => {
@@ -83,6 +81,8 @@ export function registerMicrophonePermission() {
 						toast.dismiss(microphoneToastId);
 					},
 				},
+				duration: Number.POSITIVE_INFINITY,
+				id: microphoneToastId,
 			});
 		}
 	})();

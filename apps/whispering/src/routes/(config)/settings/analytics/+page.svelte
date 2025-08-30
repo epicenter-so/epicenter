@@ -1,17 +1,17 @@
 <script lang="ts">
-	import * as Card from '@repo/ui/card';
-	import { Badge } from '@repo/ui/badge';
-	import { Label } from '@repo/ui/label';
-	import { Switch } from '@repo/ui/switch';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { Badge } from '@repo/ui/badge';
+	import * as Card from '@repo/ui/card';
+	import { Label } from '@repo/ui/label';
+	import { Switch } from '@repo/ui/switch';
 
 	function handleAnalyticsToggle(checked: boolean) {
 		settings.updateKey('analytics.enabled', checked);
 		
 		// Log the change (will only send if analytics is now enabled)
 		if (checked) {
-			rpc.analytics.logEvent.execute({ type: 'settings_changed', section: 'analytics' });
+			rpc.analytics.logEvent.execute({ section: 'analytics', type: 'settings_changed' });
 		}
 	}
 </script>

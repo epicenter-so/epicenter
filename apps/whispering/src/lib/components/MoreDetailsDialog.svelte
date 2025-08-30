@@ -13,17 +13,8 @@
 		>([]);
 
 		return {
-			get isOpen() {
-				return isOpen;
-			},
-			set isOpen(value: boolean) {
-				isOpen = value;
-			},
-			get title() {
-				return title;
-			},
-			get description() {
-				return description;
+			get buttons() {
+				return buttons;
 			},
 			get content() {
 				if (typeof content === 'string') {
@@ -34,18 +25,24 @@
 				}
 				return JSON.stringify(content, null, 2);
 			},
-			get buttons() {
-				return buttons;
+			get description() {
+				return description;
+			},
+			get isOpen() {
+				return isOpen;
+			},
+			set isOpen(value: boolean) {
+				isOpen = value;
 			},
 			open: (payload: {
-				title: string;
-				description: string;
-				content: unknown;
 				buttons?: {
 					label: string;
 					onClick: () => void;
 					variant?: 'default' | 'destructive';
 				}[];
+				content: unknown;
+				description: string;
+				title: string;
 			}) => {
 				title = payload.title;
 				description = payload.description;
@@ -53,13 +50,16 @@
 				buttons = payload.buttons ?? [];
 				isOpen = true;
 			},
+			get title() {
+				return title;
+			},
 		};
 	})();
 </script>
 
 <script lang="ts">
-	import * as Dialog from '@repo/ui/dialog';
 	import { Button } from '@repo/ui/button';
+	import * as Dialog from '@repo/ui/dialog';
 </script>
 
 <Dialog.Root bind:open={moreDetailsDialog.isOpen}>

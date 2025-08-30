@@ -1,6 +1,7 @@
-import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { HttpService } from '$lib/services/http';
 import type { Settings } from '$lib/settings';
+
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import { getExtensionFromAudioBlob } from '$lib/services/_utils';
 import { Ok, type Result } from 'wellcrafted/result';
 import { z } from 'zod';
@@ -9,6 +10,10 @@ const whisperApiResponseSchema = z.union([
 	z.object({ text: z.string() }),
 	z.object({ error: z.object({ message: z.string() }) }),
 ]);
+
+export type SpeachesTranscriptionService = ReturnType<
+	typeof createSpeachesTranscriptionService
+>;
 
 export function createSpeachesTranscriptionService({
 	HttpService,
@@ -19,11 +24,11 @@ export function createSpeachesTranscriptionService({
 		transcribe: async (
 			audioBlob: Blob,
 			options: {
+				baseUrl: string;
+				modelId: string;
+				outputLanguage: Settings['transcription.outputLanguage'];
 				prompt: string;
 				temperature: string;
-				outputLanguage: Settings['transcription.outputLanguage'];
-				modelId: string;
-				baseUrl: string;
 			},
 		): Promise<Result<string, WhisperingError>> => {
 			const formData = new FormData();
@@ -45,10 +50,10 @@ export function createSpeachesTranscriptionService({
 
 			const { data: whisperApiResponse, error: postError } =
 				await HttpService.post({
-					url: `${options.baseUrl}/v1/audio/transcriptions`,
 					body: formData,
 					headers: undefined, // No headers needed for Speaches
 					schema: whisperApiResponseSchema,
+					url: `${options.baseUrl}/v1/audio/transcriptions`,
 				});
 
 			if (postError) {
@@ -58,12 +63,20 @@ export function createSpeachesTranscriptionService({
 							title: '🌐 Connection Issue',
 							description:
 								'Unable to connect to the transcription service. This could be a network issue or temporary service interruption. Please try again in a moment.',
-							action: { type: 'more-details', error: postError.cause },
+							action: { error: postError.cause, type: 'more-details' },
 						});
 					}
 
+					case 'ParseError':
+						return WhisperingErr({
+							title: '🔍 Response Error',
+							description:
+								'Received an unexpected response from the transcription service. This is usually temporary - please try again.',
+							action: { error: postError.cause, type: 'more-details' },
+						});
+
 					case 'ResponseError': {
-						const { status, message } = postError;
+						const { message, status } = postError;
 
 						if (status === 401) {
 							return WhisperingErr({
@@ -71,9 +84,9 @@ export function createSpeachesTranscriptionService({
 								description:
 									'Your API key appears to be invalid or expired. Please update your API key in settings to continue transcribing.',
 								action: {
-									type: 'link',
-									label: 'Update API key',
 									href: '/settings/transcription',
+									label: 'Update API key',
+									type: 'link',
 								},
 							});
 						}
@@ -83,7 +96,7 @@ export function createSpeachesTranscriptionService({
 								title: '⛔ Access Restricted',
 								description:
 									"Your account doesn't have access to this feature. This may be due to plan limitations or account restrictions. Please check your account status.",
-								action: { type: 'more-details', error: postError.cause },
+								action: { error: postError.cause, type: 'more-details' },
 							});
 						}
 
@@ -92,7 +105,7 @@ export function createSpeachesTranscriptionService({
 								title: '📦 Audio File Too Large',
 								description:
 									'Your audio file exceeds the maximum size limit (typically 25MB). Try splitting it into smaller segments or reducing the audio quality.',
-								action: { type: 'more-details', error: postError.cause },
+								action: { error: postError.cause, type: 'more-details' },
 							});
 						}
 
@@ -101,7 +114,7 @@ export function createSpeachesTranscriptionService({
 								title: '🎵 Unsupported Format',
 								description:
 									"This audio format isn't supported. Please convert your file to MP3, WAV, M4A, or another common audio format.",
-								action: { type: 'more-details', error: postError.cause },
+								action: { error: postError.cause, type: 'more-details' },
 							});
 						}
 
@@ -111,9 +124,9 @@ export function createSpeachesTranscriptionService({
 								title: '⏱️ Rate Limit Reached',
 								description: message,
 								action: {
-									type: 'link',
-									label: 'Update API key',
 									href: '/settings/transcription',
+									label: 'Update API key',
+									type: 'link',
 								},
 							});
 						}
@@ -122,31 +135,23 @@ export function createSpeachesTranscriptionService({
 							return WhisperingErr({
 								title: '🔧 Service Unavailable',
 								description: `The transcription service is temporarily unavailable (Error ${status}). Please try again in a few minutes.`,
-								action: { type: 'more-details', error: postError.cause },
+								action: { error: postError.cause, type: 'more-details' },
 							});
 						}
 
 						return WhisperingErr({
 							title: '❌ Request Failed',
 							description: `The request failed with error ${status}. This may be temporary - please try again. If the problem persists, please contact support.`,
-							action: { type: 'more-details', error: postError.cause },
+							action: { error: postError.cause, type: 'more-details' },
 						});
 					}
-
-					case 'ParseError':
-						return WhisperingErr({
-							title: '🔍 Response Error',
-							description:
-								'Received an unexpected response from the transcription service. This is usually temporary - please try again.',
-							action: { type: 'more-details', error: postError.cause },
-						});
 
 					default:
 						return WhisperingErr({
 							title: '❓ Unexpected Error',
 							description:
 								'An unexpected error occurred during transcription. Please try again, and contact support if the issue continues.',
-							action: { type: 'more-details', error: postError },
+							action: { error: postError, type: 'more-details' },
 						});
 				}
 			}
@@ -162,10 +167,6 @@ export function createSpeachesTranscriptionService({
 		},
 	};
 }
-
-export type SpeachesTranscriptionService = ReturnType<
-	typeof createSpeachesTranscriptionService
->;
 
 import { HttpServiceLive } from '$lib/services/http';
 

@@ -17,7 +17,7 @@ export {
 
 export {
 	TRANSCRIPTION_SERVICE_IDS,
-	TRANSCRIPTION_SERVICES,
 	TRANSCRIPTION_SERVICE_OPTIONS,
+	TRANSCRIPTION_SERVICES,
 	type TranscriptionService,
 } from './transcription-services';

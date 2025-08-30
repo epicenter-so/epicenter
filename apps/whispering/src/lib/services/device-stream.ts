@@ -1,46 +1,25 @@
 import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audio';
 import { createTaggedError } from 'wellcrafted/error';
 import { Err, isOk, Ok, type Result, tryAsync } from 'wellcrafted/result';
+
 import type {
 	Device,
-	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
+	DeviceIdentifier,
 	UpdateStatusMessageFn,
 } from './types';
+
 import { asDeviceIdentifier } from './types';
 
-const { DeviceStreamServiceError, DeviceStreamServiceErr } = createTaggedError(
+const { DeviceStreamServiceErr, DeviceStreamServiceError } = createTaggedError(
 	'DeviceStreamServiceError',
 );
 type DeviceStreamServiceError = ReturnType<typeof DeviceStreamServiceError>;
 
-/**
- * Check if we already have microphone permissions granted.
- * Uses Permissions API if available, otherwise returns false to trigger proper permission flow.
- */
-async function hasExistingAudioPermission(): Promise<boolean> {
-	// Try the Permissions API first (not all browsers support it)
-	if ('permissions' in navigator) {
-		const { data: permissionStatus, error } = await tryAsync({
-			try: async () => {
-				const permissionStatus = await navigator.permissions.query({
-					name: 'microphone',
-				});
-				return permissionStatus;
-			},
-			mapErr: (error) =>
-				DeviceStreamServiceErr({
-					message:
-						'We need permission to see your microphones. Check your browser settings and try again.',
-					cause: error,
-				}),
-		});
-		if (!error) return permissionStatus.state === 'granted';
+export function cleanupRecordingStream(stream: MediaStream) {
+	for (const track of stream.getTracks()) {
+		track.stop();
 	}
-
-	// Return false to let the actual getUserMedia call handle permissions
-	// This avoids unnecessary stream creation just for checking
-	return false;
 }
 
 export async function enumerateDevices(): Promise<
@@ -51,6 +30,12 @@ export async function enumerateDevices(): Promise<
 		// extension.openWhisperingTab({});
 	}
 	return tryAsync({
+		mapErr: (error) =>
+			DeviceStreamServiceErr({
+				cause: error,
+				message:
+					'We need permission to see your microphones. Check your browser settings and try again.',
+			}),
 		try: async () => {
 			const allAudioDevicesStream = await navigator.mediaDevices.getUserMedia({
 				audio: WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
@@ -68,49 +53,6 @@ export async function enumerateDevices(): Promise<
 				label: device.label,
 			}));
 		},
-		mapErr: (error) =>
-			DeviceStreamServiceErr({
-				message:
-					'We need permission to see your microphones. Check your browser settings and try again.',
-				cause: error,
-			}),
-	});
-}
-
-/**
- * Get a media stream for a specific device identifier
- * @param deviceIdentifier - The device identifier
- *   - On Web: This is the deviceId (unique identifier)
- *   - On Desktop: This is the device name
- */
-async function getStreamForDeviceIdentifier(
-	deviceIdentifier: DeviceIdentifier,
-) {
-	const hasPermission = await hasExistingAudioPermission();
-	if (!hasPermission) {
-		// extension.openWhisperingTab({});
-	}
-	return tryAsync({
-		try: async () => {
-			// On Web: deviceIdentifier IS the deviceId, use it directly
-			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: {
-					...WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
-					deviceId: { exact: deviceIdentifier },
-				},
-			});
-			return stream;
-		},
-		mapErr: (error) =>
-			DeviceStreamServiceErr({
-				message:
-					'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
-				context: {
-					deviceIdentifier,
-					hasPermission,
-				},
-				cause: error,
-			}),
 	});
 }
 
@@ -122,7 +64,7 @@ export async function getRecordingStream({
 	sendStatus: UpdateStatusMessageFn;
 }): Promise<
 	Result<
-		{ stream: MediaStream; deviceOutcome: DeviceAcquisitionOutcome },
+		{ deviceOutcome: DeviceAcquisitionOutcome; stream: MediaStream; },
 		DeviceStreamServiceError
 	>
 > {
@@ -146,8 +88,8 @@ export async function getRecordingStream({
 
 		if (!getPreferredStreamError) {
 			return Ok({
-				stream: preferredStream,
 				deviceOutcome: { outcome: 'success' },
+				stream: preferredStream,
 			});
 		}
 
@@ -162,7 +104,7 @@ export async function getRecordingStream({
 	// Try to get any available device as fallback
 	const getFirstAvailableStream = async (): Promise<
 		Result<
-			{ stream: MediaStream; deviceId: DeviceIdentifier },
+			{ deviceId: DeviceIdentifier; stream: MediaStream; },
 			DeviceStreamServiceError
 		>
 	> => {
@@ -170,9 +112,9 @@ export async function getRecordingStream({
 			await enumerateDevices();
 		if (enumerateDevicesError)
 			return DeviceStreamServiceErr({
+				cause: enumerateDevicesError,
 				message:
 					'Error enumerating recording devices and acquiring first available stream. Please make sure you have given permission to access your audio devices',
-				cause: enumerateDevicesError,
 			});
 
 		for (const device of devices) {
@@ -180,14 +122,14 @@ export async function getRecordingStream({
 				device.id,
 			);
 			if (!error) {
-				return Ok({ stream, deviceId: device.id });
+				return Ok({ deviceId: device.id, stream });
 			}
 		}
 
 		return DeviceStreamServiceErr({
-			message: 'Unable to connect to any available microphone',
-			context: { devices },
 			cause: undefined,
+			context: { devices },
+			message: 'Unable to connect to any available microphone',
 		});
 	};
 
@@ -199,35 +141,95 @@ export async function getRecordingStream({
 			? "We couldn't connect to any microphones. Make sure they're plugged in and try again!"
 			: "Hmm... We couldn't find any microphones to use. Check your connections and try again!";
 		return DeviceStreamServiceErr({
-			message: errorMessage,
-			context: { selectedDeviceId },
 			cause: getFallbackStreamError,
+			context: { selectedDeviceId },
+			message: errorMessage,
 		});
 	}
 
 	// Return the stream with appropriate device outcome
 	if (!selectedDeviceId) {
 		return Ok({
-			stream: fallbackStreamData.stream,
 			deviceOutcome: {
+				fallbackDeviceId: fallbackStreamData.deviceId,
 				outcome: 'fallback',
 				reason: 'no-device-selected',
-				fallbackDeviceId: fallbackStreamData.deviceId,
 			},
+			stream: fallbackStreamData.stream,
 		});
 	}
 	return Ok({
-		stream: fallbackStreamData.stream,
 		deviceOutcome: {
+			fallbackDeviceId: fallbackStreamData.deviceId,
 			outcome: 'fallback',
 			reason: 'preferred-device-unavailable',
-			fallbackDeviceId: fallbackStreamData.deviceId,
+		},
+		stream: fallbackStreamData.stream,
+	});
+}
+
+/**
+ * Get a media stream for a specific device identifier
+ * @param deviceIdentifier - The device identifier
+ *   - On Web: This is the deviceId (unique identifier)
+ *   - On Desktop: This is the device name
+ */
+async function getStreamForDeviceIdentifier(
+	deviceIdentifier: DeviceIdentifier,
+) {
+	const hasPermission = await hasExistingAudioPermission();
+	if (!hasPermission) {
+		// extension.openWhisperingTab({});
+	}
+	return tryAsync({
+		mapErr: (error) =>
+			DeviceStreamServiceErr({
+				cause: error,
+				context: {
+					deviceIdentifier,
+					hasPermission,
+				},
+				message:
+					'Unable to connect to the selected microphone. This could be because the device is already in use by another application, has been disconnected, or lacks proper permissions. Please check that your microphone is connected, not being used elsewhere, and that you have granted microphone permissions.',
+			}),
+		try: async () => {
+			// On Web: deviceIdentifier IS the deviceId, use it directly
+			const stream = await navigator.mediaDevices.getUserMedia({
+				audio: {
+					...WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
+					deviceId: { exact: deviceIdentifier },
+				},
+			});
+			return stream;
 		},
 	});
 }
 
-export function cleanupRecordingStream(stream: MediaStream) {
-	for (const track of stream.getTracks()) {
-		track.stop();
+/**
+ * Check if we already have microphone permissions granted.
+ * Uses Permissions API if available, otherwise returns false to trigger proper permission flow.
+ */
+async function hasExistingAudioPermission(): Promise<boolean> {
+	// Try the Permissions API first (not all browsers support it)
+	if ('permissions' in navigator) {
+		const { data: permissionStatus, error } = await tryAsync({
+			mapErr: (error) =>
+				DeviceStreamServiceErr({
+					cause: error,
+					message:
+						'We need permission to see your microphones. Check your browser settings and try again.',
+				}),
+			try: async () => {
+				const permissionStatus = await navigator.permissions.query({
+					name: 'microphone',
+				});
+				return permissionStatus;
+			},
+		});
+		if (!error) return permissionStatus.state === 'granted';
 	}
+
+	// Return false to let the actual getUserMedia call handle permissions
+	// This avoids unnecessary stream creation just for checking
+	return false;
 }

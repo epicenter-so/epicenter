@@ -1,1 +1,1 @@
-export type ShortcutTriggerState = 'Pressed' | 'Released' | 'Both';
+export type ShortcutTriggerState = 'Both' | 'Pressed' | 'Released';

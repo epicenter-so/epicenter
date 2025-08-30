@@ -2,35 +2,36 @@ import type { Brand } from 'wellcrafted/brand';
 import type { Result } from 'wellcrafted/result';
 
 /**
- * Callback function for providing real-time status updates during multi-step recording operations.
- * These status messages become user-facing toast notifications that provide encouraging progress
- * feedback during recording workflows. The messages are displayed as loading toasts in the UI,
- * helping users understand what's happening during potentially long-running operations.
+ * Represents an audio recording device with both a unique identifier and human-readable label.
+ *
+ * On Web (Navigator API):
+ *   - `id`: The unique deviceId from MediaDeviceInfo (e.g., "default" or a GUID)
+ *   - `label`: The human-readable device label (e.g., "Built-in Microphone")
+ *
+ * On Desktop (CPAL):
+ *   - `id`: The device name (e.g., "MacBook Pro Microphone")
+ *   - `label`: The same device name (identical to id for desktop)
+ *
+ * This separation allows for better UX (showing readable names) while maintaining
+ * stable identifiers for settings persistence.
  *
  * @example
- * ```typescript
- * // Good: User-friendly with emoji and encouraging tone
- * sendStatus({
- *   title: '🎙️ Starting Recording',
- *   description: 'Setting up your microphone...'
- * });
+ * // Web device
+ * const device: Device = {
+ *   id: "8a7b9c..." as DeviceIdentifier,
+ *   label: "Blue Yeti USB Microphone"
+ * };
  *
- * sendStatus({
- *   title: '✅ Recording Saved',
- *   description: 'Your recording is ready for transcription!'
- * });
- *
- * // Bad: Technical language, no emoji, not encouraging
- * sendStatus({
- *   title: 'Initializing MediaStream',
- *   description: 'getUserMedia() call in progress'
- * });
- * ```
+ * // Desktop device
+ * const device: Device = {
+ *   id: "MacBook Pro Microphone" as DeviceIdentifier,
+ *   label: "MacBook Pro Microphone"
+ * };
  */
-export type UpdateStatusMessageFn = (args: {
-	title: string;
-	description: string;
-}) => void;
+export type Device = {
+	id: DeviceIdentifier;
+	label: string;
+};
 
 /**
  * Device acquisition outcome after attempting to connect to a recording device.
@@ -63,54 +64,13 @@ export type UpdateStatusMessageFn = (args: {
  */
 export type DeviceAcquisitionOutcome =
 	| {
-			outcome: 'success';
-	  }
-	| {
+			fallbackDeviceId: DeviceIdentifier;
 			outcome: 'fallback';
 			reason: 'no-device-selected' | 'preferred-device-unavailable';
-			fallbackDeviceId: DeviceIdentifier;
+	  }
+	| {
+			outcome: 'success';
 	  };
-
-/**
- * Common recording service interface that both manual and CPAL recorders implement.
- *
- * Note: While both services follow this general shape, they may have platform-specific
- * parameters and return types. This interface represents the minimal common API.
- *
- * **Status Messaging Integration**: All recording methods that perform multi-step operations
- * (startRecording, stopRecording, cancelRecording) accept an UpdateStatusMessageFn callback
- * to provide real-time progress feedback to users through toast notifications.
- */
-export type RecordingService = {
-	/**
-	 * Enumerate available recording devices
-	 * @returns Array of device names/labels as identifiers
-	 */
-	enumerateRecordingDeviceIds(): Promise<Result<DeviceIdentifier[], unknown>>;
-
-	/**
-	 * Start recording with the specified device
-	 * @param selectedDeviceId - The device identifier to use (or null for default)
-	 * @param recordingId - Unique identifier for this recording session
-	 * @returns Information about device acquisition outcome
-	 */
-	startRecording(params: {
-		selectedDeviceId: DeviceIdentifier | null;
-		recordingId: string;
-		// Platform-specific params can be added here
-	}): Promise<Result<DeviceAcquisitionOutcome, unknown>>;
-
-	/**
-	 * Stop the current recording
-	 * @returns The recorded audio as a Blob
-	 */
-	stopRecording(): Promise<Result<Blob, unknown>>;
-
-	/**
-	 * Cancel the current recording without saving
-	 */
-	cancelRecording(): Promise<Result<void, unknown>>;
-};
 
 /**
  * Platform-agnostic device identifier for audio recording devices.
@@ -134,39 +94,79 @@ export type RecordingService = {
  * // Desktop: Stores the device name (which is both ID and label)
  * const deviceIdentifier: DeviceIdentifier = "MacBook Pro Microphone" as DeviceIdentifier;
  */
-export type DeviceIdentifier = string & Brand<'DeviceIdentifier'>;
+export type DeviceIdentifier = Brand<'DeviceIdentifier'> & string;
 
 /**
- * Represents an audio recording device with both a unique identifier and human-readable label.
+ * Common recording service interface that both manual and CPAL recorders implement.
  *
- * On Web (Navigator API):
- *   - `id`: The unique deviceId from MediaDeviceInfo (e.g., "default" or a GUID)
- *   - `label`: The human-readable device label (e.g., "Built-in Microphone")
+ * Note: While both services follow this general shape, they may have platform-specific
+ * parameters and return types. This interface represents the minimal common API.
  *
- * On Desktop (CPAL):
- *   - `id`: The device name (e.g., "MacBook Pro Microphone")
- *   - `label`: The same device name (identical to id for desktop)
- *
- * This separation allows for better UX (showing readable names) while maintaining
- * stable identifiers for settings persistence.
+ * **Status Messaging Integration**: All recording methods that perform multi-step operations
+ * (startRecording, stopRecording, cancelRecording) accept an UpdateStatusMessageFn callback
+ * to provide real-time progress feedback to users through toast notifications.
+ */
+export type RecordingService = {
+	/**
+	 * Cancel the current recording without saving
+	 */
+	cancelRecording(): Promise<Result<void, unknown>>;
+
+	/**
+	 * Enumerate available recording devices
+	 * @returns Array of device names/labels as identifiers
+	 */
+	enumerateRecordingDeviceIds(): Promise<Result<DeviceIdentifier[], unknown>>;
+
+	/**
+	 * Start recording with the specified device
+	 * @param selectedDeviceId - The device identifier to use (or null for default)
+	 * @param recordingId - Unique identifier for this recording session
+	 * @returns Information about device acquisition outcome
+	 */
+	startRecording(params: {
+		recordingId: string;
+		selectedDeviceId: DeviceIdentifier | null;
+		// Platform-specific params can be added here
+	}): Promise<Result<DeviceAcquisitionOutcome, unknown>>;
+
+	/**
+	 * Stop the current recording
+	 * @returns The recorded audio as a Blob
+	 */
+	stopRecording(): Promise<Result<Blob, unknown>>;
+};
+
+/**
+ * Callback function for providing real-time status updates during multi-step recording operations.
+ * These status messages become user-facing toast notifications that provide encouraging progress
+ * feedback during recording workflows. The messages are displayed as loading toasts in the UI,
+ * helping users understand what's happening during potentially long-running operations.
  *
  * @example
- * // Web device
- * const device: Device = {
- *   id: "8a7b9c..." as DeviceIdentifier,
- *   label: "Blue Yeti USB Microphone"
- * };
+ * ```typescript
+ * // Good: User-friendly with emoji and encouraging tone
+ * sendStatus({
+ *   title: '🎙️ Starting Recording',
+ *   description: 'Setting up your microphone...'
+ * });
  *
- * // Desktop device
- * const device: Device = {
- *   id: "MacBook Pro Microphone" as DeviceIdentifier,
- *   label: "MacBook Pro Microphone"
- * };
+ * sendStatus({
+ *   title: '✅ Recording Saved',
+ *   description: 'Your recording is ready for transcription!'
+ * });
+ *
+ * // Bad: Technical language, no emoji, not encouraging
+ * sendStatus({
+ *   title: 'Initializing MediaStream',
+ *   description: 'getUserMedia() call in progress'
+ * });
+ * ```
  */
-export type Device = {
-	id: DeviceIdentifier;
-	label: string;
-};
+export type UpdateStatusMessageFn = (args: {
+	description: string;
+	title: string;
+}) => void;
 
 /**
  * Type guard to convert a string to DeviceIdentifier

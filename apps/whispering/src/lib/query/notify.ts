@@ -1,8 +1,10 @@
+import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
+
 import { dev } from '$app/environment';
 import { notificationLog } from '$lib/components/NotificationLog.svelte';
 import * as services from '$lib/services';
-import type { UnifiedNotificationOptions } from '$lib/services/notifications/types';
 import { Ok } from 'wellcrafted/result';
+
 import { defineMutation } from './_client';
 
 // Create a mutation for a specific variant
@@ -22,9 +24,6 @@ const createNotifyMutation = (
 					case 'error':
 						console.error('[Notify]', fullOptions);
 						break;
-					case 'warning':
-						console.warn('[Notify]', fullOptions);
-						break;
 					case 'info':
 						console.info('[Notify]', fullOptions);
 						break;
@@ -33,6 +32,9 @@ const createNotifyMutation = (
 						break;
 					case 'success':
 						console.log('[Notify]', fullOptions);
+						break;
+					case 'warning':
+						console.warn('[Notify]', fullOptions);
 						break;
 				}
 			}
@@ -118,13 +120,13 @@ const createNotifyMutation = (
  */
 // Export the notify API
 export const notify = {
-	// Variant-specific methods
-	success: createNotifyMutation('success'),
+	// Dismiss method
+	dismiss: (id?: number | string) => services.toast.dismiss(id),
 	error: createNotifyMutation('error'),
-	warning: createNotifyMutation('warning'),
 	info: createNotifyMutation('info'),
 	loading: createNotifyMutation('loading'),
+	// Variant-specific methods
+	success: createNotifyMutation('success'),
 
-	// Dismiss method
-	dismiss: (id?: string | number) => services.toast.dismiss(id),
+	warning: createNotifyMutation('warning'),
 };

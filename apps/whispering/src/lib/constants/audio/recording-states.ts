@@ -5,11 +5,11 @@ import { z } from 'zod';
 
 export const recordingStateSchema = z.enum(['IDLE', 'RECORDING']);
 
-export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
-
 export type CancelRecordingResult =
 	| { status: 'cancelled' }
 	| { status: 'no-recording' };
+
+export type WhisperingRecordingState = z.infer<typeof recordingStateSchema>;
 
 export const recorderStateToIcons = {
 	IDLE: '🎙️',

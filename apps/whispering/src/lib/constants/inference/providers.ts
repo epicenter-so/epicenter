@@ -11,7 +11,7 @@ export const INFERENCE_PROVIDERS = [
 
 export const INFERENCE_PROVIDER_OPTIONS = INFERENCE_PROVIDERS.map(
 	(provider) => ({
-		value: provider,
 		label: provider,
+		value: provider,
 	}),
 );

@@ -1,43 +1,44 @@
 <script
 	lang="ts"
-	generics="TItem extends { value: string; label: string; disabled?: boolean }"
+	generics="TItem extends { disabled?: boolean; label: string; value: string; }"
 >
+	import type { Snippet } from 'svelte';
+
 	import { Label } from '@repo/ui/label';
 	import * as Select from '@repo/ui/select';
 	import { cn } from '@repo/ui/utils';
-	import type { Snippet } from 'svelte';
 
 	type T = TItem['value'];
 
 	let {
-		id,
-		label,
-		items = [],
-		selected,
-		onSelectedChange,
-		placeholder = 'Select an option',
+		description,
 		class: className,
 		disabled = false,
 		hideLabel = false,
-		description,
+		id,
+		items = [],
+		label,
+		onSelectedChange,
+		placeholder = 'Select an option',
 		renderOption = defaultRenderOption,
+		selected,
 	}: {
-		id: string;
-		label: string;
-		items: TItem[];
-		selected: T;
-		onSelectedChange: (selected: T) => void;
-		placeholder?: string;
 		class?: string;
+		description?: Snippet | string;
 		disabled?: boolean;
 		hideLabel?: boolean;
-		description?: string | Snippet;
+		id: string;
+		items: TItem[];
+		label: string;
+		onSelectedChange: (selected: T) => void;
+		placeholder?: string;
 		/**
 		 * Custom snippet for rendering select option content.
 		 * Receives an item object and should return the desired display.
 		 * If not provided, defaults to showing the item's label.
 		 */
 		renderOption?: Snippet<[{ item: TItem }]>;
+		selected: T;
 	} = $props();
 
 	const selectedLabel = $derived(

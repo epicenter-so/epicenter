@@ -1,16 +1,21 @@
 import type { VadState } from '$lib/constants/audio';
+
 import { MicVAD, utils } from '@ricky0123/vad-web';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
-import { cleanupRecordingStream, getRecordingStream } from './device-stream';
+
 import type { DeviceIdentifier } from './types';
 
-const { VadRecorderServiceError, VadRecorderServiceErr } = createTaggedError(
+import { cleanupRecordingStream, getRecordingStream } from './device-stream';
+
+const { VadRecorderServiceErr, VadRecorderServiceError } = createTaggedError(
 	'VadRecorderServiceError',
 );
 export type VadRecorderServiceError = ReturnType<
 	typeof VadRecorderServiceError
 >;
+
+export type VadService = ReturnType<typeof createVadService>;
 
 export function createVadService() {
 	let maybeVad: MicVAD | null = null;
@@ -24,22 +29,22 @@ export function createVadService() {
 
 		startActiveListening: async ({
 			deviceId,
-			onSpeechStart,
 			onSpeechEnd,
-			onVADMisfire,
 			onSpeechRealStart,
-		}: {
+			onSpeechStart,
+			onVADMisfire,
+		}: Pick<MicVAD['options'], 'onSpeechRealStart' | 'onVADMisfire'> & {
 			deviceId: DeviceIdentifier | null;
-			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
-		} & Pick<MicVAD['options'], 'onVADMisfire' | 'onSpeechRealStart'>) => {
+			onSpeechStart: () => void;
+		}) => {
 			// Always start fresh - no reuse
 			if (maybeVad) {
 				return VadRecorderServiceErr({
+					cause: undefined,
+					context: { vadState },
 					message:
 						'VAD already active. Stop the current session before starting a new one.',
-					context: { vadState },
-					cause: undefined,
 				});
 			}
 			console.log('Starting VAD recording');
@@ -56,45 +61,45 @@ export function createVadService() {
 			console.log('Stream error', streamError);
 			if (streamError) {
 				return VadRecorderServiceErr({
-					message: streamError.message,
-					context: streamError.context,
 					cause: streamError,
+					context: streamError.context,
+					message: streamError.message,
 				});
 			}
 
-			const { stream, deviceOutcome } = streamResult;
+			const { deviceOutcome, stream } = streamResult;
 			currentStream = stream;
 
 			// Create VAD with the validated stream
 			const { data: newVad, error: initializeVadError } = await tryAsync({
+				mapErr: (error) =>
+					VadRecorderServiceErr({
+						cause: error,
+						context: { deviceId },
+						message:
+							'Failed to start voice activated capture. Your voice activated capture could not be started.',
+					}),
 				try: () =>
 					MicVAD.new({
-						stream, // Pass our validated stream directly
-						submitUserSpeechOnPause: true,
-						onSpeechStart: () => {
-							vadState = 'SPEECH_DETECTED';
-							onSpeechStart();
-						},
+						model: 'v5',
 						onSpeechEnd: (audio) => {
 							vadState = 'LISTENING';
 							const wavBuffer = utils.encodeWAV(audio);
 							const blob = new Blob([wavBuffer], { type: 'audio/wav' });
 							onSpeechEnd(blob);
 						},
-						onVADMisfire: () => {
-							onVADMisfire();
-						},
 						onSpeechRealStart: () => {
 							onSpeechRealStart();
 						},
-						model: 'v5',
-					}),
-				mapErr: (error) =>
-					VadRecorderServiceErr({
-						message:
-							'Failed to start voice activated capture. Your voice activated capture could not be started.',
-						context: { deviceId },
-						cause: error,
+						onSpeechStart: () => {
+							vadState = 'SPEECH_DETECTED';
+							onSpeechStart();
+						},
+						onVADMisfire: () => {
+							onVADMisfire();
+						},
+						stream, // Pass our validated stream directly
+						submitUserSpeechOnPause: true,
 					}),
 			});
 
@@ -107,24 +112,24 @@ export function createVadService() {
 
 			// Start listening
 			const { error: startError } = trySync({
-				try: () => newVad.start(),
 				mapErr: (error) =>
 					VadRecorderServiceErr({
-						message: `Failed to start Voice Activity Detector. ${extractErrorMessage(error)}`,
-						context: { vadState },
 						cause: error,
+						context: { vadState },
+						message: `Failed to start Voice Activity Detector. ${extractErrorMessage(error)}`,
 					}),
+				try: () => newVad.start(),
 			});
 			if (startError) {
 				// Clean up everything on start error
 				trySync({
-					try: () => newVad.destroy(),
 					mapErr: (error) =>
 						VadRecorderServiceErr({
-							message: `Failed to destroy Voice Activity Detector. ${extractErrorMessage(error)}`,
-							context: { vadState },
 							cause: error,
+							context: { vadState },
+							message: `Failed to destroy Voice Activity Detector. ${extractErrorMessage(error)}`,
 						}),
+					try: () => newVad.destroy(),
 				});
 				cleanupRecordingStream(stream);
 				maybeVad = null;
@@ -142,13 +147,13 @@ export function createVadService() {
 
 			const vad = maybeVad;
 			const { error: destroyError } = trySync({
-				try: () => vad.destroy(),
 				mapErr: (error) =>
 					VadRecorderServiceErr({
-						message: `Failed to stop Voice Activity Detector. ${extractErrorMessage(error)}`,
-						context: { vadState },
 						cause: error,
+						context: { vadState },
+						message: `Failed to stop Voice Activity Detector. ${extractErrorMessage(error)}`,
 					}),
+				try: () => vad.destroy(),
 			});
 
 			// Always clean up, even if destroy had an error
@@ -166,7 +171,5 @@ export function createVadService() {
 		},
 	};
 }
-
-export type VadService = ReturnType<typeof createVadService>;
 
 export const VadServiceLive = createVadService();

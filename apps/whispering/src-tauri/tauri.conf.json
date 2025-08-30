@@ -21,9 +21,8 @@
 		"createUpdaterArtifacts": true,
 		"macOS": {
 			"entitlements": "entitlements.plist",
-			"hardenedRuntime": true,
-			"minimumSystemVersion": "10.15",
-			"signingIdentity": "Developer ID Application: Braden Wong (3C7J97QA5Z)"
+			"hardenedRuntime": false,
+			"minimumSystemVersion": "10.15"
 		},
 		"linux": {
 			"appimage": {

@@ -1,6 +1,7 @@
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 import type { z } from 'zod';
+
+import { createTaggedError } from 'wellcrafted/error';
 
 /**
  * Network-level connection failure that prevents the HTTP request from reaching the server.
@@ -15,7 +16,7 @@ import type { z } from 'zod';
  * // Result: ConnectionError
  * ```
  */
-export const { ConnectionError, ConnectionErr } =
+export const { ConnectionErr, ConnectionError } =
 	createTaggedError('ConnectionError');
 type ConnectionError = ReturnType<typeof ConnectionError>;
 
@@ -32,7 +33,7 @@ type ConnectionError = ReturnType<typeof ConnectionError>;
  * // Result: ResponseError with status: 401, 404, 500, etc.
  * ```
  */
-const { ResponseError: ResponseErrorBase, ResponseErr: ResponseErrBase } =
+const { ResponseErr: ResponseErrBase, ResponseError: ResponseErrorBase } =
 	createTaggedError('ResponseError');
 export type ResponseError = ReturnType<typeof ResponseErrorBase> & {
 	/** HTTP status code (e.g., 400, 401, 404, 500) */
@@ -60,11 +61,7 @@ export const ResponseErr = (args: Omit<ResponseError, 'name'>) => ({
  * // Result: ParseError
  * ```
  */
-export const { ParseError, ParseErr } = createTaggedError('ParseError');
-export type ParseError = ReturnType<typeof ParseError>;
-
-export type HttpServiceError = ConnectionError | ResponseError | ParseError;
-
+export const { ParseErr, ParseError } = createTaggedError('ParseError');
 export type HttpService = {
 	/**
 	 * Makes a POST request with automatic JSON parsing and schema validation.
@@ -75,9 +72,13 @@ export type HttpService = {
 	 * 3. **Parse Phase:** Validates JSON structure and schema (ParseError)
 	 */
 	post: <TSchema extends z.ZodTypeAny>(config: {
-		url: string;
 		body: BodyInit | FormData;
-		schema: TSchema;
 		headers?: Record<string, string>;
+		schema: TSchema;
+		url: string;
 	}) => Promise<Result<z.infer<TSchema>, HttpServiceError>>;
 };
+
+export type HttpServiceError = ConnectionError | ParseError | ResponseError;
+
+export type ParseError = ReturnType<typeof ParseError>;

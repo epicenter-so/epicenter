@@ -8,29 +8,26 @@
 		let confirmText = $state('');
 		let onConfirm = () => {};
 		return {
+			close() {
+				isOpen = false;
+			},
+			get confirmText() {
+				return confirmText;
+			},
 			get isOpen() {
 				return isOpen;
 			},
 			set isOpen(v) {
 				isOpen = v;
 			},
-			get title() {
-				return title;
-			},
-			get subtitle() {
-				return subtitle;
-			},
-			get confirmText() {
-				return confirmText;
-			},
 			get onConfirm() {
 				return onConfirm;
 			},
 			open(dialog: {
-				title: string;
-				subtitle: string;
 				confirmText: string;
 				onConfirm: () => void;
+				subtitle: string;
+				title: string;
 			}) {
 				title = dialog.title;
 				subtitle = dialog.subtitle;
@@ -38,8 +35,11 @@
 				onConfirm = dialog.onConfirm;
 				isOpen = true;
 			},
-			close() {
-				isOpen = false;
+			get subtitle() {
+				return subtitle;
+			},
+			get title() {
+				return title;
 			},
 		};
 	}

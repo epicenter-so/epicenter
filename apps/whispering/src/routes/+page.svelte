@@ -1,38 +1,40 @@
 <script lang="ts">
+	import type { Recording } from '$lib/services/db';
+	import type { UnlistenFn } from '@tauri-apps/api/event';
+
 	import { commandCallbacks } from '$lib/commands';
-	import NavItems from '$lib/components/NavItems.svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
+	import NavItems from '$lib/components/NavItems.svelte';
 	import {
 		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
+		recorderStateToIcons,
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,
-		recorderStateToIcons,
 		vadStateToIcons,
 	} from '$lib/constants/audio';
+	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import { rpc } from '$lib/query';
-	import type { Recording } from '$lib/services/db';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
-	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
+	import { Loader2Icon } from '@lucide/svelte';
+	import { Badge } from '@repo/ui/badge';
 	import {
 		ACCEPT_AUDIO,
 		ACCEPT_VIDEO,
 		FileDropZone,
 		MEGABYTE,
 	} from '@repo/ui/file-drop-zone';
-	import { Badge } from '@repo/ui/badge';
 	import * as ToggleGroup from '@repo/ui/toggle-group';
 	import { createQuery } from '@tanstack/svelte-query';
-	import type { UnlistenFn } from '@tauri-apps/api/event';
-	import { Loader2Icon } from '@lucide/svelte';
 	import { onDestroy, onMount } from 'svelte';
+
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 
 	const getRecorderStateQuery = createQuery(
@@ -51,15 +53,15 @@
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {
-			id: '',
 			title: '',
-			subtitle: '',
-			createdAt: '',
-			updatedAt: '',
-			timestamp: '',
 			blob: new Blob(),
+			createdAt: '',
+			id: '',
+			subtitle: '',
+			timestamp: '',
 			transcribedText: '',
 			transcriptionStatus: 'UNPROCESSED',
+			updatedAt: '',
 		},
 	);
 
@@ -101,28 +103,28 @@
 	] as const;
 
 	const MIME_TYPE_MAP = {
+		aac: 'audio/aac',
+		avi: 'video/x-msvideo',
+		flac: 'audio/flac',
+		flv: 'video/x-flv',
+		m4a: 'audio/mp4',
+		m4v: 'video/mp4',
+		mkv: 'video/x-matroska',
+		mov: 'video/quicktime',
 		// Audio
 		mp3: 'audio/mpeg',
-		wav: 'audio/wav',
-		m4a: 'audio/mp4',
-		aac: 'audio/aac',
-		ogg: 'audio/ogg',
-		flac: 'audio/flac',
-		wma: 'audio/x-ms-wma',
-		opus: 'audio/opus',
 		// Video
 		mp4: 'video/mp4',
-		avi: 'video/x-msvideo',
-		mov: 'video/quicktime',
-		wmv: 'video/x-ms-wmv',
-		flv: 'video/x-flv',
-		mkv: 'video/x-matroska',
+		ogg: 'audio/ogg',
+		opus: 'audio/opus',
+		wav: 'audio/wav',
 		webm: 'video/webm',
-		m4v: 'video/mp4',
+		wma: 'audio/x-ms-wma',
+		wmv: 'video/x-ms-wmv',
 	} as const;
 
 	// Store unlisten function for drag drop events
-	let unlistenDragDrop: UnlistenFn | undefined;
+	let unlistenDragDrop: undefined | UnlistenFn;
 
 	// Set up desktop drag and drop listener
 	onMount(async () => {
@@ -158,8 +160,8 @@
 					// Filter for audio/video files based on extension
 					const pathResults = await Promise.all(
 						event.payload.paths.map(async (path) => ({
-							path,
 							isValid: (await isAudio(path)) || (await isVideo(path)),
+							path,
 						})),
 					);
 					const validPaths = pathResults
@@ -372,8 +374,8 @@
 					contentDescription="transcribed text"
 					textToCopy={latestRecording.transcribedText}
 					viewTransitionName={getRecordingTransitionId({
-						recordingId: latestRecording.id,
 						propertyName: 'transcribedText',
+						recordingId: latestRecording.id,
 					})}
 					size="default"
 					variant="secondary"
@@ -390,8 +392,8 @@
 			{#if blobUrl}
 				<audio
 					style="view-transition-name: {getRecordingTransitionId({
-						recordingId: latestRecording.id,
 						propertyName: 'blob',
+						recordingId: latestRecording.id,
 					})}"
 					src={blobUrl}
 					controls

@@ -1,11 +1,13 @@
 import type { RecordingMode } from '$lib/constants/audio';
-import { rpc } from '$lib/query';
-import * as services from '$lib/services';
 import type { RecorderServiceError } from '$lib/services/recorder';
 import type { VadRecorderServiceError } from '$lib/services/vad-recorder';
+
+import { rpc } from '$lib/query';
+import * as services from '$lib/services';
 import { settings as settingsStore } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import { Ok, type Result, partitionResults } from 'wellcrafted/result';
+import { Ok, partitionResults, type Result } from 'wellcrafted/result';
+
 import { defineMutation } from './_client';
 import { recorderService } from './recorder';
 
@@ -40,10 +42,10 @@ export const settings = {
 				// Even if stopping fails, we should still switch modes
 				console.error('Failed to stop active recordings:', errs);
 				rpc.notify.warning.execute({
-					id: toastId,
 					title: '⚠️ Recording may still be active',
 					description:
 						'Previous recording could not be stopped automatically. Please stop it manually.',
+					id: toastId,
 				});
 			}
 
@@ -53,9 +55,9 @@ export const settings = {
 
 				// Show success notification
 				rpc.notify.success.execute({
-					id: toastId,
 					title: '✅ Recording mode switched',
 					description: `Switched to ${newMode} recording mode`,
+					id: toastId,
 				});
 			}
 
@@ -76,16 +78,16 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 	// Each recording mode with its check and stop logic
 	const recordingModes = [
 		{
-			mode: 'manual' as const,
 			isActive: () => currentRecordingId === 'RECORDING',
+			mode: 'manual' as const,
 			stop: () =>
 				recorderService().stopRecording({
 					sendStatus: () => {}, // Silent cancel - no UI notifications
 				}),
 		},
 		{
-			mode: 'vad' as const,
 			isActive: () => services.vad.getVadState() !== 'IDLE',
+			mode: 'vad' as const,
 			stop: () => services.vad.stopActiveListening(),
 		},
 		// {
@@ -98,8 +100,8 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 		// 		}),
 		// },
 	] satisfies {
-		mode: RecordingMode;
 		isActive: () => boolean;
+		mode: RecordingMode;
 		stop: () => Promise<unknown>;
 	}[];
 

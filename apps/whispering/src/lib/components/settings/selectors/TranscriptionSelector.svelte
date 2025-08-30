@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '@repo/ui/badge';
-	import * as Command from '@repo/ui/command';
-	import * as Popover from '@repo/ui/popover';
-	import { useCombobox } from '@repo/ui/hooks';
 	import {
 		TRANSCRIPTION_SERVICES,
 		type TranscriptionService,
@@ -14,13 +10,17 @@
 		isTranscriptionServiceConfigured,
 	} from '$lib/settings/transcription-validation';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { cn } from '@repo/ui/utils';
 	import {
 		CheckIcon,
+		ChevronRightIcon,
 		MicIcon,
 		SettingsIcon,
-		ChevronRightIcon,
 	} from '@lucide/svelte';
+	import { Badge } from '@repo/ui/badge';
+	import * as Command from '@repo/ui/command';
+	import { useCombobox } from '@repo/ui/hooks';
+	import * as Popover from '@repo/ui/popover';
+	import { cn } from '@repo/ui/utils';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	let { class: className }: { class?: string } = $props();
@@ -31,10 +31,10 @@
 		switch (service.location) {
 			case 'cloud':
 				return settings.value[service.modelSettingKey];
-			case 'self-hosted':
-				return settings.value[service.serverUrlField];
 			case 'local':
 				return settings.value[service.modelPathField];
+			case 'self-hosted':
+				return settings.value[service.serverUrlField];
 		}
 	}
 
@@ -225,8 +225,8 @@
 									value={`${service.id} ${service.name} ${model.name}`}
 									onSelect={() => {
 										settings.update({
-											'transcription.selectedTranscriptionService': service.id,
 											[service.modelSettingKey]: model.name,
+											'transcription.selectedTranscriptionService': service.id,
 										});
 										combobox.closeAndFocusTrigger();
 									}}

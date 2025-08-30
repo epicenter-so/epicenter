@@ -1,15 +1,17 @@
 <script lang="ts">
+	import type { Transformation } from '$lib/services/db';
+
 	import { confirmationDialog } from '$lib/components/ConfirmationDialog.svelte';
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { PencilIcon as EditIcon } from '$lib/components/icons';
 	import { Editor } from '$lib/components/transformations-editor';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { rpc } from '$lib/query';
+	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import * as Modal from '@repo/ui/modal';
 	import { Separator } from '@repo/ui/separator';
-	import { rpc } from '$lib/query';
-	import type { Transformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from '@lucide/svelte';
+
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 
 	const updateTransformation = createMutation(
@@ -21,9 +23,9 @@
 	);
 
 	let {
-		transformation,
 		class: className,
-	}: { transformation: Transformation; class?: string } = $props();
+		transformation,
+	}: { class?: string; transformation: Transformation; } = $props();
 
 	let isDialogOpen = $state(false);
 
@@ -77,7 +79,6 @@
 
 		confirmationDialog.open({
 			title: 'Unsaved changes',
-			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
 			confirmText: 'Leave',
 			onConfirm: () => {
 				// Reset working copy and dirty flag
@@ -86,6 +87,7 @@
 
 				isDialogOpen = false;
 			},
+			subtitle: 'You have unsaved changes. Are you sure you want to leave?',
 		});
 	}
 </script>
@@ -141,10 +143,16 @@
 				onclick={() => {
 					confirmationDialog.open({
 						title: 'Delete transformation',
-						subtitle: 'Are you sure? This action cannot be undone.',
 						confirmText: 'Delete',
 						onConfirm: () => {
 							deleteTransformation.mutate($state.snapshot(transformation), {
+								onError: (error) => {
+									rpc.notify.error.execute({
+										title: 'Failed to delete transformation!',
+										description: 'Your transformation could not be deleted.',
+										action: { error, type: 'more-details' },
+									});
+								},
 								onSuccess: () => {
 									isDialogOpen = false;
 									rpc.notify.success.execute({
@@ -153,15 +161,9 @@
 											'Your transformation has been deleted successfully.',
 									});
 								},
-								onError: (error) => {
-									rpc.notify.error.execute({
-										title: 'Failed to delete transformation!',
-										description: 'Your transformation could not be deleted.',
-										action: { type: 'more-details', error },
-									});
-								},
 							});
 						},
+						subtitle: 'Are you sure? This action cannot be undone.',
 					});
 				}}
 				variant="destructive"
@@ -182,6 +184,13 @@
 				<Button
 					onclick={() => {
 						updateTransformation.mutate($state.snapshot(workingCopy), {
+							onError: (error) => {
+								rpc.notify.error.execute({
+									title: 'Failed to update transformation!',
+									description: 'Your transformation could not be updated.',
+									action: { error, type: 'more-details' },
+								});
+							},
 							onSuccess: () => {
 								rpc.notify.success.execute({
 									title: 'Updated transformation!',
@@ -189,13 +198,6 @@
 										'Your transformation has been updated successfully.',
 								});
 								isDialogOpen = false;
-							},
-							onError: (error) => {
-								rpc.notify.error.execute({
-									title: 'Failed to update transformation!',
-									description: 'Your transformation could not be updated.',
-									action: { type: 'more-details', error },
-								});
 							},
 						});
 					}}

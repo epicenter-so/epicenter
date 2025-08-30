@@ -3,11 +3,11 @@
  */
 
 export type WhisperingSoundNames =
+	| 'manual-cancel'
 	| 'manual-start'
 	| 'manual-stop'
-	| 'manual-cancel'
-	| 'vad-start'
-	| 'vad-capture'
-	| 'vad-stop'
 	| 'transcriptionComplete'
-	| 'transformationComplete';
+	| 'transformationComplete'
+	| 'vad-capture'
+	| 'vad-start'
+	| 'vad-stop';

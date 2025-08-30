@@ -16,9 +16,9 @@ export {
 	TRANSFORMATION_STEP_TYPES_TO_LABELS,
 } from './transformations';
 export type {
+	InsertTransformationStep,
 	Transformation,
 	TransformationStep,
-	InsertTransformationStep,
 } from './transformations';
 
 // Transformation Runs

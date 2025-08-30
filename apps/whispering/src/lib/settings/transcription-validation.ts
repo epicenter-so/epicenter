@@ -32,13 +32,13 @@ export function isTranscriptionServiceConfigured(
 			const apiKey = settings.value[service.apiKeyField];
 			return apiKey !== '';
 		}
-		case 'self-hosted': {
-			const url = settings.value[service.serverUrlField];
-			return url !== '';
-		}
 		case 'local': {
 			const modelPath = settings.value[service.modelPathField];
 			return modelPath !== '';
+		}
+		case 'self-hosted': {
+			const url = settings.value[service.serverUrlField];
+			return url !== '';
 		}
 		default: {
 			return true;

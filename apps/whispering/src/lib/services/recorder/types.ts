@@ -1,60 +1,40 @@
 import type { CancelRecordingResult } from '$lib/constants/audio';
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
+
+import { createTaggedError } from 'wellcrafted/error';
+
 import type {
 	Device,
-	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
+	DeviceIdentifier,
 	UpdateStatusMessageFn,
 } from '../types';
 
 /**
  * Base error type for recorder services
  */
-export const { RecorderServiceError, RecorderServiceErr } = createTaggedError(
+export const { RecorderServiceErr, RecorderServiceError } = createTaggedError(
 	'RecorderServiceError',
 );
-export type RecorderServiceError = ReturnType<typeof RecorderServiceError>;
-
-/**
- * Base parameters shared across all platforms
- */
-type BaseRecordingParams = {
-	selectedDeviceId: DeviceIdentifier | null;
-	recordingId: string;
-};
-
 /**
  * Desktop-specific recording parameters
  */
 export type DesktopRecordingParams = BaseRecordingParams & {
+	outputFolder: null | string;
 	platform: 'desktop';
-	outputFolder: string | null;
 	sampleRate: string;
 };
-
-/**
- * Web-specific recording parameters
- */
-export type WebRecordingParams = BaseRecordingParams & {
-	platform: 'web';
-	bitrateKbps: string;
-};
-
-/**
- * Discriminated union for recording parameters based on platform
- */
-export type StartRecordingParams = DesktopRecordingParams | WebRecordingParams;
 
 /**
  * Unified recorder service interface that both desktop and web implementations must satisfy
  */
 export type RecorderService = {
 	/**
-	 * Get the current recording ID if a recording is in progress
-	 * Returns null if no recording is active
+	 * Cancel the current recording without saving
 	 */
-	getCurrentRecordingId(): Promise<Result<string | null, RecorderServiceError>>;
+	cancelRecording(callbacks: {
+		sendStatus: UpdateStatusMessageFn;
+	}): Promise<Result<CancelRecordingResult, RecorderServiceError>>;
 
 	/**
 	 * Enumerate available recording devices with their labels and identifiers
@@ -62,6 +42,12 @@ export type RecorderService = {
 	enumerateDevices(): Promise<
 		Result<Device[], RecorderServiceError>
 	>;
+
+	/**
+	 * Get the current recording ID if a recording is in progress
+	 * Returns null if no recording is active
+	 */
+	getCurrentRecordingId(): Promise<Result<null | string, RecorderServiceError>>;
 
 	/**
 	 * Start a new recording session
@@ -79,11 +65,27 @@ export type RecorderService = {
 	stopRecording(callbacks: {
 		sendStatus: UpdateStatusMessageFn;
 	}): Promise<Result<Blob, RecorderServiceError>>;
+};
 
-	/**
-	 * Cancel the current recording without saving
-	 */
-	cancelRecording(callbacks: {
-		sendStatus: UpdateStatusMessageFn;
-	}): Promise<Result<CancelRecordingResult, RecorderServiceError>>;
+export type RecorderServiceError = ReturnType<typeof RecorderServiceError>;
+
+/**
+ * Discriminated union for recording parameters based on platform
+ */
+export type StartRecordingParams = DesktopRecordingParams | WebRecordingParams;
+
+/**
+ * Web-specific recording parameters
+ */
+export type WebRecordingParams = BaseRecordingParams & {
+	bitrateKbps: string;
+	platform: 'web';
+};
+
+/**
+ * Base parameters shared across all platforms
+ */
+type BaseRecordingParams = {
+	recordingId: string;
+	selectedDeviceId: DeviceIdentifier | null;
 };

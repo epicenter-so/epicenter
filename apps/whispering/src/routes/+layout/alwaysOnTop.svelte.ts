@@ -21,16 +21,8 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 			case 'Always':
 				setAlwaysOnTop(true);
 				break;
-			case 'When Recording and Transcribing':
-				if (
-					getRecorderStateQuery.data === 'RECORDING' ||
-					getVadStateQuery.data === 'SPEECH_DETECTED' ||
-					rpc.transcription.isCurrentlyTranscribing()
-				) {
-					setAlwaysOnTop(true);
-				} else {
-					setAlwaysOnTop(false);
-				}
+			case 'Never':
+				setAlwaysOnTop(false);
 				break;
 			case 'When Recording':
 				if (
@@ -42,8 +34,16 @@ export function syncWindowAlwaysOnTopWithRecorderState() {
 					setAlwaysOnTop(false);
 				}
 				break;
-			case 'Never':
-				setAlwaysOnTop(false);
+			case 'When Recording and Transcribing':
+				if (
+					getRecorderStateQuery.data === 'RECORDING' ||
+					getVadStateQuery.data === 'SPEECH_DETECTED' ||
+					rpc.transcription.isCurrentlyTranscribing()
+				) {
+					setAlwaysOnTop(true);
+				} else {
+					setAlwaysOnTop(false);
+				}
 				break;
 		}
 	});

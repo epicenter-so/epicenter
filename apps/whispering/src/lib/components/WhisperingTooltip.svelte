@@ -1,19 +1,20 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	import * as Tooltip from '@repo/ui/tooltip';
 	import { mergeProps } from 'bits-ui';
-	import type { Snippet } from 'svelte';
 
 	let {
 		id,
-		trigger,
 		tooltipContent,
+		trigger,
 		...restProps
 	}: {
 		id: string;
+		tooltipContent: Snippet | string;
 		trigger: Snippet<
-			[{ tooltipProps: Record<string, unknown>; tooltip: Snippet<[]> }]
+			[{ tooltip: Snippet<[]>; tooltipProps: Record<string, unknown>; }]
 		>;
-		tooltipContent: string | Snippet;
 	} = $props();
 </script>
 
@@ -30,8 +31,8 @@
 		<Tooltip.Trigger {id}>
 			{#snippet child({ props: tooltipProps })}
 				{@render trigger?.({
-					tooltipProps: mergeProps(tooltipProps, restProps),
 					tooltip,
+					tooltipProps: mergeProps(tooltipProps, restProps),
 				})}
 			{/snippet}
 		</Tooltip.Trigger>

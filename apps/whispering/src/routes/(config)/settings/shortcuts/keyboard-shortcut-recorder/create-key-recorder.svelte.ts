@@ -3,6 +3,8 @@ import type { PressedKeys } from '$lib/utils/createPressedKeys.svelte';
 
 const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combination
 
+export type KeyRecorder = ReturnType<typeof createKeyRecorder>;
+
 /**
  * Creates a keyboard shortcut recorder that captures key combinations
  *
@@ -21,13 +23,13 @@ const CAPTURE_WINDOW_MS = 300; // Time to wait for additional keys in a combinat
  * - Complex combinations built over time
  */
 export function createKeyRecorder({
-	pressedKeys,
-	onRegister,
 	onClear,
+	onRegister,
+	pressedKeys,
 }: {
-	pressedKeys: PressedKeys;
-	onRegister: (keyCombination: KeyboardEventSupportedKey[]) => void;
 	onClear: () => void;
+	onRegister: (keyCombination: KeyboardEventSupportedKey[]) => void;
+	pressedKeys: PressedKeys;
 }) {
 	// State
 	let isListening = $state(false);
@@ -91,9 +93,16 @@ export function createKeyRecorder({
 
 	// Public API
 	return {
+		clear() {
+			isListening = false;
+			capturedKeys.clear();
+			clearCaptureTimer();
+			onClear();
+		},
 		get isListening() {
 			return isListening;
 		},
+		register: onRegister,
 		start() {
 			isListening = true;
 			capturedKeys.clear();
@@ -104,14 +113,5 @@ export function createKeyRecorder({
 			capturedKeys.clear();
 			clearCaptureTimer();
 		},
-		clear() {
-			isListening = false;
-			capturedKeys.clear();
-			clearCaptureTimer();
-			onClear();
-		},
-		register: onRegister,
 	};
 }
-
-export type KeyRecorder = ReturnType<typeof createKeyRecorder>;

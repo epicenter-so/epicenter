@@ -1,32 +1,44 @@
 /**
- * Base properties shared by all transformation step run variants.
+ * Represents an execution of a transformation, which can be run on either
+ * a recording's transcribed text or arbitrary input text.
  */
-type BaseTransformationStepRun = {
-	id: string;
-	stepId: string;
-	startedAt: string;
-	completedAt: string | null;
-	input: string;
+export type TransformationRun =
+	| TransformationRunCompleted
+	| TransformationRunFailed
+	| TransformationRunRunning;
+
+export type TransformationRunCompleted = BaseTransformationRun & {
+	output: string;
+	status: 'completed';
+};
+
+export type TransformationRunFailed = BaseTransformationRun & {
+	error: string;
+	status: 'failed';
+};
+
+export type TransformationRunRunning = BaseTransformationRun & {
+	status: 'running';
+};
+
+export type TransformationStepRun =
+	| TransformationStepRunCompleted
+	| TransformationStepRunFailed
+	| TransformationStepRunRunning;
+
+export type TransformationStepRunCompleted = BaseTransformationStepRun & {
+	output: string;
+	status: 'completed';
+};
+
+export type TransformationStepRunFailed = BaseTransformationStepRun & {
+	error: string;
+	status: 'failed';
 };
 
 export type TransformationStepRunRunning = BaseTransformationStepRun & {
 	status: 'running';
 };
-
-export type TransformationStepRunCompleted = BaseTransformationStepRun & {
-	status: 'completed';
-	output: string;
-};
-
-export type TransformationStepRunFailed = BaseTransformationStepRun & {
-	status: 'failed';
-	error: string;
-};
-
-export type TransformationStepRun =
-	| TransformationStepRunRunning
-	| TransformationStepRunCompleted
-	| TransformationStepRunFailed;
 
 /**
  * Base properties shared by all transformation run variants.
@@ -37,45 +49,33 @@ export type TransformationStepRun =
  * 3. 'failed' - If any step fails or an error occurs
  */
 type BaseTransformationRun = {
+	completedAt: null | string;
 	id: string;
-	transformationId: string;
-	/**
-	 * Recording id if the transformation is invoked on a recording.
-	 * Null if the transformation is invoked on arbitrary text input.
-	 */
-	recordingId: string | null;
-	startedAt: string;
-	completedAt: string | null;
 	/**
 	 * Because the recording's transcribedText can change after invoking,
 	 * we store a snapshot of the transcribedText at the time of invoking.
 	 */
 	input: string;
+	/**
+	 * Recording id if the transformation is invoked on a recording.
+	 * Null if the transformation is invoked on arbitrary text input.
+	 */
+	recordingId: null | string;
+	startedAt: string;
 	stepRuns: TransformationStepRun[];
-};
-
-export type TransformationRunRunning = BaseTransformationRun & {
-	status: 'running';
-};
-
-export type TransformationRunCompleted = BaseTransformationRun & {
-	status: 'completed';
-	output: string;
-};
-
-export type TransformationRunFailed = BaseTransformationRun & {
-	status: 'failed';
-	error: string;
+	transformationId: string;
 };
 
 /**
- * Represents an execution of a transformation, which can be run on either
- * a recording's transcribed text or arbitrary input text.
+ * Base properties shared by all transformation step run variants.
  */
-export type TransformationRun =
-	| TransformationRunRunning
-	| TransformationRunCompleted
-	| TransformationRunFailed;
+type BaseTransformationStepRun = {
+	completedAt: null | string;
+	id: string;
+	input: string;
+	startedAt: string;
+	stepId: string;
+};
 
 // Type guards for TransformationRun
 export function isTransformationRunCompleted(

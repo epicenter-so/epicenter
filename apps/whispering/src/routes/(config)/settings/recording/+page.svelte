@@ -1,33 +1,34 @@
 <script lang="ts">
-	import DesktopOutputFolder from './DesktopOutputFolder.svelte';
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
-	import { Separator } from '@repo/ui/separator';
-	import * as Alert from '@repo/ui/alert';
-	import { Link } from '@repo/ui/link';
-	import { InfoIcon } from '@lucide/svelte';
 	import {
 		BITRATE_OPTIONS,
 		RECORDING_MODE_OPTIONS,
 	} from '$lib/constants/audio';
-	import { settings } from '$lib/stores/settings.svelte';
-	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
-	import {
-		isUsingNativeBackendWithCloudTranscription,
-		isUsingNativeBackendAtWrongSampleRate,
-	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS } from '$lib/constants/platform';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { InfoIcon } from '@lucide/svelte';
+	import * as Alert from '@repo/ui/alert';
+	import { Link } from '@repo/ui/link';
+	import { Separator } from '@repo/ui/separator';
+
+	import {
+		isUsingNativeBackendAtWrongSampleRate,
+		isUsingNativeBackendWithCloudTranscription,
+	} from '../../../+layout/check-ffmpeg';
+	import DesktopOutputFolder from './DesktopOutputFolder.svelte';
+	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 
 	const { data } = $props();
 
 	const SAMPLE_RATE_OPTIONS = [
-		{ value: '16000', label: 'Voice Quality (16kHz): Optimized for speech' },
-		{ value: '44100', label: 'Standard Quality (44.1kHz): CD quality' },
-		{ value: '48000', label: 'High Quality (48kHz): Professional audio' },
+		{ label: 'Voice Quality (16kHz): Optimized for speech', value: '16000' },
+		{ label: 'Standard Quality (44.1kHz): CD quality', value: '44100' },
+		{ label: 'High Quality (48kHz): Professional audio', value: '48000' },
 	] as const;
 
 	const RECORDING_BACKEND_OPTIONS = [
-		{ value: 'native', label: 'Native (Rust)' },
-		{ value: 'browser', label: 'Browser (MediaRecorder)' },
+		{ label: 'Native (Rust)', value: 'native' },
+		{ label: 'Browser (MediaRecorder)', value: 'browser' },
 	] as const;
 
 	const isUsingBrowserBackend = $derived(
@@ -155,8 +156,8 @@
 				id="bit-rate"
 				label="Bitrate"
 				items={BITRATE_OPTIONS.map((option) => ({
-					value: option.value,
 					label: option.label,
+					value: option.value,
 				}))}
 				selected={settings.value['recording.navigator.bitrateKbps']}
 				onSelectedChange={(selected) => {

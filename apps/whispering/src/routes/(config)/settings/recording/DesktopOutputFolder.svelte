@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Input } from '@repo/ui/input';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { FolderOpen, ExternalLink, RotateCcw } from '@lucide/svelte';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { ExternalLink, FolderOpen, RotateCcw } from '@lucide/svelte';
+	import { Input } from '@repo/ui/input';
 
 	// Top-level await to get the default app data directory
-	let defaultAppDataPath = $state<string | null>(null);
+	let defaultAppDataPath = $state<null | string>(null);
 	
 	// Initialize the default path asynchronously
 	if (window.__TAURI_INTERNALS__) {
@@ -24,9 +24,9 @@
 		
 		const { open } = await import('@tauri-apps/plugin-dialog');
 		const selected = await open({
+			title: 'Select Recording Output Folder',
 			directory: true,
 			multiple: false,
-			title: 'Select Recording Output Folder',
 		});
 		
 		if (selected) settings.updateKey('recording.desktop.outputFolder', selected);

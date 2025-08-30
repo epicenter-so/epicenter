@@ -1,14 +1,15 @@
-import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 
-export const { DownloadServiceError, DownloadServiceErr } = createTaggedError(
+import { createTaggedError } from 'wellcrafted/error';
+
+export const { DownloadServiceErr, DownloadServiceError } = createTaggedError(
 	'DownloadServiceError',
 );
-type DownloadServiceError = ReturnType<typeof DownloadServiceError>;
-
 export type DownloadService = {
 	downloadBlob: (args: {
-		name: string;
 		blob: Blob;
+		name: string;
 	}) => Promise<Result<void, DownloadServiceError>>;
 };
+
+type DownloadServiceError = ReturnType<typeof DownloadServiceError>;

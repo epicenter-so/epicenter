@@ -1,24 +1,26 @@
-import {
-	WhisperingErr,
-	fromTaggedErr,
-	type WhisperingError,
-	type WhisperingResult,
-} from '$lib/result';
-import * as services from '$lib/services';
 import type {
 	Transformation,
 	TransformationRunCompleted,
 	TransformationRunFailed,
 	TransformationStep,
 } from '$lib/services/db';
+
+import {
+	fromTaggedErr,
+	WhisperingErr,
+	type WhisperingError,
+	type WhisperingResult,
+} from '$lib/result';
+import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
-import { Err, Ok, type Result, isErr } from 'wellcrafted/result';
+import { Err, isErr, Ok, type Result } from 'wellcrafted/result';
+
 import { defineMutation, queryClient } from './_client';
 import { transformationRunKeys } from './transformation-runs';
 import { transformationsKeys } from './transformations';
 
-const { TransformServiceError, TransformServiceErr } = createTaggedError(
+const { TransformServiceErr, TransformServiceError } = createTaggedError(
 	'TransformServiceError',
 );
 type TransformServiceError = ReturnType<typeof TransformServiceError>;
@@ -44,21 +46,21 @@ export const transformer = {
 				const { data: transformationRun, error: transformationRunError } =
 					await runTransformation({
 						input,
-						transformation,
 						recordingId: null,
+						transformation,
 					});
 
 				if (transformationRunError)
 					return fromTaggedErr(transformationRunError, {
 						title: '⚠️ Transformation failed',
-						action: { type: 'more-details', error: transformationRunError },
+						action: { error: transformationRunError, type: 'more-details' },
 					});
 
 				if (transformationRun.status === 'failed') {
 					return WhisperingErr({
 						title: '⚠️ Transformation failed',
 						description: transformationRun.error,
-						action: { type: 'more-details', error: transformationRun.error },
+						action: { error: transformationRun.error, type: 'more-details' },
 					});
 				}
 
@@ -115,14 +117,14 @@ export const transformer = {
 			const { data: transformationRun, error: transformationRunError } =
 				await runTransformation({
 					input: recording.transcribedText,
-					transformation,
 					recordingId,
+					transformation,
 				});
 
 			if (transformationRunError)
 				return fromTaggedErr(transformationRunError, {
 					title: '⚠️ Transformation failed',
-					action: { type: 'more-details', error: transformationRunError },
+					action: { error: transformationRunError, type: 'more-details' },
 				});
 
 			queryClient.invalidateQueries({
@@ -178,39 +180,6 @@ async function handleStep({
 			);
 
 			switch (provider) {
-				case 'OpenAI': {
-					const { data: completionResponse, error: completionError } =
-						await services.completions.openai.complete({
-							apiKey: settings.value['apiKeys.openai'],
-							systemPrompt,
-							userPrompt,
-							model: step['prompt_transform.inference.provider.OpenAI.model'],
-						});
-
-					if (completionError) {
-						return Err(completionError.message);
-					}
-
-					return Ok(completionResponse);
-				}
-
-				case 'Groq': {
-					const model = step['prompt_transform.inference.provider.Groq.model'];
-					const { data: completionResponse, error: completionError } =
-						await services.completions.groq.complete({
-							apiKey: settings.value['apiKeys.groq'],
-							model,
-							systemPrompt,
-							userPrompt,
-						});
-
-					if (completionError) {
-						return Err(completionError.message);
-					}
-
-					return Ok(completionResponse);
-				}
-
 				case 'Anthropic': {
 					const { data: completionResponse, error: completionError } =
 						await services.completions.anthropic.complete({
@@ -244,6 +213,39 @@ async function handleStep({
 					return Ok(completion);
 				}
 
+				case 'Groq': {
+					const model = step['prompt_transform.inference.provider.Groq.model'];
+					const { data: completionResponse, error: completionError } =
+						await services.completions.groq.complete({
+							apiKey: settings.value['apiKeys.groq'],
+							model,
+							systemPrompt,
+							userPrompt,
+						});
+
+					if (completionError) {
+						return Err(completionError.message);
+					}
+
+					return Ok(completionResponse);
+				}
+
+				case 'OpenAI': {
+					const { data: completionResponse, error: completionError } =
+						await services.completions.openai.complete({
+							apiKey: settings.value['apiKeys.openai'],
+							model: step['prompt_transform.inference.provider.OpenAI.model'],
+							systemPrompt,
+							userPrompt,
+						});
+
+					if (completionError) {
+						return Err(completionError.message);
+					}
+
+					return Ok(completionResponse);
+				}
+
 				default:
 					return Err(`Unsupported provider: ${provider}`);
 			}
@@ -256,12 +258,12 @@ async function handleStep({
 
 async function runTransformation({
 	input,
-	transformation,
 	recordingId,
+	transformation,
 }: {
 	input: string;
+	recordingId: null | string;
 	transformation: Transformation;
-	recordingId: string | null;
 }): Promise<
 	Result<
 		TransformationRunCompleted | TransformationRunFailed,
@@ -270,38 +272,38 @@ async function runTransformation({
 > {
 	if (!input.trim()) {
 		return TransformServiceErr({
-			message: 'Empty input. Please enter some text to transform',
 			cause: undefined,
 			context: { input, transformationId: transformation.id },
+			message: 'Empty input. Please enter some text to transform',
 		});
 	}
 
 	if (transformation.steps.length === 0) {
 		return TransformServiceErr({
-			message:
-				'No steps configured. Please add at least one transformation step',
 			cause: undefined,
 			context: { transformation },
+			message:
+				'No steps configured. Please add at least one transformation step',
 		});
 	}
 
 	const { data: transformationRun, error: createTransformationRunError } =
 		await services.db.createTransformationRun({
-			transformationId: transformation.id,
-			recordingId,
 			input,
+			recordingId,
+			transformationId: transformation.id,
 		});
 
 	if (createTransformationRunError)
 		return TransformServiceErr({
-			message: 'Unable to start transformation run',
 			cause: createTransformationRunError,
 			context: {
-				transformationId: transformation.id,
-				recordingId,
-				input,
 				createTransformationRunError,
+				input,
+				recordingId,
+				transformationId: transformation.id,
 			},
+			message: 'Unable to start transformation run',
 		});
 
 	let currentInput = input;
@@ -320,14 +322,14 @@ async function runTransformation({
 
 		if (addTransformationStepRunError)
 			return TransformServiceErr({
-				message: 'Unable to initialize transformation step',
 				cause: addTransformationStepRunError,
 				context: {
-					transformationRun,
-					stepId: step.id,
-					input: currentInput,
 					addTransformationStepRunError,
+					input: currentInput,
+					stepId: step.id,
+					transformationRun,
 				},
+				message: 'Unable to initialize transformation step',
 			});
 
 		const handleStepResult = await handleStep({
@@ -340,20 +342,20 @@ async function runTransformation({
 				data: markedFailedTransformationRun,
 				error: markTransformationRunAndRunStepAsFailedError,
 			} = await services.db.failTransformationAtStepRun({
+				error: handleStepResult.error,
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
-				error: handleStepResult.error,
 			});
 			if (markTransformationRunAndRunStepAsFailedError)
 				return TransformServiceErr({
-					message: 'Unable to save failed transformation step result',
 					cause: markTransformationRunAndRunStepAsFailedError,
 					context: {
-						transformationRun,
-						stepId: newTransformationStepRun.id,
 						error: handleStepResult.error,
 						markTransformationRunAndRunStepAsFailedError,
+						stepId: newTransformationStepRun.id,
+						transformationRun,
 					},
+					message: 'Unable to save failed transformation step result',
 				});
 			return Ok(markedFailedTransformationRun);
 		}
@@ -362,21 +364,21 @@ async function runTransformation({
 
 		const { error: markTransformationRunStepAsCompletedError } =
 			await services.db.completeTransformationStepRun({
+				output: handleStepOutput,
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
-				output: handleStepOutput,
 			});
 
 		if (markTransformationRunStepAsCompletedError)
 			return TransformServiceErr({
-				message: 'Unable to save completed transformation step result',
 				cause: markTransformationRunStepAsCompletedError,
 				context: {
-					transformationRun,
-					stepRunId: newTransformationStepRun.id,
-					output: handleStepOutput,
 					markTransformationRunStepAsCompletedError,
+					output: handleStepOutput,
+					stepRunId: newTransformationStepRun.id,
+					transformationRun,
 				},
+				message: 'Unable to save completed transformation step result',
 			});
 
 		currentInput = handleStepOutput;
@@ -386,19 +388,19 @@ async function runTransformation({
 		data: markedCompletedTransformationRun,
 		error: markTransformationRunAsCompletedError,
 	} = await services.db.completeTransformation({
-		run: transformationRun,
 		output: currentInput,
+		run: transformationRun,
 	});
 
 	if (markTransformationRunAsCompletedError)
 		return TransformServiceErr({
-			message: 'Unable to save completed transformation run',
 			cause: markTransformationRunAsCompletedError,
 			context: {
-				transformationRun,
-				output: currentInput,
 				markTransformationRunAsCompletedError,
+				output: currentInput,
+				transformationRun,
 			},
+			message: 'Unable to save completed transformation run',
 		});
 	return Ok(markedCompletedTransformationRun);
 }

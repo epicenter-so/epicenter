@@ -7,46 +7,46 @@ import type { KeyboardEventPossibleKey } from './browser/possible-keys';
  * back to their original keys for consistent shortcut handling.
  */
 const OPTION_KEY_CHARACTER_MAP: Record<string, KeyboardEventPossibleKey> = {
-	// Option + Letters (A-Z)
-	å: 'a', // Option+A
-	'∫': 'b', // Option+B
-	ç: 'c', // Option+C
-	'∂': 'd', // Option+D
-	ƒ: 'f', // Option+F (E is accent modifier)
-	'©': 'g', // Option+G
-	'˙': 'h', // Option+H
-	'∆': 'j', // Option+J (I is accent modifier)
-	'˚': 'k', // Option+K
-	'¬': 'l', // Option+L
-	µ: 'm', // Option+M
-	ø: 'o', // Option+O (N is accent modifier)
-	π: 'p', // Option+P
-	œ: 'q', // Option+Q
-	'®': 'r', // Option+R
-	ß: 's', // Option+S
-	'†': 't', // Option+T
-	'√': 'v', // Option+V (U is accent modifier)
-	'∑': 'w', // Option+W
-	'≈': 'x', // Option+X
-	'¥': 'y', // Option+Y
-	Ω: 'z', // Option+Z
-
-	// Option + Numbers
-	º: '0', // Option+0
+	'–': '-', // Option+- (en dash)
 	'¡': '1', // Option+1
-	'™': '2', // Option+2
-	'£': '3', // Option+3
-	'¢': '4', // Option+4
-	'•': '8', // Option+8 (5,6,7 don't produce special chars)
-	ª: '9', // Option+9
-
 	// Option + Punctuation
 	'"': '[', // Option+[
 	"'": ']', // Option+]
-	'–': '-', // Option+- (en dash)
+	'†': 't', // Option+T
+	'•': '8', // Option+8 (5,6,7 don't produce special chars)
+	'˙': 'h', // Option+H
+	'˚': 'k', // Option+K
+	'©': 'g', // Option+G
+	'®': 'r', // Option+R
+	'∂': 'd', // Option+D
+	'∆': 'j', // Option+J (I is accent modifier)
+	'∑': 'w', // Option+W
 	'÷': '/', // Option+/
-	'≥': '.', // Option+.
+	'¬': 'l', // Option+L
+	'√': 'v', // Option+V (U is accent modifier)
+	'∫': 'b', // Option+B
+	'≈': 'x', // Option+X
 	'≤': ',', // Option+,
+	'≥': '.', // Option+.
+	'¢': '4', // Option+4
+	'£': '3', // Option+3
+
+	'¥': 'y', // Option+Y
+	ª: '9', // Option+9
+	// Option + Letters (A-Z)
+	å: 'a', // Option+A
+	ç: 'c', // Option+C
+	ƒ: 'f', // Option+F (E is accent modifier)
+	// Option + Numbers
+	º: '0', // Option+0
+	ø: 'o', // Option+O (N is accent modifier)
+
+	œ: 'q', // Option+Q
+	ß: 's', // Option+S
+	'™': '2', // Option+2
+	µ: 'm', // Option+M
+	π: 'p', // Option+P
+	Ω: 'z', // Option+Z
 };
 
 /**
@@ -79,4 +79,4 @@ export function normalizeOptionKeyCharacter(
  * These don't produce a character immediately but wait for the next key
  * to create accented characters (e.g., Option+E then A = "á").
  */
-export const OPTION_DEAD_KEYS = new Set(['e', 'i', 'n', 'u', '`']);
+export const OPTION_DEAD_KEYS = new Set(['`', 'e', 'i', 'n', 'u']);

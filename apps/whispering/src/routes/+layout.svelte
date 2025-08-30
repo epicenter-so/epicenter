@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onNavigate } from '$app/navigation';
-	import { queryClient } from '$lib/query/_client';
 	import { rpc } from '$lib/query';
-	import { QueryClientProvider } from '@tanstack/svelte-query';
-	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import '@repo/ui/app.css';
+	import { queryClient } from '$lib/query/_client';
 	import * as services from '$lib/services';
+	import { QueryClientProvider } from '@tanstack/svelte-query';
+	import '@repo/ui/app.css';
+	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
+
 	import AppShell from './+layout/AppShell.svelte';
 
 	let { children } = $props();

@@ -13,18 +13,18 @@
 		{ title: 'Sound', href: '/settings/sound' },
 		{
 			title: 'Shortcuts',
-			href: '/settings/shortcuts/local',
 			activePathPrefix: '/settings/shortcuts',
+			href: '/settings/shortcuts/local',
 		},
 		{ title: 'Privacy & Analytics', href: '/settings/analytics' },
 	] satisfies {
-		title: string;
-		href: string;
 		/**
 		 * If provided, the item is considered active if the current pathname starts with this prefix.
 		 * Otherwise, it is considered active if the current pathname is exactly equal to the item's href.
 		 */
 		activePathPrefix?: string;
+		href: string;
+		title: string;
 	}[];
 
 	const [send, receive] = crossfade({

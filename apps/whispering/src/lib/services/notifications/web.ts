@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
+
 import type { NotificationService, UnifiedNotificationOptions } from './types';
+
 import {
 	NotificationServiceErr,
 	toBrowserNotification,
@@ -25,6 +27,17 @@ export function createNotificationServiceWeb(): NotificationService {
 	};
 
 	return {
+		async clear(id: string) {
+			// Browser notifications don't have a direct clear API
+			// They auto-dismiss or require service worker control
+			// For future extension support:
+			// if (await detectExtension()) {
+			//   const { error } = await extension.clearNotification({ notificationId: id });
+			//   if (error) return Err(error);
+			// }
+			return Ok(undefined);
+		},
+
 		async notify(options: UnifiedNotificationOptions) {
 			const notificationId = options.id ?? nanoid();
 
@@ -50,6 +63,12 @@ export function createNotificationServiceWeb(): NotificationService {
 
 			// Browser notification fallback
 			const { error } = await tryAsync({
+				mapErr: (error) =>
+					NotificationServiceErr({
+						cause: error,
+						context: { title: options.title, notificationId },
+						message: 'Failed to send browser notification',
+					}),
 				try: async () => {
 					// Check if browser supports notifications
 					const isNotificationsSupported = 'Notification' in window;
@@ -80,27 +99,10 @@ export function createNotificationServiceWeb(): NotificationService {
 						};
 					}
 				},
-				mapErr: (error) =>
-					NotificationServiceErr({
-						message: 'Failed to send browser notification',
-						context: { notificationId, title: options.title },
-						cause: error,
-					}),
 			});
 
 			if (error) return Err(error);
 			return Ok(notificationId);
-		},
-
-		async clear(id: string) {
-			// Browser notifications don't have a direct clear API
-			// They auto-dismiss or require service worker control
-			// For future extension support:
-			// if (await detectExtension()) {
-			//   const { error } = await extension.clearNotification({ notificationId: id });
-			//   if (error) return Err(error);
-			// }
-			return Ok(undefined);
 		},
 	};
 }

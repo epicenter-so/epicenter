@@ -1,22 +1,23 @@
 <script lang="ts">
-	import { Label } from '@repo/ui/label';
-	import { Switch } from '@repo/ui/switch';
 	import type { Snippet } from 'svelte';
 
+	import { Label } from '@repo/ui/label';
+	import { Switch } from '@repo/ui/switch';
+
 	let {
+		description,
+		checked = $bindable(),
+		disabled = $bindable(),
 		id,
 		label,
-		checked = $bindable(),
 		onCheckedChange,
-		description,
-		disabled = $bindable(),
 	}: {
-		id: string;
-		label: string | Snippet;
 		checked: boolean;
-		onCheckedChange?: (value: boolean) => void;
 		description?: string;
 		disabled?: boolean;
+		id: string;
+		label: Snippet | string;
+		onCheckedChange?: (value: boolean) => void;
 	} = $props();
 </script>
 

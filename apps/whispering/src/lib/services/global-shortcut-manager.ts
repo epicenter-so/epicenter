@@ -1,3 +1,5 @@
+import type { Brand } from 'wellcrafted/brand';
+
 import {
 	ACCELERATOR_KEY_CODES,
 	ACCELERATOR_MODIFIER_KEYS,
@@ -12,19 +14,17 @@ import {
 	unregisterAll as tauriUnregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 import * as os from '@tauri-apps/plugin-os';
-import type { Brand } from 'wellcrafted/brand';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+
 import type { ShortcutTriggerState } from './_shortcut-trigger-state';
 
-const { InvalidAcceleratorError, InvalidAcceleratorErr } = createTaggedError(
+const { InvalidAcceleratorErr, InvalidAcceleratorError } = createTaggedError(
 	'InvalidAcceleratorError',
 );
 type InvalidAcceleratorError = ReturnType<typeof InvalidAcceleratorError>;
-const { GlobalShortcutServiceError, GlobalShortcutServiceErr } =
+const { GlobalShortcutServiceErr, GlobalShortcutServiceError } =
 	createTaggedError('GlobalShortcutServiceError');
-type GlobalShortcutServiceError = ReturnType<typeof GlobalShortcutServiceError>;
-
 /**
  * A type that represents a global shortcut accelerator.
  *
@@ -35,7 +35,9 @@ type GlobalShortcutServiceError = ReturnType<typeof GlobalShortcutServiceError>;
  *
  * @see https://www.electronjs.org/docs/latest/api/accelerator
  */
-export type Accelerator = string & Brand<'Accelerator'>;
+export type Accelerator = Brand<'Accelerator'> & string;
+
+type GlobalShortcutServiceError = ReturnType<typeof GlobalShortcutServiceError>;
 
 export function createGlobalShortcutManager() {
 	return {
@@ -48,20 +50,26 @@ export function createGlobalShortcutManager() {
 			callback: () => void;
 			on: ShortcutTriggerState;
 		}): Promise<
-			Result<void, InvalidAcceleratorError | GlobalShortcutServiceError>
+			Result<void, GlobalShortcutServiceError | InvalidAcceleratorError>
 		> {
 			const { error: unregisterError } = await this.unregister(accelerator);
 			if (unregisterError) return Err(unregisterError);
 
 			if (!isValidElectronAccelerator(accelerator)) {
 				return InvalidAcceleratorErr({
-					message: `Invalid accelerator format: '${accelerator}'. Must follow Electron accelerator specification.`,
-					context: { accelerator },
 					cause: undefined,
+					context: { accelerator },
+					message: `Invalid accelerator format: '${accelerator}'. Must follow Electron accelerator specification.`,
 				});
 			}
 
 			const { error: registerError } = await tryAsync({
+				mapErr: (error) =>
+					GlobalShortcutServiceErr({
+						cause: error,
+						context: { accelerator, error },
+						message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
+					}),
 				try: () =>
 					tauriRegister(accelerator, (event) => {
 						if (on === 'Both') {
@@ -76,12 +84,6 @@ export function createGlobalShortcutManager() {
 							callback();
 							return;
 						}
-					}),
-				mapErr: (error) =>
-					GlobalShortcutServiceErr({
-						message: `Failed to register global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
-						context: { accelerator, error },
-						cause: error,
 					}),
 			});
 			/**
@@ -109,16 +111,16 @@ export function createGlobalShortcutManager() {
 			if (!isRegistered) return Ok(undefined);
 
 			const { error: unregisterError } = await tryAsync({
-				try: () => tauriUnregister(accelerator),
 				mapErr: (error) =>
 					GlobalShortcutServiceErr({
-						message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
+						cause: error,
 						context: {
 							accelerator,
 							originalError: error,
 						},
-						cause: error,
+						message: `Failed to unregister global shortcut '${accelerator}': ${extractErrorMessage(error)}`,
 					}),
+				try: () => tauriUnregister(accelerator),
 			});
 			if (unregisterError) return Err(unregisterError);
 			return Ok(undefined);
@@ -131,13 +133,13 @@ export function createGlobalShortcutManager() {
 		 */
 		async unregisterAll(): Promise<Result<void, GlobalShortcutServiceError>> {
 			const { error: unregisterAllError } = await tryAsync({
-				try: () => tauriUnregisterAll(),
 				mapErr: (error) =>
 					GlobalShortcutServiceErr({
-						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
-						context: { error },
 						cause: error,
+						context: { error },
+						message: `Failed to unregister all global shortcuts: ${extractErrorMessage(error)}`,
 					}),
+				try: () => tauriUnregisterAll(),
 			});
 			if (unregisterAllError) return Err(unregisterAllError);
 			return Ok(undefined);
@@ -199,16 +201,16 @@ export function pressedKeysToTauriAccelerator(
 	// Must have exactly one key code
 	if (keyCodes.length === 0) {
 		return InvalidAcceleratorErr({
-			message: 'No valid key code found in pressed keys',
-			context: { pressedKeys },
 			cause: undefined,
+			context: { pressedKeys },
+			message: 'No valid key code found in pressed keys',
 		});
 	}
 	if (keyCodes.length > 1) {
 		return InvalidAcceleratorErr({
-			message: 'Multiple key codes not allowed in accelerator',
-			context: { pressedKeys, keyCodes },
 			cause: undefined,
+			context: { keyCodes, pressedKeys },
+			message: 'Multiple key codes not allowed in accelerator',
 		});
 	}
 
@@ -223,82 +225,13 @@ export function pressedKeysToTauriAccelerator(
 	// Final validation
 	if (!isValidElectronAccelerator(accelerator)) {
 		return InvalidAcceleratorErr({
-			message: `Generated invalid accelerator: ${accelerator}`,
-			context: { pressedKeys, accelerator },
 			cause: undefined,
+			context: { accelerator, pressedKeys },
+			message: `Generated invalid accelerator: ${accelerator}`,
 		});
 	}
 
 	return Ok(accelerator);
-}
-
-/**
- * Converts a browser KeyboardEvent.key value (lowercase) to an Electron Accelerator modifier.
- *
- * This function handles platform-specific differences in how modifier keys are represented:
- * - Browser normalizes platform keys (e.g., Command key → "meta", Option key → "alt")
- * - Electron expects platform-specific modifiers (e.g., "Command" on macOS, "Super" on Windows/Linux)
- *
- * @param key - The lowercase key value from a KeyboardEvent (e.g., "control", "alt", "meta")
- * @returns The corresponding Electron Accelerator modifier, or null if the key is not a modifier
- *
- * @example
- * // On macOS
- * convertToModifier('meta') // Returns 'Command'
- * convertToModifier('alt')  // Returns 'Option'
- *
- * @example
- * // On Windows/Linux
- * convertToModifier('meta') // Returns 'Super'
- * convertToModifier('alt')  // Returns 'Alt'
- *
- * @example
- * // Cross-platform
- * convertToModifier('control') // Returns 'Control' on all platforms
- * convertToModifier('shift')   // Returns 'Shift' on all platforms
- * convertToModifier('space')   // Returns null (not a modifier)
- */
-function convertToModifier(
-	key: KeyboardEventSupportedKey,
-): AcceleratorModifier | null {
-	const platform = os.type();
-
-	switch (key) {
-		case 'control':
-			// Control key is consistent across all platforms
-			return 'Control';
-
-		case 'shift':
-			// Shift key is consistent across all platforms
-			return 'Shift';
-
-		case 'alt':
-			// Alt key is called "Option" on macOS in Electron accelerators
-			return platform === 'macos' ? 'Option' : 'Alt';
-
-		case 'meta':
-			// Meta key maps differently based on platform:
-			// - macOS: Command key (reported as "meta" by browser)
-			// - Windows/Linux: Windows/Super key (reported as "meta" by browser)
-			return platform === 'macos' ? 'Command' : 'Super';
-
-		case 'altgraph':
-			// AltGr is not available on macOS
-			return platform === 'macos' ? null : 'AltGr';
-
-		// These keys might be reported by browsers but aren't standard Electron modifiers
-		case 'super':
-			// "super" as a key value (different from Meta) maps to Super modifier
-			return 'Super';
-
-		case 'fn':
-			// These are not supported as Electron accelerator modifiers
-			return null;
-
-		default:
-			// Any other key is not a modifier
-			return null;
-	}
 }
 
 /**
@@ -324,41 +257,41 @@ function convertToKeyCode(
 
 	// Special key mappings
 	const keyMappings: Record<string, AcceleratorKeyCode> = {
-		// Arrow keys
-		arrowup: 'Up',
+		// Whitespace
+		' ': 'Space',
 		arrowdown: 'Down',
 		arrowleft: 'Left',
 		arrowright: 'Right',
 
-		// Whitespace
-		' ': 'Space',
-		enter: 'Enter',
-		tab: 'Tab',
+		// Arrow keys
+		arrowup: 'Up',
+		backspace: 'Backspace',
+		// Lock keys (when used as regular keys, not modifiers)
+		capslock: 'Capslock',
 
+		delete: 'Delete',
+		end: 'End',
+		enter: 'Enter',
 		// Special keys
 		escape: 'Escape',
-		backspace: 'Backspace',
-		delete: 'Delete',
-		insert: 'Insert',
 		home: 'Home',
-		end: 'End',
-		pageup: 'PageUp',
-		pagedown: 'PageDown',
-		printscreen: 'PrintScreen',
-
-		// Media keys
-		volumeup: 'VolumeUp',
-		volumedown: 'VolumeDown',
-		volumemute: 'VolumeMute',
+		insert: 'Insert',
 		mediaplaypause: 'MediaPlayPause',
 		mediastop: 'MediaStop',
 		mediatracknext: 'MediaNextTrack',
-		mediatrackprevious: 'MediaPreviousTrack',
 
-		// Lock keys (when used as regular keys, not modifiers)
-		capslock: 'Capslock',
+		mediatrackprevious: 'MediaPreviousTrack',
 		numlock: 'Numlock',
+		pagedown: 'PageDown',
+		pageup: 'PageUp',
+		printscreen: 'PrintScreen',
 		scrolllock: 'Scrolllock',
+		tab: 'Tab',
+
+		volumedown: 'VolumeDown',
+		volumemute: 'VolumeMute',
+		// Media keys
+		volumeup: 'VolumeUp',
 	};
 
 	if (keyMappings[key]) {
@@ -410,6 +343,75 @@ function convertToKeyCode(
 }
 
 /**
+ * Converts a browser KeyboardEvent.key value (lowercase) to an Electron Accelerator modifier.
+ *
+ * This function handles platform-specific differences in how modifier keys are represented:
+ * - Browser normalizes platform keys (e.g., Command key → "meta", Option key → "alt")
+ * - Electron expects platform-specific modifiers (e.g., "Command" on macOS, "Super" on Windows/Linux)
+ *
+ * @param key - The lowercase key value from a KeyboardEvent (e.g., "control", "alt", "meta")
+ * @returns The corresponding Electron Accelerator modifier, or null if the key is not a modifier
+ *
+ * @example
+ * // On macOS
+ * convertToModifier('meta') // Returns 'Command'
+ * convertToModifier('alt')  // Returns 'Option'
+ *
+ * @example
+ * // On Windows/Linux
+ * convertToModifier('meta') // Returns 'Super'
+ * convertToModifier('alt')  // Returns 'Alt'
+ *
+ * @example
+ * // Cross-platform
+ * convertToModifier('control') // Returns 'Control' on all platforms
+ * convertToModifier('shift')   // Returns 'Shift' on all platforms
+ * convertToModifier('space')   // Returns null (not a modifier)
+ */
+function convertToModifier(
+	key: KeyboardEventSupportedKey,
+): AcceleratorModifier | null {
+	const platform = os.type();
+
+	switch (key) {
+		case 'alt':
+			// Alt key is called "Option" on macOS in Electron accelerators
+			return platform === 'macos' ? 'Option' : 'Alt';
+
+		case 'altgraph':
+			// AltGr is not available on macOS
+			return platform === 'macos' ? null : 'AltGr';
+
+		case 'control':
+			// Control key is consistent across all platforms
+			return 'Control';
+
+		case 'fn':
+			// These are not supported as Electron accelerator modifiers
+			return null;
+
+		case 'meta':
+			// Meta key maps differently based on platform:
+			// - macOS: Command key (reported as "meta" by browser)
+			// - Windows/Linux: Windows/Super key (reported as "meta" by browser)
+			return platform === 'macos' ? 'Command' : 'Super';
+
+		case 'shift':
+			// Shift key is consistent across all platforms
+			return 'Shift';
+
+		// These keys might be reported by browsers but aren't standard Electron modifiers
+		case 'super':
+			// "super" as a key value (different from Meta) maps to Super modifier
+			return 'Super';
+
+		default:
+			// Any other key is not a modifier
+			return null;
+	}
+}
+
+/**
  * Sort modifiers in a standard order for consistency
  * Order: CommandOrControl/Ctrl, Alt, Shift, Meta (if separate)
  */
@@ -417,16 +419,16 @@ function sortModifiers(
 	modifiers: AcceleratorModifier[],
 ): AcceleratorModifier[] {
 	const order: Record<AcceleratorModifier, number> = {
-		Command: 1,
+		Alt: 2,
+		AltGr: 3,
 		Cmd: 1,
+		Command: 1,
 		Control: 1,
 		Ctrl: 1,
-		Alt: 2,
+		Meta: 5,
 		Option: 2,
-		AltGr: 3,
 		Shift: 4,
 		Super: 5,
-		Meta: 5,
 	};
 
 	return modifiers.sort((a, b) => {

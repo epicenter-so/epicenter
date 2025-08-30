@@ -1,13 +1,13 @@
 <script lang="ts">
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import * as Command from '@repo/ui/command';
-	import * as Popover from '@repo/ui/popover';
-	import { useCombobox } from '@repo/ui/hooks';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
+	import * as Command from '@repo/ui/command';
+	import { useCombobox } from '@repo/ui/hooks';
+	import * as Popover from '@repo/ui/popover';
 	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
 	let {
 		mode = 'manual'

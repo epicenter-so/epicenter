@@ -1,10 +1,12 @@
+import type { WhisperingError } from '$lib/result';
+import type { TextServiceError } from '$lib/services/text';
+
 import { WHISPERING_RECORDINGS_PATHNAME } from '$lib/constants/app';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
+
 import { defineMutation } from './_client';
 import { rpc } from './index';
-import type { TextServiceError } from '$lib/services/text';
-import type { WhisperingError } from '$lib/result';
 
 export const delivery = {
 	/**
@@ -49,11 +51,9 @@ export const delivery = {
 			// Shows transcription result and offers manual copy action
 			const offerManualCopy = () =>
 				rpc.notify.success.execute({
-					id: toastId,
 					title: '📝 Recording transcribed!',
 					description: text,
 					action: {
-						type: 'button',
 						label: 'Copy to clipboard',
 						onClick: async () => {
 							const { error } = await rpc.text.copyToClipboard.execute({
@@ -64,18 +64,20 @@ export const delivery = {
 								rpc.notify.error.execute({
 									title: 'Error copying transcribed text to clipboard',
 									description: error.message,
-									action: { type: 'more-details', error },
+									action: { error, type: 'more-details' },
 								});
 								return;
 							}
 							// Confirm manual copy succeeded
 							rpc.notify.success.execute({
-								id: toastId,
 								title: 'Copied transcribed text to clipboard!',
 								description: text,
+								id: toastId,
 							});
 						},
+						type: 'button',
 					},
+					id: toastId,
 				});
 
 			// Warns that automatic copy failed
@@ -83,7 +85,7 @@ export const delivery = {
 				rpc.notify.warning.execute({
 					title: "Couldn't copy to clipboard",
 					description: error.message,
-					action: { type: 'more-details', error },
+					action: { error, type: 'more-details' },
 				});
 			};
 
@@ -95,7 +97,7 @@ export const delivery = {
 					rpc.notify.warning.execute({
 						title: 'Unable to write to cursor automatically',
 						description: error.message,
-						action: { type: 'more-details', error },
+						action: { error, type: 'more-details' },
 					});
 					return;
 				}
@@ -110,38 +112,38 @@ export const delivery = {
 				if (copied && written) {
 					// Both operations succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '📝 Recording transcribed, copied to clipboard, and written to cursor!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else if (copied) {
 					// Only copy succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '📝 Recording transcribed and copied to clipboard!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else if (written) {
 					// Only write succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '📝 Recording transcribed and written to cursor!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else {
 					// Neither succeeded, offer manual copy
@@ -224,11 +226,9 @@ export const delivery = {
 			// Shows transformation result and offers manual copy action
 			const offerManualCopy = () =>
 				rpc.notify.success.execute({
-					id: toastId,
 					title: '🔄 Transformation complete!',
 					description: text,
 					action: {
-						type: 'button',
 						label: 'Copy to clipboard',
 						onClick: async () => {
 							const { error } = await rpc.text.copyToClipboard.execute({
@@ -239,18 +239,20 @@ export const delivery = {
 								rpc.notify.error.execute({
 									title: 'Error copying transformed text to clipboard',
 									description: error.message,
-									action: { type: 'more-details', error },
+									action: { error, type: 'more-details' },
 								});
 								return;
 							}
 							// Confirm manual copy succeeded
 							rpc.notify.success.execute({
-								id: toastId,
 								title: 'Copied transformed text to clipboard!',
 								description: text,
+								id: toastId,
 							});
 						},
+						type: 'button',
 					},
+					id: toastId,
 				});
 
 			// Warns that automatic copy failed
@@ -258,7 +260,7 @@ export const delivery = {
 				rpc.notify.warning.execute({
 					title: "Couldn't copy to clipboard",
 					description: error.message,
-					action: { type: 'more-details', error },
+					action: { error, type: 'more-details' },
 				});
 			};
 
@@ -270,7 +272,7 @@ export const delivery = {
 					rpc.notify.error.execute({
 						title: 'Error writing transformed text to cursor',
 						description: error.message,
-						action: { type: 'more-details', error },
+						action: { error, type: 'more-details' },
 					});
 					return;
 				}
@@ -285,38 +287,38 @@ export const delivery = {
 				if (copied && written) {
 					// Both operations succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '🔄 Transformation complete, copied to clipboard, and written to cursor!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else if (copied) {
 					// Only copy succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '🔄 Transformation complete and copied to clipboard!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else if (written) {
 					// Only write succeeded
 					rpc.notify.success.execute({
-						id: toastId,
 						title: '🔄 Transformation complete and written to cursor!',
 						description: text,
 						action: {
-							type: 'link',
-							label: 'Go to recordings',
 							href: WHISPERING_RECORDINGS_PATHNAME,
+							label: 'Go to recordings',
+							type: 'link',
 						},
+						id: toastId,
 					});
 				} else {
 					// Neither succeeded, offer manual copy

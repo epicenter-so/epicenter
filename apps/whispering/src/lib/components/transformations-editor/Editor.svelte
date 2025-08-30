@@ -1,8 +1,10 @@
 <script lang="ts">
-	import * as Resizable from '@repo/ui/resizable';
-	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
+
+	import { rpc } from '$lib/query';
+	import * as Resizable from '@repo/ui/resizable';
 	import { createQuery } from '@tanstack/svelte-query';
+
 	import Configuration from './Configuration.svelte';
 	import Runs from './Runs.svelte';
 	import Test from './Test.svelte';

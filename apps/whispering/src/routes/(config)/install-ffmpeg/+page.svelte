@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { Button } from '@repo/ui/button';
-	import { Link } from '@repo/ui/link';
-	import * as Card from '@repo/ui/card';
-	import * as Alert from '@repo/ui/alert';
-	import { Snippet } from '@repo/ui/snippet';
-	import { Badge } from '@repo/ui/badge';
+	import { goto } from '$app/navigation';
+	import { rpc } from '$lib/query';
+	import * as services from '$lib/services';
 	import {
-		DownloadIcon,
 		CheckCircleIcon,
-		XCircleIcon,
+		DownloadIcon,
+		ExternalLinkIcon,
 		LoaderIcon,
 		RefreshCwIcon,
-		ExternalLinkIcon,
+		XCircleIcon,
 	} from '@lucide/svelte';
-	import * as services from '$lib/services';
-	import { goto } from '$app/navigation';
+	import * as Alert from '@repo/ui/alert';
+	import { Badge } from '@repo/ui/badge';
+	import { Button } from '@repo/ui/button';
+	import * as Card from '@repo/ui/card';
+	import { Link } from '@repo/ui/link';
+	import { Snippet } from '@repo/ui/snippet';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { rpc } from '$lib/query';
 
 	const platform = services.os.type();
 
