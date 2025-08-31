@@ -1,5 +1,4 @@
 import type { PluginConfig, TableConfig } from './plugin';
-import type { Method } from './methods';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 // Field type definitions
@@ -16,7 +15,7 @@ export type FieldType =
 export type FieldDefinition = {
 	type: FieldType;
 	required?: boolean;
-	default?: any;
+	default?: unknown;
 	unique?: boolean;
 	references?: string; // Foreign key reference
 };
@@ -34,7 +33,7 @@ export type InferFieldType<T extends FieldDefinition> =
 				: T['type'] extends 'date'
 					? Date
 					: T['type'] extends 'object'
-						? Record<string, any>
+						? Record<string, unknown>
 						: T['type'] extends 'string[]'
 							? string[]
 							: T['type'] extends 'number[]'
@@ -57,7 +56,7 @@ export type InferRecord<TSchema extends SchemaDefinition> = {
 		: K]?: InferFieldType<TSchema[K]>;
 };
 
-// Standard CRUD methods for tables (following the new API pattern)
+// Standard CRUD methods for tables
 export type BaseTableMethods<TSchema extends SchemaDefinition> = {
 	/**
 	 * Get a single record by ID
@@ -159,63 +158,44 @@ export type VaultCoreMethods = {
 	/**
 	 * Execute SQL query (when SQLite is enabled)
 	 */
-	query<T = any>(sql: string): Promise<T[]>;
+	query<T = Record<string, unknown>>(sql: string): Promise<T[]>;
 };
 
-// Helper type to extract table methods from plugin
-export type ExtractTableMethods<
-	P extends PluginConfig,
-	TName extends keyof P['tables'],
-> = P['tables'][TName] extends TableConfig
-	? P['tables'][TName]['methods'] extends Record<string, Method>
-		? {
-				[K in keyof P['tables'][TName]['methods']]: P['tables'][TName]['methods'][K] extends {
-					input: infer I;
-					handler: (...args: any[]) => infer O;
-				}
-					? I extends StandardSchemaV1
-						? (input: StandardSchemaV1.InferInput<I>) => Promise<O>
-						: (input: I) => Promise<O>
-					: never;
-			}
-		: {}
-	: {};
 
-// Helper type to extract plugin-level methods
-type ExtractPluginMethods<P extends PluginConfig> = P['methods'] extends Record<
-	string,
-	Method
->
-	? {
-			[K in keyof P['methods']]: P['methods'][K] extends {
-				input: infer I;
-				handler: (...args: any[]) => infer O;
-			}
-				? I extends StandardSchemaV1
-					? (input: StandardSchemaV1.InferInput<I>) => Promise<O>
-					: (input: I) => Promise<O>
-				: never;
-		}
-	: {};
-
-// Build the type for a single plugin in the vault
-export type BuildPluginType<P extends PluginConfig> = {
+// Base shape for a plugin with CRUD methods
+export type BasePluginShape<P extends PluginConfig> = {
 	[TName in keyof P['tables']]: P['tables'][TName] extends TableConfig
-		? BaseTableMethods<P['tables'][TName]['schema']> &
-				ExtractTableMethods<P, TName>
+		? BaseTableMethods<P['tables'][TName]['schema']>
 		: never;
-} & ExtractPluginMethods<P>;
+};
 
-// Build the complete vault type
-export type BuildVaultType<TPlugins extends readonly PluginConfig[]> =
-	VaultCoreMethods & {
-		[P in TPlugins[number] as P['id']]: BuildPluginType<P>;
-	};
+// Extract the final shape after transform
+export type PluginShape<P extends PluginConfig> = P extends {
+	transform: (vault: Record<string, unknown>) => infer R;
+}
+	? R
+	: never;
+
+// Build vault type by following the transform chain
+export type BuildVaultType<TPlugins extends readonly PluginConfig[]> = 
+	TPlugins extends readonly [...infer Rest extends readonly PluginConfig[], infer Last extends PluginConfig]
+		? Last extends { transform: (vault: BuildVaultType<Rest>) => infer R }
+			? R // Use transform result
+			: BuildVaultType<Rest> & { [K in Last['id']]: BasePluginShape<Last> }
+		: VaultCoreMethods;
+
+// Simpler version for better IDE performance  
+export type InferVaultType<TPlugins extends readonly PluginConfig[]> = Record<string, unknown>;
 
 // Markdown record type (for storage)
 export type MarkdownRecord = {
 	id: string;
-	frontMatter: Record<string, any>;
+	frontMatter: Record<string, unknown>;
 	content: string;
 	path: string;
 };
+
+// Type to check if a value is a method definition
+export type IsMethodDefinition<T> = T extends { type: 'query' | 'mutation'; handler: (...args: unknown[]) => unknown }
+	? true
+	: false;

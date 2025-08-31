@@ -1,67 +1,55 @@
-import type { SchemaDefinition, InferRecord } from './types';
-import type { Method } from './methods';
+import type { SchemaDefinition, BaseTableMethods } from './types';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+
+/**
+ * Method definition that properly infers input type from arktype schema
+ */
+export type MethodDefinition<
+	TSchema extends StandardSchemaV1 | undefined = undefined,
+	TOutput = unknown
+> = {
+	type: 'query' | 'mutation';
+	input?: TSchema;
+	handler: TSchema extends StandardSchemaV1
+		? (input: StandardSchemaV1.InferInput<TSchema>, vault?: Record<string, unknown>) => Promise<TOutput> | TOutput
+		: () => Promise<TOutput> | TOutput;
+};
+
+/**
+ * Methods can be nested arbitrarily for organization
+ */
+export type MethodsDefinition = {
+	[key: string]: MethodDefinition | MethodsDefinition;
+};
 
 /**
  * Base table context with CRUD operations
  */
-export type TableContext<TRecord> = {
-	list(): Promise<TRecord[]>;
-	get(id: string): Promise<TRecord | null>;
-	create(data: Omit<TRecord, 'id'>): Promise<TRecord>;
-	update(id: string, updates: Partial<TRecord>): Promise<TRecord>;
-	delete(id: string): Promise<boolean>;
-	exists(id: string): Promise<boolean>;
-	count(): Promise<number>;
-};
+export type TableContext<TSchema extends SchemaDefinition> = BaseTableMethods<TSchema>;
+
 
 /**
- * Plugin context with all tables
- */
-export type PluginContext<TTables extends Record<string, TableConfig>> = {
-	[K in keyof TTables]: TableContext<InferRecord<TTables[K]['schema']>>;
-};
-
-/**
- * Table configuration with schema and methods
+ * Table configuration with schema
  */
 export type TableConfig<TSchema extends SchemaDefinition = SchemaDefinition> = {
 	/**
 	 * Schema definition for the table
 	 */
 	schema: TSchema;
-	
-	/**
-	 * Table-level methods (queries and mutations)
-	 * Context provides access to this table's operations
-	 * 
-	 * @example
-	 * ```typescript
-	 * import { type } from 'arktype';
-	 * 
-	 * methods: {
-	 *   getTopPosts: {
-	 *     type: 'query',
-	 *     input: type({ limit: 'number = 10' }),
-	 *     handler: async ({ limit }, context) => {
-	 *       const posts = await context.list();
-	 *       return posts.sort((a, b) => b.score - a.score).slice(0, limit);
-	 *     }
-	 *   }
-	 * }
-	 * ```
-	 */
-	methods?: Record<string, Method<any, any, TableContext<InferRecord<TSchema>>>>;
 };
 
 /**
  * Plugin configuration for the vault system
  * 
  * Plugins extend the vault with:
- * - Tables (data schemas with methods)
- * - Plugin-level methods (operate across tables or provide utilities)
+ * - Tables (data schemas)
+ * - Dependencies (other plugins)
+ * - Methods (queries and mutations)
+ * - Transform (vault transformation function)
  */
 export type PluginConfig<
-	TTables extends Record<string, TableConfig> = Record<string, TableConfig>,
+	TId extends string = string,
+	TTables extends Record<string, TableConfig> = Record<string, TableConfig>
 > = {
 	/**
 	 * Unique identifier for the plugin
@@ -69,7 +57,7 @@ export type PluginConfig<
 	 * 
 	 * Must be lowercase and contain only letters, numbers, and underscores
 	 */
-	id: string;
+	id: TId;
 
 	/**
 	 * Human-readable name for the plugin
@@ -83,23 +71,12 @@ export type PluginConfig<
 	 * 
 	 * @example
 	 * ```typescript
-	 * import { type } from 'arktype';
-	 * 
 	 * tables: {
 	 *   posts: {
 	 *     schema: {
 	 *       title: { type: 'string', required: true },
 	 *       content: { type: 'string' },
 	 *       score: { type: 'number', default: 0 }
-	 *     },
-	 *     methods: {
-	 *       getBySubreddit: defineQuery({
-	 *         input: type({ subreddit: 'string' }),
-	 *         handler: async ({ subreddit }, context) => {
-	 *           const posts = await context.list();
-	 *           return posts.filter(p => p.subreddit === subreddit);
-	 *         }
-	 *       })
 	 *     }
 	 *   },
 	 *   comments: {
@@ -114,44 +91,85 @@ export type PluginConfig<
 	tables: TTables;
 
 	/**
-	 * Plugin-level methods (queries and mutations)
-	 * Context provides access to all plugin tables
+	 * Dependencies - array of plugins this plugin depends on
+	 * These will be available in the transform function
 	 * 
 	 * @example
 	 * ```typescript
-	 * import { type } from 'arktype';
-	 * 
-	 * methods: {
-	 *   exportAll: {
-	 *     type: 'query',
-	 *     input: type({}),
-	 *     handler: async (_, context) => {
-	 *       const posts = await context.posts.list();
-	 *       const comments = await context.comments.list();
-	 *       return { posts, comments };
-	 *     }
-	 *   },
-	 *   importData: {
-	 *     type: 'mutation',
-	 *     input: type({ data: 'object' }),
-	 *     handler: async ({ data }, context) => {
-	 *       // Import logic here
-	 *       return { success: true };
-	 *     }
-	 *   }
-	 * }
+	 * dependencies: [redditPlugin, tagsPlugin]
 	 * ```
 	 */
-	methods?: Record<string, Method<any, any, PluginContext<TTables>>>;
+	dependencies?: readonly PluginConfig[];
+
+
+	/**
+	 * Transform function to extend/modify the vault
+	 * Receives vault with dependencies and own base CRUD
+	 * Returns the transformed vault
+	 * 
+	 * @example
+	 * ```typescript
+	 * transform: (vault) => ({
+	 *   ...vault,
+	 *   reddit: {
+	 *     ...vault.reddit,
+	 *     posts: {
+	 *       ...vault.reddit.posts,
+	 *       getTopPosts: {
+	 *         type: 'query',
+	 *         input: type({ limit: 'number' }),
+	 *         handler: async ({ limit }) => {
+	 *           const posts = await vault.reddit.posts.list();
+	 *           return posts.sort((a, b) => b.score - a.score).slice(0, limit);
+	 *         }
+	 *       }
+	 *     }
+	 *   }
+	 * })
+	 * ```
+	 */
+	transform: (vault: Record<string, unknown>) => unknown;
+};
+
+/**
+ * Get the accumulated vault type from dependencies
+ */
+export type AccumulatedVault<TDeps extends readonly PluginConfig[]> = 
+	TDeps extends readonly [infer First, ...infer Rest]
+		? First extends PluginConfig
+			? Rest extends readonly PluginConfig[]
+				? First extends { transform: (vault: Record<string, unknown>) => infer R }
+					? R & AccumulatedVault<Rest>
+					: AccumulatedVault<Rest>
+				: unknown
+			: unknown
+		: Record<string, unknown>;
+
+/**
+ * Infer the vault shape that a plugin receives in its transform
+ * Includes accumulated state from dependencies plus base CRUD for own tables
+ */
+export type InferPluginVault<
+	TId extends string,
+	TTables extends Record<string, TableConfig>,
+	TDeps extends readonly PluginConfig[] = []
+> = AccumulatedVault<TDeps> & {
+	[K in TId]: {
+		[TName in keyof TTables]: TTables[TName] extends TableConfig<infer TSchema>
+			? BaseTableMethods<TSchema>
+			: never;
+	};
 };
 
 /**
  * Define a plugin for the vault system
+ * Supports both object methods pattern and transform pattern
  * 
  * @example
  * ```typescript
  * import { type } from 'arktype';
  * 
+ * // Transform pattern (recommended for complex plugins)
  * const redditPlugin = definePlugin({
  *   id: 'reddit',
  *   name: 'Reddit Integration',
@@ -159,44 +177,119 @@ export type PluginConfig<
  *     posts: {
  *       schema: {
  *         title: { type: 'string', required: true },
- *         subreddit: { type: 'string', required: true },
  *         score: { type: 'number', default: 0 }
- *       },
- *       methods: {
- *         getBySubreddit: {
- *           type: 'query',
- *           input: type({ subreddit: 'string' }),
- *           handler: async ({ subreddit }, context) => {
- *             const posts = await context.list();
- *             return posts.filter(p => p.subreddit === subreddit);
- *           }
- *         }
- *       }
- *     },
- *     comments: {
- *       schema: {
- *         body: { type: 'string', required: true },
- *         post_id: { type: 'string', required: true }
  *       }
  *     }
  *   },
- *   methods: {
- *     getStats: {
- *       type: 'query',
- *       input: type({}),
- *       handler: async (_, context) => {
- *         const postCount = await context.posts.count();
- *         const commentCount = await context.comments.count();
- *         return { posts: postCount, comments: commentCount };
+ *   transform: (vault) => ({
+ *     ...vault,
+ *     reddit: {
+ *       ...vault.reddit,
+ *       posts: {
+ *         ...vault.reddit.posts,
+ *         getTopPosts: {
+ *           type: 'query',
+ *           input: type({ limit: 'number' }),
+ *           handler: async ({ limit }) => {
+ *             const posts = await vault.reddit.posts.list();
+ *             return posts.sort((a, b) => b.score - a.score).slice(0, limit);
+ *           }
+ *         }
  *       }
  *     }
- *   }
+ *   })
+ * });
+ * 
+ * // With dependencies
+ * const annotatorPlugin = definePlugin({
+ *   id: 'annotator',
+ *   name: 'Annotator',
+ *   dependencies: [redditPlugin, tagsPlugin],
+ *   tables: {
+ *     annotations: {
+ *       schema: {
+ *         post_id: { type: 'string', required: true },
+ *         tags: { type: 'string[]' }
+ *       }
+ *     }
+ *   },
+ *   transform: (vault) => ({
+ *     ...vault,
+ *     annotator: {
+ *       ...vault.annotator,
+ *       annotatePost: {
+ *         type: 'mutation',
+ *         input: type({ postId: 'string' }),
+ *         handler: async ({ postId }) => {
+ *           const post = await vault.reddit.posts.get({ id: postId });
+ *           const tags = await vault.tags.tags.list();
+ *           return vault.annotator.annotations.create({
+ *             post_id: postId,
+ *             tags: matchTags(post, tags)
+ *           });
+ *         }
+ *       }
+ *     }
+ *   })
  * });
  * ```
  */
-export function definePlugin<const TTables extends Record<string, TableConfig>>(
-	config: PluginConfig<TTables>,
-): PluginConfig<TTables> {
+/**
+ * Helper type to ensure transform is always present
+ */
+type PluginConfigWithTransform<
+	TId extends string,
+	TTables extends Record<string, TableConfig>,
+	TDeps extends readonly PluginConfig[] = []
+> = Omit<PluginConfig<TId, TTables>, 'transform' | 'dependencies'> & {
+	dependencies?: TDeps;
+	transform: (vault: InferPluginVault<TId, TTables, TDeps>) => unknown;
+};
+
+/**
+ * Define a query with proper type inference
+ */
+export function defineQuery<
+	TSchema extends StandardSchemaV1,
+	TOutput = unknown
+>(config: {
+	input: TSchema;
+	handler: (input: StandardSchemaV1.InferInput<TSchema>) => Promise<TOutput> | TOutput;
+}) {
+	return {
+		type: 'query' as const,
+		input: config.input,
+		handler: config.handler
+	};
+}
+
+/**
+ * Define a mutation with proper type inference
+ */
+export function defineMutation<
+	TSchema extends StandardSchemaV1,
+	TOutput = unknown
+>(config: {
+	input: TSchema;
+	handler: (input: StandardSchemaV1.InferInput<TSchema>) => Promise<TOutput> | TOutput;
+}) {
+	return {
+		type: 'mutation' as const,
+		input: config.input,
+		handler: config.handler
+	};
+}
+
+export function definePlugin<
+	const TId extends string,
+	const TTables extends Record<string, TableConfig>,
+	const TDeps extends readonly PluginConfig[] = []
+>(
+	config: Omit<PluginConfig<TId, TTables>, 'transform' | 'dependencies'> & {
+		dependencies?: TDeps;
+		transform?: (vault: InferPluginVault<TId, TTables, TDeps>) => unknown;
+	}
+): PluginConfigWithTransform<TId, TTables, TDeps> {
 	// Validate plugin ID format
 	if (!/^[a-z][a-z0-9_]*$/.test(config.id)) {
 		throw new Error(
@@ -213,5 +306,10 @@ export function definePlugin<const TTables extends Record<string, TableConfig>>(
 		}
 	}
 
-	return config;
+	// Return with default transform if not provided
+	return {
+		...config,
+		dependencies: config.dependencies as TDeps,
+		transform: config.transform || ((vault) => vault)
+	} as PluginConfigWithTransform<TId, TTables, TDeps>;
 }
