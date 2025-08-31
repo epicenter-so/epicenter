@@ -84,7 +84,25 @@ export async function checkFfmpeg() {
 	const { data: ffmpegInstalled } =
 		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 
-	if (ffmpegInstalled === true) return; // FFmpeg is installed, all good
+	if (ffmpegInstalled === true) {
+		// Check if already using FFmpeg backend
+		if (settings.value['recording.backend'] === 'ffmpeg') return; // Already using FFmpeg, all good
+		
+		// FFmpeg is available but not being used - suggest switching
+		toast.info('FFmpeg Available - Switch for Better Recording', {
+			description:
+				'FFmpeg provides superior audio quality, format flexibility, and more reliable recording than your current backend.',
+			action: {
+				label: 'Switch to FFmpeg',
+				onClick: () => {
+					settings.updateKey('recording.backend', 'ffmpeg');
+					toast.success('Switched to FFmpeg backend!');
+				},
+			},
+			duration: 10000,
+		});
+		return;
+	}
 
 	// Case 1: Whisper C++ with browser backend - always requires FFmpeg
 	if (isUsingWhisperCppWithBrowserBackend()) {
