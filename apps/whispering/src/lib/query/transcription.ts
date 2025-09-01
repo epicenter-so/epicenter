@@ -166,6 +166,14 @@ async function transcribeBlob(
 						apiKey: settings.value['apiKeys.deepgram'],
 						modelName: settings.value['transcription.deepgram.model'],
 					});
+				case 'Mistral':
+					return await services.transcriptions.mistral.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						apiKey: settings.value['apiKeys.mistral'],
+						modelName: settings.value['transcription.mistral.model'],
+					});
 				case 'whispercpp':
 					return await services.transcriptions.whispercpp.transcribe(blob, {
 						outputLanguage: settings.value['transcription.outputLanguage'],
