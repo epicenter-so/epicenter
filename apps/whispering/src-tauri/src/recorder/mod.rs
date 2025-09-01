@@ -2,6 +2,9 @@ pub mod commands;
 pub mod recorder;
 pub mod wav_writer;
 
+#[cfg(target_os = "linux")]
+pub mod gstreamer_recorder;
+
 // Export everything from commands for easy access
 pub use commands::{
     cancel_recording, close_recording_session, enumerate_recording_devices,
