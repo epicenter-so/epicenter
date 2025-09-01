@@ -40,6 +40,7 @@ export function createGroqTranscriptionService() {
 				outputLanguage: Settings['transcription.outputLanguage'];
 				apiKey: string;
 				modelName: (string & {}) | GroqModel['name'];
+				baseURL?: string;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validate API key
@@ -55,7 +56,8 @@ export function createGroqTranscriptionService() {
 				});
 			}
 
-			if (!options.apiKey.startsWith('gsk_') && !options.apiKey.startsWith('xai-')) {
+			// Only validate API key format for official Groq endpoint
+			if (!options.baseURL && !options.apiKey.startsWith('gsk_') && !options.apiKey.startsWith('xai-')) {
 				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
@@ -74,6 +76,14 @@ export function createGroqTranscriptionService() {
 				return WhisperingErr({
 					title: `The file size (${blobSizeInMb}MB) is too large`,
 					description: `Please upload a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
+				});
+			}
+
+			// Validate minimum file size (empty or very small recordings)
+			if (audioBlob.size < 1000) { // Less than 1KB
+				return WhisperingErr({
+					title: '🎙️ Recording Too Short',
+					description: 'The recording is too short or empty. Please record at least a few seconds of audio.',
 				});
 			}
 
@@ -97,12 +107,16 @@ export function createGroqTranscriptionService() {
 			if (fileError) return Err(fileError);
 
 			// Make the transcription request
+			const clientConfig = {
+				apiKey: options.apiKey,
+				dangerouslyAllowBrowser: true,
+				...(options.baseURL && { baseURL: options.baseURL }),
+			};
+			
+			
 			const { data: transcription, error: groqApiError } = await tryAsync({
 				try: () =>
-					new Groq({
-						apiKey: options.apiKey,
-						dangerouslyAllowBrowser: true,
-					}).audio.transcriptions.create({
+					new Groq(clientConfig).audio.transcriptions.create({
 						file,
 						model: options.modelName,
 						language:
@@ -126,6 +140,7 @@ export function createGroqTranscriptionService() {
 			});
 
 			if (groqApiError) {
+				
 				// Error handling follows https://www.npmjs.com/package/groq-sdk#error-handling
 				const { status, name, message, error } = groqApiError;
 
