@@ -23,43 +23,49 @@
 
 	<Separator />
 
-	<LabeledSwitch
-		id="transcription.copyToClipboardOnSuccess"
-		label="Copy transcribed text to clipboard"
-		checked={settings.value['transcription.copyToClipboardOnSuccess']}
-		onCheckedChange={(v) => {
-			settings.updateKey('transcription.copyToClipboardOnSuccess', v);
-		}}
-	/>
+	<div class="space-y-2">
+		<h4 class="text-sm font-medium">Transcription Output</h4>
+		<LabeledSwitch
+			id="transcription.copyToClipboardOnSuccess"
+			label="Copy to clipboard on success"
+			checked={settings.value['transcription.copyToClipboardOnSuccess']}
+			onCheckedChange={(v) => {
+				settings.updateKey('transcription.copyToClipboardOnSuccess', v);
+			}}
+		/>
 
-	<LabeledSwitch
-		id="transcription.writeToCursorOnSuccess"
-		label="Paste transcribed text at cursor"
-		checked={settings.value['transcription.writeToCursorOnSuccess']}
-		onCheckedChange={(v) => {
-			settings.updateKey('transcription.writeToCursorOnSuccess', v);
-		}}
-	/>
+		<LabeledSwitch
+			id="transcription.writeToCursorOnSuccess"
+			label="Write to cursor on success"
+			checked={settings.value['transcription.writeToCursorOnSuccess']}
+			onCheckedChange={(v) => {
+				settings.updateKey('transcription.writeToCursorOnSuccess', v);
+			}}
+		/>
+	</div>
 
 	<Separator />
 
-	<LabeledSwitch
-		id="transformation.copyToClipboardOnSuccess"
-		label="Copy transformed text to clipboard"
-		checked={settings.value['transformation.copyToClipboardOnSuccess']}
-		onCheckedChange={(v) => {
-			settings.updateKey('transformation.copyToClipboardOnSuccess', v);
-		}}
-	/>
+	<div class="space-y-2">
+		<h4 class="text-sm font-medium">Transformation Output</h4>
+		<LabeledSwitch
+			id="transformation.copyToClipboardOnSuccess"
+			label="Copy to clipboard on success"
+			checked={settings.value['transformation.copyToClipboardOnSuccess']}
+			onCheckedChange={(v) => {
+				settings.updateKey('transformation.copyToClipboardOnSuccess', v);
+			}}
+		/>
 
-	<LabeledSwitch
-		id="transformation.writeToCursorOnSuccess"
-		label="Paste transformed text at cursor"
-		checked={settings.value['transformation.writeToCursorOnSuccess']}
-		onCheckedChange={(v) => {
-			settings.updateKey('transformation.writeToCursorOnSuccess', v);
-		}}
-	/>
+		<LabeledSwitch
+			id="transformation.writeToCursorOnSuccess"
+			label="Write to cursor on success"
+			checked={settings.value['transformation.writeToCursorOnSuccess']}
+			onCheckedChange={(v) => {
+				settings.updateKey('transformation.writeToCursorOnSuccess', v);
+			}}
+		/>
+	</div>
 
 	<Separator />
 
