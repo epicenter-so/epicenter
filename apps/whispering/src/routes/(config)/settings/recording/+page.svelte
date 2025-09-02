@@ -1,5 +1,6 @@
 <script lang="ts">
 	import DesktopOutputFolder from './DesktopOutputFolder.svelte';
+	import FfmpegCommandBuilder from './FfmpegCommandBuilder.svelte';
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '@repo/ui/separator';
 	import * as Alert from '@repo/ui/alert';
@@ -28,10 +29,15 @@
 	const RECORDING_BACKEND_OPTIONS = [
 		{ value: 'native', label: 'Native (Rust)' },
 		{ value: 'browser', label: 'Browser (MediaRecorder)' },
+		{ value: 'ffmpeg', label: 'FFmpeg (Command-line)' },
 	] as const;
 
 	const isUsingBrowserBackend = $derived(
-		settings.value['recording.backend'] === 'browser',
+		!window.__TAURI_INTERNALS__ || settings.value['recording.backend'] === 'browser',
+	);
+	
+	const isUsingFfmpegBackend = $derived(
+		settings.value['recording.backend'] === 'ffmpeg',
 	);
 </script>
 
@@ -72,12 +78,31 @@
 				settings.updateKey('recording.backend', selected);
 			}}
 			placeholder="Select a recording backend"
-			description={settings.value['recording.backend'] === 'native'
-				? 'Native: Uses Rust audio backend for lower-level access and potentially better quality'
-				: 'Browser: Uses web standards (MediaRecorder API) for better compatibility'}
+			description={{
+				'native':  'Native: Uses Rust audio backend for lower-level access and potentially better quality',
+				'browser': 'Browser: Uses web standards (MediaRecorder API) for better compatibility',
+				'ffmpeg': 'FFmpeg: Uses FFmpeg command-line tool for maximum flexibility and format support',
+				}[settings.value['recording.backend']]
+			}
 		/>
 
-		{#if IS_MACOS && settings.value['recording.backend'] === 'browser'}
+		{#if settings.value['recording.backend'] === 'ffmpeg' && !data.ffmpegInstalled}
+			<Alert.Root class="border-red-500/20 bg-red-500/5">
+				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+				<Alert.Title class="text-red-600 dark:text-red-400">
+					FFmpeg Not Installed
+				</Alert.Title>
+				<Alert.Description>
+					FFmpeg is required for the FFmpeg recording backend. Please install it to use this feature.
+					<Link
+						href="/install-ffmpeg"
+						class="font-medium underline underline-offset-4 hover:text-red-700 dark:hover:text-red-300"
+					>
+						Install FFmpeg →
+					</Link>
+				</Alert.Description>
+			</Alert.Root>
+		{:else if IS_MACOS && settings.value['recording.backend'] === 'browser'}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -149,7 +174,7 @@
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-		{#if !window.__TAURI_INTERNALS__ || isUsingBrowserBackend}
+		{#if isUsingBrowserBackend}
 			<!-- Browser backend settings -->
 			<LabeledSelect
 				id="bit-rate"
@@ -165,6 +190,20 @@
 				placeholder="Select a bitrate"
 				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
+		{:else if isUsingFfmpegBackend}
+			<!-- FFmpeg backend settings -->
+			<div class="space-y-2">
+				<label for="output-folder" class="text-sm font-medium">
+					Recording Output Folder
+				</label>
+				<DesktopOutputFolder></DesktopOutputFolder>
+				<p class="text-xs text-muted-foreground">
+					Choose where to save your recordings. Default location is secure and
+					managed by the app.
+				</p>
+			</div>
+			
+			<FfmpegCommandBuilder bind:commandTemplate={settings.value['recording.ffmpeg.commandTemplate']} />
 		{:else}
 			<!-- Native backend settings -->
 			<LabeledSelect

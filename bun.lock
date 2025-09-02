@@ -41,7 +41,7 @@
         "@epicenter/opencode": "latest",
         "arktype": "catalog:",
         "get-port": "^7.1.0",
-        "wellcrafted": "^0.21.2",
+        "wellcrafted": "catalog:",
         "yargs": "^17.7.2",
         "zod-openapi": "^5.3.0",
       },
@@ -344,7 +344,7 @@
     "turbo": "^2.3.3",
     "typescript": "^5.8.3",
     "vite": "^7.0.5",
-    "wellcrafted": "^0.21.3",
+    "wellcrafted": "^0.22.0",
     "zod": "^3.25.67",
   },
   "packages": {
@@ -2316,7 +2316,7 @@
 
     "webidl-conversions": ["webidl-conversions@7.0.0", "", {}, "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="],
 
-    "wellcrafted": ["wellcrafted@0.21.4", "", {}, "sha512-PqlkhTRLh05F8em5Rk1AlKSmAhrZDiDI0POU2VVpSHORhV1oRNSBx6WHOyxriGzWbF8TubrSAy/yw3dWJ7X1Rg=="],
+    "wellcrafted": ["wellcrafted@0.22.0", "", {}, "sha512-qlAZ8NYJf+kOpqu+LHW3byMuy80yDex/B0fe4GoI5ou6v+20Jaj0R1jrvCF77edrHVgoXaK1774vni3ZPxH8HA=="],
 
     "whatwg-encoding": ["whatwg-encoding@3.1.1", "", { "dependencies": { "iconv-lite": "0.6.3" } }, "sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ=="],
 

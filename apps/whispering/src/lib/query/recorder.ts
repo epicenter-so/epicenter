@@ -76,25 +76,36 @@ export const recorder = {
 			// Generate a unique recording ID that will serve as the file name
 			const recordingId = nanoid();
 
-			const isUsingBrowserBackend =
-				settings.value['recording.backend'] === 'browser' ||
-				!window.__TAURI_INTERNALS__;
+			const backend = !window.__TAURI_INTERNALS__
+				? 'browser'
+				: settings.value['recording.backend'];
 
 			// Prepare recording parameters based on which backend we're using
-			const params = {
+			const baseParams = {
 				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				recordingId,
-				...(isUsingBrowserBackend
+			};
+
+			const params =
+				backend === 'browser'
 					? {
-							platform: 'web' as const,
+							...baseParams,
+							implementation: 'navigator' as const,
 							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 						}
-					: {
-							platform: 'desktop' as const,
-							outputFolder: settings.value['recording.desktop.outputFolder'],
-							sampleRate: settings.value['recording.desktop.sampleRate'],
-						}),
-			};
+					: backend === 'ffmpeg'
+						? {
+								...baseParams,
+								implementation: 'ffmpeg' as const,
+								commandTemplate:
+									settings.value['recording.ffmpeg.commandTemplate'],
+							}
+						: {
+								...baseParams,
+								implementation: 'cpal' as const,
+								outputFolder: settings.value['recording.desktop.outputFolder'],
+								sampleRate: settings.value['recording.desktop.sampleRate'],
+							};
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 				await recorderService().startRecording(params, {
@@ -164,7 +175,11 @@ export function recorderService() {
 	if (!window.__TAURI_INTERNALS__) return services.browserRecorder;
 
 	// In desktop, check user preference
-	return settings.value['recording.backend'] === 'browser'
-		? services.browserRecorder
-		: services.nativeRecorder;
+	const backend = settings.value['recording.backend'];
+
+	return {
+		browser: services.browserRecorder,
+		ffmpeg: services.ffmpegRecorder,
+		native: services.nativeRecorder,
+	}[backend];
 }

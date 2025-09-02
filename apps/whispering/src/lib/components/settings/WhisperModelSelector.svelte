@@ -15,7 +15,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { appDataDir } from '@tauri-apps/api/path';
+	import { appDataDir, join } from '@tauri-apps/api/path';
 	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -65,23 +65,38 @@
 	let downloadProgress = $state<{ [key: string]: number }>({});
 	let downloadingModels = new SvelteSet<string>();
 
-	// Helper functions
-	async function getModelsDirectory(): Promise<string> {
+	/**
+	 * Gets the default directory where the app downloads Whisper models.
+	 * This is not the only place models can be loaded from - users can browse
+	 * for models anywhere on their filesystem. This is just the default location
+	 * where the app stores downloaded models.
+	 * @returns Path to the app's whisper-models directory (e.g., ~/Library/Application Support/com.epicenter.whispering/whisper-models)
+	 */
+	async function getDefaultModelsDownloadDirectory(): Promise<string> {
 		const appDir = await appDataDir();
-		return `${appDir}whisper-models`;
+		return await join(appDir, 'whisper-models');
 	}
 
-	async function ensureModelsDirectory(): Promise<void> {
-		const modelsDir = await getModelsDirectory();
+	/**
+	 * Creates the default models download directory if it doesn't exist.
+	 * This ensures the directory is available before attempting to download models.
+	 */
+	async function ensureDefaultModelsDirectory(): Promise<void> {
+		const modelsDir = await getDefaultModelsDownloadDirectory();
 		const dirExists = await exists(modelsDir);
 		if (!dirExists) {
 			await mkdir(modelsDir, { recursive: true });
 		}
 	}
 
-	async function getModelPath(filename: string): Promise<string> {
-		const modelsDir = await getModelsDirectory();
-		return `${modelsDir}/${filename}`;
+	/**
+	 * Constructs the full path to a model file within the default download directory.
+	 * @param filename - The model filename (e.g., 'ggml-tiny.bin')
+	 * @returns Full path to the model file in the default download directory
+	 */
+	async function getDefaultModelPath(filename: string): Promise<string> {
+		const modelsDir = await getDefaultModelsDownloadDirectory();
+		return await join(modelsDir, filename);
 	}
 
 	// Query to check which models are downloaded
@@ -92,7 +107,7 @@
 
 			const downloaded: string[] = [];
 			for (const model of WHISPER_MODELS) {
-				const modelPath = await getModelPath(model.filename);
+				const modelPath = await getDefaultModelPath(model.filename);
 				if (await exists(modelPath)) {
 					downloaded.push(model.id);
 				}
@@ -114,8 +129,8 @@
 		downloadProgress[modelId] = 0;
 
 		try {
-			await ensureModelsDirectory();
-			const modelPath = await getModelPath(model.filename);
+			await ensureDefaultModelsDirectory();
+			const modelPath = await getDefaultModelPath(model.filename);
 
 			// Check if already exists
 			if (await exists(modelPath)) {
@@ -186,7 +201,7 @@
 		const model = WHISPER_MODELS.find((m) => m.id === modelId);
 		if (!model) return;
 
-		const modelPath = await getModelPath(model.filename);
+		const modelPath = await getDefaultModelPath(model.filename);
 		settings.updateKey('transcription.whispercpp.modelPath', modelPath);
 		toast.success(`${model.name} model activated`);
 		downloadedModelsQuery.refetch();

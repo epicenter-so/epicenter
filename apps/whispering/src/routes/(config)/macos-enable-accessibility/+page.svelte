@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
+	import { Badge } from '@repo/ui/badge';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon, CheckCircle2 } from '@lucide/svelte';
+	import { SettingsIcon, CheckIcon, ArrowLeft } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { rpc } from '$lib/query';
 	import type { PageData } from './$types';
+	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 	const isAccessibilityGranted = $derived(data.isAccessibilityGranted);
 
-	async function requestAccessibilityPermission() {
+	async function requestPermissionOrShowGuidance() {
 		const { error } = await services.permissions.accessibility.request();
 
 		if (error) {
@@ -21,17 +21,36 @@
 					'Please enable Accessibility in System Settings > Privacy & Security > Accessibility manually',
 				action: {
 					label: 'Open Accessibility Settings',
-					onClick: () => openAccessibilitySettings(),
+					onClick: () => openSystemSettings(),
 				},
 			});
 		}
 	}
 
-	async function openAccessibilitySettings() {
-		const command = Command.create('open', [
-			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
-		]);
-		await command.execute();
+	async function openSystemSettings() {
+		try {
+			// Try opening System Settings directly (works on macOS 13+)
+			const command = Command.create('open', [
+				'x-apple.systemsettings:com.apple.SystemSettings.extension',
+			]);
+			await command.execute();
+
+			// Show helpful toast since we can't open directly to accessibility
+			toast.info('System Settings Opened', {
+				description:
+					'Navigate to Privacy & Security > Accessibility to grant permissions.',
+				duration: 8000,
+			});
+		} catch (error) {
+			console.error('Failed to open System Settings:', error);
+
+			// Fallback: Show detailed instructions
+			toast.info('Open System Settings Manually', {
+				description:
+					'Click Apple menu → System Settings → Privacy & Security → Accessibility',
+				duration: 10000,
+			});
+		}
 	}
 </script>
 
@@ -44,14 +63,8 @@
 		<Card.Header>
 			<Card.Title class="text-xl">MacOS Accessibility</Card.Title>
 			<Card.Description class="leading-7">
-				Follow the steps below to re-enable Whispering in your <Button
-					variant="link"
-					size="inline"
-					onclick={() => openAccessibilitySettings()}
-				>
-					MacOS Accessibility settings
-				</Button>. This often is needed after installing new versions of
-				Whispering due to a macOS bug.
+				Follow the steps below to re-enable Whispering in your macOS Accessibility settings. 
+				This often is needed after installing new versions of Whispering due to a macOS bug.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
@@ -90,7 +103,7 @@
 				>
 					<li>
 						Go to <span class="text-primary font-semibold tracking-tight">
-							System Preferences > Privacy & Security > Accessibility
+							System Settings > Privacy & Security > Accessibility
 						</span> or click the button below.
 					</li>
 
@@ -110,27 +123,47 @@
 		</Card.Content>
 		<Card.Footer>
 			{#if !isAccessibilityGranted}
-				<Button
-					onclick={() => requestAccessibilityPermission()}
-					class="w-full text-sm"
-				>
-					<SettingsIcon class="mr-2 size-4" />
-					Request Accessibility Permission
-				</Button>
-			{:else}
-				<div class="flex flex-col gap-3 w-full">
-					<div class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500">
-						<CheckCircle2 class="size-5" />
-						<span class="font-medium">Accessibility permissions granted</span>
-					</div>
+				<div class="flex gap-3 w-full">
 					<Button
-						onclick={() => openAccessibilitySettings()}
 						variant="outline"
-						class="w-full text-sm"
+						onclick={() => goto('/')}
+						class="flex-1 text-sm"
+					>
+						<ArrowLeft class="mr-2 size-4" />
+						Back to Home
+					</Button>
+					<Button
+						onclick={() => requestPermissionOrShowGuidance()}
+						class="flex-1 text-sm"
 					>
 						<SettingsIcon class="mr-2 size-4" />
-						Open Accessibility Settings
+						Request Permission
 					</Button>
+				</div>
+			{:else}
+				<div class="flex flex-col gap-3 w-full">
+					<Badge variant="success">
+						<CheckIcon class="size-4" />
+						Accessibility permissions granted
+					</Badge>
+					<div class="flex gap-3">
+						<Button
+							variant="outline"
+							onclick={() => goto('/')}
+							class="flex-1 text-sm"
+						>
+							<ArrowLeft class="mr-2 size-4" />
+							Back to Home
+						</Button>
+						<Button
+							onclick={() => openSystemSettings()}
+							variant="outline"
+							class="flex-1 text-sm"
+						>
+							<SettingsIcon class="mr-2 size-4" />
+							Open Settings
+						</Button>
+					</div>
 				</div>
 			{/if}
 		</Card.Footer>

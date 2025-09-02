@@ -16,7 +16,7 @@ export function createFfmpegService(): FfmpegService {
 						).execute();
 						return output;
 					},
-					mapErr: (error) =>
+					catch: (error) =>
 						FfmpegServiceErr({
 							message: `Unable to determine if FFmpeg is installed through shell. ${extractErrorMessage(error)}`,
 							cause: error,

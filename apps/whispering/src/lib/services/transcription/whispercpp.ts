@@ -44,7 +44,7 @@ export function createWhisperCppTranscriptionService() {
 			// Check if model file exists
 			const { data: isExists } = await tryAsync({
 				try: () => exists(options.modelPath),
-				mapErr: () => Ok(false),
+				catch: () => Ok(false),
 			});
 
 			if (!isExists) {
@@ -91,7 +91,7 @@ export function createWhisperCppTranscriptionService() {
 						prompt: options.prompt,
 						temperature: Number.parseFloat(options.temperature),
 					}),
-				mapErr: (unknownError) => {
+				catch: (unknownError) => {
 					const result = WhisperCppErrorType(unknownError);
 					if (result instanceof type.errors) {
 						return WhisperingErr({

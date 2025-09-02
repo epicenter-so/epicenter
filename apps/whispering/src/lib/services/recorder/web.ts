@@ -53,10 +53,10 @@ export function createWebRecorderService(): RecorderService {
 			params: StartRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
-			// Web implementation only handles web params
-			if (params.platform !== 'web') {
+			// Navigator implementation only handles navigator params
+			if (params.implementation !== 'navigator') {
 				return RecorderServiceErr({
-					message: 'Web recorder received non-web parameters',
+					message: 'Navigator recorder received non-navigator parameters',
 					context: { params },
 					cause: undefined,
 				});
@@ -96,7 +96,7 @@ export function createWebRecorderService(): RecorderService {
 					new MediaRecorder(stream, {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
 					}),
-				mapErr: (error) =>
+				catch: (error) =>
 					RecorderServiceErr({
 						message:
 							'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
@@ -168,7 +168,7 @@ export function createWebRecorderService(): RecorderService {
 						});
 						recording.mediaRecorder.stop();
 					}),
-				mapErr: (error) =>
+				catch: (error) =>
 					RecorderServiceErr({
 						message:
 							'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',

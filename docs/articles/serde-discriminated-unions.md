@@ -88,7 +88,7 @@ import { tryAsync } from 'wellcrafted/result';
 
 const result = await tryAsync({
   try: () => invoke('transcribe_with_whisper_cpp', params),
-  mapErr: (unknownError) => {
+  catch: (unknownError) => {
     const result = WhisperCppErrorType(unknownError);
     if (result instanceof type.errors) {
       // Not our expected error shape

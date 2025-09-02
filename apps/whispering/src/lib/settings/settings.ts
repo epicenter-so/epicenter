@@ -46,6 +46,7 @@ import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
+import { asTemplateString } from '$lib/utils/template';
 
 /**
  * The main settings schema that defines all application settings.
@@ -109,8 +110,11 @@ export const settingsSchema = z.object({
 	 * Recording backend to use in desktop app.
 	 * - 'native': Uses Rust audio recording backend (CPAL)
 	 * - 'browser': Uses browser MediaRecorder API even in desktop
+	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
-	'recording.backend': z.enum(['native', 'browser']).default('browser'),
+	'recording.backend': z
+		.enum(['native', 'browser', 'ffmpeg'])
+		.default('browser'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
@@ -145,6 +149,13 @@ export const settingsSchema = z.object({
 	'recording.desktop.sampleRate': z
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
+
+	// FFmpeg recording settings
+	'recording.ffmpeg.commandTemplate': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asTemplateString(val) : null))
+		.default(null), // null = use default command
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
@@ -182,6 +193,11 @@ export const settingsSchema = z.object({
 		.string()
 		.nullable()
 		.default(null),
+		
+	'completion.openrouter.model': z
+		.string()
+		.default('mistralai/mixtral-8x7b')
+		.describe('OpenRouter model name'),
 
 	'apiKeys.openai': z.string().default(''),
 	'apiKeys.anthropic': z.string().default(''),
@@ -189,6 +205,7 @@ export const settingsSchema = z.object({
 	'apiKeys.google': z.string().default(''),
 	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
+	'apiKeys.openrouter': z.string().default(''),
 
 	// Analytics settings
 	'analytics.enabled': z.boolean().default(true),

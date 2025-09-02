@@ -7,7 +7,7 @@ export function createTextServiceWeb(): TextService {
 		copyToClipboard: async (text) => {
 			const { error: copyError } = await tryAsync({
 				try: () => navigator.clipboard.writeText(text),
-				mapErr: (error) =>
+				catch: (error) =>
 					TextServiceErr({
 						message:
 							'There was an error copying to the clipboard using the browser Clipboard API. Please try again.',

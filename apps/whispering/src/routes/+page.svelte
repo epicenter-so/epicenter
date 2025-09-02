@@ -20,6 +20,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { createBlobUrlManager } from '$lib/utils/blobUrlManager';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
+	import * as services from '$lib/services';
 	import {
 		ACCEPT_AUDIO,
 		ACCEPT_VIDEO,
@@ -92,26 +93,6 @@
 		'm4v',
 	] as const;
 
-	const MIME_TYPE_MAP = {
-		// Audio
-		mp3: 'audio/mpeg',
-		wav: 'audio/wav',
-		m4a: 'audio/mp4',
-		aac: 'audio/aac',
-		ogg: 'audio/ogg',
-		flac: 'audio/flac',
-		wma: 'audio/x-ms-wma',
-		opus: 'audio/opus',
-		// Video
-		mp4: 'video/mp4',
-		avi: 'video/x-msvideo',
-		mov: 'video/quicktime',
-		wmv: 'video/x-ms-wmv',
-		flv: 'video/x-flv',
-		mkv: 'video/x-matroska',
-		webm: 'video/webm',
-		m4v: 'video/mp4',
-	} as const;
 
 	// Store unlisten function for drag drop events
 	let unlistenDragDrop: UnlistenFn | undefined;
@@ -121,8 +102,7 @@
 		if (!window.__TAURI_INTERNALS__) return;
 		try {
 			const { getCurrentWebview } = await import('@tauri-apps/api/webview');
-			const { readFile } = await import('@tauri-apps/plugin-fs');
-			const { basename, extname } = await import('@tauri-apps/api/path');
+			const { extname } = await import('@tauri-apps/api/path');
 
 			const isAudio = async (path: string) =>
 				AUDIO_EXTENSIONS.includes(
@@ -132,14 +112,6 @@
 				VIDEO_EXTENSIONS.includes(
 					(await extname(path)) as (typeof VIDEO_EXTENSIONS)[number],
 				);
-
-			const getMimeType = async (path: string) => {
-				const ext = await extname(path);
-				return (
-					MIME_TYPE_MAP[ext as keyof typeof MIME_TYPE_MAP] ??
-					'application/octet-stream'
-				);
-			};
 
 			unlistenDragDrop = await getCurrentWebview().onDragDropEvent(
 				async (event) => {
@@ -168,23 +140,15 @@
 
 					await rpc.settings.switchRecordingMode.execute('upload');
 
-					// Convert file paths to File objects
-					const files: File[] = [];
+					// Convert file paths to File objects using the fs service
+					const { data: files, error } = await services.fs.pathsToFiles(validPaths);
 
-					for (const path of validPaths) {
-						try {
-							const fileData = await readFile(path);
-							const fileName = await basename(path);
-							const mimeType = await getMimeType(path);
-
-							const file = new File([fileData], fileName, { type: mimeType });
-							files.push(file);
-						} catch (error) {
-							rpc.notify.error.execute({
-								title: '❌ Failed to read file',
-								description: `${path}: ${error}`,
-							});
-						}
+					if (error) {
+						rpc.notify.error.execute({
+							title: '❌ Failed to read files',
+							description: error.message,
+						});
+						return;
 					}
 
 					if (files.length > 0) {

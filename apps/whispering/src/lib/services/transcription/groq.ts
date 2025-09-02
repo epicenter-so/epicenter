@@ -85,7 +85,7 @@ export function createGroqTranscriptionService() {
 						`recording.${getExtensionFromAudioBlob(audioBlob)}`,
 						{ type: audioBlob.type },
 					),
-				mapErr: (error) =>
+				catch: (error) =>
 					WhisperingErr({
 						title: '📄 File Creation Failed',
 						description:
@@ -114,7 +114,7 @@ export function createGroqTranscriptionService() {
 							? Number.parseFloat(options.temperature)
 							: undefined,
 					}),
-				mapErr: (error) => {
+				catch: (error) => {
 					// Check if it's NOT a Groq API error
 					if (!(error instanceof Groq.APIError)) {
 						// This is an unexpected error type

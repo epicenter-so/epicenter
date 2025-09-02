@@ -7,6 +7,7 @@ import type {
 	DeviceAcquisitionOutcome,
 	UpdateStatusMessageFn,
 } from '../types';
+import type { TemplateString } from '$lib/utils/template';
 
 /**
  * Base error type for recorder services
@@ -17,7 +18,7 @@ export const { RecorderServiceError, RecorderServiceErr } = createTaggedError(
 export type RecorderServiceError = ReturnType<typeof RecorderServiceError>;
 
 /**
- * Base parameters shared across all platforms
+ * Base parameters shared across all implementations
  */
 type BaseRecordingParams = {
 	selectedDeviceId: DeviceIdentifier | null;
@@ -25,26 +26,37 @@ type BaseRecordingParams = {
 };
 
 /**
- * Desktop-specific recording parameters
+ * CPAL (native Rust) recording parameters
  */
-export type DesktopRecordingParams = BaseRecordingParams & {
-	platform: 'desktop';
+export type CpalRecordingParams = BaseRecordingParams & {
+	implementation: 'cpal';
 	outputFolder: string | null;
 	sampleRate: string;
 };
 
 /**
- * Web-specific recording parameters
+ * Navigator (MediaRecorder) recording parameters
  */
-export type WebRecordingParams = BaseRecordingParams & {
-	platform: 'web';
+export type NavigatorRecordingParams = BaseRecordingParams & {
+	implementation: 'navigator';
 	bitrateKbps: string;
 };
 
 /**
- * Discriminated union for recording parameters based on platform
+ * FFmpeg recording parameters
  */
-export type StartRecordingParams = DesktopRecordingParams | WebRecordingParams;
+export type FfmpegRecordingParams = BaseRecordingParams & {
+	implementation: 'ffmpeg';
+	commandTemplate: TemplateString | null;
+};
+
+/**
+ * Discriminated union for recording parameters based on implementation
+ */
+export type StartRecordingParams =
+	| CpalRecordingParams
+	| NavigatorRecordingParams
+	| FfmpegRecordingParams;
 
 /**
  * Unified recorder service interface that both desktop and web implementations must satisfy
@@ -59,9 +71,7 @@ export type RecorderService = {
 	/**
 	 * Enumerate available recording devices with their labels and identifiers
 	 */
-	enumerateDevices(): Promise<
-		Result<Device[], RecorderServiceError>
-	>;
+	enumerateDevices(): Promise<Result<Device[], RecorderServiceError>>;
 
 	/**
 	 * Start a new recording session
