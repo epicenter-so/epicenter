@@ -69,6 +69,7 @@ Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The co
 | Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
 |---------|---------------|------------------------|-------------------------|----------------------|-------------------|
 | `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `whisper-large-v3` (Groq) | $0.111 | $1.11/month | $3.33/month | $9.99/month | $15-30/month |
 | `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
 | Local | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
 
