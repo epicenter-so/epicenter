@@ -6,7 +6,7 @@ export function createTextServiceExtension(): TextService {
 		copyToClipboard: (text) =>
 			tryAsync({
 				try: () => navigator.clipboard.writeText(text),
-				mapErr: (error) =>
+				catch: (error) =>
 					TextServiceErr({
 						message: 'Unable to copy to clipboard',
 						context: { text },
@@ -21,7 +21,7 @@ export function createTextServiceExtension(): TextService {
 					await navigator.clipboard.writeText(text);
 					return writeTextToCursor(text);
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					TextServiceErr({
 						message: 'Unable to write text at cursor position',
 						context: { text },

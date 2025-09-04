@@ -11,7 +11,7 @@ export function createTextServiceDesktop(): TextService {
 		copyToClipboard: (text) =>
 			tryAsync({
 				try: () => writeText(text),
-				mapErr: (error) =>
+				catch: (error) =>
 					TextServiceErr({
 						message:
 							'There was an error copying to the clipboard using the Tauri Clipboard Manager API. Please try again.',
@@ -23,7 +23,7 @@ export function createTextServiceDesktop(): TextService {
 		writeToCursor: async (text) =>
 			tryAsync({
 				try: () => invoke<void>('write_text', { text }),
-				mapErr: (error) =>
+				catch: (error) =>
 					TextServiceErr({
 						message:
 							'There was an error writing the text. Please try pasting manually with Cmd/Ctrl+V.',

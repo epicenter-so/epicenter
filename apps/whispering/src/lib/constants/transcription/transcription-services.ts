@@ -47,7 +47,7 @@ export const TRANSCRIPTION_SERVICE_IDS = [
 	// 'owhisper',
 ] as const;
 
-type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
+export type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
 
 type BaseTranscriptionService = {
 	id: TranscriptionServiceId;

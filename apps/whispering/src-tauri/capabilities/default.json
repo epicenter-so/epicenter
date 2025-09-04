@@ -27,6 +27,7 @@
     "fs:allow-create",
     "fs:allow-mkdir",
     "fs:allow-remove",
+    "fs:allow-stat",
     "dialog:allow-open",
     {
       "identifier": "fs:scope",
@@ -56,7 +57,6 @@
     "aptabase:allow-track-event",
     "macos-permissions:default",
     "shell:default",
-    "shell:allow-execute",
     {
       "identifier": "shell:allow-execute",
       "allow": [
@@ -65,7 +65,9 @@
           "cmd": "cmd",
           "args": [
             "/c",
-            "ffmpeg -version"
+            {
+              "validator": ".*"
+            }
           ]
         },
         {
@@ -73,14 +75,39 @@
           "cmd": "sh",
           "args": [
             "-c",
-            "ffmpeg -version"
+            {
+              "validator": ".*"
+            }
           ]
         },
         {
           "name": "open",
           "cmd": "open",
+          "args": true
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "cmd",
+          "cmd": "cmd",
           "args": [
-            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+            "/c",
+            {
+              "validator": ".*"
+            }
+          ]
+        },
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            {
+              "validator": ".*"
+            }
           ]
         }
       ]

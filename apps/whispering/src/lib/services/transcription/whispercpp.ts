@@ -25,7 +25,6 @@ export function createWhisperCppTranscriptionService() {
 				temperature: string;
 				outputLanguage: Settings['transcription.outputLanguage'];
 				modelPath: string;
-				useGpu: boolean;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation
@@ -44,7 +43,7 @@ export function createWhisperCppTranscriptionService() {
 			// Check if model file exists
 			const { data: isExists } = await tryAsync({
 				try: () => exists(options.modelPath),
-				mapErr: () => Ok(false),
+				catch: () => Ok(false),
 			});
 
 			if (!isExists) {
@@ -87,11 +86,10 @@ export function createWhisperCppTranscriptionService() {
 						modelPath: options.modelPath,
 						language:
 							options.outputLanguage === 'auto' ? null : options.outputLanguage,
-						useGpu: options.useGpu,
 						prompt: options.prompt,
 						temperature: Number.parseFloat(options.temperature),
 					}),
-				mapErr: (unknownError) => {
+				catch: (unknownError) => {
 					const result = WhisperCppErrorType(unknownError);
 					if (result instanceof type.errors) {
 						return WhisperingErr({

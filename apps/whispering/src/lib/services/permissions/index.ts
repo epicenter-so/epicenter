@@ -33,7 +33,7 @@ function createPermissionsService(): PermissionsService {
 						);
 						return await checkAccessibilityPermission();
 					},
-					mapErr: (error) =>
+					catch: (error) =>
 						PermissionsServiceErr({
 							message: `Failed to check accessibility permissions: ${extractErrorMessage(error)}`,
 							cause: error,
@@ -51,7 +51,7 @@ function createPermissionsService(): PermissionsService {
 						);
 						return await requestAccessibilityPermission();
 					},
-					mapErr: (error) =>
+					catch: (error) =>
 						PermissionsServiceErr({
 							message: `Failed to request accessibility permissions: ${extractErrorMessage(error)}`,
 							cause: error,
@@ -71,7 +71,7 @@ function createPermissionsService(): PermissionsService {
 						);
 						return await checkMicrophonePermission();
 					},
-					mapErr: (error) =>
+					catch: (error) =>
 						PermissionsServiceErr({
 							message: `Failed to check microphone permissions: ${extractErrorMessage(error)}`,
 							cause: error,
@@ -89,7 +89,7 @@ function createPermissionsService(): PermissionsService {
 						);
 						return await requestMicrophonePermission();
 					},
-					mapErr: (error) =>
+					catch: (error) =>
 						PermissionsServiceErr({
 							message: `Failed to request microphone permissions: ${extractErrorMessage(error)}`,
 							cause: error,

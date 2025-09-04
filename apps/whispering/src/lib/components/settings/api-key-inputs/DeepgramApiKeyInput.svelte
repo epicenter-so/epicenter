@@ -1,6 +1,6 @@
 <script lang="ts">
     import { LabeledInput } from '$lib/components/labeled/index.js';
-    import { Button } from '@repo/ui/button';
+    import { Link } from '@repo/ui/link';
     import { settings } from '$lib/stores/settings.svelte';
 </script>
 
@@ -16,23 +16,19 @@
 >
     {#snippet description()}
         <p class="text-muted-foreground text-sm">
-            You can find your API key in your <Button
-                variant="link"
-                class="px-0.3 py-0.2 h-fit"
+            You can find your API key in your <Link
                 href="https://console.deepgram.com/project"
                 target="_blank"
                 rel="noopener noreferrer"
             >
                 Deepgram Console
-            </Button>. Make sure you have <Button
-                variant="link"
-                class="px-0.3 py-0.2 h-fit"
+            </Link>. Make sure you have <Link
                 href="https://console.deepgram.com/billing"
                 target="_blank"
                 rel="noopener noreferrer"
             >
                 credits
-            </Button>
+            </Link>
             available.
         </p>
     {/snippet}

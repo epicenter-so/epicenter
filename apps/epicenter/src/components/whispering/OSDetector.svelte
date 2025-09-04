@@ -18,25 +18,25 @@
       if (userAgent.includes('arm') || navigator.userAgent.includes('Apple')) {
         platform = 'macOS (Apple Silicon)';
         downloadUrl = `https://github.com/epicenter-so/epicenter/releases/download/v${VERSIONS.whispering}/Whispering_${VERSIONS.whispering}_aarch64.dmg`;
-        downloadText = 'Download for macOS';
+        downloadText = 'Download Whispering for macOS';
       } else {
         platform = 'macOS (Intel)';
         downloadUrl = `https://github.com/epicenter-so/epicenter/releases/download/v${VERSIONS.whispering}/Whispering_${VERSIONS.whispering}_x64.dmg`;
-        downloadText = 'Download for macOS';
+        downloadText = 'Download Whispering for macOS';
       }
     } else if (userAgent.includes('win')) {
       platform = 'Windows';
       downloadUrl = `https://github.com/epicenter-so/epicenter/releases/download/v${VERSIONS.whispering}/Whispering_${VERSIONS.whispering}_x64_en-US.msi`;
-      downloadText = 'Download for Windows';
+      downloadText = 'Download Whispering for Windows';
     } else if (userAgent.includes('linux')) {
       platform = 'Linux';
       // For Linux, we'll redirect to releases page since there's no direct download
       downloadUrl = 'https://github.com/epicenter-so/epicenter/releases';
-      downloadText = 'Download for Linux';
+      downloadText = 'Download Whispering for Linux';
     } else {
       // Default to releases page
       downloadUrl = 'https://github.com/epicenter-so/epicenter/releases';
-      downloadText = 'Download';
+      downloadText = 'Download Whispering';
     }
   });
 </script>

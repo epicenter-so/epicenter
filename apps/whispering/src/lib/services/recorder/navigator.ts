@@ -1,4 +1,4 @@
-import { TIMESLICE_MS } from '$lib/constants/audio';
+import { TIMESLICE_MS, type CancelRecordingResult, type WhisperingRecordingState } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
 	cleanupRecordingStream,
@@ -6,12 +6,11 @@ import {
 	getRecordingStream,
 } from '../device-stream';
 import type {
+	NavigatorRecordingParams,
 	RecorderService,
 	RecorderServiceError,
-	StartRecordingParams,
 } from './types';
 import { RecorderServiceErr } from './types';
-import type { CancelRecordingResult } from '$lib/constants/audio';
 import type {
 	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
@@ -27,14 +26,14 @@ type ActiveRecording = {
 	recordedChunks: Blob[];
 };
 
-export function createWebRecorderService(): RecorderService {
+export function createNavigatorRecorderService(): RecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
-		getCurrentRecordingId: async (): Promise<
-			Result<string | null, RecorderServiceError>
+		getRecorderState: async (): Promise<
+			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			return Ok(activeRecording?.recordingId || null);
+			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
 
 		enumerateDevices: async () => {
@@ -50,19 +49,9 @@ export function createWebRecorderService(): RecorderService {
 		},
 
 		startRecording: async (
-			params: StartRecordingParams,
+			{ selectedDeviceId, recordingId, bitrateKbps }: NavigatorRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
-			// Web implementation only handles web params
-			if (params.platform !== 'web') {
-				return RecorderServiceErr({
-					message: 'Web recorder received non-web parameters',
-					context: { params },
-					cause: undefined,
-				});
-			}
-
-			const { selectedDeviceId, recordingId, bitrateKbps } = params;
 			// Ensure we're not already recording
 			if (activeRecording) {
 				return RecorderServiceErr({
@@ -96,7 +85,7 @@ export function createWebRecorderService(): RecorderService {
 					new MediaRecorder(stream, {
 						bitsPerSecond: Number(bitrateKbps) * 1000,
 					}),
-				mapErr: (error) =>
+				catch: (error) =>
 					RecorderServiceErr({
 						message:
 							'Failed to initialize the audio recorder. This could be due to unsupported audio settings, microphone conflicts, or browser limitations. Please check your microphone is working and try adjusting your audio settings.',
@@ -168,7 +157,7 @@ export function createWebRecorderService(): RecorderService {
 						});
 						recording.mediaRecorder.stop();
 					}),
-				mapErr: (error) =>
+				catch: (error) =>
 					RecorderServiceErr({
 						message:
 							'Failed to properly stop and save the recording. This might be due to corrupted audio data, insufficient storage space, or a browser issue. Your recording data may be lost.',
@@ -223,3 +212,9 @@ export function createWebRecorderService(): RecorderService {
 		},
 	};
 }
+
+/**
+ * Navigator recorder service that uses the MediaRecorder API.
+ * Available in both browser and desktop environments.
+ */
+export const NavigatorRecorderServiceLive = createNavigatorRecorderService();

@@ -7,6 +7,7 @@
 		MistralApiKeyInput,
 		DeepgramApiKeyInput,
 		OpenAiApiKeyInput,
+		OpenRouterApiKeyInput,
 	} from '$lib/components/settings';
 	import { Separator } from '@repo/ui/separator';
 </script>
@@ -25,6 +26,7 @@
 	<Separator />
 
 	<OpenAiApiKeyInput />
+	<OpenRouterApiKeyInput />
 	<AnthropicApiKeyInput />
 	<GroqApiKeyInput />
 	<GoogleApiKeyInput />

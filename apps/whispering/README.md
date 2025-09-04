@@ -2,7 +2,7 @@
   <a href="https://whispering.epicenter.so">
     <img width="180" src="./src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
-  <h1 align="center">Whispering</h1>
+  <h1 align="center">Epicenter Whispering</h1>
   <p align="center">Press shortcut → speak → get text. Free and open source ❤️</p>
 </p>
 
@@ -36,13 +36,21 @@
 
 Whispering is an open-source speech-to-text application. Press a keyboard shortcut, speak, and your words will transcribe, transform, then copy and paste at the cursor.
 
-I really like hands-free voice dictation. For years, I relied on transcription tools that were *almost* good, but they were all closed-source. Even those claiming to be “local” or “on-device” were still black boxes that left me wondering where my audio really went.
+I really like hands-free voice dictation. For years, I relied on transcription tools that were *almost* good, but they were all closed-source. Even those claiming to be "local" or "on-device" were still black boxes that left me wondering where my audio really went.
 
-So I built Whispering. It’s open-source, local-first, and most importantly, transparent with your data. ​​Your data is stored locally on your device, and your audio goes directly from your machine to a local provider (Speaches, owhisper, etc.) or your chosen cloud provider (Groq, OpenAI, ElevenLabs, etc.) without any middleman or vendor lock-in. For me, the features were good enough that I left my paid tools behind (I used Superwhisper and Wispr Flow before).
+So I built Whispering. It's open-source, local-first, and most importantly, transparent with your data. ​​Your data is stored locally on your device, and your audio goes directly from your machine to a local provider (Whisper C++, Speaches, etc.) or your chosen cloud provider (Groq, OpenAI, ElevenLabs, etc.) without any middleman or vendor lock-in. For me, the features were good enough that I left my paid tools behind (I used Superwhisper and Wispr Flow before).
 
 Productivity apps should be open-source and transparent with your data, but they also need to match the UX of paid, closed-software alternatives. I hope Whispering is near that point. I use it for several hours a day, from coding to thinking out loud while carrying pizza boxes back from the office.
 
-Here’s an overview:
+> [!TIP]
+> Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
+> [!NOTE]
+> The terms **Epicenter Whispering** and **Whispering** are interchangeable and refer to the same app.
+> - *Epicenter Whispering* emphasizes the app's place in the larger ecosystem.
+> - *Whispering* may be used for brevity and/or to focus on the standalone app.
+
+Here's an overview:
 
 <div align="center">
   <a href="https://www.youtube.com/watch?v=1jYgBMrfVZs">
@@ -52,7 +60,7 @@ Here’s an overview:
   <p><em>Note: We recently added support for Whisper C++, which isn't included in the video. For setup, see the docs below.</em></p>
 </div>
 
-and [here’s how I personally am using it with Claude Code these days](https://www.youtube.com/watch?v=tpix588SeiQ).
+and [here's how I personally am using it with Claude Code these days](https://www.youtube.com/watch?v=tpix588SeiQ).
 
 There are plenty of transcription apps out there, each with their own strengths. Whispering has a few tricks up its sleeve, like a voice-activated mode for truly hands-free operation (no button holding), and customizable AI transformations with any prompt/model. The space is full of great ideas, but I just wanted to add some extra competition from the OSS ecosystem.
 
@@ -67,8 +75,6 @@ Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The co
 
 We're hoping that together in the open-source, local-first community, we can build something better than any closed-source alternative. The code is open-source because I believe that fundamental tools shouldn't require trusting a black box. Companies pivot, get acquired, or shut down. But open source is forever. ❤️
 
-> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, we recommend using a dedicated recording app. Check out our friends at [Hyprnote](https://github.com/fastrepl/hyprnote)
-
 ## Install Whispering
 
 Set up Whispering and be ready to transcribe in about two minutes.
@@ -82,9 +88,10 @@ Set up Whispering and be ready to transcribe in about two minutes.
 
 | Architecture | Download | Requirements |
 |-------------|----------|--------------|
-| **Apple Silicon** | [Whispering_7.3.0_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_aarch64.dmg) | M1/M2/M3/M4 Macs |
-| **Intel** | [Whispering_7.3.0_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64.dmg) | Intel-based Macs |
+| **Apple Silicon** | [Whispering_7.4.0_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_aarch64.dmg) | M1/M2/M3/M4 Macs |
+| **Intel** | [Whispering_7.4.0_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_x64.dmg) | Intel-based Macs |
 
+> [!TIP]
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
@@ -108,8 +115,8 @@ Set up Whispering and be ready to transcribe in about two minutes.
 
 | Installer Type | Download | Description |
 |---------------|----------|-------------|
-| **MSI Installer** | [Whispering_7.3.0_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64_en-US.msi) | Recommended Standard Windows installer |
-| **EXE Installer** | [Whispering_7.3.0_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64-setup.exe) | Alternative installer option |
+| **MSI Installer** | [Whispering_7.4.0_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_x64_en-US.msi) | Recommended Standard Windows installer |
+| **EXE Installer** | [Whispering_7.4.0_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_x64-setup.exe) | Alternative installer option |
 
 #### Installation
 
@@ -129,33 +136,34 @@ Whispering will appear in your Start Menu when complete.
 
 | Package Format | Download | Compatible With |
 |---------------|----------|-----------------|
-| **AppImage** | [Whispering_7.3.0_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.AppImage) | All Linux distributions |
-| **DEB Package** | [Whispering_7.3.0_amd64.deb](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
-| **RPM Package** | [Whispering-7.3.0-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering-7.3.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
+| **AppImage** | [Whispering_7.4.0_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_amd64.AppImage) | All Linux distributions |
+| **DEB Package** | [Whispering_7.4.0_amd64.deb](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
+| **RPM Package** | [Whispering-7.4.0-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering-7.4.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
 
 #### Quick Install Commands
 
 **AppImage (Universal)**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.AppImage
-chmod +x Whispering_7.3.0_amd64.AppImage
-./Whispering_7.3.0_amd64.AppImage
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_amd64.AppImage
+chmod +x Whispering_7.4.0_amd64.AppImage
+./Whispering_7.4.0_amd64.AppImage
 ```
 
 **Debian/Ubuntu**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.deb
-sudo dpkg -i Whispering_7.3.0_amd64.deb
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering_7.4.0_amd64.deb
+sudo dpkg -i Whispering_7.4.0_amd64.deb
 ```
 
 **Fedora/RHEL**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering-7.3.0-1.x86_64.rpm
-sudo rpm -i Whispering-7.3.0-1.x86_64.rpm
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.4.0/Whispering-7.4.0-1.x86_64.rpm
+sudo rpm -i Whispering-7.4.0-1.x86_64.rpm
 ```
 
 </details>
 
+> [!TIP]
 > **Links not working?** Find all downloads at [GitHub Releases](https://github.com/epicenter-so/epicenter/releases/latest)
 
 <details>
@@ -167,85 +175,83 @@ sudo rpm -i Whispering-7.3.0-1.x86_64.rpm
 
 No installation needed! Works in any modern browser.
 
-> **Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
+> [!NOTE]
+> The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
-### 2️⃣ Choose Your Transcription Method & Test
+### 2️⃣ Choose Your Transcription Method
 
-You have two options: **Local** (completely private) or **Cloud** (faster & easier).
+Whispering offers two approaches to transcription. Pick the one that fits your needs:
 
 <details>
 <summary><strong>🏠 Option A: Local Transcription (Whisper C++)</strong></summary>
 
-> 💡 **Why local?** 100% private, runs offline, no API costs, works on any hardware
+**Best for:** Complete privacy, offline use, no ongoing costs
 
-<details>
-<summary><strong>Install FFmpeg</strong></summary>
+Your audio never leaves your device. Works without internet. Free forever.
 
-Whisper C++ needs FFmpeg to convert audio to 16kHz format:
+#### Setup Steps
 
-**🍎 macOS:**
-```bash
-brew install ffmpeg
-```
+**First, download a model (required):**
 
-**🪟 Windows:**
-```powershell
-# Using Chocolatey
-choco install ffmpeg
+1. Open Whispering
+2. Click **Settings** (⚙️) → **Transcription** 
+3. Select **Whisper C++** from the dropdown
+4. Choose a model (start with `Small` for good balance of speed and accuracy)
+5. Click **Download** button next to the model
+6. Wait for download to complete (may take a few minutes)
+7. Verify the model shows as **activated**
 
-# Or using Scoop
-scoop install ffmpeg
-```
-
-**🐧 Linux:**
-```bash
-# Ubuntu/Debian
-sudo apt install ffmpeg
-
-# Fedora
-sudo dnf install ffmpeg
-
-# Arch
-sudo pacman -S ffmpeg
-```
-
-</details>
+> [!IMPORTANT]
+> You must download a model before you can transcribe.
 
 #### Test Your Setup
 
-1. Open Whispering
-2. Click **Settings** (⚙️) → **Transcription**
-3. Select **Whisper C++** from the dropdown
-4. Choose a model (start with `Small`)
-5. Click **Download** button next to the model → Wait for download to complete
-6. Make sure the model shows as **activated**
-7. Click record and say "Testing Whispering"
+1. Click the record button or use your keyboard shortcut
+2. Say "Testing local transcription"
+3. Press the stop record button and wait for processing to complete
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
+
+> [!NOTE]
+> Local transcription is slower than cloud options but provides complete privacy. Processing speed depends on your hardware and the model size you chose.
 
 </details>
 
 <details>
 <summary><strong>☁️ Option B: Cloud Transcription (Groq)</strong></summary>
 
-> 💡 **Why Groq?** Fastest transcription, super accurate, generous free tier, as cheap as $0.02/hour
+**Best for:** Fast setup, near-instant results, high accuracy
+
+I personally use Groq for most of my transcriptions because it's incredibly fast and accurate.
+
+> [!TIP]
+> **Why Groq?** Fastest transcription models, super accurate, generous free tier, and unbeatable pricing (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
 
 #### Get Your Free API Key
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
-2. Sign up (free, no credit card) → Create API key → Copy it
+2. Sign up (free, no credit card required) → Create API key → Copy it
 
-#### Test Your Setup
+#### Setup Steps
 
 1. Open Whispering
 2. Click **Settings** (⚙️) → **Transcription**
-3. Select **Groq** → Paste your API key
-4. Choose a model (`distil-whisper-large-v3-en` is fastest)
-5. Click record and say "Testing Whispering"
+3. Select **Groq** from the dropdown
+4. Paste your API key in the API key field
+5. Choose a model (`distil-whisper-large-v3-en` is fastest and cheapest)
+
+#### Test Your Setup
+
+1. Click the record button or use your keyboard shortcut
+2. Say "Testing cloud transcription"
+3. Results appear almost instantly
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
+
+> [!NOTE]
+> Cloud transcription requires an internet connection and sends your audio to Groq's servers. Your API key ensures the data goes directly from you to Groq with no middleman.
 
 </details>
 
@@ -689,7 +695,7 @@ Adding a new transcription service involves four main steps:
          // Make the API call
          const { data, error } = await tryAsync({
            try: () => yourServiceClient.transcribe(audioBlob, options),
-           mapErr: (error) => WhisperingErr({
+           catch: (error) => WhisperingErr({
              title: '❌ Transcription Failed',
              description: error.message,
              action: { type: 'more-details', error },
@@ -778,10 +784,10 @@ Adding a new transcription service involves four main steps:
          label: model.name,
          ...model,
        }))}
-       selected={settings.value['transcription.yourservice.model']}
-       onSelectedChange={(selected) => {
-         settings.updateKey('transcription.yourservice.model', selected);
-       }}
+       bind:selected={
+         () => settings.value['transcription.yourservice.model'],
+         (selected) => settings.updateKey('transcription.yourservice.model', selected)
+       }
        renderOption={renderModelOption}
      />
      <YourServiceApiKeyInput />
@@ -808,15 +814,13 @@ Adding a new transcription service involves four main steps:
    >
      {#snippet description()}
        <p class="text-muted-foreground text-sm">
-         You can find your YourService API key in your <Button
-           variant="link"
-           class="px-0.3 py-0.2 h-fit"
+         You can find your YourService API key in your <Link
            href="https://yourservice.com/api-keys"
            target="_blank"
            rel="noopener noreferrer"
          >
            YourService dashboard
-         </Button>.
+         </Link>.
        </p>
      {/snippet}
    </LabeledInput>
@@ -865,7 +869,7 @@ AI transformations in Whispering use completion services that can be integrated 
          // Make the completion request
          const { data, error } = await tryAsync({
            try: () => yourProviderClient.complete(options),
-           mapErr: (error) => WhisperingErr({
+           catch: (error) => WhisperingErr({
              title: '❌ Completion Failed',
              description: error.message,
              action: { type: 'more-details', error },
@@ -950,7 +954,7 @@ if (error.status === 401) {
 // Use with tryAsync for automatic error mapping
 const { data, error } = await tryAsync({
   try: () => apiClient.makeRequest(),
-  mapError: (error) => WhisperingErr({
+  catch: (error) => WhisperingErr({
     title: '❌ Request Failed',
     description: error.message,
     action: { type: 'more-details', error },
