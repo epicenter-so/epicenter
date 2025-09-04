@@ -49,10 +49,7 @@ export function createGroqTranscriptionService() {
 				});
 			}
 
-			if (
-				!options.apiKey.startsWith('gsk_') &&
-				!options.apiKey.startsWith('xai-')
-			) {
+			if (!options.apiKey.startsWith('gsk_') && !options.apiKey.startsWith('xai-')) {
 				return WhisperingErr({
 					title: '🔑 Invalid API Key Format',
 					description:
